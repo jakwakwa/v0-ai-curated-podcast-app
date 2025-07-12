@@ -1,7 +1,7 @@
-import { createClient } from "@/utils/supabase/server"
+import prisma from "./prisma"
+import { auth } from "@/auth"
 import type { Podcast, CuratedCollection } from "./types"
 
-// Mock data for podcasts until that table exists
 const mockPodcasts: Podcast[] = [
   {
     id: "1",
@@ -22,50 +22,38 @@ const mockPodcasts: Podcast[] = [
 ]
 
 export async function getPodcasts(): Promise<Podcast[]> {
-  // This remains mocked for now
   await new Promise((resolve) => setTimeout(resolve, 100))
   return mockPodcasts
 }
 
 export async function getCuratedCollections(): Promise<CuratedCollection[]> {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const session = await auth()
+  if (!session?.user?.id) {
     return []
   }
 
-  const { data, error } = await supabase
-    .from("collections")
-    .select(
-      `
-      id,
-      name,
-      status,
-      sources (
-        id,
-        name,
-        url,
-        image_url
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+  try {
+    const collections = await prisma.collection.findMany({
+      where: {
+        userId: session.user.id,
+      },
+      include: {
+        sources: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
 
-  if (error) {
-    console.error("Error fetching collections:", error)
+    return collections.map((collection) => ({
+      ...collection,
+      sources: collection.sources.map((source) => ({
+        ...source,
+        imageUrl: source.imageUrl ?? "",
+      })),
+    }))
+  } catch (error) {
+    console.error("Error fetching collections with Prisma:", error)
     return []
   }
-
-  // Map the data to the CuratedCollection type
-  return data.map((collection) => ({
-    ...collection,
-    sources: collection.sources.map((source) => ({
-      ...source,
-      imageUrl: source.image_url ?? "",
-    })),
-  }))
 }

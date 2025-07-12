@@ -4,77 +4,84 @@ This is a Next.js application designed to automate the generation of weekly podc
 
 ## Core Features
 
-- **User Authentication**: Secure sign-up and login functionality powered by Supabase Auth.
+- **User Authentication**: Secure sign-up and login functionality powered by NextAuth.js.
+- **Type-Safe Database Access**: Data management with Prisma ORM and a PostgreSQL database.
 - **Curation Management**: Users can create "curations" by selecting up to 5 Spotify shows.
 - **Dedicated Build Workflow**: A focused, single-page interface for building and saving new curations.
 - **Podcast Dashboard**: A central hub to view saved curations and previously generated podcast episodes.
-- **AI Pipeline Integration**: A backend designed to trigger and manage external AI workflows for content summarization and audio synthesis.
 - **Protected Routes**: Middleware ensures that only authenticated users can access the application's core features.
 
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Authentication**: [Supabase Auth](https://supabase.com/auth)
+- **Authentication**: [NextAuth.js (Auth.js)](https://next-auth.js.org/)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)
-- **Database**: [Supabase (PostgreSQL)](https://supabase.com/database)
 - **Deployment**: [Vercel](https://vercel.com/)
 
 ## Getting Started
 
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+Follow these instructions to get a copy of the project up and running on your local machine.
 
 ### Prerequisites
 
 - Node.js (v18 or later)
 - npm, yarn, or pnpm
-- A Supabase account and project.
+- A PostgreSQL database. You can get one for free from providers like Supabase or Neon.
 
 ### Installation
 
-1.  **Clone the repository:**
+1.  **Clone the repository and install dependencies:**
     \`\`\`bash
     git clone <your-repository-url>
     cd ai-curated-podcast-app
-    \`\`\`
-
-2.  **Install dependencies:**
-    \`\`\`bash
     npm install
+    npm install next-auth@beta bcryptjs
+    npm install -D @types/bcryptjs
+    npm install prisma --save-dev
     \`\`\`
 
-3.  **Set up environment variables:**
+2.  **Set up environment variables:**
 
-    Create a file named \`.env.local\` in the root of your project. Add your Supabase project credentials from your project's API settings. You will also need to generate a **Service Role Key** from your Supabase project's API settings for the seed script.
-
-    **Warning**: The service role key has admin privileges and should be kept secret. Do not expose it on the client side.
+    Create a file named `.env.local` in the root of your project.
+    -   Get your PostgreSQL database **Connection String**.
+    -   For the `DATABASE_URL`, ensure you are using a pooler-ready string (e.g., port 6543 for Supabase).
+    -   For the `DIRECT_URL`, use the direct connection string (e.g., port 5432 for Supabase). [^2]
+    -   Generate a secret for NextAuth.js using `openssl rand -base64 32`.
 
     \`\`\`env
-    # Found in your Supabase project's API settings
-    NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+    # Your PostgreSQL connection strings
+    DATABASE_URL="postgres://..."
+    DIRECT_URL="postgres://..."
 
-    # Generated in your Supabase project's API settings (for seeding only)
-    SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+    # NextAuth.js secret
+    # You can generate one with `openssl rand -base64 32`
+    AUTH_SECRET="your-secret-here"
+    AUTH_URL="http://localhost:3000"
     \`\`\`
 
-4.  **Set up the database schema:**
+3.  **Push the database schema:**
 
-    -   Go to your Supabase project's SQL Editor.
-    -   Copy the entire content of \`scripts/schema.sql\` and run it. This will create the necessary tables and row-level security policies.
+    This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
 
-5.  **Seed the database (optional but recommended):**
+    \`\`\`bash
+    npx prisma db push
+    \`\`\`
+
+4.  **Seed the database (optional but recommended):**
 
     Run the seed script from your terminal to populate the database with a test user and sample data.
 
     \`\`\`bash
-    node scripts/seed.mjs
+    node --env-file=.env.local scripts/seed.mjs
     \`\`\`
 
     After the script runs, you can log in with the test user:
-    -   **Email**: \`test.user@example.com\`
-    -   **Password**: \`password123\`
+    -   **Email**: `test.user@example.com`
+    -   **Password**: `password123`
 
-6.  **Run the development server:**
+5.  **Run the development server:**
     \`\`\`bash
     npm run dev
     \`\`\`

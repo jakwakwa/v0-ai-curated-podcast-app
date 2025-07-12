@@ -1,24 +1,20 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { createClient } from "@/utils/supabase/middleware"
+import { auth } from "@/auth"
+import { NextResponse } from "next/server"
 
-export async function middleware(request: NextRequest) {
-  const { supabase, response } = createClient(request)
+export default auth((req) => {
+  const isLoggedIn = !!req.auth
+  const { nextUrl } = req
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session && request.nextUrl.pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", request.url))
+  if (!isLoggedIn && nextUrl.pathname !== "/login") {
+    return NextResponse.redirect(new URL("/login", nextUrl))
   }
 
-  if (session && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url))
+  if (isLoggedIn && nextUrl.pathname === "/login") {
+    return NextResponse.redirect(new URL("/", nextUrl))
   }
+})
 
-  return response
-}
-
+// Optionally, don't invoke Middleware on some paths
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }
