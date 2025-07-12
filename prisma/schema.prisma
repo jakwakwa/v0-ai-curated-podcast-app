@@ -10,77 +10,77 @@ datasource db {
 }
 
 model User {
-    id            String         @id @default(cuid())
-    name          String?
-    email         String         @unique
-    password      String
-    image         String?
-    emailVerified DateTime?
-    emailNotifications Boolean @default(true) @map("email_notifications")
-    inAppNotifications Boolean @default(true) @map("in_app_notifications")
-    userCurationProfiles   UserCurationProfile[] // Renamed from 'collections'
-    notifications Notification[]
-    subscriptions Subscription[]
-    feedback      EpisodeFeedback[] // Added for feedback relation
+    id                   String                @id @default(cuid())
+    name                 String?
+    email                String                @unique
+    password             String
+    image                String?
+    emailVerified        DateTime?
+    emailNotifications   Boolean               @default(true) @map("email_notifications")
+    inAppNotifications   Boolean               @default(true) @map("in_app_notifications")
+    userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
+    notifications        Notification[]
+    subscriptions        Subscription[]
+    feedback             EpisodeFeedback[] // Added for feedback relation
 
     @@map("users")
 }
 
 model UserCurationProfile {
-    id          String    @id @default(uuid())
-    userId      String    @map("user_id")
-    name        String
-    status      String    @default("Draft")
-    audioUrl    String?   @map("audio_url")
-    imageUrl    String?   @map("image_url") // Added for collection image
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("updated_at")
-    generatedAt DateTime? @map("generated_at")
+    id                 String    @id @default(uuid())
+    userId             String    @map("user_id")
+    name               String
+    status             String    @default("Draft")
+    audioUrl           String?   @map("audio_url")
+    imageUrl           String?   @map("image_url") // Added for collection image
+    createdAt          DateTime  @default(now()) @map("created_at")
+    updatedAt          DateTime  @updatedAt @map("updated_at")
+    generatedAt        DateTime? @map("generated_at")
     lastGenerationDate DateTime? @map("last_generation_date")
     nextGenerationDate DateTime? @map("next_generation_date")
-    isActive    Boolean   @default(true) @map("is_active")
+    isActive           Boolean   @default(true) @map("is_active")
 
     // Bundle selection (read-only) or custom selection (editable)
-    isBundleSelection Boolean @default(false) @map("is_bundle_selection")
-    selectedBundleId  String? @map("selected_bundle_id")
+    isBundleSelection Boolean        @default(false) @map("is_bundle_selection")
+    selectedBundleId  String?        @map("selected_bundle_id")
     selectedBundle    CuratedBundle? @relation(fields: [selectedBundleId], references: [id])
 
     // For custom selections (editable)
-    sources     Source[]
-    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    episodes    Episode[]
+    sources  Source[]
+    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    episodes Episode[]
 
     @@unique([userId]) // One collection per user
     @@map("user_curation_profiles")
 }
 
 model Source {
-    id           String     @id @default(uuid())
-    userCurationProfileId String?     @map("user_curation_profile_id") // Renamed from 'collectionId'
-    name         String
-    url          String
-    imageUrl     String?    @map("image_url") // Added for source image
-    createdAt    DateTime   @default(now()) @map("created_at")
+    id                    String               @id @default(uuid())
+    userCurationProfileId String?              @map("user_curation_profile_id") // Renamed from 'collectionId'
+    name                  String
+    url                   String
+    imageUrl              String?              @map("image_url") // Added for source image
+    createdAt             DateTime             @default(now()) @map("created_at")
     userCurationProfile   UserCurationProfile? @relation(fields: [userCurationProfileId], references: [id], onDelete: SetNull) // Changed onDelete to SetNull
-    episodes     Episode[]
+    episodes              Episode[]
 
     @@map("sources")
 }
 
 model Episode {
-    id           String     @id @default(uuid())
-    title        String
-    description  String?
-    audioUrl     String
-    imageUrl     String?    @map("image_url") // Added for episode image
-    publishedAt  DateTime?
-    weekNr       DateTime?  @map("week_nr") // Added for data analysis and metrics
-    createdAt    DateTime   @default(now())
-    sourceId     String     @map("source_id")
-    source       Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-    userCurationProfileId String     @map("user_curation_profile_id")
+    id                    String              @id @default(uuid())
+    title                 String
+    description           String?
+    audioUrl              String
+    imageUrl              String?             @map("image_url") // Added for episode image
+    publishedAt           DateTime?
+    weekNr                DateTime?           @map("week_nr") // Added for data analysis and metrics
+    createdAt             DateTime            @default(now())
+    sourceId              String              @map("source_id")
+    source                Source              @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+    userCurationProfileId String              @map("user_curation_profile_id")
     userCurationProfile   UserCurationProfile @relation(fields: [userCurationProfileId], references: [id], onDelete: Cascade)
-    feedback     EpisodeFeedback[]
+    feedback              EpisodeFeedback[]
 
     @@map("episodes")
 }
@@ -91,8 +91,8 @@ model CuratedPodcast {
     name        String
     url         String
     description String?
-    imageUrl    String?  // Added for curated podcast image
-    category    String   // "Technology", "Business", "Science", "News"
+    imageUrl    String? // Added for curated podcast image
+    category    String // "Technology", "Business", "Science", "News"
     isActive    Boolean  @default(true)
     createdAt   DateTime @default(now())
 
@@ -105,14 +105,14 @@ model CuratedPodcast {
 // Pre-curated bundles (3 bundles, 5 shows each)
 model CuratedBundle {
     id          String   @id @default(uuid())
-    name        String   // "Tech Weekly", "Business Insights", "Science & Discovery"
+    name        String // "Tech Weekly", "Business Insights", "Science & Discovery"
     description String?
-    imageUrl    String?  // Added for curated bundle image
+    imageUrl    String? // Added for curated bundle image
     isActive    Boolean  @default(true)
     createdAt   DateTime @default(now())
 
     // Many-to-many with podcasts
-    bundlePodcasts CuratedBundlePodcast[]
+    bundlePodcasts       CuratedBundlePodcast[]
     // User Curation Profiles that selected this bundle
     userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
 
@@ -121,11 +121,11 @@ model CuratedBundle {
 
 // Junction table for bundle-podcast relationship
 model CuratedBundlePodcast {
-    id              String        @id @default(uuid())
-    bundleId        String        @map("bundle_id")
-    podcastId       String        @map("podcast_id")
-    bundle          CuratedBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-    podcast         CuratedPodcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+    id        String         @id @default(uuid())
+    bundleId  String         @map("bundle_id")
+    podcastId String         @map("podcast_id")
+    bundle    CuratedBundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+    podcast   CuratedPodcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
 
     @@unique([bundleId, podcastId])
     @@map("curated_bundle_podcasts")
@@ -135,7 +135,7 @@ model CuratedBundlePodcast {
 model Notification {
     id        String   @id @default(uuid())
     userId    String   @map("user_id")
-    type      String   // "episode_ready", "weekly_reminder"
+    type      String // "episode_ready", "weekly_reminder"
     message   String
     isRead    Boolean  @default(false)
     createdAt DateTime @default(now())
@@ -167,23 +167,23 @@ model Subscription {
 
 // Enum for feedback rating
 enum FeedbackRating {
-  THUMBS_UP
-  THUMBS_DOWN
-  NEUTRAL
+    THUMBS_UP
+    THUMBS_DOWN
+    NEUTRAL
 }
 
 // Episode Feedback model
 model EpisodeFeedback {
-  id          String       @id @default(uuid())
-  userId      String       @map("user_id")
-  episodeId   String       @map("episode_id")
-  rating      FeedbackRating
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+    id        String         @id @default(uuid())
+    userId    String         @map("user_id")
+    episodeId String         @map("episode_id")
+    rating    FeedbackRating
+    createdAt DateTime       @default(now()) @map("created_at")
+    updatedAt DateTime       @updatedAt @map("updated_at")
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  episode     Episode      @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, episodeId])
-  @@map("episode_feedback")
+    @@unique([userId, episodeId])
+    @@map("episode_feedback")
 }

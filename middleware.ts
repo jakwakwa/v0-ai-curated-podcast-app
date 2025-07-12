@@ -6,7 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/login(.*)",  // Login routes
   "/sign-in(.*)", // Clerk sign-in routes
   "/sign-up(.*)", // Clerk sign-up routes
-]); 
+]);
 
 export default clerkMiddleware((auth, req) => {
   // Protect all routes except explicitly public ones
