@@ -1,10 +1,19 @@
 import { Header } from "@/components/header"
 import { CurationBuilder } from "@/components/curation-builder"
 import { getCuratedCollections } from "@/lib/data"
+import type { CuratedCollection } from "@/lib/types"; // adjust path if needed
 
 export default async function BuildCurationPage() {
-  const collections = await getCuratedCollections()
+  let collections: CuratedCollection[] = []
+  try {
+    collections = await getCuratedCollections()
+  } catch (e) {
+    console.error("Error calling getCuratedCollections:", e)
+    collections = []
+  }
   const draftCollection = collections.find((c) => c.status === "Draft")
+
+  console.log("BuildCurationPage - draftCollection:", draftCollection);
 
   return (
     <div className="flex min-h-screen w-full flex-col">

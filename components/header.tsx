@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { User } from "next-auth"
 import { UserNav } from "./user-nav"
+import { useUser } from "@clerk/nextjs";
 
-export function Header({ user }: { user?: User | null }) {
+export function Header() {
+  const { user } = useUser();
+  console.log('Header user prop:', user);
   const pathname = usePathname()
 
   return (
@@ -40,11 +42,9 @@ export function Header({ user }: { user?: User | null }) {
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <div className="ml-auto flex-1 sm:flex-initial" />
         {user ? (
-          <UserNav user={user} />
+          <UserNav />
         ) : (
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
+          <Link href="/login">Login</Link>
         )}
       </div>
     </header>

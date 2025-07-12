@@ -2,8 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { ClerkProvider } from "@clerk/nextjs"
+import { ClientProviders } from "./client-providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,10 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-background font-sans antialiased">{children}</div>
-          <Toaster />
-        </ThemeProvider>
+        <ClerkProvider>
+          <ClientProviders>
+            <div className="min-h-screen bg-background font-sans antialiased">{children}</div>
+          </ClientProviders>
+        </ClerkProvider>
       </body>
     </html>
   )

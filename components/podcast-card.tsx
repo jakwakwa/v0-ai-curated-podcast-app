@@ -3,13 +3,16 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PlayCircle, Clock, Calendar } from "lucide-react"
 import type { Podcast } from "@/lib/types"
-import type { PodcastCardProps } from "./types" // Assuming PodcastCardProps is declared in a separate file
+
+interface PodcastCardProps {
+  podcast: Podcast;
+}
 
 export function PodcastCard({ podcast }: PodcastCardProps) {
   const getStatusBadgeVariant = (status: Podcast["status"]) => {
     switch (status) {
       case "Completed":
-        return "success"
+        return "outline"
       case "Processing":
         return "default"
       case "Failed":

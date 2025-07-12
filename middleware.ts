@@ -1,20 +1,13 @@
-import { auth } from "@/auth"
-import { NextResponse } from "next/server"
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth
-  const { nextUrl } = req
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-  if (!isLoggedIn && nextUrl.pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", nextUrl))
-  }
+export default clerkMiddleware();
 
-  if (isLoggedIn && nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", nextUrl))
-  }
-})
-
-// Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
-}
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
+};

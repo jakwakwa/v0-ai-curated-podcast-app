@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { AddSourceForm } from "./add-source-form"
 import { SourceList } from "./source-list"
 import { Button } from "./ui/button"
-import { saveCuration } from "@/app/actions"
+import { saveCuration, createDraftCollection } from "@/app/actions"
 import type { CuratedCollection } from "@/lib/types"
 import Link from "next/link"
 
@@ -26,9 +26,9 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
           <CardDescription>It looks like there's no draft collection to work on.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild>
-            <Link href="/">Return to Dashboard</Link>
-          </Button>
+          <form action={createDraftCollection}>
+            <Button type="submit">Create New Collection</Button>
+          </form>
         </CardContent>
       </Card>
     )
@@ -47,6 +47,7 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
           Add 5 Spotify shows to create a new collection. This collection will be used to generate your next podcast
           episode.
         </CardDescription>
+
       </CardHeader>
       <CardContent className="grid gap-6">
         <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / 5</div>
@@ -56,6 +57,12 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
       <CardFooter>
         <SaveCurationForm collectionId={collection.id} disabled={!canSave} />
       </CardFooter>
+      <CardContent>
+ 
+            <Link href={"/"}>Back to Dashboard</Link>
+    
+        </CardContent>
     </Card>
+    
   )
 }

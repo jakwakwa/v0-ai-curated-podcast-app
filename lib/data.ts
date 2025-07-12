@@ -1,59 +1,56 @@
-import prisma from "./prisma"
-import { auth } from "@/auth"
-import type { Podcast, CuratedCollection } from "./types"
-
-const mockPodcasts: Podcast[] = [
-  {
-    id: "1",
-    title: "Tech & Finance Weekly",
-    date: "July 12, 2025",
-    status: "Completed",
-    duration: "15:32",
-    audioUrl: "/placeholder.mp3",
-  },
-  {
-    id: "2",
-    title: "Science & Wellness Digest",
-    date: "July 5, 2025",
-    status: "Completed",
-    duration: "12:45",
-    audioUrl: "/placeholder.mp3",
-  },
-]
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import type { Podcast, CuratedCollection } from "@/lib/types";
 
 export async function getPodcasts(): Promise<Podcast[]> {
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  return mockPodcasts
+  // For demonstration, return dummy data
+  return [
+    {
+      id: "1",
+      title: "The AI Revolution in Healthcare",
+      date: "2023-10-26",
+      status: "Completed",
+      duration: "25:30",
+      audioUrl: "/podcast1.mp3",
+    },
+    {
+      id: "2",
+      title: "Sustainable Living in the 21st Century",
+      date: "2023-10-25",
+      status: "Processing",
+      duration: "28:15",
+      audioUrl: null,
+    },
+    {
+      id: "3",
+      title: "The Future of Remote Work",
+      date: "2023-10-24",
+      status: "Failed",
+      duration: "00:00",
+      audioUrl: null,
+    },
+  ];
 }
 
 export async function getCuratedCollections(): Promise<CuratedCollection[]> {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return []
+  const { userId } = await auth();
+
+  if (!userId) {
+    return [];
   }
 
-  try {
-    const collections = await prisma.collection.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      include: {
-        sources: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
+  const collections = await prisma.collection.findMany({
+    where: { userId: userId },
+    include: { sources: true },
+  });
+  console.log("getCuratedCollections - all collections for user:", collections);
 
-    return collections.map((collection) => ({
-      ...collection,
-      sources: collection.sources.map((source) => ({
-        ...source,
-        imageUrl: source.imageUrl ?? "",
-      })),
+  return collections.map(collection => ({
+    ...collection,
+    status: collection.status as "Draft" | "Saved",
+    sources: collection.sources.map(source => ({
+      ...source,
+      imageUrl: source.imageUrl || '',
     }))
-  } catch (error) {
-    console.error("Error fetching collections with Prisma:", error)
-    return []
-  }
+  }));
 }
