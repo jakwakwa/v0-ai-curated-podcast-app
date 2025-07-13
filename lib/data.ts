@@ -1,3 +1,5 @@
+"use server";
+
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import type { Podcast, CuratedCollection } from "@/lib/types";
@@ -45,12 +47,33 @@ export async function getCuratedCollections(): Promise<CuratedCollection[]> {
   });
 
 
-  return collections.map((collection: { status: string; sources: any[]; }) => ({
+  return collections.map((collection) => ({
     ...collection,
     status: collection.status as "Draft" | "Saved",
-    sources: collection.sources.map((source: { imageUrl: any; }) => ({
+    sources: collection.sources.map((source) => ({
       ...source,
       imageUrl: source.imageUrl || '',
-    }))
+    })),
   }));
+}
+
+export async function getEpisodes() {
+  const { userId } = await auth();
+  if (!userId) return [];
+  // Fetch episodes for collections owned by the user
+  const episodes = await prisma.episode.findMany({
+    orderBy: { publishedAt: "desc" },
+    include: {
+      collection: {
+        include: { sources: true },
+      },
+      source: true,
+    },
+    where: {
+      collection: {
+        userId: userId,
+      },
+    },
+  });
+  return episodes;
 }

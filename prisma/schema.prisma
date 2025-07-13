@@ -31,6 +31,7 @@ model Collection {
   createdAt DateTime @default(now()) @map("created_at")
   sources   Source[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  episodes  Episode[]
 
   @@map("collections")
 }
@@ -58,6 +59,8 @@ model Episode {
   createdAt   DateTime @default(now())
   sourceId    String   @map("source_id")
   source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  collectionId String   @map("collection_id")
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@map("episodes")
 }

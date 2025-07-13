@@ -10,8 +10,6 @@ import { YoutubeTranscript } from 'youtube-transcript'; // New import
 
 type SourceWithTranscript = Omit<Source, 'createdAt'> & { createdAt: string; transcript: string; };
 
-const SIMULATE_AUDIO_SYNTHESIS = false; // Set to `true` to simulate, `false` to use ElevenLabs API
-
 const elevenlabs = new ElevenLabsClient({
   apiKey: process.env.ELEVENLABS_API_KEY || "",
 });
@@ -34,7 +32,7 @@ export const generatePodcast = inngest.createFunction(
   async ({ event, step }) => {
     const { collectionId } = event.data;
 
-   
+    // console.log(`Received request to generate podcast for collection: ${collectionId}`)
 
     // Stage 1: Content Aggregation - Fetching collection and sources from DB
     const collection = await step.run("fetch-collection-data", async () => {
@@ -121,7 +119,7 @@ export const generatePodcast = inngest.createFunction(
 
     // Stage 4: Audio Synthesis
     const audioBuffer = await step.run("synthesize-audio", async () => {
-      if (SIMULATE_AUDIO_SYNTHESIS) {
+      if (aiConfig.simulateAudioSynthesis) {
         console.log("Simulating audio synthesis to bypass ElevenLabs quota...");
         // Simulate an audio buffer to continue the workflow
         const audioBuffer = Buffer.from("Simulated audio content for testing purposes.");
@@ -160,7 +158,7 @@ export const generatePodcast = inngest.createFunction(
         ? audioBuffer
         : Buffer.from(audioBuffer as any); // Ensure it's a Buffer
 
-      if (SIMULATE_AUDIO_SYNTHESIS) {
+      if (aiConfig.simulateAudioSynthesis) {
         console.log("Uploading simulated audio to GCS...");
       } else {
         console.log("Uploading actual audio to GCS...");
@@ -172,24 +170,26 @@ export const generatePodcast = inngest.createFunction(
       return `https://storage.googleapis.com/${bucket.name}/${audioFileName}`;
     });
 
-    // Update collection with audioUrl and status
-    await step.run("update-collection-status", async () => {
-      console.log("Attempting to update collection status...");
-      console.log(`Collection ID: ${collectionId}`);
-      console.log(`Public URL to save: ${publicUrl}`);
-      try {
-        const updatedCollection = await prisma.collection.update({
-          where: { id: collectionId },
-          data: {
-            audioUrl: publicUrl,
-            status: "Generated",
-          },
-        });
-        console.log("Prisma update successful. Result:", updatedCollection);
-      } catch (error) {
-        console.error("Prisma update failed:", error);
-        throw error; // Re-throw to propagate the error in Inngest
-      }
+    // Create a new Episode linked to the Collection
+    await step.run("create-episode", async () => {
+      // Use the first source as the main source for the episode (or adjust as needed)
+      const mainSource = collection.sources[0];
+      await prisma.episode.create({
+        data: {
+          title: `AI Podcast for ${collection.name}`,
+          description: script, // or summary
+          audioUrl: publicUrl,
+          imageUrl: mainSource?.imageUrl || null,
+          publishedAt: new Date(),
+          sourceId: mainSource?.id || collection.sources[0].id, // fallback to first source
+          collectionId: collection.id,
+        },
+      });
+      // Optionally, update collection status
+      await prisma.collection.update({
+        where: { id: collectionId },
+        data: { status: "Generated" },
+      });
     });
 
     console.log(`Podcast generation completed for collection: ${collectionId}`);

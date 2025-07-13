@@ -26,12 +26,12 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
     <Card className="flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg">{podcast.title}</CardTitle>
-        <CardDescription className="flex items-center gap-2 text-sm">
+        <CardDescription className="flex items-start gap-2 text-sm" >
           <Calendar className="h-4 w-4" />
           <span>{podcast.date}</span>
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
+      <CardContent className="flex">
         <div className="flex items-center justify-between">
           <Badge variant={getStatusBadgeVariant(podcast.status)}>{podcast.status}</Badge>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -5,8 +5,7 @@ import { Button } from "./ui/button"
 import { saveCuration, createDraftCollection } from "@/app/actions"
 import type { CuratedCollection } from "@/lib/types"
 import Link from "next/link"
-
-const MAX_SOURCES = 1; // Set to 1 for testing purposes
+import { aiConfig } from "@/config/ai";
 
 function SaveCurationForm({ collectionId, disabled }: { collectionId: string; disabled: boolean }) {
   return (
@@ -38,21 +37,21 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
 
   const sources = collection.sources ?? []
   const sourceCount = sources.length
-  const canAddMore = sourceCount < MAX_SOURCES
-  const canSave = sourceCount === MAX_SOURCES
+  const canAddMore = sourceCount < aiConfig.maxSources
+  const canSave = sourceCount === aiConfig.maxSources
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Build Your Weekly Curation</CardTitle>
         <CardDescription>
-          Add {MAX_SOURCES} Spotify show to create a new collection. This collection will be used to generate your next podcast
+          Add {aiConfig.maxSources} Spotify show to create a new collection. This collection will be used to generate your next podcast
           episode.
         </CardDescription>
 
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / {MAX_SOURCES}</div>
+        <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / {aiConfig.maxSources}</div>
         <AddSourceForm disabled={!canAddMore} />
         <SourceList sources={sources} />
       </CardContent>

@@ -205,3 +205,28 @@ export async function createDraftCollection() {
 
   redirect("/build")
 }
+
+export async function getCollectionStatus(collectionId: string) {
+  const { userId } = await auth();
+  if (!userId) {
+    return null;
+  }
+  try {
+    const collection = await prisma.collection.findUnique({
+      where: { id: collectionId, userId: userId },
+      include: { sources: true },
+    });
+    if (!collection) return null;
+
+    return {
+      ...collection,
+      sources: collection.sources.map(source => ({
+        ...source,
+        imageUrl: source.imageUrl || '',
+      })),
+    };
+  } catch (error) {
+    console.error("Error fetching collection status:", error);
+    return null;
+  }
+}

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from 'next/cache';
 import { inngest } from "../../../inngest/client";
 
 export async function POST(request: Request) {
@@ -19,6 +20,8 @@ export async function POST(request: Request) {
         collectionId,
       },
     });
+
+    revalidatePath('/'); // Revalidate the home page to show updated collection status
 
     return NextResponse.json({
       message: "Podcast generation process started successfully.",

@@ -9,6 +9,7 @@ import type { PodcastSource } from "@/lib/types"
 import { Input } from "./ui/input";
 import { updatePodcastSourceName } from "@/app/actions";
 import { useState } from "react";
+import { Card } from "./ui/card"
 
 function RemoveButton() {
   const { pending } = useFormStatus()
@@ -42,38 +43,26 @@ export function SourceListItem({ source }: { source: PodcastSource }) {
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <Card className="flex items-center gap-4 flex-col p-4">
+      <div className="w-full max-w-[100px] p-0">
       <Image
         src={source.imageUrl || "/placeholder.svg"}
         alt={`${source.name} cover art`}
-        width={40}
-        height={40}
-        className="rounded-md"
+
+        width={80}
+        height={80}
+        className="rounded-sm border p-0"  
       />
-      <div className="flex-grow">
-        {isEditing ? (
-          <form action={handleNameChange} onBlur={() => setIsEditing(false)}>
-            <Input
-              type="text"
-              name="name"
-              defaultValue={editedName}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.currentTarget.form?.requestSubmit();
-                }
-              }}
-            />
-          </form>
-        ) : (
-          <p className="font-medium" onClick={() => setIsEditing(true)}>{editedName}</p>
-        )}
-        <p className="text-sm text-muted-foreground truncate">{source.url}</p>
+      </div>
+      <div className="w-full flex-col justify-start">
+     
+          <p className="text-xs">{editedName}</p>
+        <p className="text-xs text-muted-foreground truncate">{source.url}</p>
       </div>
       <form action={removePodcastSource}>
         <input type="hidden" name="id" value={source.id} />
-        <RemoveButton />
+        {/* <RemoveButton /> */}
       </form>
-    </div>
+    </Card>
   )
 }
