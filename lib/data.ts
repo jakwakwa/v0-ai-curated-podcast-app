@@ -159,3 +159,24 @@ export async function getEpisodes(): Promise<Episode[]> {
 	console.log("Using DUMMY_EPISODES (Temporary)")
 	return DUMMY_EPISODES
 }
+
+export async function getEpisodes() {
+  const { userId } = await auth();
+  if (!userId) return [];
+  // Fetch episodes for collections owned by the user
+  const episodes = await prisma.episode.findMany({
+    orderBy: { publishedAt: "desc" },
+    include: {
+      collection: {
+        include: { sources: true },
+      },
+      source: true,
+    },
+    where: {
+      collection: {
+        userId: userId,
+      },
+    },
+  });
+  return episodes;
+}
