@@ -45,7 +45,7 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
       <CardHeader>
         <CardTitle>Build Your Weekly Curation</CardTitle>
         <CardDescription>
-          Add {aiConfig.maxSources} Spotify show to create a new collection. This collection will be used to generate your next podcast
+          Add {aiConfig.maxSources} Youtube podcast show to create a new collection. This collection will be used to generate your next podcast
           episode.
         </CardDescription>
 

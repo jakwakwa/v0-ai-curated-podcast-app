@@ -11,7 +11,7 @@ import { useActionState, useEffect, useRef } from "react"
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus()
   return (
-    <Button size="sm" type="submit" disabled={disabled || pending}>
+    <Button type="submit" disabled={disabled || pending}>
       {pending ? "Adding..." : "Add Show"}
     </Button>
   )
@@ -21,7 +21,6 @@ export function AddSourceForm({ disabled }: { disabled: boolean }) {
   const [state, formAction] = useActionState(addPodcastSource, null)
   const { toast } = useToast()
   const formRef = useRef<HTMLFormElement>(null)
-
   useEffect(() => {
     if (state?.success === true) {
       toast({
@@ -45,7 +44,7 @@ export function AddSourceForm({ disabled }: { disabled: boolean }) {
         <Input
           type="url"
           name="url"
-          placeholder="Enter Spotify show URL..."
+          placeholder="Enter Youtube show URL..."
           className="pl-8"
           disabled={disabled}
           required

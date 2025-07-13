@@ -16,6 +16,7 @@ CREATE TABLE "collections" (
     "user_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'Draft',
+    "audio_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "collections_pkey" PRIMARY KEY ("id")
@@ -33,6 +34,21 @@ CREATE TABLE "sources" (
     CONSTRAINT "sources_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "episodes" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "audioUrl" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "publishedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "source_id" TEXT NOT NULL,
+    "collection_id" TEXT NOT NULL,
+
+    CONSTRAINT "episodes_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -41,3 +57,9 @@ ALTER TABLE "collections" ADD CONSTRAINT "collections_user_id_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "sources" ADD CONSTRAINT "sources_collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "collections"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "episodes" ADD CONSTRAINT "episodes_source_id_fkey" FOREIGN KEY ("source_id") REFERENCES "sources"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "episodes" ADD CONSTRAINT "episodes_collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "collections"("id") ON DELETE CASCADE ON UPDATE CASCADE;

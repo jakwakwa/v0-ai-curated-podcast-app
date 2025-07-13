@@ -1,6 +1,6 @@
 # AI-Curated Podcast Application
 
-This is a Next.js application designed to automate the generation of weekly podcasts. The system allows users to curate a collection of source podcasts (from Spotify), which are then used by an AI pipeline to generate a new, summarized audio episode.
+This is a Next.js application designed to automate the generation of weekly podcasts. The system allows users to curate a collection of source podcasts (from Youtube), which are then used by an AI pipeline to generate a new, summarized audio episode.
 
  `npx inngest-cli dev`
 
@@ -8,7 +8,7 @@ This is a Next.js application designed to automate the generation of weekly podc
 
 - **User Authentication**: Secure sign-up and login functionality powered by NextAuth.js.
 - **Type-Safe Database Access**: Data management with Prisma ORM and a PostgreSQL database.
-- **Curation Management**: Users can create "curations" by selecting up to 5 Spotify shows.
+- **Curation Management**: Users can create "curations" by selecting up to 2 Youtube shows.
 - **Dedicated Build Workflow**: A focused, single-page interface for building and saving new curations.
 - **Podcast Dashboard**: A central hub to view saved curations and previously generated podcast episodes.
 - **Protected Routes**: Middleware ensures that only authenticated users can access the application's core features.
