@@ -290,7 +290,7 @@ export async function getCollectionStatus(collectionId: string) {
 
     return {
       ...collection,
-      sources: collection.sources.map(source => ({
+      sources: collection.sources.map((source: { imageUrl: string }) => ({
         ...source,
         imageUrl: source.imageUrl || '',
       })),
