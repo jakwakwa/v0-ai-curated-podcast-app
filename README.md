@@ -2,7 +2,7 @@
 
 This is a Next.js application designed to automate the generation of weekly podcasts. The system allows users to curate a collection of source podcasts (from Youtube), which are then used by an AI pipeline to generate a new, summarized audio episode.
 
- `npx inngest-cli dev`
+`npx inngest-cli dev`
 
 ## Core Features
 
@@ -35,61 +35,61 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Installation
 
 1. **Clone the repository and install dependencies:**
-    \`\`\`bash
-    git clone <your-repository-url>
-    cd ai-curated-podcast-app
-    npm install
-    npm install next-auth@beta bcryptjs
-    npm install -D @types/bcryptjs
-    npm install prisma --save-dev
-    \`\`\`
+   \`\`\`bash
+   git clone <your-repository-url>
+   cd ai-curated-podcast-app
+   npm install
+   npm install next-auth@beta bcryptjs
+   npm install -D @types/bcryptjs
+   npm install prisma --save-dev
+   \`\`\`
 
 2. **Set up environment variables:**
 
-    Create a file named `.env.local` in the root of your project.
-    - Get your PostgreSQL database **Connection String**.
-    - For the `DATABASE_URL`, ensure you are using a pooler-ready string (e.g., port 6543 for Supabase).
-    - For the `DIRECT_URL`, use the direct connection string (e.g., port 5432 for Supabase). [^2]
-    - Generate a secret for NextAuth.js using `openssl rand -base64 32`.
+   Create a file named `.env.local` in the root of your project.
+   - Get your PostgreSQL database **Connection String**.
+   - For the `DATABASE_URL`, ensure you are using a pooler-ready string (e.g., port 6543 for Supabase).
+   - For the `DIRECT_URL`, use the direct connection string (e.g., port 5432 for Supabase). [^2]
+   - Generate a secret for NextAuth.js using `openssl rand -base64 32`.
 
-    \`\`\`env
+   \`\`\`env
 
    # Your PostgreSQL connection strings
 
-    DATABASE_URL="postgres://..."
-    DIRECT_URL="postgres://..."
+   DATABASE_URL="postgres://..."
+   DIRECT_URL="postgres://..."
 
    # NextAuth.js secret
 
    # You can generate one with `openssl rand -base64 32`
 
-    AUTH_SECRET="your-secret-here"
-    AUTH_URL="<http://localhost:3000>"
-    \`\`\`
+   AUTH_SECRET="your-secret-here"
+   AUTH_URL="<http://localhost:3000>"
+   \`\`\`
 
 3. **Push the database schema:**
 
-    This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
+   This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
 
-    \`\`\`bash
-    npx prisma db push
-    \`\`\`
+   \`\`\`bash
+   npx prisma db push
+   \`\`\`
 
 4. **Seed the database (optional but recommended):**
 
-    Run the seed script from your terminal to populate the database with a test user and sample data.
+   Run the seed script from your terminal to populate the database with a test user and sample data.
 
-    \`\`\`bash
-    node --env-file=.env.local scripts/seed.mjs
-    \`\`\`
+   \`\`\`bash
+   node --env-file=.env.local scripts/seed.mjs
+   \`\`\`
 
-    After the script runs, you can log in with the test user:
-    - **Email**: `test.user@example.com`
-    - **Password**: `password123`
+   After the script runs, you can log in with the test user:
+   - **Email**: `test.user@example.com`
+   - **Password**: `password123`
 
 5. **Run the development server:**
-    \`\`\`bash
-    npm run dev
-    \`\`\`
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

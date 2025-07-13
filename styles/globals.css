@@ -1,5 +1,208 @@
 
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+	-webkit-font-smoothing: antialiased;
+	font-size: 100%;
+	font-weight: 300;
+}
+
+body {
+	background: var(--ui-c-depth-3);
+	color: var(--ui-c-font-2);
+	font-family: var(--font-roboto);
+	overflow: hidden;
+}
+
+body.state-guide-enabled {
+	--ui-body-top: calc(var(--ui-header-height) + var(--ui-guide-height));
+	--ui-body-height: calc(100vh - var(--ui-header-height) - var(--ui-guide-height));
+}
+
+body.state-guide-open {
+	--ui-body-top: calc(var(--ui-header-height) + var(--ui-guide-open-height));
+}
+
+body.state-guide-open .primaryApplicationSpace {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+* {
+	box-sizing: border-box;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+}
+
+button,
+input,
+select,
+textarea {
+	font-family: var(--font-roboto);
+}
+
+a {
+	text-decoration: none;
+	color: var(--ui-c-primary-light);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 500;
+	color: var(--ui-c-font-1);
+	margin: 0 0 1rem 0;
+}
+
+h1 {
+	font-size: 2rem;
+}
+
+h2 {
+	font-size: 1.2rem;
+}
+
+hr {
+	margin: 1rem 0;
+	border: none;
+	border-top: 1px solid var(--ui-c-peak-3);
+}
+
+h3,
+h4,
+h5,
+h6 {
+	font-size: var(--ui-font-size-2);
+}
+
+p,
+li {
+	font-size: var(--ui-font-size-2);
+	line-height: var(--base-font-line-height);
+}
+
+body.debugMode .dataDetectDebugOnly {
+	display: block;
+}
+
+body.mockMode .dataDetectMockOnly,
+body.mockMode .dataDetectPendingFeature {
+	display: block;
+}
+
+.ui-scroll-y {
+	overflow-y: scroll !important;
+}
+
+.ui-scroll-x {
+	overflow-x: scroll !important;
+}
+
+.ui-scroll-xy {
+	overflow: scroll !important;
+}
+
+.ui-scroll-xy,
+.ui-scroll-x,
+.ui-scroll-y {
+	scrollbar-gutter: stable;
+}
+
+.ui-scroll-xy::-webkit-scrollbar,
+.ui-scroll-x::-webkit-scrollbar,
+.ui-scroll-y::-webkit-scrollbar {
+	background-color: transparent !important;
+	height: 7px !important;
+	width: 7px !important;
+}
+
+.ui-scroll-xy::-webkit-scrollbar-thumb,
+.ui-scroll-x::-webkit-scrollbar-thumb,
+.ui-scroll-y::-webkit-scrollbar-thumb {
+	border-radius: 3px !important;
+	border: none !important;
+	background-color: var(--ui-c-depth-1) !important;
+}
+
+.ui-scroll-xy::-webkit-scrollbar-thumb:hover,
+.ui-scroll-x::-webkit-scrollbar-thumb:hover,
+.ui-scroll-y::-webkit-scrollbar-thumb:hover {
+	background-color: var(--ui-c-peak-2) !important;
+}
+
+.ui-scroll-xy::-webkit-scrollbar-button,
+.ui-scroll-x::-webkit-scrollbar-button,
+.ui-scroll-y::-webkit-scrollbar-button {
+	display: none;
+}
+
+.ui-scroll-xy::-webkit-scrollbar-corner,
+.ui-scroll-x::-webkit-scrollbar-corner,
+.ui-scroll-y::-webkit-scrollbar-corner {
+	background-color: var(--ui-c-depth-4) !important;
+}
+
+table {
+	font-size: 0.75rem;
+	line-height: 1.25rem;
+	text-indent: 0;
+	border-collapse: collapse;
+	caption-side: bottom;
+	border-width: 1px;
+}
+
+thead tr {
+	border-bottom: 1px solid var(--ui-c-peak-1);
+}
+
+tr {
+	border-bottom: 1px solid var(--ui-c-peak-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	tr {
+		transition: background-color 0.15s ease;
+	}
+}
+
+tr:hover {
+	transition: none;
+	background-color: #2b2b3a;
+	color: #fff;
+	cursor: pointer;
+}
+
+th,
+td {
+	font-size: 0.75rem;
+	vertical-align: middle;
+	text-align: left;
+	padding: 0.4rem 0.5rem;
+	border-right: 1px solid var(--ui-c-peak-1-soft);
+	border-bottom: 1px solid var(--ui-c-peak-1-soft);
+}
+
+th:last-child,
+td:last-child {
+	border-right: none;
+}
+
+td {
+	background: rgba(0, 0, 0, 0.5019607843);
+}
+
+@keyframes shine {
+	to {
+		background-position: 200% center;
+	}
+}
 
 body {
   font-family: Arial, Helvetica, sans-serif;

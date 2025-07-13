@@ -1,5 +1,5 @@
-import { Roboto_Serif } from 'next/font/google'
-import type { Config } from 'tailwindcss'
+import { Roboto_Serif } from 'next/font/google';
+import type { Config } from 'tailwindcss';
 
 /** @type {import('tailwindcss').Config} */
 
@@ -100,5 +100,5 @@ const config: Config = {
     },
   },
   plugins: [require('tailwindcss-animate')],
-}
-export default config
+};
+export default config;

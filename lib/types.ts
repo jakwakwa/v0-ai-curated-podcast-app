@@ -2,7 +2,7 @@ export interface Podcast {
   id: string;
   title: string;
   date: string;
-  status: "Completed" | "Processing" | "Failed";
+  status: 'Completed' | 'Processing' | 'Failed';
   duration: string;
   audioUrl: string | null;
 }
@@ -18,7 +18,7 @@ export interface PodcastSource {
 export interface CuratedCollection {
   id: string;
   name: string;
-  status: "Draft" | "Saved" | "Generated" | "Failed";
+  status: 'Draft' | 'Saved' | 'Generated' | 'Failed';
   audioUrl?: string | null;
   sources: PodcastSource[];
   createdAt: Date;

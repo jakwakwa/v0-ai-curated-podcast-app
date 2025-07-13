@@ -1,39 +1,48 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { PlayCircle, Clock, Calendar } from "lucide-react"
-import type { Podcast } from "@/lib/types"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { PlayCircle, Clock, Calendar } from 'lucide-react';
+import type { Podcast } from '@/lib/types';
 
 interface PodcastCardProps {
   podcast: Podcast;
 }
 
 export function PodcastCard({ podcast }: PodcastCardProps) {
-  const getStatusBadgeVariant = (status: Podcast["status"]) => {
+  const getStatusBadgeVariant = (status: Podcast['status']) => {
     switch (status) {
-      case "Completed":
-        return "outline"
-      case "Processing":
-        return "default"
-      case "Failed":
-        return "destructive"
+      case 'Completed':
+        return 'outline';
+      case 'Processing':
+        return 'default';
+      case 'Failed':
+        return 'destructive';
       default:
-        return "secondary"
+        return 'secondary';
     }
-  }
+  };
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg">{podcast.title}</CardTitle>
-        <CardDescription className="flex items-start gap-2 text-sm" >
+        <CardDescription className="flex items-start gap-2 text-sm">
           <Calendar className="h-4 w-4" />
           <span>{podcast.date}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="flex">
         <div className="flex items-center justify-between">
-          <Badge variant={getStatusBadgeVariant(podcast.status)}>{podcast.status}</Badge>
+          <Badge variant={getStatusBadgeVariant(podcast.status)}>
+            {podcast.status}
+          </Badge>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>{podcast.duration}</span>
@@ -41,11 +50,11 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" disabled={podcast.status !== "Completed"}>
+        <Button className="w-full" disabled={podcast.status !== 'Completed'}>
           <PlayCircle className="mr-2 h-4 w-4" />
           Play Episode
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

@@ -1,13 +1,12 @@
-
-import { notFound } from "next/navigation";
-import { getEpisodes, getCuratedCollections } from "@/lib/data";
-import { SourceList } from "@/components/source-list";
-import { EpisodeTranscript } from "@/components/episode-transcripts";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { notFound } from 'next/navigation';
+import { getEpisodes, getCuratedCollections } from '@/lib/data';
+import { SourceList } from '@/components/source-list';
+import { EpisodeTranscript } from '@/components/episode-transcripts';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface CollectionPageProps {
-  params: { id: string }
+  params: { id: string };
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
@@ -26,17 +25,20 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       <Card className="w-full rounded-lg p-4 min-h-screen">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Episodes for {collection.name}</h2>
-          
         </div>
         {episodes.length === 0 ? (
-          <div className="text-muted-foreground">No episodes generated yet.</div>
+          <div className="text-muted-foreground">
+            No episodes generated yet.
+          </div>
         ) : (
           <>
             {episodes.map((ep) => (
               <div key={ep.id} className="border rounded-lg p-4 bg-card">
                 <div className="font-semibold text-lg mb-1">{ep.title}</div>
                 <div className="text-xs text-muted-foreground mb-1">
-                  {ep.publishedAt ? new Date(ep.publishedAt).toLocaleDateString() : ""}
+                  {ep.publishedAt
+                    ? new Date(ep.publishedAt).toLocaleDateString()
+                    : ''}
                 </div>
                 <audio controls src={ep.audioUrl} className="w-full mb-2" />
                 {ep.description && (
@@ -55,5 +57,3 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     </>
   );
 }
-
-

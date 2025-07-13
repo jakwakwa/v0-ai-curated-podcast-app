@@ -1,14 +1,18 @@
-import { SourceListItem } from "./source-list-item"
-import type { PodcastSource } from "@/lib/types"
-import { Card } from "./ui/card"
+import { SourceListItem } from './source-list-item';
+import type { PodcastSource } from '@/lib/types';
+import { Card } from './ui/card';
 
 interface SourceListProps {
-  sources: PodcastSource[]
+  sources: PodcastSource[];
 }
 
 export function SourceList({ sources }: SourceListProps) {
   if (sources.length === 0) {
-    return <Card className="text-center text-sm text-muted-foreground">No sources added yet.</Card>
+    return (
+      <Card className="text-center text-sm text-muted-foreground">
+        No sources added yet.
+      </Card>
+    );
   }
 
   return (
@@ -17,5 +21,5 @@ export function SourceList({ sources }: SourceListProps) {
         <SourceListItem key={source.id} source={source} />
       ))}
     </div>
-  )
+  );
 }

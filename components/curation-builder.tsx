@@ -1,57 +1,80 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { AddSourceForm } from "./add-source-form"
-import { SourceList } from "./source-list"
-import { Button } from "./ui/button"
-import { saveCuration, createDraftCollection } from "@/app/actions"
-import type { CuratedCollection } from "@/lib/types"
-import Link from "next/link"
-import { aiConfig } from "@/config/ai";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
+import { AddSourceForm } from './add-source-form';
+import { SourceList } from './source-list';
+import { Button } from './ui/button';
+import { saveCuration, createDraftCollection } from '@/app/actions';
+import type { CuratedCollection } from '@/lib/types';
+import Link from 'next/link';
+import { aiConfig } from '@/config/ai';
 
-function SaveCurationForm({ collectionId, disabled }: { collectionId: string; disabled: boolean }) {
+function SaveCurationForm({
+  collectionId,
+  disabled,
+}: {
+  collectionId: string;
+  disabled: boolean;
+}) {
   return (
     <form action={saveCuration} className="w-full">
       <input type="hidden" name="collectionId" value={collectionId} />
-      <Button type="submit" className="w-full" disabled={disabled}>
+      <Button type="submit" className="w-full" disabled={disabled} size={'sm'}>
         Save Curation & Return to Dashboard
       </Button>
     </form>
-  )
+  );
 }
 
-export function CurationBuilder({ collection }: { collection?: CuratedCollection }) {
+export function CurationBuilder({
+  collection,
+}: {
+  collection?: CuratedCollection;
+}) {
   if (!collection) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>No Draft Found</CardTitle>
-          <CardDescription>It looks like there&apos;s no draft collection to work on.</CardDescription>
+          <CardDescription>
+            It looks like there&apos;s no draft collection to work on.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={createDraftCollection}>
-            <Button type="submit">Create New Collection</Button>
+            <Button type="submit" size={'sm'}>
+              Create New Collection
+            </Button>
           </form>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const sources = collection.sources ?? []
-  const sourceCount = sources.length
-  const canAddMore = sourceCount < aiConfig.maxSources
-  const canSave = sourceCount === aiConfig.maxSources
+  const sources = collection.sources ?? [];
+  const sourceCount = sources.length;
+  const canAddMore = sourceCount < aiConfig.maxSources;
+  const canSave = sourceCount === aiConfig.maxSources;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Build Your Weekly Curation</CardTitle>
         <CardDescription>
-          Add {aiConfig.maxSources} Youtube podcast show to create a new collection. This collection will be used to generate your next podcast
+          Add {aiConfig.maxSources} Youtube podcast show to create a new
+          collection. This collection will be used to generate your next podcast
           episode.
         </CardDescription>
-
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / {aiConfig.maxSources}</div>
+        <div className="text-center font-semibold text-lg">
+          Sources Added: {sourceCount} / {aiConfig.maxSources}
+        </div>
         <AddSourceForm disabled={!canAddMore} />
         <SourceList sources={sources} />
       </CardContent>
@@ -59,11 +82,8 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
         <SaveCurationForm collectionId={collection.id} disabled={!canSave} />
       </CardFooter>
       <CardContent>
- 
-            <Link href={"/"}>Back to Dashboard</Link>
-    
-        </CardContent>
+        <Link href={'/'}>Back to Dashboard</Link>
+      </CardContent>
     </Card>
-    
-  )
+  );
 }

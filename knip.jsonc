@@ -1,0 +1,7 @@
+{
+	"ignore": [
+		// Exports selector tools that we are not using yet but are likely to in the future
+		"src/components/forms/InputSelect/InputSelect.tsx"
+	],
+	"ignoreDependencies": ["lefthook"]
+}

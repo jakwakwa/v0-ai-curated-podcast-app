@@ -1,25 +1,29 @@
-"use server"
+'use server';
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
-import prisma from "@/lib/prisma"
-import { auth, currentUser } from "@clerk/nextjs/server"
-import { FormState } from "@/lib/types"
+import prisma from '@/lib/prisma';
+import { auth, currentUser } from '@clerk/nextjs/server';
+import { FormState } from '@/lib/types';
 
 async function fetchYouTubeVideoDetails(url: string) {
   try {
     // Extract video ID from YouTube URL
-    const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+    const videoIdMatch = url.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/
+    );
     const videoId = videoIdMatch ? videoIdMatch[1] : null;
-    
+
     if (!videoId) {
-      throw new Error("Could not extract video ID from URL");
+      throw new Error('Could not extract video ID from URL');
     }
 
     // Fetch video details using YouTube oEmbed API
-    const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
-    
+    const response = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+    );
+
     if (!response.ok) {
       throw new Error(`Failed to fetch video details: ${response.status}`);
     }
@@ -30,32 +34,39 @@ async function fetchYouTubeVideoDetails(url: string) {
       thumbnail: data.thumbnail_url,
     };
   } catch (error) {
-    console.error("Error fetching YouTube video details:", error);
+    console.error('Error fetching YouTube video details:', error);
     return {
-      title: "Unknown Video",
-      thumbnail: "/placeholder.svg",
+      title: 'Unknown Video',
+      thumbnail: '/placeholder.svg',
     };
   }
 }
 
-export async function addPodcastSource(prevState: FormState, formData: FormData) {
+export async function addPodcastSource(
+  prevState: FormState,
+  formData: FormData
+) {
   const { userId } = await auth();
-  if (!userId) return { success: false, message: "Not authenticated" }
+  if (!userId) return { success: false, message: 'Not authenticated' };
 
-  const url = formData.get("url") as string
+  const url = formData.get('url') as string;
   // Updated URL validation for YouTube
-  const youtubeUrlRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+  const youtubeUrlRegex =
+    /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
   if (!url || !youtubeUrlRegex.test(url)) {
-    return { success: false, message: "Please enter a valid YouTube video URL." }
+    return {
+      success: false,
+      message: 'Please enter a valid YouTube video URL.',
+    };
   }
 
   try {
     const draftCollection = await prisma.collection.findFirst({
-      where: { userId: userId, status: "Draft" },
-    })
+      where: { userId: userId, status: 'Draft' },
+    });
 
     if (!draftCollection) {
-      return { success: false, message: "Could not find a draft collection." }
+      return { success: false, message: 'Could not find a draft collection.' };
     }
 
     // Fetch YouTube video details
@@ -68,41 +79,41 @@ export async function addPodcastSource(prevState: FormState, formData: FormData)
         url: url,
         imageUrl: videoDetails.thumbnail,
       },
-    })
+    });
 
-    revalidatePath("/build")
-    return { success: true, message: "Source added to your draft." }
+    revalidatePath('/build');
+    return { success: true, message: 'Source added to your draft.' };
   } catch (error) {
-    console.error("Error adding source:", error)
-    return { success: false, message: "Failed to add source to database." }
+    console.error('Error adding source:', error);
+    return { success: false, message: 'Failed to add source to database.' };
   }
 }
 
 export async function removePodcastSource(formData: FormData) {
   const { userId } = await auth();
-  if (!userId) return
+  if (!userId) return;
 
-  const id = formData.get("id") as string
+  const id = formData.get('id') as string;
   try {
     const source = await prisma.source.findUnique({
       where: { id },
       include: { collection: true },
-    })
+    });
     if (source?.collection.userId === userId) {
-      await prisma.source.delete({ where: { id } })
+      await prisma.source.delete({ where: { id } });
     }
   } catch (error) {
-    console.error("Error removing source:", error)
+    console.error('Error removing source:', error);
   }
 
-  revalidatePath("/build")
+  revalidatePath('/build');
 }
 
 export async function saveCuration(formData: FormData) {
   const { userId } = await auth();
-  if (!userId) return
+  if (!userId) return;
 
-  const collectionId = formData.get("collectionId") as string
+  const collectionId = formData.get('collectionId') as string;
   // Reverting to automatically generated name for the collection
 
   try {
@@ -110,30 +121,33 @@ export async function saveCuration(formData: FormData) {
       prisma.collection.update({
         where: { id: collectionId, userId: userId },
         data: {
-          status: "Saved",
+          status: 'Saved',
           name: `Week of ${new Date().toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })}`, // Reverting to auto-generated name
         },
       }),
       prisma.collection.create({
         data: {
           userId: userId,
-          name: "New Weekly Curation",
-          status: "Draft",
+          name: 'New Weekly Curation',
+          status: 'Draft',
         },
       }),
-    ])
+    ]);
   } catch (error) {
-    console.error("Error saving curation:", error)
-    return
+    console.error('Error saving curation:', error);
+    return;
   }
 
-  redirect("/")
+  redirect('/');
 }
 
-export async function updatePodcastSourceName(id: string, newName: string): Promise<FormState> {
+export async function updatePodcastSourceName(
+  id: string,
+  newName: string
+): Promise<FormState> {
   const { userId } = await auth();
   if (!userId) {
-    return { success: false, message: "Not authenticated." };
+    return { success: false, message: 'Not authenticated.' };
   }
 
   try {
@@ -143,7 +157,7 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
     });
 
     if (!source || source.collection.userId !== userId) {
-      return { success: false, message: "Source not found or unauthorized." };
+      return { success: false, message: 'Source not found or unauthorized.' };
     }
 
     await prisma.source.update({
@@ -151,11 +165,11 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
       data: { name: newName },
     });
 
-    revalidatePath("/build");
-    return { success: true, message: "Show name updated successfully." };
+    revalidatePath('/build');
+    return { success: true, message: 'Show name updated successfully.' };
   } catch (error) {
-    console.error("Error updating source name:", error);
-    return { success: false, message: "Failed to update show name." };
+    console.error('Error updating source name:', error);
+    return { success: false, message: 'Failed to update show name.' };
   }
 }
 
@@ -164,10 +178,9 @@ export async function createDraftCollection() {
   const user = await currentUser();
 
   if (!userId) {
-    console.error("User not authenticated.");
+    console.error('User not authenticated.');
     return;
   }
-
 
   try {
     // Ensure the user exists in our database
@@ -180,9 +193,9 @@ export async function createDraftCollection() {
       dbUser = await prisma.user.create({
         data: {
           id: userId,
-          email: user?.emailAddresses?.[0]?.emailAddress || "", // Use primary email from Clerk
-          name: user?.firstName || user?.username || "", // Use first name or username
-          password: "", // Password is not stored for Clerk users
+          email: user?.emailAddresses?.[0]?.emailAddress || '', // Use primary email from Clerk
+          name: user?.firstName || user?.username || '', // Use first name or username
+          password: '', // Password is not stored for Clerk users
           // Add other fields if necessary from Clerk's user object
         },
       });
@@ -191,19 +204,18 @@ export async function createDraftCollection() {
     await prisma.collection.create({
       data: {
         userId: dbUser.id,
-        name: "New Weekly Curation",
-        status: "Draft",
+        name: 'New Weekly Curation',
+        status: 'Draft',
       },
-    })
+    });
 
-    revalidatePath("/build")
-
+    revalidatePath('/build');
   } catch (error) {
-    console.error("Error creating new draft collection or user:", error)
-    return
+    console.error('Error creating new draft collection or user:', error);
+    return;
   }
 
-  redirect("/build")
+  redirect('/build');
 }
 
 export async function getCollectionStatus(collectionId: string) {
@@ -226,7 +238,7 @@ export async function getCollectionStatus(collectionId: string) {
       })),
     };
   } catch (error) {
-    console.error("Error fetching collection status:", error);
+    console.error('Error fetching collection status:', error);
     return null;
   }
 }

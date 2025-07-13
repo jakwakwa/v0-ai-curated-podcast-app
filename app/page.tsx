@@ -1,13 +1,20 @@
-import { PodcastList } from "@/components/podcast-list"
-import { CurationDashboard } from "@/components/curation-dashboard"
-import { getEpisodes, getCuratedCollections } from "@/lib/data"
+import { PodcastList } from '@/components/podcast-list';
+import { CurationDashboard } from '@/components/curation-dashboard';
+import { getEpisodes, getCuratedCollections } from '@/lib/data';
 
 export default async function DashboardPage() {
-  const [episodes, collections] = await Promise.all([getEpisodes(), getCuratedCollections()])
-  const savedCollections = collections.filter((c) => c.status === "Saved" || c.status === "Generated")
+  const [episodes, collections] = await Promise.all([
+    getEpisodes(),
+    getCuratedCollections(),
+  ]);
+  const savedCollections = collections.filter(
+    (c) => c.status === 'Saved' || c.status === 'Generated'
+  );
 
   // Sort savedCollections by createdAt in descending order (newest first)
-  savedCollections.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  savedCollections.sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -20,5 +27,5 @@ export default async function DashboardPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

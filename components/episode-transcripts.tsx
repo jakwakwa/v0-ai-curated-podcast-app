@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import { useState } from "react"
+import { useState } from 'react';
 
 export function EpisodeTranscript({ transcript }: { transcript: string }) {
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
   return (
     <div className="mt-4">
       {!show ? (
@@ -19,5 +19,5 @@ export function EpisodeTranscript({ transcript }: { transcript: string }) {
         </div>
       )}
     </div>
-  )
+  );
 }
