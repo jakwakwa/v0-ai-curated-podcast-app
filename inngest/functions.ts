@@ -100,8 +100,10 @@ export const generatePodcast = inngest.createFunction(
 
       const { text } = await generateText({
         model: model,
-        prompt: `Summarize the following content for a podcast episode, focusing on key themes and interesting points. Provide a single sentence summary:\n\n${aggregatedContent}`,
+        prompt: `Summarize the following content for a podcast episode, focusing on all key themes and interesting points. Provide a comprehensive overview, suitable for developing into a 5-minute podcast script. Ensure sufficient detail for expansion.\n\n${aggregatedContent}`,
       });
+      console.log("Generated summary length (characters):"+text.length);
+      console.log("Generated summary content:\n"+text);
       return text;
     });
 
@@ -112,22 +114,29 @@ export const generatePodcast = inngest.createFunction(
       const model = googleAI(aiConfig.geminiModel);
       const { text } = await generateText({
         model: model,
-        prompt: `Based on the following summary, write a single sentence conversational podcast script. Include an introduction, transitions between topics, and a conclusion. Make it engaging and easy to listen to. Focus on a friendly and informative tone.\n\nSummary: ${summary}`,
+        prompt: `Based on the following summary, write a conversational podcast script of approximately 750 words (enough for about a 5-minute podcast). Include a clear introduction, smooth transitions between topics, and a concise conclusion. Make it engaging, easy to listen to, and maintain a friendly and informative tone. **The script should only contain the spoken words, without any formatting (like bolding), speaker labels (e.g., "Host:"), sound effects, specific audio cues, structural markers (e.g., "section 1", "ad breaks"), or timing instructions (e.g., "2 minutes").** Cover all key themes and interesting points from the summary.\n\nSummary: ${summary}`,
       });
+      console.log("Generated script length (characters):"+text.length);
+      console.log("Generated script content:\n"+text);
       return text;
     });
 
-    // Stage 4: Audio Synthesis
-    const audioBuffer = await step.run("synthesize-audio", async () => {
+    // Stage 4: Audio Synthesis and Upload to Google Cloud Storage
+    const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
       if (aiConfig.simulateAudioSynthesis) {
-        console.log("Simulating audio synthesis to bypass ElevenLabs quota...");
-        // Simulate an audio buffer to continue the workflow
-        const audioBuffer = Buffer.from("Simulated audio content for testing purposes.");
-        return audioBuffer;
+        console.log("Simulating audio synthesis and upload to bypass ElevenLabs quota...");
+        // Simulate an audio buffer and a public URL to continue the workflow
+        const simulatedAudioBuffer = Buffer.from("Simulated audio content for testing purposes.");
+        const simulatedAudioFileName = `podcasts/${collectionId}-${Date.now()}.mp3`;
+        // In a real simulation, you might store this in a temp mock storage
+        return `https://mock-storage.googleapis.com/simulated-bucket/${simulatedAudioFileName}`;
+
       } else {
         console.log("Performing actual audio synthesis with ElevenLabs...");
         const audio = await elevenlabs.textToSpeech.convert(
-          "TX3LPaxmHKxFdv7VOQHJ", // User's preferred voice ID
+          // "TX3LPaxmHKxFdv7VOQHJ", // Liam
+          // "FGY2WhTYpPnrIDTdsKH5", // Laura
+          "EXAVITQu4vr4xnSDxMaL",
           {
             text: script,
             modelId: "eleven_flash_v2_5", // User's preferred model for testing
@@ -147,27 +156,15 @@ export const generatePodcast = inngest.createFunction(
         };
 
         const audioBuffer = await streamToBuffer(audio);
-        return audioBuffer;
-      }
-    });
 
-    // Stage 5: Upload to Google Cloud Storage
-    const publicUrl = await step.run("upload-audio", async () => {
-      const audioFileName = `podcasts/${collectionId}-${Date.now()}.mp3`; // Generate filename here
-      const buffer = Buffer.isBuffer(audioBuffer)
-        ? audioBuffer
-        : Buffer.from(audioBuffer as any); // Ensure it's a Buffer
-
-      if (aiConfig.simulateAudioSynthesis) {
-        console.log("Uploading simulated audio to GCS...");
-      } else {
         console.log("Uploading actual audio to GCS...");
+        const audioFileName = `podcasts/${collectionId}-${Date.now()}.mp3`; // Generate filename here
+        const file = bucket.file(audioFileName);
+        await file.save(audioBuffer, {
+          contentType: "audio/mpeg",
+        });
+        return `https://storage.googleapis.com/${bucket.name}/${audioFileName}`;
       }
-      const file = bucket.file(audioFileName);
-      await file.save(buffer, {
-        contentType: "audio/mpeg",
-      });
-      return `https://storage.googleapis.com/${bucket.name}/${audioFileName}`;
     });
 
     // Create a new Episode linked to the Collection
