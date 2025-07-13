@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { addPodcastSource } from "@/app/actions"
 import { Button } from "@/components/ui/button"

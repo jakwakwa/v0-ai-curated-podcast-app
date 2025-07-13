@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
 

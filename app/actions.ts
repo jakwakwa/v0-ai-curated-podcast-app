@@ -1,7 +1,7 @@
-"use server"
+'use server';
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 import prisma from "@/lib/prisma"
 import type { FormState, UserCurationProfileWithRelations } from "@/lib/types"
@@ -296,7 +296,7 @@ export async function getCollectionStatus(collectionId: string) {
       })),
     };
   } catch (error) {
-    console.error("Error fetching collection status:", error);
+    console.error('Error fetching collection status:', error);
     return null;
   }
 }

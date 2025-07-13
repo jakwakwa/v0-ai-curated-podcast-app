@@ -165,7 +165,7 @@ export async function getEpisodes() {
   if (!userId) return [];
   // Fetch episodes for collections owned by the user
   const episodes = await prisma.episode.findMany({
-    orderBy: { publishedAt: "desc" },
+    orderBy: { publishedAt: 'desc' },
     include: {
       collection: {
         include: { sources: true },
