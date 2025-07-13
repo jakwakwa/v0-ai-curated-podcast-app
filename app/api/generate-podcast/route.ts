@@ -1,17 +1,22 @@
-import { NextResponse } from "next/server"
-import { revalidatePath } from 'next/cache';
+import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { inngest } from "../../../inngest/client";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { collectionId } = body
+    const body = await request.json();
+    const { collectionId } = body;
 
     if (!collectionId) {
-      return NextResponse.json({ message: "Collection ID is required." }, { status: 400 })
+      return NextResponse.json(
+        { message: "Collection ID is required." },
+        { status: 400 },
+      );
     }
 
-    console.log(`Received request to generate podcast for collection: ${collectionId}`)
+    console.log(
+      `Received request to generate podcast for collection: ${collectionId}`,
+    );
 
     // Send an event to Inngest to trigger the podcast generation workflow
     await inngest.send({
@@ -21,14 +26,20 @@ export async function POST(request: Request) {
       },
     });
 
-    revalidatePath('/'); // Revalidate the home page to show updated collection status
+    revalidatePath("/"); // Revalidate the home page to show updated collection status
 
     return NextResponse.json({
       message: "Podcast generation process started successfully.",
       collectionId,
-    })
+    });
   } catch (error) {
     console.error("Error in POST /api/generate-podcast:", error);
-    return NextResponse.json({ message: "Failed to start podcast generation.", error: (error as Error).message }, { status: 500 })
+    return NextResponse.json(
+      {
+        message: "Failed to start podcast generation.",
+        error: (error as Error).message,
+      },
+      { status: 500 },
+    );
   }
 }
