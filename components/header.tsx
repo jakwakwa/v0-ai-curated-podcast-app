@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserNav } from "./user-nav"
@@ -10,7 +9,6 @@ import { useUser } from "@clerk/nextjs";
 
 export function Header() {
   const { user } = useUser();
-  console.log('Header user prop:', user);
   const pathname = usePathname()
 
   return (

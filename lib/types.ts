@@ -12,11 +12,19 @@ export interface PodcastSource {
   name: string;
   url: string;
   imageUrl: string;
+  transcript?: string | null;
 }
 
 export interface CuratedCollection {
   id: string;
   name: string;
-  status: "Draft" | "Saved";
+  status: "Draft" | "Saved" | "Generated";
+  audioUrl?: string | null;
   sources: PodcastSource[];
+  createdAt: Date;
+}
+
+export interface FormState {
+  success: boolean;
+  message: string;
 }

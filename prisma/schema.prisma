@@ -27,6 +27,7 @@ model Collection {
   userId    String   @map("user_id")
   name      String
   status    String   @default("Draft")
+  audioUrl  String?  @map("audio_url")
   createdAt DateTime @default(now()) @map("created_at")
   sources   Source[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

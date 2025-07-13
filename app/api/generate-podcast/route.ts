@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { inngest } from "../../../inngest/client";
 
 export async function POST(request: Request) {
   try {
@@ -11,16 +12,20 @@ export async function POST(request: Request) {
 
     console.log(`Received request to generate podcast for collection: ${collectionId}`)
 
-    // Simulate triggering the external AI workflow with the specific collection
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    console.log(`AI workflow for collection ${collectionId} triggered successfully.`)
+    // Send an event to Inngest to trigger the podcast generation workflow
+    await inngest.send({
+      name: "podcast/generate.requested",
+      data: {
+        collectionId,
+      },
+    });
 
     return NextResponse.json({
       message: "Podcast generation process started successfully.",
-      workflowId: `wf-${collectionId}-${Date.now()}`,
+      collectionId,
     })
   } catch (error) {
-    return NextResponse.json({ message: "Invalid request body." }, { status: 400 })
+    console.error("Error in POST /api/generate-podcast:", error);
+    return NextResponse.json({ message: "Failed to start podcast generation.", error: (error as Error).message }, { status: 500 })
   }
 }

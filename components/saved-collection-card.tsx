@@ -3,13 +3,22 @@
 import Image from "next/image"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles } from "lucide-react"
+import { PlayCircle, Sparkles } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import type { CuratedCollection } from "@/lib/types"
 
 export function SavedCollectionCard({ collection }: { collection: CuratedCollection }) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+
+  const formattedTime = collection.createdAt.toLocaleTimeString('en-ZA', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, // Use 24-hour format
+    timeZone: 'Africa/Johannesburg',
+  });
+
+  const displayTimestamp = formattedTime;
 
   const handleGenerate = async () => {
     setIsLoading(true)
@@ -21,11 +30,11 @@ export function SavedCollectionCard({ collection }: { collection: CuratedCollect
       })
       if (!response.ok) throw new Error("API call failed")
       toast({
-        title: "Podcast Generation Started",
-        description: `Generating podcast for "${collection.name}".`,
+        title: "Podcast Generation Initiated",
+        description: `The process for "${collection.name}" has started.`,
       })
-    } catch (error) {
-      toast({ title: "Error", description: "Could not start generation.", variant: "destructive" })
+    } catch {
+      toast({ title: "Error", description: "Failed to initiate podcast generation.", variant: "destructive" })
     } finally {
       setIsLoading(false)
     }
@@ -35,6 +44,7 @@ export function SavedCollectionCard({ collection }: { collection: CuratedCollect
     <div className="rounded-lg border bg-card p-4">
       <div className="mb-4">
         <h4 className="font-semibold">{collection.name}</h4>
+        <p className="text-sm text-muted-foreground">Created: {displayTimestamp}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {collection.sources.map((source) => (
             <Image
@@ -49,10 +59,22 @@ export function SavedCollectionCard({ collection }: { collection: CuratedCollect
           ))}
         </div>
       </div>
-      <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
-        <Sparkles className="mr-2 h-4 w-4" />
-        {isLoading ? "Generating..." : "Generate Podcast"}
-      </Button>
+      {collection.status === "Generated" && collection.audioUrl ? (
+        <div className="flex flex-col gap-2">
+          <audio controls src={collection.audioUrl} className="w-full" />
+          <Button className="w-full" asChild>
+            <a href={collection.audioUrl} target="_blank" rel="noopener noreferrer" download>
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Download Podcast
+            </a>
+          </Button>
+        </div>
+      ) : (
+        <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
+          <Sparkles className="mr-2 h-4 w-4" />
+          {isLoading ? "Generating..." : "Generate Podcast"}
+        </Button>
+      )}
     </div>
   )
 }

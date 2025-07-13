@@ -43,12 +43,12 @@ export async function getCuratedCollections(): Promise<CuratedCollection[]> {
     where: { userId: userId },
     include: { sources: true },
   });
-  console.log("getCuratedCollections - all collections for user:", collections);
 
-  return collections.map(collection => ({
+
+  return collections.map((collection: { status: string; sources: any[]; }) => ({
     ...collection,
     status: collection.status as "Draft" | "Saved",
-    sources: collection.sources.map(source => ({
+    sources: collection.sources.map((source: { imageUrl: any; }) => ({
       ...source,
       imageUrl: source.imageUrl || '',
     }))

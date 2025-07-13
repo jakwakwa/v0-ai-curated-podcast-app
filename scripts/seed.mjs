@@ -10,16 +10,13 @@ const seedUser = {
 }
 
 async function main() {
-  console.log("Starting seed process...")
 
   // Clean up existing data
   await prisma.source.deleteMany({})
   await prisma.collection.deleteMany({})
   await prisma.user.deleteMany({})
-  console.log("Cleaned up existing users, collections, and sources.")
 
   // 1. Create a test user
-  console.log("Creating test user...")
   const hashedPassword = await bcrypt.hash(seedUser.password, 10)
   const user = await prisma.user.create({
     data: {
@@ -28,10 +25,8 @@ async function main() {
       name: seedUser.name,
     },
   })
-  console.log(`Test user created with ID: ${user.id}`)
 
   // 2. Create collections and sources for the user
-  console.log("Creating a 'Saved' collection with sources...")
   await prisma.collection.create({
     data: {
       userId: user.id,
@@ -47,7 +42,6 @@ async function main() {
     },
   })
 
-  console.log("Creating a 'Draft' collection with sources...")
   await prisma.collection.create({
     data: {
       userId: user.id,
@@ -62,11 +56,6 @@ async function main() {
     },
   })
 
-  console.log("\nSeed process completed successfully!")
-  console.log(`\nYou can log in with the test user:`)
-  console.log(`Email: ${seedUser.email}`)
-  console.log(`Password: ${seedUser.password}`)
-}
 
 main()
   .catch((e) => {

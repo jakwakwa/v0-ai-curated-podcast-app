@@ -6,6 +6,8 @@ import { saveCuration, createDraftCollection } from "@/app/actions"
 import type { CuratedCollection } from "@/lib/types"
 import Link from "next/link"
 
+const MAX_SOURCES = 1; // Set to 1 for testing purposes
+
 function SaveCurationForm({ collectionId, disabled }: { collectionId: string; disabled: boolean }) {
   return (
     <form action={saveCuration} className="w-full">
@@ -23,7 +25,7 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
       <Card>
         <CardHeader>
           <CardTitle>No Draft Found</CardTitle>
-          <CardDescription>It looks like there's no draft collection to work on.</CardDescription>
+          <CardDescription>It looks like there&apos;s no draft collection to work on.</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={createDraftCollection}>
@@ -36,21 +38,21 @@ export function CurationBuilder({ collection }: { collection?: CuratedCollection
 
   const sources = collection.sources ?? []
   const sourceCount = sources.length
-  const canAddMore = sourceCount < 5
-  const canSave = sourceCount === 5
+  const canAddMore = sourceCount < MAX_SOURCES
+  const canSave = sourceCount === MAX_SOURCES
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Build Your Weekly Curation</CardTitle>
         <CardDescription>
-          Add 5 Spotify shows to create a new collection. This collection will be used to generate your next podcast
+          Add {MAX_SOURCES} Spotify show to create a new collection. This collection will be used to generate your next podcast
           episode.
         </CardDescription>
 
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / 5</div>
+        <div className="text-center font-semibold text-lg">Sources Added: {sourceCount} / {MAX_SOURCES}</div>
         <AddSourceForm disabled={!canAddMore} />
         <SourceList sources={sources} />
       </CardContent>

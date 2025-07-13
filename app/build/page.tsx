@@ -13,7 +13,6 @@ export default async function BuildCurationPage() {
   }
   const draftCollection = collections.find((c) => c.status === "Draft")
 
-  console.log("BuildCurationPage - draftCollection:", draftCollection);
 
   return (
     <div className="flex min-h-screen w-full flex-col">

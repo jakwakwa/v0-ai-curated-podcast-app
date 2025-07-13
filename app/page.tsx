@@ -2,12 +2,10 @@ import { Header } from "@/components/header"
 import { PodcastList } from "@/components/podcast-list"
 import { CurationDashboard } from "@/components/curation-dashboard"
 import { getPodcasts, getCuratedCollections } from "@/lib/data"
-import { currentUser } from "@clerk/nextjs/server";
 
 export default async function DashboardPage() {
-  const user = await currentUser();
   const [podcasts, collections] = await Promise.all([getPodcasts(), getCuratedCollections()])
-  const savedCollections = collections.filter((c) => c.status === "Saved")
+  const savedCollections = collections.filter((c) => c.status === "Saved" || c.status === "Generated")
 
   return (
     <div className="flex min-h-screen w-full flex-col">
