@@ -1,22 +1,29 @@
-// middleware.ts
-import { auth } from "./auth" // Assuming auth.ts is your NextAuth configuration file
 import { NextResponse } from "next/server"
-
+import { auth } from "./auth"
+ 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login).*)"], // Example matcher
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - login (login page)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|login).*)",
+  ],
 }
 
 export default auth((req) => {
-  const isAuthenticated = !!req.auth // `req.auth` contains the session if authenticated
+  const isAuthenticated = !!req.auth
   const isLoginPage = req.nextUrl.pathname === "/login"
 
   if (!isAuthenticated && !isLoginPage) {
-    // Redirect unauthenticated users to the login page
     const url = req.nextUrl.clone()
     url.pathname = "/login"
     return NextResponse.redirect(url)
   }
-
-  // Allow authenticated users or access to the login page
+ 
   return NextResponse.next()
 })
