@@ -161,22 +161,50 @@ export async function getEpisodes(): Promise<Episode[]> {
 }
 
 export async function getEpisodes() {
-  const { userId } = await auth();
-  if (!userId) return [];
-  // Fetch episodes for collections owned by the user
-  const episodes = await prisma.episode.findMany({
-    orderBy: { publishedAt: 'desc' },
-    include: {
-      collection: {
-        include: { sources: true },
-      },
-      source: true,
-    },
-    where: {
-      collection: {
-        userId: userId,
-      },
-    },
-  });
-  return episodes;
+	const { userId } = await auth()
+	if (!userId) return []
+	// Fetch episodes for collections owned by the user
+	const episodes = await prisma.episode.findMany({
+		orderBy: { publishedAt: "desc" },
+		include: {
+			collection: {
+				include: { sources: true },
+			},
+			source: true,
+		},
+		where: {
+			collection: {
+				userId: userId,
+			},
+		},
+	})
+	return episodes.map(episode => ({
+		...episode,
+		collection: episode.collection
+			? ({
+					id: episode.collection.id,
+					name: episode.collection.name,
+					status: episode.collection.status as CuratedCollection["status"],
+					audioUrl: episode.collection.audioUrl,
+					createdAt: episode.collection.createdAt,
+					sources: episode.collection.sources.map(
+						source =>
+							({
+								id: source.id,
+								name: source.name,
+								url: source.url,
+								imageUrl: source.imageUrl || "",
+							}) as PodcastSource
+					),
+				} as CuratedCollection)
+			: undefined,
+		source: episode.source
+			? ({
+					id: episode.source.id,
+					name: episode.source.name,
+					url: episode.source.url,
+					imageUrl: episode.source.imageUrl || "",
+				} as PodcastSource)
+			: undefined,
+	}))
 }

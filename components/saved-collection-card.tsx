@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
 
@@ -141,3 +141,33 @@ export function SavedCollectionCard({
 		</Card>
 	)
 }
+
+// <div className="rounded-lg border bg-card p-4">
+// <div className="mb-4">
+// 	<h4 className="font-semibold">{currentCollection.name}</h4>
+// 	<p className="text-sm text-muted-foreground">Created: {displayTimestamp}</p>
+// 	{currentCollection.status === "Saved" && (
+// 		<Button type="button" onClick={handleGenerate} disabled={isLoading} variant="default">
+// 			{isLoading ? (
+// 				"Generating..."
+// 			) : (
+// 				<>
+// 					<Sparkles className="mr-2 h-4 w-4" />
+// 					Generate Podcast
+// 				</>
+// 			)}
+// 		</Button>
+// 	)}
+
+// 	{currentCollection.status === "Generated" && (
+// 		<Link href={`/collections/${currentCollection.id}`}>
+// 			<Button
+// 				variant="default"
+// 				className="w-full bg-primary text-primary-foreground rounded px-4 py-2 font-semibold hover:bg-primary/90 transition"
+// 			>
+// 				View Episodes
+// 			</Button>
+// 		</Link>
+// 	)}
+// </div>
+// </div>

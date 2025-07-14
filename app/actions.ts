@@ -1,7 +1,7 @@
-'use server';
+"use server"
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
 import type { FormState, UserCurationProfileWithRelations } from "@/lib/types"
@@ -277,26 +277,42 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 }
 
 export async function getCollectionStatus(collectionId: string) {
-  const { userId } = await auth();
-  if (!userId) {
-    return null;
-  }
-  try {
-    const collection = await prisma.collection.findUnique({
-      where: { id: collectionId, userId: userId },
-      include: { sources: true },
-    });
-    if (!collection) return null;
+	const { userId } = await auth()
+	if (!userId) {
+		return null
+	}
+	try {
+		const collection = await prisma.collection.findUnique({
+			where: { id: collectionId, userId: userId },
+			include: { sources: true },
+		})
+		if (!collection) return null
 
-    return {
-      ...collection,
-      sources: collection.sources.map((source: { imageUrl: string }) => ({
-        ...source,
-        imageUrl: source.imageUrl || '',
-      })),
-    };
-  } catch (error) {
-    console.error('Error fetching collection status:', error);
-    return null;
-  }
+		return {
+			...collection,
+			sources: collection.sources.map(source => ({
+				...source,
+				imageUrl: source.imageUrl || "",
+			})),
+		}
+	} catch (_error) {
+		return null
+	}
+}
+
+export async function triggerPodcastGeneration(collectionId: string) {
+	const { userId } = await auth()
+	if (!userId) {
+		return { success: false, message: "Not authenticated." }
+	}
+
+	try {
+		await inngest.send({
+			name: "podcast/generate.requested",
+			data: { collectionId },
+		})
+		return { success: true, message: "Podcast generation initiated!" }
+	} catch (_error) {
+		return { success: false, message: "Failed to initiate podcast generation." }
+	}
 }
