@@ -1,78 +1,106 @@
-'use server';
+"use server"
 
-import prisma from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
-import type { Podcast, CuratedCollection } from '@/lib/types';
+import prisma from "@/lib/prisma"
+import type { CuratedCollection, Podcast, PodcastSource } from "@/lib/types"
+import { auth } from "@clerk/nextjs/server"
 
 export async function getPodcasts(): Promise<Podcast[]> {
-  // For demonstration, return dummy data
-  return [
-    {
-      id: '1',
-      title: 'The AI Revolution in Healthcare',
-      date: '2023-10-26',
-      status: 'Completed',
-      duration: '25:30',
-      audioUrl: '/podcast1.mp3',
-    },
-    {
-      id: '2',
-      title: 'Sustainable Living in the 21st Century',
-      date: '2023-10-25',
-      status: 'Processing',
-      duration: '28:15',
-      audioUrl: null,
-    },
-    {
-      id: '3',
-      title: 'The Future of Remote Work',
-      date: '2023-10-24',
-      status: 'Failed',
-      duration: '00:00',
-      audioUrl: null,
-    },
-  ];
+	// For demonstration, return dummy data
+	return [
+		{
+			id: "1",
+			title: "The AI Revolution in Healthcare",
+			date: "2023-10-26",
+			status: "Completed",
+			duration: "25:30",
+			audioUrl: "/podcast1.mp3",
+		},
+		{
+			id: "2",
+			title: "Sustainable Living in the 21st Century",
+			date: "2023-10-25",
+			status: "Processing",
+			duration: "28:15",
+			audioUrl: null,
+		},
+		{
+			id: "3",
+			title: "The Future of Remote Work",
+			date: "2023-10-24",
+			status: "Failed",
+			duration: "00:00",
+			audioUrl: null,
+		},
+	]
 }
 
 export async function getCuratedCollections(): Promise<CuratedCollection[]> {
-  const { userId } = await auth();
+	const { userId } = await auth()
 
-  if (!userId) {
-    return [];
-  }
+	if (!userId) {
+		return []
+	}
 
-  const collections = await prisma.collection.findMany({
-    where: { userId: userId },
-    include: { sources: true },
-  });
+	const collections = await prisma.collection.findMany({
+		where: { userId: userId },
+		include: { sources: true },
+	})
 
-  return collections.map((collection) => ({
-    ...collection,
-    status: collection.status as 'Draft' | 'Saved',
-    sources: collection.sources.map((source) => ({
-      ...source,
-      imageUrl: source.imageUrl || '',
-    })),
-  }));
+	return collections.map(collection => ({
+		...collection,
+		status: collection.status as "Draft" | "Saved",
+		sources: collection.sources.map(source => ({
+			...source,
+			imageUrl: source.imageUrl || "",
+		})),
+	}))
 }
 
 export async function getEpisodes() {
-  const { userId } = await auth();
-  if (!userId) return [];
-  // Fetch episodes for collections owned by the user
-  const episodes = await prisma.episode.findMany({
-    orderBy: { publishedAt: 'desc' },
-    include: {
-      collection: {
-        include: { sources: true },
-      },
-      source: true,
-    },
-    where: {
-      collection: {
-        userId: userId,
-      },
-    },
-  });
-  return episodes;
+	const { userId } = await auth()
+	if (!userId) return []
+	// Fetch episodes for collections owned by the user
+	const episodes = await prisma.episode.findMany({
+		orderBy: { publishedAt: "desc" },
+		include: {
+			collection: {
+				include: { sources: true },
+			},
+			source: true,
+		},
+		where: {
+			collection: {
+				userId: userId,
+			},
+		},
+	})
+	return episodes.map(episode => ({
+		...episode,
+		collection: episode.collection
+			? ({
+					id: episode.collection.id,
+					name: episode.collection.name,
+					status: episode.collection.status as CuratedCollection["status"],
+					audioUrl: episode.collection.audioUrl,
+					createdAt: episode.collection.createdAt,
+					sources: episode.collection.sources.map(
+						source =>
+							({
+								id: source.id,
+								name: source.name,
+								url: source.url,
+								imageUrl: source.imageUrl || "",
+							}) as PodcastSource
+					),
+				} as CuratedCollection)
+			: undefined,
+		source: episode.source
+			? ({
+					id: episode.source.id,
+					name: episode.source.name,
+					url: episode.source.url,
+					imageUrl: episode.source.imageUrl || "",
+				} as PodcastSource)
+			: undefined,
+	}))
 }

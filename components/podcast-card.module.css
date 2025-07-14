@@ -1,0 +1,7 @@
+.podcast-card-flex-col {
+    display: flex;
+    flex-direction: column;
+	width: 100%;
+	/* background: var(--background) !important; */
+	background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}

@@ -1,6 +1,11 @@
 {
 	"compilerOptions": {
-		"lib": ["dom", "dom.iterable", "esnext"],
+		"target": "es2015",
+		"lib": [
+			"dom",
+			"dom.iterable",
+			"esnext"
+		],
 		"allowJs": true,
 		"skipLibCheck": true,
 		"strict": true,
@@ -18,20 +23,32 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./src/*"]
-		},
-		"target": "ES2017"
+			"@/*": [
+				"./*",
+				"./components/*",
+				"./lib/*",
+				"./hooks/*",
+				"./app/*",
+				"./store/*",
+				"./config/*",
+				"./prisma/*",
+				"./scripts/*",
+				"./styles/*",
+			]
+		}
+	},
+	"ts-node": {
+		"compilerOptions": {
+			"module": "commonjs"
+		}
 	},
 	"include": [
 		"next-env.d.ts",
 		"**/*.ts",
 		"**/*.tsx",
-		".next/types/**/*.ts",
-		"src/components/FilterBuilder/traverseAndModify,ts",
-		"src/app/api/detect/[...path]/route.ts.old",
-		"src/app/api/detect/[...path]/route.ts.new",
-		"src/components/AnalysisAITraining/AnalysisAITraining.tsx.old",
-		"src/components/FilePreview/FilePreviewText.tsx"
+		".next/types/**/*.ts"
 	],
-	"exclude": ["node_modules"]
+	"exclude": [
+		"node_modules"
+	]
 }

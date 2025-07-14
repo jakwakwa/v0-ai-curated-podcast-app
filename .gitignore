@@ -1,8 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+/public/newhomescreen-poc
 # dependencies
-/node_modules
-
+/node_modules/
+google-cloud-sdk/**
 # next.js
 /.next/
 /out/
@@ -15,7 +15,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-# pnpm-lock.yaml
+
 # env files
 .env*
 
@@ -25,9 +25,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-/google-cloud-sdk/
-google-cloud-cli-darwin-arm.tar.gz*
-google-cloud-cli-darwin-arm.tar.gz
-
-/lib/generated/prisma
+.package-lock.json
+.yarn.lock
 .DS_Store
+
+/src/generated/prisma
+google-cloud-sdk/lib/googlecloudsdk/api_lib/bms/__init__.py
+.cursor/rules/biome-ignore.mdc
+.cursor/rules/converting-tailwind-to-css-modules.mdc
+.cursor/rules/css-architecture.mdc
+.cursor/rules/css-styles-preference.mdc
+.cursor/rules/file-naming-conventions.mdc
+.cursor/rules/prisma-schema-updates.mdc
+.cursor/rules/preview-resume-rules.mdc
+.cursor/rules/tailwind-css-to-css-modules-refactor-context.mdc
+.cursor/rules/tailwind-to-css-refactor.mdc
+components/.cursor/rules/frontend-components.mdc

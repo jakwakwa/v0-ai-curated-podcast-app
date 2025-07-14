@@ -1,11 +1,14 @@
 // @ts-check
- 
-export default (phase, { defaultConfig }) => {
+
+export default () => {
   /**
    * @type {import('next').NextConfig}
    */
   const nextConfig = {
     /* config options here */
+    images: {
+      domains: ['i.ytimg.com'],
+    },
   }
   return nextConfig
 }

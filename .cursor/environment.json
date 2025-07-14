@@ -1,0 +1,23 @@
+{
+  "snapshot": "snapshot-20250703-8c86b752-77cf-4209-8d04-d2c3e9bfcbee",
+  "install": "pnpm install",
+  "start": "pnpm dev",
+  "terminals": [
+    {
+      "name": "zsh",
+      "command": "git status"
+    },
+    {
+      "name": "zsh",
+      "command": "pnpm build"
+    },
+    {
+      "name": "zsh",
+      "command": "pnpm lint"
+    },
+    {
+      "name": "zsh",
+      "command": "pnpm dev"
+    }
+  ]
+}
