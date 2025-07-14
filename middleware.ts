@@ -1,20 +1,22 @@
-import { auth } from "@/auth"
+// middleware.ts
+import { auth } from "./auth" // Assuming auth.ts is your NextAuth configuration file
 import { NextResponse } from "next/server"
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth
-  const { nextUrl } = req
-
-  if (!isLoggedIn && nextUrl.pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", nextUrl))
-  }
-
-  if (isLoggedIn && nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", nextUrl))
-  }
-})
-
-// Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login).*)"], // Example matcher
 }
+
+export default auth((req) => {
+  const isAuthenticated = !!req.auth // `req.auth` contains the session if authenticated
+  const isLoginPage = req.nextUrl.pathname === "/login"
+
+  if (!isAuthenticated && !isLoginPage) {
+    // Redirect unauthenticated users to the login page
+    const url = req.nextUrl.clone()
+    url.pathname = "/login"
+    return NextResponse.redirect(url)
+  }
+
+  // Allow authenticated users or access to the login page
+  return NextResponse.next()
+})
