@@ -1,52 +1,13 @@
 import Link from "next/link"
-import { headers } from "next/headers"
-import { createClient } from "@/utils/supabase/server"
-import { redirect } from "next/navigation"
-import { SubmitButton } from "./submit-button"
 import { Mic } from "lucide-react"
+import { signIn } from "@/auth"
+import { Button } from "@/components/ui/button"
 
-export default function Login({ searchParams }: { searchParams: { message: string } }) {
-  const signIn = async (formData: FormData) => {
-    "use server"
+function SignInButton() {
+  return <Button type="submit">Sign In</Button>
+}
 
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    const supabase = createClient()
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      return redirect("/login?message=Could not authenticate user")
-    }
-
-    return redirect("/")
-  }
-
-  const signUp = async (formData: FormData) => {
-    "use server"
-
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    const supabase = createClient()
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${headers().get("origin")}/auth/callback`,
-      },
-    })
-
-    if (error) {
-      return redirect("/login?message=Could not authenticate user")
-    }
-
-    return redirect("/login?message=Check email to continue sign in process")
-  }
-
+export default function Login({ searchParams }: { searchParams: { error?: string } }) {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
@@ -56,7 +17,18 @@ export default function Login({ searchParams }: { searchParams: { message: strin
             <span className="text-2xl">AI Podcast Generator</span>
           </Link>
         </div>
-        <form className="flex w-full flex-1 flex-col justify-center gap-2 text-foreground animate-in">
+        <form
+          action={async (formData) => {
+            "use server"
+            try {
+              await signIn("credentials", formData)
+            } catch (error) {
+              // Signin can throw an error, which Next.js redirects to the page with error in query string.
+              // We don't need to do anything here, the page will re-render with the error message.
+            }
+          }}
+          className="flex w-full flex-1 flex-col justify-center gap-2 text-foreground"
+        >
           <label className="text-md" htmlFor="email">
             Email
           </label>
@@ -76,19 +48,15 @@ export default function Login({ searchParams }: { searchParams: { message: strin
             placeholder="••••••••"
             required
           />
-          <SubmitButton formAction={signIn} className="mb-2 rounded-md bg-primary px-4 py-2 text-primary-foreground">
-            Sign In
-          </SubmitButton>
-          <SubmitButton
-            formAction={signUp}
-            className="mb-2 rounded-md border border-foreground/20 px-4 py-2 text-foreground"
-            pendingText="Signing Up..."
-          >
-            Sign Up
-          </SubmitButton>
-          {searchParams?.message && (
-            <p className="mt-4 bg-foreground/10 p-4 text-center text-foreground">{searchParams.message}</p>
+          <SignInButton />
+          {searchParams?.error && (
+            <p className="mt-4 bg-red-100 p-4 text-center text-red-600 dark:bg-red-900/30 dark:text-red-400">
+              Authentication failed. Please check your credentials.
+            </p>
           )}
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Don't have an account? The seed script creates one for you.
+          </p>
         </form>
       </div>
     </div>

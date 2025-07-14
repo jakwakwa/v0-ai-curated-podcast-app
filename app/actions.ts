@@ -2,62 +2,75 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createClient } from "@/utils/supabase/server"
+import { v4 as uuidv4 } from "uuid"
+import { auth, signOut as authSignOut } from "@/auth"
+import { sql } from "@/lib/db"
 
 export async function addPodcastSource(prevState: any, formData: FormData) {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { success: false, message: "Not authenticated" }
+  const session = await auth()
+  if (!session?.user?.id) {
+    return { success: false, message: "Not authenticated." }
+  }
 
   const url = formData.get("url") as string
-  if (!url || !url.includes("spotify.com/show")) {
+  if (!url || !url.includes("spotify.com/show/")) {
     return { success: false, message: "Please enter a valid Spotify show URL." }
   }
 
-  // Find the user's draft collection
-  const { data: draftCollection, error: draftError } = await supabase
-    .from("collections")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("status", "Draft")
-    .single()
+  try {
+    const oEmbedUrl = `https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`
+    const response = await fetch(oEmbedUrl)
 
-  if (draftError || !draftCollection) {
-    return { success: false, message: "Could not find a draft collection." }
-  }
+    if (!response.ok) {
+      return { success: false, message: "Could not find Spotify show. Please check the URL." }
+    }
 
-  // In a real app, you'd fetch the show details from Spotify API here
-  const newSource = {
-    collection_id: draftCollection.id,
-    name: "Fetched Show Name", // Placeholder
-    url: url,
-    image_url: "/placeholder.svg?width=40&height=40", // Placeholder
-  }
+    const showData = await response.json()
+    const { title, thumbnail_url } = showData
 
-  const { error } = await supabase.from("sources").insert(newSource)
+    if (!title || !thumbnail_url) {
+      return { success: false, message: "Could not retrieve show details from Spotify." }
+    }
 
-  if (error) {
+    const draftCollections = await sql`
+      SELECT id FROM collections WHERE user_id = ${session.user.id} AND status = 'Draft' LIMIT 1
+    `
+    const draftCollection = draftCollections[0]
+
+    if (!draftCollection) {
+      return { success: false, message: "Could not find a draft collection." }
+    }
+
+    await sql`
+      INSERT INTO sources (id, collection_id, name, url, image_url)
+      VALUES (${uuidv4()}, ${draftCollection.id}, ${title}, ${url}, ${thumbnail_url})
+    `
+
+    revalidatePath("/build")
+    return { success: true, message: `Added "${title}" to your draft.` }
+  } catch (error) {
     console.error("Error adding source:", error)
-    return { success: false, message: "Failed to add source to database." }
+    return { success: false, message: "An unexpected error occurred. Failed to add source." }
   }
-
-  revalidatePath("/build")
-  return { success: true, message: "Source added to your draft." }
 }
 
 export async function removePodcastSource(formData: FormData) {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return
+  const session = await auth()
+  if (!session?.user?.id) return
 
   const id = formData.get("id") as string
-  const { error } = await supabase.from("sources").delete().eq("id", id)
+  try {
+    const results = await sql`
+      SELECT c.user_id FROM sources s
+      JOIN collections c ON s.collection_id = c.id
+      WHERE s.id = ${id}
+    `
+    const sourceOwner = results[0]
 
-  if (error) {
+    if (sourceOwner?.user_id === session.user.id) {
+      await sql`DELETE FROM sources WHERE id = ${id}`
+    }
+  } catch (error) {
     console.error("Error removing source:", error)
   }
 
@@ -65,39 +78,29 @@ export async function removePodcastSource(formData: FormData) {
 }
 
 export async function saveCuration(formData: FormData) {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return
+  const session = await auth()
+  if (!session?.user?.id) return
 
   const collectionId = formData.get("collectionId") as string
 
-  // 1. Update the current draft collection to 'Saved'
-  const { error: updateError } = await supabase
-    .from("collections")
-    .update({ status: "Saved", name: `Week of ${new Date().toLocaleDateString()}` }) // Placeholder name
-    .eq("id", collectionId)
-
-  if (updateError) {
-    console.error("Error saving curation:", updateError)
+  try {
+    await sql`
+      UPDATE collections
+      SET status = 'Saved', name = ${`Week of ${new Date().toLocaleDateString()}`}
+      WHERE id = ${collectionId} AND user_id = ${session.user.id}
+    `
+    await sql`
+      INSERT INTO collections (id, user_id, name, status)
+      VALUES (${uuidv4()}, ${session.user.id}, 'New Weekly Curation', 'Draft')
+    `
+  } catch (error) {
+    console.error("Error saving curation:", error)
     return
-  }
-
-  // 2. Create a new empty 'Draft' collection for the user
-  const { error: createError } = await supabase
-    .from("collections")
-    .insert({ user_id: user.id, name: "New Weekly Curation", status: "Draft" })
-
-  if (createError) {
-    console.error("Error creating new draft:", createError)
   }
 
   redirect("/")
 }
 
 export async function logout() {
-  const supabase = createClient()
-  await supabase.auth.signOut()
-  redirect("/login")
+  await authSignOut({ redirectTo: "/login" })
 }

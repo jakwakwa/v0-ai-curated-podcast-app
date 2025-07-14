@@ -5,13 +5,10 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { User } from "@supabase/supabase-js"
+import type { User } from "next-auth"
 import { UserNav } from "./user-nav"
 
-// This component is now a client component to use usePathname,
-// but we pass the user object from a server component parent
-// to avoid fetching it on the client.
-export function Header({ user }: { user: User | null }) {
+export function Header({ user }: { user?: User | null }) {
   const pathname = usePathname()
 
   return (

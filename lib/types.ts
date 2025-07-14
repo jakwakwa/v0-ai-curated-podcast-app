@@ -20,3 +20,12 @@ export interface CuratedCollection {
   status: "Draft" | "Saved"
   sources: PodcastSource[]
 }
+
+// Added for raw SQL query in auth.ts
+export interface User {
+  id: string
+  name: string | null
+  email: string
+  password?: string | null
+  image: string | null
+}

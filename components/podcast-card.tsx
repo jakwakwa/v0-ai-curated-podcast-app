@@ -1,22 +1,35 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlayCircle, Clock, Calendar } from "lucide-react"
+import { PlayCircle, Clock, Calendar, PauseCircle } from "lucide-react"
 import type { Podcast } from "@/lib/types"
-import type { PodcastCardProps } from "./types" // Assuming PodcastCardProps is declared in a separate file
+import { useAudioPlayerStore } from "@/lib/store/audio-player"
+
+interface PodcastCardProps {
+  podcast: Podcast
+}
 
 export function PodcastCard({ podcast }: PodcastCardProps) {
+  const { setActivePodcast, activePodcast, isPlaying } = useAudioPlayerStore()
+  const isThisPodcastActive = activePodcast?.id === podcast.id
+
   const getStatusBadgeVariant = (status: Podcast["status"]) => {
     switch (status) {
       case "Completed":
-        return "success"
+        return "default" // Changed for better visibility
       case "Processing":
-        return "default"
+        return "secondary"
       case "Failed":
         return "destructive"
       default:
-        return "secondary"
+        return "outline"
     }
+  }
+
+  const handlePlayClick = () => {
+    setActivePodcast(podcast)
   }
 
   return (
@@ -38,9 +51,13 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" disabled={podcast.status !== "Completed"}>
-          <PlayCircle className="mr-2 h-4 w-4" />
-          Play Episode
+        <Button className="w-full" disabled={podcast.status !== "Completed"} onClick={handlePlayClick}>
+          {isThisPodcastActive && isPlaying ? (
+            <PauseCircle className="mr-2 h-4 w-4" />
+          ) : (
+            <PlayCircle className="mr-2 h-4 w-4" />
+          )}
+          {isThisPodcastActive && isPlaying ? "Pause" : "Play Episode"}
         </Button>
       </CardFooter>
     </Card>

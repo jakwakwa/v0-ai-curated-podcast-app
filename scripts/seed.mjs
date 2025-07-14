@@ -1,112 +1,107 @@
-import { createClient } from "@supabase/supabase-js"
+import { neon } from "@neondatabase/serverless"
+import bcrypt from "bcryptjs"
+import { v4 as uuidv4 } from "uuid"
+import cuid from "cuid"
+import "dotenv/config"
 
-// The environment variables are automatically loaded in this environment.
-// We do not need to use the 'dotenv' package.
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("Supabase URL or Service Role Key is missing from the environment variables.")
-}
-
-// Use the service role key for the admin client to bypass RLS
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+const sql = neon(process.env.DATABASE_URL)
 
 const seedUser = {
   email: "test.user@example.com",
   password: "password123",
+  name: "Test User",
+}
+
+async function createTables() {
+  console.log("Dropping existing tables...")
+  await sql`DROP TABLE IF EXISTS "sources";`
+  await sql`DROP TABLE IF EXISTS "collections";`
+  await sql`DROP TABLE IF EXISTS "users";`
+
+  console.log("Creating tables...")
+  await sql`
+    CREATE TABLE "users" (
+      "id" TEXT PRIMARY KEY,
+      "name" TEXT,
+      "email" TEXT NOT NULL UNIQUE,
+      "password" TEXT NOT NULL,
+      "image" TEXT,
+      "emailVerified" TIMESTAMPTZ
+    );
+  `
+
+  await sql`
+    CREATE TABLE "collections" (
+      "id" UUID PRIMARY KEY,
+      "user_id" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+      "name" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'Draft',
+      "created_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `
+
+  await sql`
+    CREATE TABLE "sources" (
+      "id" UUID PRIMARY KEY,
+      "collection_id" UUID NOT NULL REFERENCES "collections"("id") ON DELETE CASCADE,
+      "name" TEXT NOT NULL,
+      "url" TEXT NOT NULL,
+      "image_url" TEXT,
+      "created_at" TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `
+  console.log("Tables created successfully.")
+}
+
+async function seedData() {
+  console.log("Seeding data...")
+  // 1. Create a test user
+  const userId = cuid()
+  const hashedPassword = await bcrypt.hash(seedUser.password, 10)
+  await sql`
+    INSERT INTO "users" (id, email, password, name)
+    VALUES (${userId}, ${seedUser.email}, ${hashedPassword}, ${seedUser.name});
+  `
+  console.log(`Test user created with ID: ${userId}`)
+
+  // 2. Create a 'Saved' collection
+  const savedCollectionId = uuidv4()
+  await sql`
+    INSERT INTO "collections" (id, user_id, name, status)
+    VALUES (${savedCollectionId}, ${userId}, 'Week of July 5th, 2025', 'Saved');
+  `
+  await sql`
+    INSERT INTO "sources" (id, collection_id, name, url, image_url) VALUES
+    (${uuidv4()}, ${savedCollectionId}, 'Acquired', 'https://open.spotify.com/show/1TzB4nK8f4T3pUa6C3lT9t', '/placeholder.svg?width=40&height=40'),
+    (${uuidv4()}, ${savedCollectionId}, 'All-In Podcast', 'https://open.spotify.com/show/2I3r1wZnNKh6C44i3tE0D2', '/placeholder.svg?width=40&height=40'),
+    (${uuidv4()}, ${savedCollectionId}, 'Darknet Diaries', 'https://open.spotify.com/show/4XPl3uEEL9hvqMkoZrzbx5', '/placeholder.svg?width=40&height=40');
+  `
+  console.log("Created a 'Saved' collection with sources.")
+
+  // 3. Create a 'Draft' collection
+  const draftCollectionId = uuidv4()
+  await sql`
+    INSERT INTO "collections" (id, user_id, name, status)
+    VALUES (${draftCollectionId}, ${userId}, 'New Weekly Curation', 'Draft');
+  `
+  await sql`
+    INSERT INTO "sources" (id, collection_id, name, url, image_url) VALUES
+    (${uuidv4()}, ${draftCollectionId}, 'The Daily', 'https://open.spotify.com/show/3IM0lmZxpFAY72Q_...', '/placeholder.svg?width=40&height=40'),
+    (${uuidv4()}, ${draftCollectionId}, 'Lex Fridman Podcast', 'https://open.spotify.com/show/2MAi0BvDc6GTFvKFPXnkCL', '/placeholder.svg?width=40&height=40');
+  `
+  console.log("Created a 'Draft' collection with sources.")
 }
 
 async function main() {
-  console.log("Starting seed process...")
-
-  // 1. Create a test user
-  console.log("Creating test user...")
-  const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
-    email: seedUser.email,
-    password: seedUser.password,
-    email_confirm: true, // Auto-confirm user's email
-  })
-
-  if (userError && userError.message !== "Email address already registered by another user") {
-    console.error("Error creating user:", userError.message)
-    return
-  }
-
-  const {
-    data: { users },
-  } = await supabaseAdmin.auth.admin.listUsers()
-  const user = users.find((u) => u.email === seedUser.email)
-
-  if (!user) {
-    console.error("Could not find or create test user.")
-    return
-  }
-
-  console.log(`Test user created/found with ID: ${user.id}`)
-
-  // 2. Create a "Saved" collection for the user
-  console.log("Creating a 'Saved' collection...")
-  const { data: savedCollection, error: savedError } = await supabaseAdmin
-    .from("collections")
-    .insert({
-      user_id: user.id,
-      name: "Week of July 5th, 2025",
-      status: "Saved",
-    })
-    .select()
-    .single()
-
-  if (savedError) {
-    console.error("Error creating saved collection:", savedError.message)
-    return
-  }
-  console.log(`'Saved' collection created with ID: ${savedCollection.id}`)
-
-  // 3. Add sources to the "Saved" collection
-  console.log("Adding sources to 'Saved' collection...")
-  const savedSources = [
-    { name: "Acquired", url: "https://open.spotify.com/show/1TzB4nK8f4T3pUa6C3lT9t", image_url: "/placeholder.svg?width=40&height=40" },
-    { name: "All-In Podcast", url: "https://open.spotify.com/show/2I3r1wZnNKh6C44i3tE0D2", image_url: "/placeholder.svg?width=40&height=40" },
-    { name: "Darknet Diaries", url: "https://open.spotify.com/show/4XPl3uEEL9hvqMkoZrzbx5", image_url: "/placeholder.svg?width=40&height=40" },
-  ]
-
-  const savedSourcesData = savedSources.map((s) => ({ ...s, collection_id: savedCollection.id }))
-  const { error: savedSourcesError } = await supabaseAdmin.from("sources").insert(savedSourcesData)
-  if (savedSourcesError) console.error("Error adding sources to saved collection:", savedSourcesError.message)
-
-  // 4. Create a "Draft" collection for the user
-  console.log("Creating a 'Draft' collection...")
-  const { data: draftCollection, error: draftError } = await supabaseAdmin
-    .from("collections")
-    .insert({
-      user_id: user.id,
-      name: "New Weekly Curation",
-      status: "Draft",
-    })
-    .select()
-    .single()
-
-  if (draftError) {
-    console.error("Error creating draft collection:", draftError.message)
-    return
-  }
-  console.log(`'Draft' collection created with ID: ${draftCollection.id}`)
-
-  // 5. Add sources to the "Draft" collection
-  console.log("Adding sources to 'Draft' collection...")
-  const draftSources = [
-    { name: "The Daily", url: "https://open.spotify.com/show/3IM0lmZxpFAY72Q_...", image_url: "/placeholder.svg?width=40&height=40" },
-    { name: "Lex Fridman Podcast", url: "https://open.spotify.com/show/2MAi0BvDc6GTFvKFPXnkCL", image_url: "/placeholder.svg?width=40&height=40" },
-  ]
-  const draftSourcesData = draftSources.map((s) => ({ ...s, collection_id: draftCollection.id }))
-  const { error: draftSourcesError } = await supabaseAdmin.from("sources").insert(draftSourcesData)
-  if (draftSourcesError) console.error("Error adding sources to draft collection:", draftSourcesError.message)
-
+  await createTables()
+  await seedData()
   console.log("\nSeed process completed successfully!")
   console.log(`\nYou can log in with the test user:`)
   console.log(`Email: ${seedUser.email}`)
   console.log(`Password: ${seedUser.password}`)
 }
 
-main().catch(console.error)
+main().catch((e) => {
+  console.error("An error occurred during the seed process:", e)
+  process.exit(1)
+})

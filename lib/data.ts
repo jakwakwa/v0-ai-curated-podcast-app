@@ -1,7 +1,7 @@
-import { createClient } from "@/utils/supabase/server"
+import { sql } from "./db"
+import { auth } from "@/auth"
 import type { Podcast, CuratedCollection } from "./types"
 
-// Mock data for podcasts until that table exists
 const mockPodcasts: Podcast[] = [
   {
     id: "1",
@@ -22,50 +22,68 @@ const mockPodcasts: Podcast[] = [
 ]
 
 export async function getPodcasts(): Promise<Podcast[]> {
-  // This remains mocked for now
   await new Promise((resolve) => setTimeout(resolve, 100))
   return mockPodcasts
 }
 
-export async function getCuratedCollections(): Promise<CuratedCollection[]> {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+interface CollectionRow {
+  collection_id: string
+  collection_name: string
+  collection_status: "Draft" | "Saved"
+  source_id: string | null
+  source_name: string | null
+  source_url: string | null
+  source_image_url: string | null
+}
 
-  if (!user) {
+export async function getCuratedCollections(): Promise<CuratedCollection[]> {
+  const session = await auth()
+  if (!session?.user?.id) {
     return []
   }
 
-  const { data, error } = await supabase
-    .from("collections")
-    .select(
-      `
-      id,
-      name,
-      status,
-      sources (
-        id,
-        name,
-        url,
-        image_url
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+  try {
+    const rows = await sql<CollectionRow>`
+      SELECT
+        c.id as collection_id,
+        c.name as collection_name,
+        c.status as collection_status,
+        s.id as source_id,
+        s.name as source_name,
+        s.url as source_url,
+        s.image_url as source_image_url
+      FROM collections c
+      LEFT JOIN sources s ON c.id = s.collection_id
+      WHERE c.user_id = ${session.user.id}
+      ORDER BY c.created_at DESC;
+    `
 
-  if (error) {
+    const collectionsMap = new Map<string, CuratedCollection>()
+
+    for (const row of rows) {
+      if (!collectionsMap.has(row.collection_id)) {
+        collectionsMap.set(row.collection_id, {
+          id: row.collection_id,
+          name: row.collection_name,
+          status: row.collection_status,
+          sources: [],
+        })
+      }
+
+      if (row.source_id) {
+        const collection = collectionsMap.get(row.collection_id)!
+        collection.sources.push({
+          id: row.source_id,
+          name: row.source_name!,
+          url: row.source_url!,
+          imageUrl: row.source_image_url || "",
+        })
+      }
+    }
+
+    return Array.from(collectionsMap.values())
+  } catch (error) {
     console.error("Error fetching collections:", error)
     return []
   }
-
-  // Map the data to the CuratedCollection type
-  return data.map((collection) => ({
-    ...collection,
-    sources: collection.sources.map((source) => ({
-      ...source,
-      imageUrl: source.image_url ?? "",
-    })),
-  }))
 }
