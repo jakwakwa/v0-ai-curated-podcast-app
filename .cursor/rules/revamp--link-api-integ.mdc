@@ -1,7 +1,7 @@
 ---
 alwaysApply: false
 ---
-### Link API integration helper
+### Link-PAy API integration helper
 
  (you'll need to install the Link SDK: npm install @link-sdk/node)
 

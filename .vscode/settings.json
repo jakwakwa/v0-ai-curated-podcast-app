@@ -1,8 +1,0 @@
-{
-  "prettier.prettierPath": "prettier.config.js",
-  "prettier.experimentalTernaries": true,
-  "prettier.requireConfig": true,
-  "eslint.codeActionsOnSave.mode": "problems",
-  "eslint.enable": true,
-  "prettier.configPath": "prettier.config.js"
-}

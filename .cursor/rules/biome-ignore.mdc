@@ -1,0 +1,32 @@
+---
+description: 
+globs: biome.json
+alwaysApply: false
+---
+---
+description: Biome Linter Ignore Patterns
+globs: 
+alwaysApply: false
+---
+
+Enable biome linter to Ignore files or folders:
+
+One must follow this pattern in `biome.json`:
+```
+ "files": {
+    "includes": [
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.ts",
+      "**/*.tsx",
+      "!**/.cursor/**", // ignored rules 
+      "!**/.next/**", // ignored rules
+      "!**/node_modules/**" // ignored rules
+    ]
+  }
+  // ...
+```
+
+Do NOT attempt ignore rules inside "overrides.include"!
+
+

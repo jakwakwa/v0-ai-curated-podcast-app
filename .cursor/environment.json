@@ -1,6 +1,16 @@
 {
-    "snapshot": "snapshot-20250703-8c86b752-77cf-4209-8d04-d2c3e9bfcbee",
-    "install": "pnpm install",
-    "start": "pnpm dev",
-    "agentCanUpdateSnapshot": false
+	"snapshot": "",
+	"install": "pnpm install",
+	"start": "pnpm dev",
+	"agentCanUpdateSnapshot": false,
+	"terminals": [
+		{
+			"name": "bash",
+			"command": "pnpm build"
+		},
+		{
+			"name": "bash",
+			"command": "pnpm dev"
+		}
+	]
 }

@@ -33,8 +33,6 @@ next-env.d.ts
 
 /src/generated/prisma
 google-cloud-sdk/lib/googlecloudsdk/api_lib/bms/__init__.py
-.cursor/rules/biome-ignore.mdc
-.cursor/rules/converting-tailwind-to-css-modules.mdc
 .cursor/rules/css-architecture.mdc
 .cursor/rules/css-styles-preference.mdc
 .cursor/rules/file-naming-conventions.mdc
