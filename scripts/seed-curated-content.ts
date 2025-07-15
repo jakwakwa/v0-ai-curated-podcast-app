@@ -187,6 +187,24 @@ const curatedBundles = [
 	},
 ]
 
+// Update the subscription tiers for South African market
+export const SUBSCRIPTION_TIERS = {
+	TRIAL: {
+		id: "trial",
+		name: "Free Trial",
+		price: 0,
+		linkPriceId: null,
+		features: ["1 week trial", "1 collection", "Weekly generation"],
+	},
+	PREMIUM: {
+		id: "premium",
+		name: "Premium",
+		price: 99, // R99/month in ZAR
+		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID,
+		features: ["Unlimited collections", "Weekly generation", "Priority support"],
+	},
+} as const
+
 async function seedCuratedContent() {
 	console.log("🌱 Starting curated content seed...")
 

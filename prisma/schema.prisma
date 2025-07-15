@@ -1,65 +1,87 @@
 // This is your Prisma schema file
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl"]
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String       @unique
-  password      String
-  image         String?
-  emailVerified DateTime?
-  collections   Collection[]
+    id            String         @id @default(cuid())
+    name          String?
+    email         String         @unique
+    password      String
+    image         String?
+    emailVerified DateTime?
+    collections   Collection[]
+    subscriptions Subscription[]
 }
 
 model Collection {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  name        String
-  status      String    @default("Draft")
-  audioUrl    String?   @map("audio_url")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  generatedAt DateTime? @map("generated_at")
-  sources     Source[]
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  episodes    Episode[]
+    id          String    @id @default(uuid())
+    userId      String    @map("user_id")
+    name        String
+    status      String    @default("Draft")
+    audioUrl    String?   @map("audio_url")
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+    generatedAt DateTime? @map("generated_at")
+    sources     Source[]
+    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    episodes    Episode[]
 
-  @@map("collections")
+    @@map("collections")
 }
 
 model Source {
-  id           String     @id @default(uuid())
-  collectionId String     @map("collection_id")
-  name         String
-  url          String
-  imageUrl     String?    @map("image_url")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  episodes     Episode[]
+    id           String     @id @default(uuid())
+    collectionId String     @map("collection_id")
+    name         String
+    url          String
+    imageUrl     String?    @map("image_url")
+    createdAt    DateTime   @default(now()) @map("created_at")
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    episodes     Episode[]
 
-  @@map("sources")
+    @@map("sources")
 }
 
 model Episode {
-  id           String     @id @default(uuid())
-  title        String
-  description  String?
-  audioUrl     String
-  imageUrl     String?
-  publishedAt  DateTime?
-  createdAt    DateTime   @default(now())
-  sourceId     String     @map("source_id")
-  source       Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-  collectionId String     @map("collection_id")
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    id           String     @id @default(uuid())
+    title        String
+    description  String?
+    audioUrl     String
+    imageUrl     String?
+    publishedAt  DateTime?
+    createdAt    DateTime   @default(now())
+    sourceId     String     @map("source_id")
+    source       Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+    collectionId String     @map("collection_id")
+    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
-  @@map("episodes")
+    @@map("episodes")
+}
+
+// Simple Subscription Model for Link Integration
+model Subscription {
+    id                 String    @id @default(uuid())
+    userId             String    @map("user_id")
+    linkCustomerId     String?   @map("link_customer_id")
+    linkSubscriptionId String?   @map("link_subscription_id")
+    linkPriceId        String?   @map("link_price_id")
+    status             String    @default("trialing") // "trialing", "active", "canceled", "past_due", "incomplete"
+    currentPeriodStart DateTime? @map("current_period_start")
+    currentPeriodEnd   DateTime? @map("current_period_end")
+    trialStart         DateTime? @map("trial_start")
+    trialEnd           DateTime? @map("trial_end")
+    canceledAt         DateTime? @map("canceled_at")
+    createdAt          DateTime  @default(now()) @map("created_at")
+    updatedAt          DateTime  @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("subscriptions")
 }
