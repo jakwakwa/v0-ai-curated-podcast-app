@@ -25,13 +25,13 @@ export function NavSecondary({
 		<SidebarGroup {...props}>
 			<SidebarGroupContent>
 				<SidebarMenu>
-					{items.map(item => (
-						<SidebarMenuItem key={item.title}>
+					{items.map((item, index) => (
+						<SidebarMenuItem key={index}>
 							<SidebarMenuButton asChild>
-								<a href={item.url}>
-									<item.icon />
+								<Link href={item.url} className="flex items-center gap-2">
+									{item.icon && <item.icon className="size-5" />} {/* Render the LucideIcon component */}
 									<span>{item.title}</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					))}
