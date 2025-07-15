@@ -1,7 +1,6 @@
 "use client"
 
 import {
-	ArrowUpCircleIcon,
 	CameraIcon,
 	FileCodeIcon,
 	FileTextIcon,
@@ -26,8 +25,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "@/components/ui/sidebar"
-// import { Separator } from "@radix-ui/react-separator"
+} from "./ui/sidebar-ui"
 
 const data = {
 	user: {

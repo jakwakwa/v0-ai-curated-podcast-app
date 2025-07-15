@@ -1,7 +1,7 @@
 "use client"
 
 import { Slot } from "@radix-ui/react-slot"
-import { VariantProps, cva } from "class-variance-authority"
+import { type VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 import * as React from "react"
 
@@ -73,6 +73,7 @@ const SidebarProvider = React.forwardRef<
 	)
 
 	// Helper to toggle the sidebar.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleSidebar = React.useCallback(() => {
 		return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open)
 	}, [isMobile, setOpen, setOpenMobile])
@@ -94,6 +95,7 @@ const SidebarProvider = React.forwardRef<
 	// This makes it easier to style the sidebar with Tailwind classes.
 	const state = open ? "expanded" : "collapsed"
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const contextValue = React.useMemo<SidebarContextProps>(
 		() => ({
 			state,

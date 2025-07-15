@@ -1,8 +1,10 @@
 onlyBuiltDependencies:
+  - '@biomejs/biome'
   - '@clerk/shared'
   - '@prisma/client'
   - '@prisma/engines'
   - '@tailwindcss/oxide'
+  - core-js
   - inngest-cli
   - prisma
   - protobufjs

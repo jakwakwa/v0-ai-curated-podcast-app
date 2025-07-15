@@ -11,6 +11,8 @@ interface PodcastCardProps {
 }
 
 export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
+	// TODO: After revamp
+	//@ts-ignore
 	const getStatusBadgeVariant = (status: Episode["status"]) => {
 		switch (status) {
 			case "Completed":

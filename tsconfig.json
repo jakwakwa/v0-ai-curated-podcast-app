@@ -49,6 +49,7 @@
 		".next/types/**/*.ts"
 	],
 	"exclude": [
+		".mdc",
 		"node_modules"
 	]
 }

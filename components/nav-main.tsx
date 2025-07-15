@@ -3,13 +3,7 @@
 import { type LucideIcon, MailIcon, PlusCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-} from "@/components/ui/sidebar"
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar-ui"
 
 export function NavMain({
 	items,
@@ -23,7 +17,7 @@ export function NavMain({
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-6">
-				<SidebarMenu></SidebarMenu>
+				<SidebarMenu />
 				<SidebarMenu>
 					{items.map(item => (
 						<SidebarMenuItem key={item.title}>

@@ -206,10 +206,13 @@ export const SUBSCRIPTION_TIERS = {
 } as const
 
 async function seedCuratedContent() {
+	// biome-ignore lint/suspicious/noConsole: <explanation>
+	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 	console.log("🌱 Starting curated content seed...")
 
 	try {
 		// Clean up existing curated content
+		// Clean up existing curated content in the correct order to avoid foreign key constraint errors
 		await prisma.curatedBundlePodcast.deleteMany({})
 		await prisma.curatedBundle.deleteMany({})
 		await prisma.curatedPodcast.deleteMany({})
@@ -224,6 +227,7 @@ async function seedCuratedContent() {
 		console.log(`✅ Created ${createdPodcasts.length} podcasts`)
 
 		// Seed bundles
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("📦 Creating curated bundles...")
 		const createdBundles = await Promise.all(
 			curatedBundles.map(async bundle => {

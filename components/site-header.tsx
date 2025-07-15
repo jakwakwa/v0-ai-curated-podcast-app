@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarTrigger } from "@/components/ui/sidebar-ui"
 import { MicIcon } from "lucide-react"
 
 export function SiteHeader() {

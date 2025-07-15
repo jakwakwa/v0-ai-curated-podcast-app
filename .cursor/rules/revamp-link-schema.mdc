@@ -1,0 +1,323 @@
+---
+alwaysApply: false
+---
+
+# LINK PAYMENTS
+
+```jsx
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export interface SubscriptionTier {
+  id: string;
+  name: string;
+  price: number;
+  linkPriceId: string | null; // linkPriceId can be null for trial
+  features: string[];
+}
+
+export const SUBSCRIPTION_TIERS = {
+  TRIAL: {
+    id: 'trial',
+    name: 'Free Trial',
+    price: 0,
+    linkPriceId: null,
+    features: ['1 week trial', '1 collection', 'Weekly generation']
+  },
+  PREMIUM: {
+    id: 'premium',
+    name: 'Premium',
+    price: 99, // R99/month in ZAR
+    linkPriceId: process.env.LINK_PREMIUM_PRICE_ID!, // Must be defined for premium
+    features: ['Unlimited collections', 'Weekly generation', 'Priority support']
+  }
+} as const;
+
+export class LinkService {
+  /**
+
+* Creates a new subscription record in the database.
+* Handles setting trial periods and initial status.
+* @param userId The ID of the user.
+* @param tierId The ID of the subscription tier ('trial' or 'premium').
+* @returns The created Subscription record.
+   */
+  static async createSubscription(userId: string, tierId: string) {
+    const tier = SUBSCRIPTION_TIERS[tierId as keyof typeof SUBSCRIPTION_TIERS];
+
+    if (!tier) {
+      throw new Error(`Invalid subscription tier: ${tierId}`);
+    }
+
+    const now = new Date();
+    // Calculate trial end date if it's a trial subscription
+    const trialEnd = tierId === 'trial' ? new Date(now.getTime() + 7 *24* 60 *60* 1000) : null;
+
+    return await prisma.subscription.create({
+      data: {
+        userId,
+        status: tierId === 'trial' ? 'trialing' : 'active', // Set initial status
+        trialStart: tierId === 'trial' ? now : null,
+        trialEnd,
+        currentPeriodStart: now,
+        // For trial, period ends with trial. For premium, assume 30 days for initial record.
+        currentPeriodEnd: trialEnd || new Date(now.getTime() + 30 *24* 60 *60* 1000),
+        linkPriceId: tier.linkPriceId
+      }
+    });
+  }
+
+  /**
+
+* Retrieves the most recent subscription for a given user.
+* @param userId The ID of the user.
+* @returns The user's latest Subscription record, or null if none exists.
+   */
+  static async getUserSubscription(userId: string) {
+    return await prisma.subscription.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' } // Get the most recent subscription
+    });
+  }
+
+  /**
+
+* Checks if a user has an currently active subscription (trial or paid).
+* @param userId The ID of the user.
+* @returns True if the user has an active subscription, false otherwise.
+   */
+  static async hasActiveSubscription(userId: string): Promise<boolean> {
+    const subscription = await this.getUserSubscription(userId);
+
+    if (!subscription) return false;
+
+    const now = new Date();
+
+    // Check if trial is still active and within its period
+    if (subscription.status === 'trialing' && subscription.trialEnd && subscription.trialEnd > now) {
+      return true;
+    }
+
+    // Check if paid subscription is active and within its current period
+    if (subscription.status === 'active' && subscription.currentPeriodEnd && subscription.currentPeriodEnd > now) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+
+* Updates a subscription record based on data received from a Link webhook event.
+* This is crucial for keeping subscription status in sync with Link.
+* @param linkSubscription The subscription object from the Link webhook payload.
+* @returns The updated Subscription record.
+* @throws Error if the subscription is not found in the database.
+   */
+  static async updateFromLinkWebhook(linkSubscription: any) {
+    const subscription = await prisma.subscription.findFirst({
+      where: { linkSubscriptionId: linkSubscription.id }
+    });
+
+    if (!subscription) {
+      console.error(`Subscription not found for Link ID: ${linkSubscription.id}`);
+      throw new Error(`Subscription not found for Link ID: ${linkSubscription.id}`);
+    }
+
+    return await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: linkSubscription.status,
+        // Convert Unix timestamps from Link to JavaScript Date objects
+        currentPeriodStart: new Date(linkSubscription.current_period_start *1000),
+        currentPeriodEnd: new Date(linkSubscription.current_period_end* 1000),
+        canceledAt: linkSubscription.canceled_at ? new Date(linkSubscription.canceled_at * 1000) : null
+      }
+    });
+  }
+
+  /**
+
+* Marks a user's subscription as 'canceled' in the database.
+* This would typically be called after a successful cancellation request to Link.
+* @param userId The ID of the user whose subscription is to be canceled.
+* @returns The updated Subscription record.
+* @throws Error if no subscription is found for the user.
+   */
+  static async cancelSubscription(userId: string) {
+    const subscription = await this.getUserSubscription(userId);
+
+    if (!subscription) {
+      console.error('No subscription found to cancel for user:', userId);
+      throw new Error('No subscription found');
+    }
+
+    return await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: 'canceled',
+        canceledAt: new Date()
+      }
+    });
+  }
+}
+
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export interface SubscriptionTier {
+  id: string;
+  name: string;
+  price: number;
+  linkPriceId: string | null; // linkPriceId can be null for trial
+  features: string[];
+}
+
+export const SUBSCRIPTION_TIERS = {
+  TRIAL: {
+    id: 'trial',
+    name: 'Free Trial',
+    price: 0,
+    linkPriceId: null,
+    features: ['1 week trial', '1 collection', 'Weekly generation']
+  },
+  PREMIUM: {
+    id: 'premium',
+    name: 'Premium',
+    price: 99, // R99/month in ZAR
+    linkPriceId: process.env.LINK_PREMIUM_PRICE_ID!, // Must be defined for premium
+    features: ['Unlimited collections', 'Weekly generation', 'Priority support']
+  }
+} as const;
+
+export class LinkService {
+  /**
+
+* Creates a new subscription record in the database.
+* Handles setting trial periods and initial status.
+* @param userId The ID of the user.
+* @param tierId The ID of the subscription tier ('trial' or 'premium').
+* @returns The created Subscription record.
+   */
+  static async createSubscription(userId: string, tierId: string) {
+    const tier = SUBSCRIPTION_TIERS[tierId as keyof typeof SUBSCRIPTION_TIERS];
+
+    if (!tier) {
+      throw new Error(`Invalid subscription tier: ${tierId}`);
+    }
+
+    const now = new Date();
+    // Calculate trial end date if it's a trial subscription
+    const trialEnd = tierId === 'trial' ? new Date(now.getTime() + 7 *24* 60 *60* 1000) : null;
+
+    return await prisma.subscription.create({
+      data: {
+        userId,
+        status: tierId === 'trial' ? 'trialing' : 'active', // Set initial status
+        trialStart: tierId === 'trial' ? now : null,
+        trialEnd,
+        currentPeriodStart: now,
+        // For trial, period ends with trial. For premium, assume 30 days for initial record.
+        currentPeriodEnd: trialEnd || new Date(now.getTime() + 30 *24* 60 *60* 1000),
+        linkPriceId: tier.linkPriceId
+      }
+    });
+  }
+
+  /**
+
+* Retrieves the most recent subscription for a given user.
+* @param userId The ID of the user.
+* @returns The user's latest Subscription record, or null if none exists.
+   */
+  static async getUserSubscription(userId: string) {
+    return await prisma.subscription.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' } // Get the most recent subscription
+    });
+  }
+
+  /**
+
+* Checks if a user has an currently active subscription (trial or paid).
+* @param userId The ID of the user.
+* @returns True if the user has an active subscription, false otherwise.
+   */
+  static async hasActiveSubscription(userId: string): Promise<boolean> {
+    const subscription = await this.getUserSubscription(userId);
+
+    if (!subscription) return false;
+
+    const now = new Date();
+
+    // Check if trial is still active and within its period
+    if (subscription.status === 'trialing' && subscription.trialEnd && subscription.trialEnd > now) {
+      return true;
+    }
+
+    // Check if paid subscription is active and within its current period
+    if (subscription.status === 'active' && subscription.currentPeriodEnd && subscription.currentPeriodEnd > now) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+
+* Updates a subscription record based on data received from a Link webhook event.
+* This is crucial for keeping subscription status in sync with Link.
+* @param linkSubscription The subscription object from the Link webhook payload.
+* @returns The updated Subscription record.
+* @throws Error if the subscription is not found in the database.
+   */
+  static async updateFromLinkWebhook(linkSubscription: any) {
+    const subscription = await prisma.subscription.findFirst({
+      where: { linkSubscriptionId: linkSubscription.id }
+    });
+
+    if (!subscription) {
+      console.error(`Subscription not found for Link ID: ${linkSubscription.id}`);
+      throw new Error(`Subscription not found for Link ID: ${linkSubscription.id}`);
+    }
+
+    return await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: linkSubscription.status,
+        // Convert Unix timestamps from Link to JavaScript Date objects
+        currentPeriodStart: new Date(linkSubscription.current_period_start *1000),
+        currentPeriodEnd: new Date(linkSubscription.current_period_end* 1000),
+        canceledAt: linkSubscription.canceled_at ? new Date(linkSubscription.canceled_at * 1000) : null
+      }
+    });
+  }
+
+  /**
+
+* Marks a user's subscription as 'canceled' in the database.
+* This would typically be called after a successful cancellation request to Link.
+* @param userId The ID of the user whose subscription is to be canceled.
+* @returns The updated Subscription record.
+* @throws Error if no subscription is found for the user.
+   */
+  static async cancelSubscription(userId: string) {
+    const subscription = await this.getUserSubscription(userId);
+
+    if (!subscription) {
+      console.error('No subscription found to cancel for user:', userId);
+      throw new Error('No subscription found');
+    }
+
+    return await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: 'canceled',
+        canceledAt: new Date()
+      }
+    });
+  }
+}
+```
