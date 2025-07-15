@@ -15,15 +15,21 @@ export interface PodcastSource {
 	transcript?: string | null
 }
 
-export interface CuratedCollection {
+export interface UserCurationProfile {
 	id: string
+	userId: string
 	name: string
 	status: "Draft" | "Saved" | "Generated" | "Failed"
-	audioUrl?: string | null
-	sources: PodcastSource[]
+	audioUrl: string | null
+	imageUrl: string | null
 	createdAt: Date
 	updatedAt: Date
 	generatedAt?: Date | null
+	lastGenerationDate?: Date | null
+	nextGenerationDate?: Date | null
+	isActive: boolean
+	isBundleSelection: boolean
+	selectedBundleId: string | null	
 }
 
 export interface Episode {
@@ -35,8 +41,8 @@ export interface Episode {
 	publishedAt?: string | Date | null
 	createdAt: string | Date
 	sourceId: string
-	collectionId: string
-	collection?: CuratedCollection
+	userCurationProfileId: string
+	userCurationProfile?: UserCurationProfile
 	source?: PodcastSource
 }
 

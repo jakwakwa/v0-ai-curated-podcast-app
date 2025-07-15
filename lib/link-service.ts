@@ -6,7 +6,7 @@ export interface SubscriptionTier {
 	id: string
 	name: string
 	price: number
-	linkPriceId: string
+	linkPriceId: string | null // Changed to allow null for trial
 	features: string[]
 }
 
@@ -22,7 +22,7 @@ export const SUBSCRIPTION_TIERS = {
 		id: "premium",
 		name: "Premium",
 		price: 99, // R99/month in ZAR
-		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID,
+		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID || null, // Ensure it's explicitly null if undefined
 		features: ["Unlimited collections", "Weekly generation", "Priority support"],
 	},
 } as const
@@ -117,5 +117,67 @@ export class LinkService {
 				canceledAt: new Date(),
 			},
 		})
+	}
+
+	// Create a PayMongo checkout link for premium subscription
+	static async createCheckoutSession(userId: string, returnUrl: string) {
+		const ENABLE_LINK_INTEGRATION = process.env.ENABLE_LINK_INTEGRATION === "true";
+		if (!ENABLE_LINK_INTEGRATION) {
+			throw new Error("Link.com integration is currently disabled.");
+		}
+
+		const premiumTier = SUBSCRIPTION_TIERS.PREMIUM;
+		if (!premiumTier.linkPriceId) {
+			throw new Error("LINK_PREMIUM_PRICE_ID is not configured.");
+		}
+
+		// In PayMongo, a 'Link' represents a reusable payment page or a one-time payment link.
+		// For subscriptions, you typically use 'Plans' and 'Subscriptions' directly, or a checkout session that links to a plan.
+		// Given the project's use of 'linkPriceId', we'll simulate a checkout using a 'Link' for a fixed amount.
+		// A more robust integration would involve PayMongo's Subscriptions API.
+
+		const amountInCents = premiumTier.price * 100; // Convert to cents
+
+		const PAYMONGO_SECRET_KEY = process.env.LINK_API_KEY; // Using LINK_API_KEY for PayMongo Secret Key
+		const PAYMONGO_BASE_URL = "https://api.paymongo.com/v1";
+
+		if (!PAYMONGO_SECRET_KEY) {
+			throw new Error("PayMongo API key is not set.");
+		}
+
+		try {
+			const response = await fetch(`${PAYMONGO_BASE_URL}/links`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Basic ${Buffer.from(PAYMONGO_SECRET_KEY).toString("base64")}`,
+				},
+				body: JSON.stringify({
+					data: {
+						type: "link",
+						attributes: {
+							amount: amountInCents,
+							currency: "PHP", // Assuming PHP as per PayMongo docs for SA
+							description: "Premium Subscription Upgrade",
+							// Success and cancel URLs are usually handled by the client-side redirect after the link is generated
+							// PayMongo Links don't directly take success/cancel URLs in creation; it's the checkout_url that redirects
+							// We pass returnUrl to the API route, which then needs to redirect the user to checkout_url
+						},
+					},
+				}),
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				console.error("PayMongo Link creation failed:", data);
+				throw new Error(`Failed to create PayMongo Link: ${data.errors ? data.errors.map((e: any) => e.detail).join(', ') : 'Unknown error'}`);
+			}
+
+			return data.data.attributes.checkout_url; // Return the URL to redirect the user
+		} catch (error) {
+			console.error("Error creating PayMongo Link:", error);
+			throw error;
+		}
 	}
 }

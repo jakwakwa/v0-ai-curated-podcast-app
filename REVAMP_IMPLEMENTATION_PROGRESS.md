@@ -10,13 +10,13 @@ This report documents the comprehensive implementation progress for transforming
 
 - **Updated Prisma Schema** to include all required models:
   - Enhanced `User` model with notification preferences
-  - Enhanced `Collection` model with bundle selection and generation tracking
+  - Enhanced `UserCurationProfile` model with bundle selection and generation tracking, now serving as a permanent, central configuration and tie-in for all user-related podcast generation and history, replacing the previous soft-delete consideration.
   - Added `CuratedPodcast` model (25 editor's choice shows)
   - Added `CuratedBundle` model (3 pre-curated bundles)
   - Added `CuratedBundlePodcast` junction table
   - Added `Notification` model for in-app notifications
   - Enhanced `Subscription` model for Link.com integration
-  - Added unique constraint ensuring one collection per user
+  - Added unique constraint ensuring one user curation profile per user
 
 - **Key Features Implemented**:
   - Single collection per user enforcement
@@ -30,7 +30,7 @@ This report documents the comprehensive implementation progress for transforming
 **Status: ✅ COMPLETE**
 
 #### Collection Store (`lib/stores/collection-store.ts`)
-- **CRUD Operations**: Create, read, update, delete collections
+- **CRUD Operations**: Create, read, update, delete user curation profiles
 - **Curated Content Management**: Load and manage podcasts/bundles
 - **Selection Logic**: Toggle podcast selection (max 5), bundle selection
 - **Type Safety**: Full TypeScript interfaces with proper error handling
@@ -129,14 +129,16 @@ This report documents the comprehensive implementation progress for transforming
 **Required for full functionality**
 
 #### Collection Management APIs
-- `POST /api/collections` - Create new collection
-- `GET /api/collections/[id]` - Get collection details
-- `PATCH /api/collections/[id]` - Update collection
-- `DELETE /api/collections/[id]` - Delete collection
+- `POST /api/user-curation-profiles` - Create new user curation profile
+- `GET /api/user-curation-profiles/[id]` - Get user curation profile details
+- `PATCH /api/user-curation-profiles/[id]` - Update user curation profile
+- `DELETE /api/user-curation-profiles/[id]` - Deactivate user curation profile (sets `isActive` to `false`, preserving the record for historical purposes)
+**Status: ✅ COMPLETE**
 
 #### Curated Content APIs
 - `GET /api/curated-podcasts` - List all curated podcasts
 - `GET /api/curated-bundles` - List all curated bundles with relationships
+**Status: ✅ COMPLETE**
 
 #### Notification APIs
 - `GET /api/notifications` - Get user notifications
@@ -144,6 +146,7 @@ This report documents the comprehensive implementation progress for transforming
 - `PATCH /api/notifications/read-all` - Mark all as read
 - `DELETE /api/notifications/[id]` - Delete notification
 - `DELETE /api/notifications` - Clear all notifications
+**Status: ✅ COMPLETE**
 
 #### Subscription APIs (Link.com Integration)
 - `GET /api/subscription` - Get current subscription
@@ -151,15 +154,16 @@ This report documents the comprehensive implementation progress for transforming
 - `POST /api/subscription/upgrade` - Create upgrade checkout
 - `POST /api/subscription/cancel` - Cancel subscription
 - `POST /api/subscription/billing-portal` - Access billing portal
+**Status: ✅ COMPLETE**
 
 ### 2. Collection Management UI
 **Medium Priority**
 
 #### Collection Dashboard
-- Display current collection status
-- Edit/modify custom collections
+- Display current user curation profile status
+- Edit/modify custom user curation profiles
 - View bundle details (read-only)
-- Collection statistics and generation history
+- User curation profile statistics and generation history
 
 #### Episode Management
 - "View All Episodes" interface
@@ -238,11 +242,11 @@ useEffect(() => {
 ## 🔍 Quality Assurance Checklist
 
 ### Functionality Testing
-- [ ] Collection creation (custom and bundle)
-- [ ] Collection editing and deletion
+- [ ] UserCurationProfile creation (custom and bundle)
+- [ ] UserCurationProfile editing and deletion
 - [ ] Notification system operation
 - [ ] Subscription status tracking
-- [ ] Single collection per user enforcement
+- [ ] Single user curation profile per user enforcement
 
 ### UI/UX Testing
 - [ ] Responsive design across devices
@@ -266,7 +270,7 @@ useEffect(() => {
 4. **Link.com over Stripe**: Better South African market support
 
 ### Business Logic Decisions
-1. **One Collection Per User**: Simplified user experience and cost control
+1. **One UserCurationProfile Per User**: Simplified user experience and cost control
 2. **5 Podcast Limit**: Optimal for AI processing and user focus
 3. **Weekly Generation**: Predictable schedule for users and system resources
 4. **Trial-First Approach**: Lower barrier to entry with upgrade path

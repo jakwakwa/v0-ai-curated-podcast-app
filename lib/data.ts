@@ -1,7 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import type { CuratedCollection, Podcast, PodcastSource } from "@/lib/types"
+import type { UserCurationProfile, Podcast, PodcastSource } from '@/lib/types'
 import { auth } from "@clerk/nextjs/server"
 
 export async function getPodcasts(): Promise<Podcast[]> {
@@ -34,16 +34,25 @@ export async function getPodcasts(): Promise<Podcast[]> {
 	]
 }
 
-export async function getCuratedCollections(): Promise<CuratedCollection[]> {
+export async function getCuratedCollections(): Promise<UserCurationProfile[]> {
 	const { userId } = await auth()
 
 	if (!userId) {
 		return []
 	}
 
-	const collections = await prisma.collection.findMany({
-		where: { userId: userId },
-		include: { sources: true },
+	const collections = await prisma.userCurationProfile.findMany({
+		where: { userId: userId, isActive: true }, // Only fetch active collections
+		include: {
+			sources: true,
+			selectedBundle: {
+				include: {
+					bundlePodcasts: {
+						include: { podcast: true },
+					},
+				},
+			},
+		},
 	})
 
 	return collections.map(collection => ({
@@ -53,7 +62,14 @@ export async function getCuratedCollections(): Promise<CuratedCollection[]> {
 			...source,
 			imageUrl: source.imageUrl || "",
 		})),
-	})) as unknown as CuratedCollection[]
+		selectedBundle: collection.selectedBundle
+			? {
+					...collection.selectedBundle,
+					// Flatten bundlePodcasts to just podcasts for easier use in frontend
+					podcasts: collection.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+				}
+			: null,
+	})) as unknown as UserCurationProfile[]
 }
 
 export async function getEpisodes() {
@@ -63,27 +79,35 @@ export async function getEpisodes() {
 	const episodes = await prisma.episode.findMany({
 		orderBy: { publishedAt: "desc" },
 		include: {
-			collection: {
+			userCurationProfile: {
 				include: { sources: true },
 			},
 			source: true,
 		},
 		where: {
-			collection: {
+			userCurationProfile: {
 				userId: userId,
 			},
 		},
 	})
 	return episodes.map(episode => ({
 		...episode,
-		collection: episode.collection
+		userCurationProfile: episode.userCurationProfile
 			? ({
-					id: episode.collection.id,
-					name: episode.collection.name,
-					status: episode.collection.status as CuratedCollection["status"],
-					audioUrl: episode.collection.audioUrl,
-					createdAt: episode.collection.createdAt,
-					sources: episode.collection.sources.map(
+					id: episode.userCurationProfile.id,
+					name: episode.userCurationProfile.name,
+					status: episode.userCurationProfile.status as UserCurationProfile["status"],
+					audioUrl: episode.userCurationProfile.audioUrl,
+					createdAt: episode.userCurationProfile.createdAt,
+					imageUrl: episode.userCurationProfile.imageUrl,
+					updatedAt: episode.userCurationProfile.updatedAt,
+					generatedAt: episode.userCurationProfile.generatedAt,
+					lastGenerationDate: episode.userCurationProfile.lastGenerationDate,
+					nextGenerationDate: episode.userCurationProfile.nextGenerationDate,
+					isActive: episode.userCurationProfile.isActive,
+					isBundleSelection: episode.userCurationProfile.isBundleSelection,
+					selectedBundleId: episode.userCurationProfile.selectedBundleId,
+					sources: episode.userCurationProfile.sources.map(
 						source =>
 							({
 								id: source.id,
@@ -92,7 +116,7 @@ export async function getEpisodes() {
 								imageUrl: source.imageUrl || "",
 							}) as PodcastSource
 					),
-				} as CuratedCollection)
+				} as UserCurationProfile)
 			: undefined,
 		source: episode.source
 			? ({

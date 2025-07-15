@@ -18,14 +18,15 @@ model User {
     emailVerified DateTime?
     emailNotifications Boolean @default(true) @map("email_notifications")
     inAppNotifications Boolean @default(true) @map("in_app_notifications")
-    collections   Collection[]
+    userCurationProfiles   UserCurationProfile[] // Renamed from 'collections'
     notifications Notification[]
     subscriptions Subscription[]
+    feedback      EpisodeFeedback[] // Added for feedback relation
 
     @@map("users")
 }
 
-model Collection {
+model UserCurationProfile {
     id          String    @id @default(uuid())
     userId      String    @map("user_id")
     name        String
@@ -50,17 +51,17 @@ model Collection {
     episodes    Episode[]
 
     @@unique([userId]) // One collection per user
-    @@map("collections")
+    @@map("user_curation_profiles")
 }
 
 model Source {
     id           String     @id @default(uuid())
-    collectionId String     @map("collection_id")
+    userCurationProfileId String?     @map("user_curation_profile_id") // Renamed from 'collectionId'
     name         String
     url          String
     imageUrl     String?    @map("image_url") // Added for source image
     createdAt    DateTime   @default(now()) @map("created_at")
-    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    userCurationProfile   UserCurationProfile? @relation(fields: [userCurationProfileId], references: [id], onDelete: SetNull) // Changed onDelete to SetNull
     episodes     Episode[]
 
     @@map("sources")
@@ -73,11 +74,13 @@ model Episode {
     audioUrl     String
     imageUrl     String?    @map("image_url") // Added for episode image
     publishedAt  DateTime?
+    weekNr       DateTime?  @map("week_nr") // Added for data analysis and metrics
     createdAt    DateTime   @default(now())
     sourceId     String     @map("source_id")
     source       Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-    collectionId String     @map("collection_id")
-    collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+    userCurationProfileId String     @map("user_curation_profile_id")
+    userCurationProfile   UserCurationProfile @relation(fields: [userCurationProfileId], references: [id], onDelete: Cascade)
+    feedback     EpisodeFeedback[]
 
     @@map("episodes")
 }
@@ -110,8 +113,8 @@ model CuratedBundle {
 
     // Many-to-many with podcasts
     bundlePodcasts CuratedBundlePodcast[]
-    // Collections that selected this bundle
-    collections Collection[]
+    // User Curation Profiles that selected this bundle
+    userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
 
     @@map("curated_bundles")
 }
@@ -160,4 +163,27 @@ model Subscription {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("subscriptions")
+}
+
+// Enum for feedback rating
+enum FeedbackRating {
+  THUMBS_UP
+  THUMBS_DOWN
+  NEUTRAL
+}
+
+// Episode Feedback model
+model EpisodeFeedback {
+  id          String       @id @default(uuid())
+  userId      String       @map("user_id")
+  episodeId   String       @map("episode_id")
+  rating      FeedbackRating
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  episode     Episode      @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, episodeId])
+  @@map("episode_feedback")
 }
