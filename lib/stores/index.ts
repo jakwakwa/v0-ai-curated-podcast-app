@@ -1,23 +1,14 @@
 // Export all stores
-export { useCollectionStore } from './collection-store'
 export { useNotificationStore } from './notification-store'
 export { useSubscriptionStore } from './subscription-store'
+export { useUserCurationProfileStore } from './user-curation-profile-store'
 
-// Re-export types for convenience
-export type {
-  CuratedPodcast,
-  CuratedBundle,
-  Collection,
-  CollectionStore,
-} from './collection-store'
+import type { UserCurationProfile } from '@/lib/types'
+import type { Notification } from './notification-store'
+import type { Subscription } from './subscription-store'
 
 export type {
+	UserCurationProfile,
   Notification,
-  NotificationStore,
-} from './notification-store'
-
-export type {
   Subscription,
-  SubscriptionTier,
-  SubscriptionStore,
-} from './subscription-store'
+}

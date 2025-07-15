@@ -10,6 +10,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar-ui"
+import styles from './nav-main.module.css'
 
 export function NavMain({
 	items,
@@ -22,19 +23,19 @@ export function NavMain({
 }) {
 	return (
 		<SidebarGroup>
-			<SidebarGroupContent className="flex flex-col gap-2">
+			<SidebarGroupContent className={styles["sidebar-group-content-flex"]}>
 				<SidebarMenu>
-					<SidebarMenuItem className="flex items-center gap-2">
+					<SidebarMenuItem className={styles["sidebar-menu-item-flex"]}>
 						<SidebarMenuButton
 							tooltip="Quick Create"
-							className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+							className={styles["sidebar-menu-button-primary"]}
 						>
 							<PlusCircleIcon />
 							<span>Quick Create</span>
 						</SidebarMenuButton>
-						<Button size="icon" className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0" variant="outline">
+						<Button size="icon" className={styles["button-icon-hidden-on-collapsible-icon"]} variant="outline">
 							<MailIcon />
-							<span className="sr-only">Inbox</span>
+							<span className={styles["sr-only"]}>Inbox</span>
 						</Button>
 					</SidebarMenuItem>
 				</SidebarMenu>

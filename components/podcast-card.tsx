@@ -29,26 +29,26 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 	return (
 		<Card className={styles["podcast-card-flex-col"]}>
 			<CardHeader>
-				<CardTitle className="text-lg">{episode.title}</CardTitle>
-				<CardDescription className="flex items-start gap-2 text-sm">
-					<Calendar className="h-4 w-4" />
+				<CardTitle className={styles["card-title-lg"]}>{episode.title}</CardTitle>
+				<CardDescription className={styles["card-description-flex"]}>
+					<Calendar className={styles["icon-small"]} />
 					<span>{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}</span>
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="flex">
-				<div className="flex items-center justify-between">
+			<CardContent className={styles["card-content-flex"]}>
+				<div className={styles["items-center-justify-between"]}>
 					<Badge variant={getStatusBadgeVariant(episode.collection?.status || "Draft")}>
 						{episode.collection?.status || "Draft"}
 					</Badge>
-					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<Clock className="h-4 w-4" />
+					<div className={styles["text-muted-foreground-sm"]}>
+						<Clock className={styles["icon-small"]} />
 						<span>{episode.audioUrl ? "Available" : "N/A"}</span>
 					</div>
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button className="w-full" disabled={!episode.audioUrl} onClick={() => onPlayEpisode(episode)}>
-					<PlayCircle className="mr-2 h-4 w-4" />
+				<Button className={styles["button-full-width"]} disabled={!episode.audioUrl} onClick={() => onPlayEpisode(episode)}>
+					<PlayCircle className={styles["button-icon-margin-right"]} />
 					Play Episode
 				</Button>
 			</CardFooter>

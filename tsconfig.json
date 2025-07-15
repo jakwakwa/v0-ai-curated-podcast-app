@@ -33,7 +33,10 @@
 				"./config/*",
 				"./prisma/*",
 				"./scripts/*",
-				"./styles/*",
+				"./styles/*"
+			],
+			"components/ui/*": [
+				"./components/ui/*"
 			]
 		}
 	},

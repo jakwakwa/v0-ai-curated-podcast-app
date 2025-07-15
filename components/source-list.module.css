@@ -1,0 +1,11 @@
+.empty-state-card {
+  text-align: center;
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-muted-foreground); /* text-muted-foreground */
+}
+
+.source-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* gap-4 */
+} 

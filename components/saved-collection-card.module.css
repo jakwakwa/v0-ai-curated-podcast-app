@@ -1,0 +1,26 @@
+.card-container {
+  width: 100%;
+  max-width: 24rem; /* max-w-sm */
+}
+
+.error-message {
+  color: #ef4444; /* text-red-500 */
+  font-size: 0.875rem; /* text-sm */
+  margin-top: 0.5rem; /* mt-2 */
+}
+
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.full-width-button {
+  width: 100%;
+}
+
+.icon {
+  margin-right: 0.5rem; /* mr-2 */
+  height: 1rem; /* h-4 */
+  width: 1rem; /* w-4 */
+} 

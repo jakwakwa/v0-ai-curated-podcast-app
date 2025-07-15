@@ -16,14 +16,14 @@ export const SUBSCRIPTION_TIERS = {
 		name: "Free Trial",
 		price: 0,
 		linkPriceId: null,
-		features: ["1 week trial", "1 collection", "Weekly generation"],
+		features: ["1 week trial", "1 user curation profile", "Weekly generation"],
 	},
 	PREMIUM: {
 		id: "premium",
 		name: "Premium",
 		price: 99, // R99/month in ZAR
 		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID || null, // Ensure it's explicitly null if undefined
-		features: ["Unlimited collections", "Weekly generation", "Priority support"],
+		features: ["Unlimited user curation profiles", "Weekly generation", "Priority support"],
 	},
 } as const
 

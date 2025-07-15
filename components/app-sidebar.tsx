@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar-ui"
 import { VersionSwitcher } from "@/components/version-switcher"
 import { NavUser } from "./nav-user"
+import styles from './app-sidebar.module.css'
 
 // This is sample data.
 const data = {
@@ -38,7 +39,7 @@ const data = {
 			],
 		},
 		{
-			title: "Building Your Collection",
+			title: "Building Your User Curation Profile",
 			url: "#",
 			items: [
 				{
@@ -46,7 +47,7 @@ const data = {
 					url: "#",
 				},
 				{
-					title: "Custom Collections",
+					title: "Custom User Curation Profiles",
 					url: "#",
 					isActive: true,
 				},
@@ -62,18 +63,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<VersionSwitcher versions={data.versions} defaultVersion={data.versions[0]} />
 				<SearchForm />
 			</SidebarHeader>
-			<SidebarContent className="gap-0">
+			<SidebarContent className={styles["sidebar-content-gap"]}>
 				{/* We create a collapsible SidebarGroup for each parent. */}
 				{data.navMain.map(item => (
-					<Collapsible key={item.title} title={item.title} defaultOpen className="group/collapsible">
+					<Collapsible key={item.title} title={item.title} defaultOpen className={styles["collapsible-open"]}>
 						<SidebarGroup>
 							<SidebarGroupLabel
 								asChild
-								className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+								className={styles["collapsible-label"]}
 							>
 								<CollapsibleTrigger>
 									{item.title}{" "}
-									<ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+									<ChevronRight className={styles["chevron-icon"]} />
 								</CollapsibleTrigger>
 							</SidebarGroupLabel>
 							<CollapsibleContent>

@@ -13,6 +13,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar-ui"
+import styles from './nav-user.module.css'
 
 export function NavUser({
 	user,
@@ -32,34 +33,34 @@ export function NavUser({
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="lg"
-							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className={styles["sidebar-menu-button"]}
 						>
-							<Avatar className="h-8 w-8 rounded-lg grayscale">
+							<Avatar className={styles["avatar-image-grayscale"]}>
 								<AvatarImage src={user.avatar} alt={user.name} />
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+								<AvatarFallback className={styles["avatar-fallback-rounded"]}>CN</AvatarFallback>
 							</Avatar>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">{user.name}</span>
-								<span className="truncate text-xs text-muted-foreground">{user.email}</span>
+							<div className={styles["text-grid-container"]}>
+								<span className={styles["truncate-font-medium"]}>{user.name}</span>
+								<span className={styles["truncate-text-xs"]}>{user.email}</span>
 							</div>
-							<MoreVerticalIcon className="ml-auto size-4" />
+							<MoreVerticalIcon className={styles["more-vertical-icon"]} />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+						className={styles["dropdown-menu-content"]}
 						side={isMobile ? "bottom" : "right"}
 						align="end"
 						sideOffset={4}
 					>
-						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-								<Avatar className="h-8 w-8 rounded-lg">
+						<DropdownMenuLabel className={styles["dropdown-menu-label"]}>
+							<div className={styles["dropdown-menu-label-content"]}>
+								<Avatar className={styles["avatar-image-grayscale"]}>
 									{/* <AvatarImage src={user?.avatar} alt={user.name} /> */}
-									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+									<AvatarFallback className={styles["avatar-fallback-rounded"]}>CN</AvatarFallback>
 								</Avatar>
-								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user.name}</span>
-									<span className="truncate text-xs text-muted-foreground">{user.email}</span>
+								<div className={styles["text-grid-container"]}>
+									<span className={styles["truncate-font-medium"]}>{user.name}</span>
+									<span className={styles["truncate-text-xs"]}>{user.email}</span>
 								</div>
 							</div>
 						</DropdownMenuLabel>

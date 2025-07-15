@@ -1,0 +1,37 @@
+.sidebar-group-padding-y-0 {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.sidebar-group-content-relative {
+  position: relative;
+}
+
+.sr-only {
+  /* Tailwind's sr-only equivalent */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sidebar-input-padding-left {
+  padding-left: 2rem; /* pl-8 */
+}
+
+.search-icon {
+  pointer-events: none;
+  position: absolute;
+  left: 0.5rem; /* left-2 */
+  top: 50%; /* top-1/2 */
+  height: 1rem; /* size-4 */
+  width: 1rem; /* size-4 */
+  transform: translateY(-50%); /* -translate-y-1/2 */
+  user-select: none; /* select-none */
+  opacity: 0.5; /* opacity-50 */
+} 

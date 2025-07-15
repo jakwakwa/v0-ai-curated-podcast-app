@@ -54,7 +54,7 @@ export interface SubscriptionStore {
   reset: () => void
   
   // Helper methods
-  canCreateCollection: () => boolean
+  canCreateUserCurationProfile: () => boolean
   getRemainingTrialDays: () => number | null
 }
 
@@ -64,14 +64,14 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
     id: "trial",
     name: "Free Trial",
     price: 0,
-    features: ["1 week trial", "1 collection", "Weekly generation"],
+    features: ["1 week trial", "1 user curation profile", "Weekly generation"],
   },
   {
     id: "premium",
     name: "Premium",
     price: 99, // R99/month in ZAR
     linkPriceId: process.env.NEXT_PUBLIC_LINK_PREMIUM_PRICE_ID,
-    features: ["Unlimited collections", "Weekly generation", "Priority support"],
+    features: ["Unlimited user curation profiles", "Weekly generation", "Priority support"],
   },
 ]
 
@@ -286,22 +286,21 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
       },
 
       // Helper methods
-      canCreateCollection: () => {
-        const { subscription, isTrialing, isActive } = get()
-        
-        // No subscription = can create trial
-        if (!subscription) return true
-        
-        // Active subscription = can create
-        if (isActive) return true
-        
-        // Trial period = can create
-        if (isTrialing) {
-          const now = new Date()
-          const trialEnd = subscription.trialEnd ? new Date(subscription.trialEnd) : null
-          return trialEnd ? now < trialEnd : false
+      canCreateUserCurationProfile: () => {
+        const { subscription } = get()
+        const { userCurationProfile } = get().userCurationProfileStore
+ 
+        // If the user has a premium subscription, they can create a profile (unlimited is conceptual for future)
+        if (subscription?.status === 'active') {
+          return true
         }
-        
+ 
+        // If the user is on trial, they can create a profile if they don't already have one
+        if (subscription?.status === 'trialing') {
+          return !userCurationProfile
+        }
+ 
+        // If no subscription or other status, they cannot create
         return false
       },
 

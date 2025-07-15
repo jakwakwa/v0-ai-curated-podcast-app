@@ -1,6 +1,6 @@
 "use client"
 
-import type { CuratedCollection } from "@/lib/types"
+import type { UserCurationProfile, Source } from "@/lib/types"
 import { z } from "zod"
 import { CurationDashboard } from "./curation-dashboard"
 import { PodcastList } from "./podcast-list"
@@ -14,23 +14,23 @@ export const schema = z.object({
 	publishedAt: z.union([z.string(), z.date()]).nullable().optional(),
 	createdAt: z.union([z.string(), z.date()]),
 	sourceId: z.string(),
-	collectionId: z.string(),
-	collection: z.any().optional(),
-	source: z.any().optional(),
+	userCurationProfileId: z.string(), // Renamed from collectionId
+	userCurationProfile: z.lazy(() => z.object({}) as unknown as z.ZodType<UserCurationProfile>).nullable().optional(), // Renamed from collection
+	source: z.lazy(() => z.object({}) as unknown as z.ZodType<Source>).nullable().optional(),
 })
 
 export function DataTable({
 	episodes,
-	collections,
+	userCurationProfiles,
 }: {
 	episodes: z.infer<typeof schema>[]
-	collections: CuratedCollection[]
+	userCurationProfiles: UserCurationProfile[] // Renamed from collections
 }) {
 	return (
 		<>
 			<PodcastList episodes={episodes} />
 
-			<CurationDashboard savedCollections={collections} />
+			<CurationDashboard userCurationProfiles={userCurationProfiles} /> {/* Renamed from savedCollections */}
 		</>
 	)
 }

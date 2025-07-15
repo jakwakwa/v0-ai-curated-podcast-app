@@ -1,0 +1,37 @@
+.sidebar-group-hidden {
+  /* group-data-[collapsible=icon]:hidden */
+}
+
+.dropdown-menu-action {
+  border-radius: 0.125rem; /* rounded-sm */
+}
+
+.dropdown-menu-action[data-state="open"] {
+  background-color: var(--color-accent); /* data-[state=open]:bg-accent */
+}
+
+.sr-only {
+  /* Tailwind's sr-only equivalent */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.dropdown-menu-content {
+  width: 6rem; /* w-24 */
+  border-radius: 0.5rem; /* rounded-lg */
+}
+
+.sidebar-menu-button-text {
+  color: rgba(var(--color-sidebar-foreground-rgb), 0.7); /* text-sidebar-foreground/70 */
+}
+
+.more-horizontal-icon {
+  color: rgba(var(--color-sidebar-foreground-rgb), 0.7); /* text-sidebar-foreground/70 */
+} 

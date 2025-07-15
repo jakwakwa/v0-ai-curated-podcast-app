@@ -12,6 +12,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar-ui"
+import styles from './nav-documents.module.css'
 
 export function NavDocuments({
 	items,
@@ -25,7 +26,7 @@ export function NavDocuments({
 	const { isMobile } = useSidebar()
 
 	return (
-		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
+		<SidebarGroup className={styles["sidebar-group-hidden"]}>
 			<SidebarGroupLabel>MY Dashboard</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map(item => (
@@ -38,13 +39,13 @@ export function NavDocuments({
 						</SidebarMenuButton>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<SidebarMenuAction showOnHover className="rounded-sm data-[state=open]:bg-accent">
+								<SidebarMenuAction showOnHover className={styles["dropdown-menu-action"]}>
 									<MoreHorizontalIcon />
-									<span className="sr-only">More</span>
+									<span className={styles["sr-only"]}>More</span>
 								</SidebarMenuAction>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
-								className="w-24 rounded-lg"
+								className={styles["dropdown-menu-content"]}
 								side={isMobile ? "bottom" : "right"}
 								align={isMobile ? "end" : "start"}
 							>
@@ -61,8 +62,8 @@ export function NavDocuments({
 					</SidebarMenuItem>
 				))}
 				<SidebarMenuItem>
-					<SidebarMenuButton className="text-sidebar-foreground/70">
-						<MoreHorizontalIcon className="text-sidebar-foreground/70" />
+					<SidebarMenuButton className={styles["sidebar-menu-button-text"]}>
+						<MoreHorizontalIcon className={styles["more-horizontal-icon"]} />
 						<span>More</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>

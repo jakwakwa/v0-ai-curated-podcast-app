@@ -9,21 +9,21 @@ import {
 import { AddSourceForm } from './add-source-form';
 import { SourceList } from './source-list';
 import { Button } from './ui/button';
-import { saveCuration, createDraftCollection } from '@/app/actions';
-import type { CuratedCollection } from '@/lib/types';
+import { saveCuration, createDraftUserCurationProfile } from '@/app/actions';
+import type { UserCurationProfile } from '@/lib/types';
 import Link from 'next/link';
 import { aiConfig } from '@/config/ai';
 
 function SaveCurationForm({
-  collectionId,
+  userCurationProfileId,
   disabled,
 }: {
-  collectionId: string;
+  userCurationProfileId: string;
   disabled: boolean;
 }) {
   return (
     <form action={saveCuration} className="w-full">
-      <input type="hidden" name="collectionId" value={collectionId} />
+      <input type="hidden" name="userCurationProfileId" value={userCurationProfileId} />
       <Button type="submit" className="w-full" disabled={disabled} size={'sm'}>
         Save Curation & Return to Dashboard
       </Button>
@@ -32,23 +32,23 @@ function SaveCurationForm({
 }
 
 export function CurationBuilder({
-  collection,
+  userCurationProfile,
 }: {
-  collection?: CuratedCollection;
+  userCurationProfile?: UserCurationProfile;
 }) {
-  if (!collection) {
+  if (!userCurationProfile) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>No Draft Found</CardTitle>
           <CardDescription>
-            It looks like there&apos;s no draft collection to work on.
+            It looks like there&apos;s no draft user curation profile to work on.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={createDraftCollection}>
+          <form action={createDraftUserCurationProfile}>
             <Button type="submit" size={'sm'}>
-              Create New Collection
+              Create New User Curation Profile
             </Button>
           </form>
         </CardContent>
@@ -56,7 +56,7 @@ export function CurationBuilder({
     );
   }
 
-  const sources = collection.sources ?? [];
+  const sources = userCurationProfile.sources ?? [];
   const sourceCount = sources.length;
   const canAddMore = sourceCount < aiConfig.maxSources;
   const canSave = sourceCount === aiConfig.maxSources;
@@ -64,10 +64,10 @@ export function CurationBuilder({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Build Your Weekly Curation</CardTitle>
+        <CardTitle>Build Your Weekly User Curation Profile</CardTitle>
         <CardDescription>
           Add {aiConfig.maxSources} Youtube podcast show to create a new
-          collection. This collection will be used to generate your next podcast
+          user curation profile. This user curation profile will be used to generate your next podcast
           episode.
         </CardDescription>
       </CardHeader>
@@ -79,7 +79,7 @@ export function CurationBuilder({
         <SourceList sources={sources} />
       </CardContent>
       <CardFooter>
-        <SaveCurationForm collectionId={collection.id} disabled={!canSave} />
+        <SaveCurationForm userCurationProfileId={userCurationProfile.id} disabled={!canSave} />
       </CardFooter>
       <CardContent>
         <Link href={'/'}>Back to Dashboard</Link>

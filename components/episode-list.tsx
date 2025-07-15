@@ -1,10 +1,10 @@
-import React from 'react';
+import type React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PodcastEpisode } from '@/lib/types';
+import type { Episode } from '@/lib/types';
 import Link from 'next/link';
 
 interface EpisodeListProps {
-  episodes: PodcastEpisode[];
+  episodes: Episode[];
 }
 
 const formatDate = (date: Date | null | undefined) => {
@@ -25,7 +25,6 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes }) => {
               <li key={episode.id} className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
                   {episode.imageUrl ? (
-                    // biome-ignore lint/a11y/imgAltText: <explanation>
                     <img src={episode.imageUrl} alt={episode.title} className="h-12 w-12 rounded-md object-cover" />
                   ) : (
                     <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center text-muted-foreground text-xs">

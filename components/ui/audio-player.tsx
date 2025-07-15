@@ -5,6 +5,7 @@ import type React from "react"
 import { type JSX, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "./button"
+import type { Episode } from '@/lib/types'
 
 export const truncateTitle = (title: string, maxLength: number): string => {
 	if (title.length > maxLength) {
@@ -38,12 +39,7 @@ export const truncateDescription = (description: string, maxLength: number): str
 }
 
 interface AudioPlayerProps {
-	episode: {
-		imageUrl?: string | null
-		title: string
-		description: string
-		audioUrl: string
-	}
+	episode: Episode
 	ref?: JSX.ElementType
 	onClose?: () => void
 }

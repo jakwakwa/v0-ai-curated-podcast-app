@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
+import styles from './podcast-list.module.css'
 
 interface PodcastListProps {
 	episodes: Episode[]
@@ -17,12 +18,12 @@ export function PodcastList({ episodes }: PodcastListProps) {
 					{episodes.map(episode => (
 						<div
 							key={episode.id}
-							className="flex bg-[linear-gradient(180deg, #242424, #121212 65.62%)] amber-950 flex-col border rounded-lg p-4 min-h-[300px] max-h-[400px] md:max-h-[300px]"
+							className={styles["podcast-card"]}
 						>
-							<div className="mb-0">
+							<div className={styles["title-container"]}>
 								<div className="font-semibold truncate text-sm mb-1">{episode.title}</div>
-								{episode.collection && (
-									<div className="text-xs text-primary">Collection: {episode.collection.name}</div>
+								{episode.userCurationProfile && (
+									<div className="text-xs text-primary">Collection: {episode.userCurationProfile.name}</div>
 								)}
 								{/* <div className="text-xs text-muted-foreground">
 									{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}
@@ -31,24 +32,18 @@ export function PodcastList({ episodes }: PodcastListProps) {
 
 							{episode.description && (
 								<div
-									className="text-xs text-muted-foreground mb-0 max-h-4 "
+									className={styles["description-text"]}
 									style={{
-										maxHeight: "2rem",
-										display: "-ms-flexbox",
-										boxDecorationBreak: "slice",
-										lineClamp: "1",
-										textOverflow: "ellipsis",
-										overflow: "hidden",
-										margin: " 1rem 0rem 1rem 0rem",
+										// These styles are now handled by the CSS module, but keeping them here for context if needed
 									}}
 								>
 									{episode.description}
 								</div>
 							)}
-							<div className="flex flex-col h-4 gap-1 items-start">
-								{episode.imageUrl && <img src={episode.imageUrl} alt="Episode" className="w-64 h-40 rounded" />}
+							<div className={styles["image-container"]}>
+								{episode.imageUrl && <img src={episode.imageUrl} alt="Episode" className={styles["episode-image"]} />}
 								{episode.source && (
-									<span className="text-xs text-muted-foreground truncate max-w-[250px]">
+									<span className={styles["source-text"]}>
 										Source: {episode.source.name}
 									</span>
 								)}

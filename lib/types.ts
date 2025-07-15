@@ -1,52 +1,56 @@
-export interface Podcast {
-	id: string
-	title: string
-	date: string
-	status: "Completed" | "Processing" | "Failed"
-	duration: string
-	audioUrl: string | null
+// Import Prisma's generated types
+import type { 
+  User,
+  UserCurationProfile, 
+  Source,
+  Episode,
+  CuratedPodcast,
+  CuratedBundle,
+  CuratedBundlePodcast,
+  Notification,
+  Subscription,
+  EpisodeFeedback,
+  FeedbackRating
+} from '@prisma/client'
+
+// Re-export for convenience
+export type {
+  User,
+  UserCurationProfile,
+  Source,
+  Episode,
+  CuratedPodcast,
+  CuratedBundle,
+  CuratedBundlePodcast,
+  Notification,
+  Subscription,
+  EpisodeFeedback,
+  FeedbackRating
 }
 
-export interface PodcastSource {
-	id: string
-	name: string
-	url: string
-	imageUrl: string
-	transcript?: string | null
+// Custom type for CuratedBundle that includes the transformed 'podcasts' array from the API
+export interface TransformedCuratedBundle extends CuratedBundle {
+  podcasts: CuratedPodcast[];
 }
 
-export interface UserCurationProfile {
-	id: string
-	userId: string
-	name: string
-	status: "Draft" | "Saved" | "Generated" | "Failed"
-	audioUrl: string | null
-	imageUrl: string | null
-	createdAt: Date
-	updatedAt: Date
-	generatedAt?: Date | null
-	lastGenerationDate?: Date | null
-	nextGenerationDate?: Date | null
-	isActive: boolean
-	isBundleSelection: boolean
-	selectedBundleId: string | null	
+// Custom type for UserCurationProfile that includes the 'sources' relation
+export interface UserCurationProfileWithSources extends UserCurationProfile {
+  sources: Source[];
 }
 
-export interface Episode {
-	id: string
-	title: string
-	description?: string | null
-	audioUrl: string
-	imageUrl?: string | null
-	publishedAt?: string | Date | null
-	createdAt: string | Date
-	sourceId: string
-	userCurationProfileId: string
-	userCurationProfile?: UserCurationProfile
-	source?: PodcastSource
-}
-
+// Keep only custom types that aren't in Prisma schema
 export interface FormState {
-	success: boolean
-	message: string
+  success: boolean
+  message: string
 }
+
+export interface ApiResponse<T> {
+  data?: T
+  error?: string
+  message?: string
+}
+
+// Status type helpers for better type safety
+export type UserCurationProfileStatus = "Draft" | "Saved" | "Generated" | "Failed"
+export type SubscriptionStatus = "trialing" | "active" | "canceled" | "past_due" | "incomplete"
+export type NotificationType = "episode_ready" | "weekly_reminder"

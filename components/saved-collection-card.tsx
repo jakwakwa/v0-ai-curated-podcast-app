@@ -1,9 +1,8 @@
 "use client"
 
-import { getCollectionStatus } from "@/app/actions"
-import { triggerPodcastGeneration } from "@/app/actions"
+import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
 
-import type { CuratedCollection } from "@/lib/types"
+import type { UserCurationProfile } from "@/lib/types"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -11,27 +10,28 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
+import styles from './saved-collection-card.module.css'
 
 export function SavedCollectionCard({
-	collection,
+	userCurationProfile,
 }: {
-	collection: CuratedCollection
+	userCurationProfile: UserCurationProfile
 }) {
 	const [isLoading, setIsLoading] = useState(false)
-	const [currentCollection, setCurrentCollection] = useState(collection)
+	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState(userCurationProfile)
 
 	// New: State for formatted dates
-	const [createdAtDisplay, setCreatedAtDisplay] = useState<string>(collection.createdAt.toISOString())
+	const [createdAtDisplay, setCreatedAtDisplay] = useState<string>(userCurationProfile.createdAt.toISOString())
 	const [generatedAtDisplay, setGeneratedAtDisplay] = useState<string | null>(
-		collection.generatedAt ? collection.generatedAt.toISOString() : null
+		userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null
 	)
 
 	useEffect(() => {
-		setCurrentCollection(collection)
-		// Reset formatted dates on collection change
-		setCreatedAtDisplay(collection.createdAt.toISOString())
-		setGeneratedAtDisplay(collection.generatedAt ? collection.generatedAt.toISOString() : null)
-	}, [collection])
+		setCurrentUserCurationProfile(userCurationProfile)
+		// Reset formatted dates on userCurationProfile change
+		setCreatedAtDisplay(userCurationProfile.createdAt.toISOString())
+		setGeneratedAtDisplay(userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null)
+	}, [userCurationProfile])
 
 	// Format dates to local time on client after hydration
 	useEffect(() => {
@@ -40,19 +40,19 @@ export function SavedCollectionCard({
 				const date = new Date(iso)
 				return date.toLocaleString()
 			}
-			setCreatedAtDisplay(formatLogTimestamp(collection.createdAt.toISOString()))
-			if (collection.generatedAt) {
-				setGeneratedAtDisplay(formatLogTimestamp(collection.generatedAt.toISOString()))
+			setCreatedAtDisplay(formatLogTimestamp(userCurationProfile.createdAt.toISOString()))
+			if (userCurationProfile.generatedAt) {
+				setGeneratedAtDisplay(formatLogTimestamp(userCurationProfile.generatedAt.toISOString()))
 			}
 		}
-	}, [collection])
+	}, [userCurationProfile])
 
 	const handleGenerate = async () => {
 		setIsLoading(true)
 		let pollingInterval: NodeJS.Timeout | null = null
 
 		try {
-			const result = await triggerPodcastGeneration(currentCollection.id)
+			const result = await triggerPodcastGeneration(currentUserCurationProfile.id)
 
 			if (!result.success) {
 				throw new Error(result.message)
@@ -62,24 +62,24 @@ export function SavedCollectionCard({
 
 			// Start polling for status update
 			pollingInterval = setInterval(async () => {
-				const updatedCollection = await getCollectionStatus(currentCollection.id)
-				if (updatedCollection && updatedCollection.status === "Generated") {
-					setCurrentCollection({
-						...updatedCollection,
-						status: updatedCollection.status as CuratedCollection["status"],
+				const updatedUserCurationProfile = await getUserCurationProfileStatus(currentUserCurationProfile.id)
+				if (updatedUserCurationProfile && updatedUserCurationProfile.status === "Generated") {
+					setCurrentUserCurationProfile({
+						...updatedUserCurationProfile,
+						status: updatedUserCurationProfile.status as UserCurationProfile["status"],
 					})
 					setIsLoading(false)
 					if (pollingInterval) clearInterval(pollingInterval)
-					toast(`The podcast for "${updatedCollection.name}" is now ready.`)
-				} else if (updatedCollection && updatedCollection.status === "Failed") {
+					toast(`The podcast for "${updatedUserCurationProfile.name}" is now ready.`)
+				} else if (updatedUserCurationProfile && updatedUserCurationProfile.status === "Failed") {
 					// @ts-ignore
-					setCurrentCollection({
-						...updatedCollection,
-						status: updatedCollection.status as CuratedCollection["status"],
+					setCurrentUserCurationProfile({
+						...updatedUserCurationProfile,
+						status: updatedUserCurationProfile.status as UserCurationProfile["status"],
 					})
 					setIsLoading(false)
 					if (pollingInterval) clearInterval(pollingInterval)
-					toast(`The podcast for "${updatedCollection.name}" failed to generate.`)
+					toast(`The podcast for "${updatedUserCurationProfile.name}" failed to generate.`)
 				}
 			}, 10000) // Poll every  seconds
 
@@ -99,9 +99,9 @@ export function SavedCollectionCard({
 	}
 
 	return (
-		<Card className="w-full max-w-sm">
+		<Card className={styles["card-container"]}>
 			<CardHeader>
-				<CardTitle>{currentCollection.name}</CardTitle>
+				<CardTitle>{currentUserCurationProfile.name}</CardTitle>
 				<CardDescription>
 					Created: {createdAtDisplay}
 					{generatedAtDisplay && (
@@ -113,26 +113,26 @@ export function SavedCollectionCard({
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				{(currentCollection.status === "Saved" || currentCollection.status === "Failed") && (
+				{(currentUserCurationProfile.status === "Saved" || currentUserCurationProfile.status === "Failed") && (
 					<Button type="button" onClick={handleGenerate} disabled={isLoading} variant="default">
 						{isLoading ? (
 							"Generating..."
 						) : (
 							<>
-								<Sparkles className="mr-2 h-4 w-4" />
+								<Sparkles className={styles["icon"]} />
 								Generate Podcast
 							</>
 						)}
 					</Button>
 				)}
-				{currentCollection.status === "Failed" && (
-					<p className="text-red-500 text-sm mt-2">Podcast generation failed. Please try again.</p>
+				{currentUserCurationProfile.status === "Failed" && (
+					<p className={styles["error-message"]}>Podcast generation failed. Please try again.</p>
 				)}
 			</CardContent>
-			{currentCollection.status === "Generated" && (
-				<CardFooter className="flex-col gap-2">
-					<Link href={`/collections/${currentCollection.id}`}>
-						<Button variant="outline" className="w-full">
+			{currentUserCurationProfile.status === "Generated" && (
+				<CardFooter className={styles["card-footer"]}>
+					<Link href={`/episodes/${currentUserCurationProfile.id}`}>
+						<Button variant="outline" className={styles["full-width-button"]}>
 							View Episodes
 						</Button>
 					</Link>
@@ -141,33 +141,3 @@ export function SavedCollectionCard({
 		</Card>
 	)
 }
-
-// <div className="rounded-lg border bg-card p-4">
-// <div className="mb-4">
-// 	<h4 className="font-semibold">{currentCollection.name}</h4>
-// 	<p className="text-sm text-muted-foreground">Created: {displayTimestamp}</p>
-// 	{currentCollection.status === "Saved" && (
-// 		<Button type="button" onClick={handleGenerate} disabled={isLoading} variant="default">
-// 			{isLoading ? (
-// 				"Generating..."
-// 			) : (
-// 				<>
-// 					<Sparkles className="mr-2 h-4 w-4" />
-// 					Generate Podcast
-// 				</>
-// 			)}
-// 		</Button>
-// 	)}
-
-// 	{currentCollection.status === "Generated" && (
-// 		<Link href={`/collections/${currentCollection.id}`}>
-// 			<Button
-// 				variant="default"
-// 				className="w-full bg-primary text-primary-foreground rounded px-4 py-2 font-semibold hover:bg-primary/90 transition"
-// 			>
-// 				View Episodes
-// 			</Button>
-// 		</Link>
-// 	)}
-// </div>
-// </div>

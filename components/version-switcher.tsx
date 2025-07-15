@@ -5,6 +5,7 @@ import * as React from "react"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar-ui"
+import styles from './version-switcher.module.css'
 
 export function VersionSwitcher({
 	versions,
@@ -22,22 +23,22 @@ export function VersionSwitcher({
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="lg"
-							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className={styles["sidebar-menu-button"]}
 						>
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-								<GalleryVerticalEnd className="size-4" />
+							<div className={styles["icon-wrapper"]}>
+								<GalleryVerticalEnd className={styles["icon-small"]} />
 							</div>
-							<div className="flex flex-col gap-0.5 leading-none">
-								<span className="font-semibold">Ai Podcast Curator App</span>
-								<span className="">v{selectedVersion}</span>
+							<div className={styles["text-container"]}>
+								<span className={styles["font-semibold"]}>Ai Podcast Curator App</span>
+								<span className={styles["ml-auto"]}>v{selectedVersion}</span>
 							</div>
-							<ChevronsUpDown className="ml-auto" />
+							<ChevronsUpDown className={styles["ml-auto"]} />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]" align="start">
+					<DropdownMenuContent className={styles["dropdown-menu-content"]} align="start">
 						{versions.map(version => (
 							<DropdownMenuItem key={version} onSelect={() => setSelectedVersion(version)}>
-								v{version} {version === selectedVersion && <Check className="ml-auto" />}
+								v{version} {version === selectedVersion && <Check className={styles["ml-auto"]} />}
 							</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>

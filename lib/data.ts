@@ -1,38 +1,11 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import type { UserCurationProfile, Podcast, PodcastSource } from '@/lib/types'
 import { auth } from "@clerk/nextjs/server"
+import type { Episode, UserCurationProfile, UserCurationProfileStatus } from '@/lib/types'
+import type { Source, Episode as PrismaEpisode, UserCurationProfile as PrismaUserCurationProfile } from "@prisma/client"
 
-export async function getPodcasts(): Promise<Podcast[]> {
-	// For demonstration, return dummy data
-	return [
-		{
-			id: "1",
-			title: "The AI Revolution in Healthcare",
-			date: "2023-10-26",
-			status: "Completed",
-			duration: "25:30",
-			audioUrl: "/podcast1.mp3",
-		},
-		{
-			id: "2",
-			title: "Sustainable Living in the 21st Century",
-			date: "2023-10-25",
-			status: "Processing",
-			duration: "28:15",
-			audioUrl: null,
-		},
-		{
-			id: "3",
-			title: "The Future of Remote Work",
-			date: "2023-10-24",
-			status: "Failed",
-			duration: "00:00",
-			audioUrl: null,
-		},
-	]
-}
+// Removing the getPodcasts function as it's for dummy data and no longer relevant
 
 export async function getCuratedCollections(): Promise<UserCurationProfile[]> {
 	const { userId } = await auth()
@@ -55,21 +28,23 @@ export async function getCuratedCollections(): Promise<UserCurationProfile[]> {
 		},
 	})
 
-	return collections.map(collection => ({
-		...collection,
-		status: collection.status as "Draft" | "Saved" | "Generated" | "Failed",
-		sources: collection.sources.map(source => ({
-			...source,
-			imageUrl: source.imageUrl || "",
-		})),
-		selectedBundle: collection.selectedBundle
-			? {
-					...collection.selectedBundle,
-					// Flatten bundlePodcasts to just podcasts for easier use in frontend
-					podcasts: collection.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
-				}
-			: null,
-	})) as unknown as UserCurationProfile[]
+	return collections.map((collection) => {
+		const transformedCollection: UserCurationProfile = {
+			...collection,
+			status: collection.status as UserCurationProfileStatus,
+			sources: collection.sources.map((source: Source) => ({
+				...source,
+				imageUrl: source.imageUrl ?? "",
+			})),
+			selectedBundle: collection.selectedBundle
+				? {
+						...collection.selectedBundle,
+						podcasts: collection.selectedBundle.bundlePodcasts.map((bp) => bp.podcast),
+					}
+				: null,
+		}
+		return transformedCollection
+	})
 }
 
 export async function getEpisodes() {
@@ -90,41 +65,26 @@ export async function getEpisodes() {
 			},
 		},
 	})
-	return episodes.map(episode => ({
-		...episode,
-		userCurationProfile: episode.userCurationProfile
-			? ({
-					id: episode.userCurationProfile.id,
-					name: episode.userCurationProfile.name,
-					status: episode.userCurationProfile.status as UserCurationProfile["status"],
-					audioUrl: episode.userCurationProfile.audioUrl,
-					createdAt: episode.userCurationProfile.createdAt,
-					imageUrl: episode.userCurationProfile.imageUrl,
-					updatedAt: episode.userCurationProfile.updatedAt,
-					generatedAt: episode.userCurationProfile.generatedAt,
-					lastGenerationDate: episode.userCurationProfile.lastGenerationDate,
-					nextGenerationDate: episode.userCurationProfile.nextGenerationDate,
-					isActive: episode.userCurationProfile.isActive,
-					isBundleSelection: episode.userCurationProfile.isBundleSelection,
-					selectedBundleId: episode.userCurationProfile.selectedBundleId,
-					sources: episode.userCurationProfile.sources.map(
-						source =>
-							({
-								id: source.id,
-								name: source.name,
-								url: source.url,
-								imageUrl: source.imageUrl || "",
-							}) as PodcastSource
-					),
-				} as UserCurationProfile)
-			: undefined,
-		source: episode.source
-			? ({
-					id: episode.source.id,
-					name: episode.source.name,
-					url: episode.source.url,
-					imageUrl: episode.source.imageUrl || "",
-				} as PodcastSource)
-			: undefined,
-	}))
+	return episodes.map((episode: PrismaEpisode & { userCurationProfile: PrismaUserCurationProfile & { sources: Source[] } | null; source: Source | null }) => {
+		const transformedEpisode: Episode = {
+			...episode,
+			userCurationProfile: episode.userCurationProfile
+				? {
+						...episode.userCurationProfile,
+						status: episode.userCurationProfile.status as UserCurationProfileStatus,
+						sources: episode.userCurationProfile.sources.map((source: Source) => ({
+							...source,
+							imageUrl: source.imageUrl ?? null,
+						})),
+					}
+				: undefined,
+			source: episode.source
+				? {
+						...episode.source,
+						imageUrl: episode.source.imageUrl ?? "",
+					}
+				: undefined,
+		}
+		return transformedEpisode
+	})
 }

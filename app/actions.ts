@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
-import type { CuratedCollection, FormState } from "@/lib/types"
+import type { UserCurationProfile, FormState } from "@/lib/types"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { inngest } from "../inngest/client"
 
@@ -42,6 +42,7 @@ async function fetchYouTubeVideoDetails(url: string) {
 
 export async function addPodcastSource(_prevState: FormState, formData: FormData) {
 	const { userId } = await auth()
+	
 	if (!userId) return { success: false, message: "Not authenticated" }
 
 	const url = formData.get("url") as string
@@ -55,12 +56,12 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 	}
 
 	try {
-		const draftCollection = await prisma.collection.findFirst({
+		const draftUserCurationProfile = await prisma.userCurationProfile.findFirst({
 			where: { userId: userId, status: "Draft" },
 		})
 
-		if (!draftCollection) {
-			return { success: false, message: "Could not find a draft collection." }
+		if (!draftUserCurationProfile) {
+			return { success: false, message: "Could not find a draft user curation profile." }
 		}
 
 		// Fetch YouTube video details
@@ -68,7 +69,7 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 
 		await prisma.source.create({
 			data: {
-				collectionId: draftCollection.id,
+				userCurationProfileId: draftUserCurationProfile.id,
 				name: videoDetails.title,
 				url: url,
 				imageUrl: videoDetails.thumbnail,
@@ -90,9 +91,9 @@ export async function removePodcastSource(formData: FormData) {
 	try {
 		const source = await prisma.source.findUnique({
 			where: { id },
-			include: { collection: true },
+			include: { userCurationProfile: true },
 		})
-		if (source?.collection.userId === userId) {
+		if (source?.userCurationProfile?.userId === userId) {
 			await prisma.source.delete({ where: { id } })
 		}
 	} catch (_error) {}
@@ -104,19 +105,19 @@ export async function saveCuration(formData: FormData) {
 	const { userId } = await auth()
 	if (!userId) return
 
-	const collectionId = formData.get("collectionId") as string
-	// Reverting to automatically generated name for the collection
+	const userCurationProfileId = formData.get("userCurationProfileId") as string
+	// Reverting to automatically generated name for the user curation profile
 
 	try {
 		await prisma.$transaction([
-			prisma.collection.update({
-				where: { id: collectionId, userId: userId },
+			prisma.userCurationProfile.update({
+				where: { id: userCurationProfileId, userId: userId },
 				data: {
 					status: "Saved",
-					name: "Source Collection",
+					name: "Source User Curation Profile",
 				},
 			}),
-			prisma.collection.create({
+			prisma.userCurationProfile.create({
 				data: {
 					userId: userId,
 					name: "New Weekly Curation",
@@ -142,10 +143,10 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
 	try {
 		const source = await prisma.source.findUnique({
 			where: { id },
-			include: { collection: true },
+			include: { userCurationProfile: true },
 		})
 
-		if (!source || source.collection.userId !== userId) {
+		if (!source || source.userCurationProfile?.userId !== userId) {
 			return { success: false, message: "Source not found or unauthorized." }
 		}
 
@@ -161,7 +162,7 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
 	}
 }
 
-export async function createDraftCollection() {
+export async function createDraftUserCurationProfile() {
 	const { userId } = await auth()
 	const user = await currentUser()
 
@@ -188,7 +189,7 @@ export async function createDraftCollection() {
 			})
 		}
 
-		await prisma.collection.create({
+		await prisma.userCurationProfile.create({
 			data: {
 				userId: dbUser.id,
 				name: "New Weekly Curation",
@@ -205,22 +206,22 @@ export async function createDraftCollection() {
 	redirect("/build")
 }
 
-export async function getCollectionStatus(collectionId: string) {
+export async function getUserCurationProfileStatus(userCurationProfileId: string): Promise<UserCurationProfile | null> {
 	const { userId } = await auth()
 	if (!userId) {
 		return null
 	}
 	try {
-		const collection = await prisma.collection.findUnique({
-			where: { id: collectionId, userId: userId },
+		const userCurationProfile = await prisma.userCurationProfile.findUnique({
+			where: { id: userCurationProfileId, userId: userId },
 			include: { sources: true },
 		})
-		if (!collection) return null
+		if (!userCurationProfile) return null
 
 		return {
-			...collection,
-			status: collection.status as CuratedCollection["status"],
-			sources: collection.sources.map(source => ({
+			...userCurationProfile,
+			status: userCurationProfile.status as UserCurationProfile["status"],
+			sources: userCurationProfile.sources.map(source => ({
 				...source,
 				imageUrl: source.imageUrl || "",
 			})),
@@ -230,16 +231,16 @@ export async function getCollectionStatus(collectionId: string) {
 	}
 }
 
-export async function triggerPodcastGeneration(collectionId: string) {
+export async function triggerPodcastGeneration(userCurationProfileId: string) {
 	const { userId } = await auth()
 	if (!userId) {
 		return { success: false, message: "Not authenticated." }
 	}
 
 	try {
-		// Update the collection status and set generatedAt timestamp
-		await prisma.collection.update({
-			where: { id: collectionId, userId: userId },
+		// Update the user curation profile status and set generatedAt timestamp
+		await prisma.userCurationProfile.update({
+			where: { id: userCurationProfileId, userId: userId },
 			data: {
 				status: "Generated",
 				generatedAt: new Date(),
@@ -248,10 +249,14 @@ export async function triggerPodcastGeneration(collectionId: string) {
 
 		await inngest.send({
 			name: "podcast/generate.requested",
-			data: { collectionId },
+			data: { user: { id: userId }, userCurationProfile: { id: userCurationProfileId } },
 		})
-		return { success: true, message: "Podcast generation initiated!" }
-	} catch (_error) {
-		return { success: false, message: "Failed to initiate podcast generation." }
+
+		revalidatePath("/build")
+		revalidatePath("/")
+		return { success: true, message: "Podcast generation triggered." }
+	} catch (error) {
+		console.error("Error triggering podcast generation:", error)
+		return { success: false, message: "Failed to trigger podcast generation." }
 	}
 }
