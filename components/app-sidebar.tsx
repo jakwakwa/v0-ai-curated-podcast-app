@@ -1,157 +1,101 @@
-"use client"
-
-import {
-	CameraIcon,
-	FileCodeIcon,
-	FileTextIcon,
-	HelpCircleIcon,
-	LayoutDashboardIcon,
-	ListIcon,
-	MicIcon,
-	SearchIcon,
-	SettingsIcon,
-} from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import type * as React from "react"
 
-// import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { SearchForm } from "@/components/search-form"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
+	SidebarGroup,
+	SidebarGroupContent,
+	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "./ui/sidebar-ui"
+	SidebarRail,
+} from "@/components/ui/sidebar-ui"
+import { VersionSwitcher } from "@/components/version-switcher"
+import { NavUser } from "./nav-user"
 
+// This is sample data.
 const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
-	},
+	versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
 	navMain: [
 		{
-			title: "Dashboard",
-			url: "#",
-			icon: LayoutDashboardIcon,
-		},
-		{
-			title: "Episodes",
-			url: "#",
-			icon: ListIcon,
-		},
-		// {
-		// 	title: "Analytics",
-		// 	url: "#",
-		// 	icon: BarChartIcon,
-		// },
-		// {
-		// 	title: "Projects",
-		// 	url: "#",
-		// 	icon: FolderIcon,
-		// },
-		// {
-		// 	title: "Team",
-		// 	url: "#",
-		// 	icon: UsersIcon,
-		// },
-	],
-	navClouds: [
-		{
-			title: "Capture",
-			icon: CameraIcon,
-			isActive: true,
+			title: "Getting Started",
 			url: "#",
 			items: [
 				{
-					title: "Active Proposals",
+					title: "About Ai Curator",
 					url: "#",
 				},
 				{
-					title: "Archived",
+					title: "Discover	",
 					url: "#",
 				},
 			],
 		},
 		{
-			title: "Proposal",
-			icon: FileTextIcon,
+			title: "Building Your Collection",
 			url: "#",
 			items: [
 				{
-					title: "Active Proposals",
+					title: "Bundles",
 					url: "#",
 				},
 				{
-					title: "Archived",
+					title: "Custom Collections",
 					url: "#",
-				},
-			],
-		},
-		{
-			title: "Prompts",
-			icon: FileCodeIcon,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
+					isActive: true,
 				},
 			],
 		},
 	],
-	navSecondary: [
-		{
-			title: "Settings",
-			url: "#",
-			icon: SettingsIcon,
-		},
-		{
-			title: "Get Help",
-			url: "#",
-			icon: HelpCircleIcon,
-		},
-		{
-			title: "Search",
-			url: "#",
-			icon: SearchIcon,
-		},
-	],
-	// documents: [],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
-		<Sidebar collapsible="offcanvas" {...props}>
+		<Sidebar {...props}>
 			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-							<a href="/">
-								<MicIcon className="h-5 w-5" />
-								<span className="text-base font-semibold">Jakwak Inc.</span>
-							</a>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
+				<VersionSwitcher versions={data.versions} defaultVersion={data.versions[0]} />
+				<SearchForm />
 			</SidebarHeader>
-			<SidebarContent>
-				<NavMain items={data.navMain} />
-				{/* <NavDocuments items={data.documents} /> */}
-
-				<NavSecondary items={data.navSecondary} className="mt-auto" />
+			<SidebarContent className="gap-0">
+				{/* We create a collapsible SidebarGroup for each parent. */}
+				{data.navMain.map(item => (
+					<Collapsible key={item.title} title={item.title} defaultOpen className="group/collapsible">
+						<SidebarGroup>
+							<SidebarGroupLabel
+								asChild
+								className="group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+							>
+								<CollapsibleTrigger>
+									{item.title}{" "}
+									<ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+								</CollapsibleTrigger>
+							</SidebarGroupLabel>
+							<CollapsibleContent>
+								<SidebarGroupContent>
+									<SidebarMenu>
+										{item.items.map(item => (
+											<SidebarMenuItem key={item.title}>
+												<SidebarMenuButton asChild isActive={item.isActive}>
+													<a href={item.url}>{item.title}</a>
+												</SidebarMenuButton>
+											</SidebarMenuItem>
+										))}
+									</SidebarMenu>
+								</SidebarGroupContent>
+							</CollapsibleContent>
+						</SidebarGroup>
+					</Collapsible>
+				))}
 			</SidebarContent>
-
+			<SidebarRail />
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser user={{ name: "", email: "", avatar: "" }} />
 			</SidebarFooter>
 		</Sidebar>
 	)

@@ -9,7 +9,6 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatLogTimestamp } from "@/lib/utils"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
 
@@ -21,8 +20,31 @@ export function SavedCollectionCard({
 	const [isLoading, setIsLoading] = useState(false)
 	const [currentCollection, setCurrentCollection] = useState(collection)
 
+	// New: State for formatted dates
+	const [createdAtDisplay, setCreatedAtDisplay] = useState<string>(collection.createdAt.toISOString())
+	const [generatedAtDisplay, setGeneratedAtDisplay] = useState<string | null>(
+		collection.generatedAt ? collection.generatedAt.toISOString() : null
+	)
+
 	useEffect(() => {
 		setCurrentCollection(collection)
+		// Reset formatted dates on collection change
+		setCreatedAtDisplay(collection.createdAt.toISOString())
+		setGeneratedAtDisplay(collection.generatedAt ? collection.generatedAt.toISOString() : null)
+	}, [collection])
+
+	// Format dates to local time on client after hydration
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const formatLogTimestamp = (iso: string) => {
+				const date = new Date(iso)
+				return date.toLocaleString()
+			}
+			setCreatedAtDisplay(formatLogTimestamp(collection.createdAt.toISOString()))
+			if (collection.generatedAt) {
+				setGeneratedAtDisplay(formatLogTimestamp(collection.generatedAt.toISOString()))
+			}
+		}
 	}, [collection])
 
 	const handleGenerate = async () => {
@@ -81,11 +103,11 @@ export function SavedCollectionCard({
 			<CardHeader>
 				<CardTitle>{currentCollection.name}</CardTitle>
 				<CardDescription>
-					Created: {formatLogTimestamp(currentCollection.createdAt.toISOString())}
-					{currentCollection.generatedAt && (
+					Created: {createdAtDisplay}
+					{generatedAtDisplay && (
 						<>
 							<br />
-							Generated: {formatLogTimestamp(currentCollection.generatedAt.toISOString())}
+							Generated: {generatedAtDisplay}
 						</>
 					)}
 				</CardDescription>
