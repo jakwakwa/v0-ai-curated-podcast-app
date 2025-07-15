@@ -67,7 +67,8 @@
 		"uuid": "^11.1.0",
 		"vaul": "latest",
 		"youtube-transcript": "^1.2.1",
-		"zod": "latest"
+		"zod": "latest",
+		"zustand": "^5.0.6"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

@@ -16,8 +16,13 @@ model User {
     password      String
     image         String?
     emailVerified DateTime?
+    emailNotifications Boolean @default(true) @map("email_notifications")
+    inAppNotifications Boolean @default(true) @map("in_app_notifications")
     collections   Collection[]
+    notifications Notification[]
     subscriptions Subscription[]
+
+    @@map("users")
 }
 
 model Collection {
@@ -26,13 +31,25 @@ model Collection {
     name        String
     status      String    @default("Draft")
     audioUrl    String?   @map("audio_url")
+    imageUrl    String?   @map("image_url") // Added for collection image
     createdAt   DateTime  @default(now()) @map("created_at")
     updatedAt   DateTime  @updatedAt @map("updated_at")
     generatedAt DateTime? @map("generated_at")
+    lastGenerationDate DateTime? @map("last_generation_date")
+    nextGenerationDate DateTime? @map("next_generation_date")
+    isActive    Boolean   @default(true) @map("is_active")
+
+    // Bundle selection (read-only) or custom selection (editable)
+    isBundleSelection Boolean @default(false) @map("is_bundle_selection")
+    selectedBundleId  String? @map("selected_bundle_id")
+    selectedBundle    CuratedBundle? @relation(fields: [selectedBundleId], references: [id])
+
+    // For custom selections (editable)
     sources     Source[]
     user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     episodes    Episode[]
 
+    @@unique([userId]) // One collection per user
     @@map("collections")
 }
 
@@ -41,7 +58,7 @@ model Source {
     collectionId String     @map("collection_id")
     name         String
     url          String
-    imageUrl     String?    @map("image_url")
+    imageUrl     String?    @map("image_url") // Added for source image
     createdAt    DateTime   @default(now()) @map("created_at")
     collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
     episodes     Episode[]
@@ -54,7 +71,7 @@ model Episode {
     title        String
     description  String?
     audioUrl     String
-    imageUrl     String?
+    imageUrl     String?    @map("image_url") // Added for episode image
     publishedAt  DateTime?
     createdAt    DateTime   @default(now())
     sourceId     String     @map("source_id")
@@ -63,6 +80,65 @@ model Episode {
     collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
     @@map("episodes")
+}
+
+// Pre-curated individual podcasts (25 shows)
+model CuratedPodcast {
+    id          String   @id @default(uuid())
+    name        String
+    url         String
+    description String?
+    imageUrl    String?  // Added for curated podcast image
+    category    String   // "Technology", "Business", "Science", "News"
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+
+    // Many-to-many with bundles
+    bundlePodcasts CuratedBundlePodcast[]
+
+    @@map("curated_podcasts")
+}
+
+// Pre-curated bundles (3 bundles, 5 shows each)
+model CuratedBundle {
+    id          String   @id @default(uuid())
+    name        String   // "Tech Weekly", "Business Insights", "Science & Discovery"
+    description String?
+    imageUrl    String?  // Added for curated bundle image
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+
+    // Many-to-many with podcasts
+    bundlePodcasts CuratedBundlePodcast[]
+    // Collections that selected this bundle
+    collections Collection[]
+
+    @@map("curated_bundles")
+}
+
+// Junction table for bundle-podcast relationship
+model CuratedBundlePodcast {
+    id              String        @id @default(uuid())
+    bundleId        String        @map("bundle_id")
+    podcastId       String        @map("podcast_id")
+    bundle          CuratedBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+    podcast         CuratedPodcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+
+    @@unique([bundleId, podcastId])
+    @@map("curated_bundle_podcasts")
+}
+
+// Notifications
+model Notification {
+    id        String   @id @default(uuid())
+    userId    String   @map("user_id")
+    type      String   // "episode_ready", "weekly_reminder"
+    message   String
+    isRead    Boolean  @default(false)
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("notifications")
 }
 
 // Simple Subscription Model for Link Integration
