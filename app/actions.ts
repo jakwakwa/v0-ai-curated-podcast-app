@@ -290,6 +290,7 @@ export async function getCollectionStatus(collectionId: string) {
 
 		return {
 			...collection,
+			status: collection.status as CuratedCollection["status"],
 			sources: collection.sources.map(source => ({
 				...source,
 				imageUrl: source.imageUrl || "",
@@ -307,6 +308,15 @@ export async function triggerPodcastGeneration(collectionId: string) {
 	}
 
 	try {
+		// Update the collection status and set generatedAt timestamp
+		await prisma.collection.update({
+			where: { id: collectionId, userId: userId },
+			data: {
+				status: "Generated",
+				generatedAt: new Date(),
+			},
+		})
+
 		await inngest.send({
 			name: "podcast/generate.requested",
 			data: { collectionId },
