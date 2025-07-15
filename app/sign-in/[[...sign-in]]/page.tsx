@@ -1,6 +1,6 @@
 import { SignIn } from '@clerk/nextjs';
 
-export default function Login() {
+export default function SignInPage() {
   return (
     <div style={{
       display: 'flex',
@@ -15,4 +15,4 @@ export default function Login() {
       />
     </div>
   );
-}
+} 

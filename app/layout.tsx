@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import type React from "react"
 import "./globals.css"
+import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
@@ -10,6 +11,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
 import { Toaster } from "@/components/ui/sonner"
 import { ClerkProvider } from "@clerk/nextjs"
+import { auth } from "@clerk/nextjs/server"
 import { ClientProviders } from "./client-providers"
 // import { Dashboard } from "@elevenlabs/elevenlabs-js/api/resources/conversationalAi/resources/dashboard/client/Client"
 // import DashboardPage from "./page"
@@ -36,13 +38,7 @@ export default function RootLayout({
 				<ClerkProvider>
 					<ClientProviders>
 						<Toaster />
-						<SidebarProvider>
-							<AppSidebar />
-							<div className="w-screen flex-col">
-								<SiteHeader />
-								<div className="p-12 flex gap-8">{children}</div>
-							</div>
-						</SidebarProvider>
+						{children}
 					</ClientProviders>
 				</ClerkProvider>
 			</body>

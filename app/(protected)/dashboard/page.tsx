@@ -1,14 +1,12 @@
+'use client';
 // DASHBOARD TEMPLATE. CURRENTLY NOT USED IN THE APP
-import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar-ui"
 import { getCuratedCollections, getEpisodes } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { UserCurationProfile } from "@/lib/types"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -20,13 +18,35 @@ const formatDate = (date: Date | null | undefined) => {
 	return new Date(date).toLocaleString()
 }
 
-export default async function Page() {
-	const userCurationProfiles = await getCuratedCollections()
-	const userCurationProfile = userCurationProfiles[0] // Assuming one user curation profile per user
-	const episodes = await getEpisodes() // Fetch all episodes
-
+export default function Page() {
+	const [userCurationProfiles, setUserCurationProfiles] = useState<any[]>([])
+	const [episodes, setEpisodes] = useState<any[]>([])
+	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const router = useRouter()
+	
+	const userCurationProfile = userCurationProfiles[0] // Assuming one user curation profile per user
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setIsLoading(true)
+				const [fetchedProfiles, fetchedEpisodes] = await Promise.all([
+					getCuratedCollections(),
+					getEpisodes()
+				])
+				setUserCurationProfiles(fetchedProfiles)
+				setEpisodes(fetchedEpisodes)
+			} catch (error) {
+				console.error('Error fetching data:', error)
+				toast.error('Failed to load dashboard data')
+			} finally {
+				setIsLoading(false)
+			}
+		}
+		
+		fetchData()
+	}, [])
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return
@@ -56,14 +76,22 @@ export default async function Page() {
 		}
 	}
 
+	if (isLoading) {
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<div className="text-center">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+					<p>Loading dashboard...</p>
+				</div>
+			</div>
+		)
+	}
+
 	return (
-		<SidebarProvider>
-			<AppSidebar variant="inset" />
-			<SidebarInset>
-				<SiteHeader />
-				<div className="flex flex-1 flex-col">
-					<div className="@container/main flex flex-1 flex-col gap-2">
-						<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+		<>
+			<div className="flex flex-1 flex-col">
+				<div className="@container/main flex flex-1 flex-col gap-2">
+					<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 							{userCurationProfiles.length > 0 ? (
 								<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6">
 									<Card>
@@ -151,7 +179,6 @@ export default async function Page() {
 						</div>
 					</div>
 				</div>
-			</SidebarInset>
 			{userCurationProfile && (
 				<EditUserCurationProfileModal
 					isOpen={isModalOpen}
@@ -160,6 +187,6 @@ export default async function Page() {
 					onSave={handleSaveUserCurationProfile}
 				/>
 			)}
-		</SidebarProvider>
+		</>
 	)
 }

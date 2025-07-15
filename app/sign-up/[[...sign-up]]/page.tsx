@@ -1,6 +1,6 @@
-import { SignIn } from '@clerk/nextjs';
+import { SignUp } from '@clerk/nextjs';
 
-export default function Login() {
+export default function SignUpPage() {
   return (
     <div style={{
       display: 'flex',
@@ -9,10 +9,10 @@ export default function Login() {
       justifyContent: 'center',
       background: 'hsl(var(--background))'
     }}>
-      <SignIn 
+      <SignUp 
         afterSignInUrl="/dashboard"
         afterSignUpUrl="/dashboard"
       />
     </div>
   );
-}
+} 

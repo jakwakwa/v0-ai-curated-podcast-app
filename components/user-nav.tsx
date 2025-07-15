@@ -45,16 +45,6 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() =>
-            signOut(() => {
-              window.location.href = '/login';
-            })
-          }
-        >
-          Log out
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

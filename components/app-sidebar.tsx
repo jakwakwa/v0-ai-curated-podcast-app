@@ -39,19 +39,28 @@ const data = {
 			],
 		},
 		{
-			title: "Building Your User Curation Profile",
+			title: "Your Library",
 			url: "#",
 			items: [
 				{
-					title: "Bundles",
-					url: "#",
+					title: "Weekly Episodes",
+					url: "/collections/weekly-episodes",
 				},
 				{
-					title: "Custom User Curation Profiles",
-					url: "#",
-					isActive: true,
+					title: "Curation Profiles",
+					url: "/curation-profile-management",
 				},
 			],
+		},
+		{
+			title: "Build",
+			url: "/build",
+			items: [],
+		},
+		{
+			title: "Subscription",
+			url: "/subscription",
+			items: [],
 		},
 	],
 }

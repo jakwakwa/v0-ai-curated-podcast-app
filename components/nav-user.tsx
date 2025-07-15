@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar-ui"
 import styles from './nav-user.module.css'
+import { useClerk } from "@clerk/nextjs"
+import Link from "next/link"
 
 export function NavUser({
 	user,
@@ -25,6 +27,7 @@ export function NavUser({
 	}
 }) {
 	const { isMobile } = useSidebar()
+  const { signOut } = useClerk();
 
 	return (
 		<SidebarMenu>
@@ -66,21 +69,33 @@ export function NavUser({
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<UserCircleIcon />
-								Account
+							<DropdownMenuItem asChild>
+								<Link href="/curation-profile-management">
+									<UserCircleIcon />
+									Curation Profile Management
+								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<CreditCardIcon />
-								Billing
+							<DropdownMenuItem asChild>
+								<Link href="/subscription">
+									<CreditCardIcon />
+									Subscription
+								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<BellIcon />
-								Notifications
+							<DropdownMenuItem asChild>
+								<Link href="/notifications">
+									<BellIcon />
+									Notifications
+								</Link>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={async () => {
+							try {
+								await signOut({ redirectUrl: "/" });
+							} catch {
+								// console.error("Sign out failed:", error);
+							}
+						}}>
 							<LogOutIcon />
 							Log out
 						</DropdownMenuItem>
