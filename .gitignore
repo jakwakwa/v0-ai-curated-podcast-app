@@ -3,6 +3,8 @@
 # dependencies
 /node_modules/
 google-cloud-sdk/**
+/secrets/
+/.gcs/
 # next.js
 /.next/
 /out/

@@ -22,6 +22,8 @@ export interface CuratedCollection {
 	audioUrl?: string | null
 	sources: PodcastSource[]
 	createdAt: Date
+	updatedAt: Date
+	generatedAt?: Date | null
 }
 
 export interface Episode {

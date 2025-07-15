@@ -23,11 +23,11 @@ export function AddSourceForm({ disabled }: { disabled: boolean }) {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <deps expexpted>
 	useEffect(() => {
-		if (state?.success === true) {
+		if (state?.success === true && state?.message !== "") {
 			toast(`${state.message}`)
 			formRef.current?.reset()
-		} else if (state?.success === false) {
-			toast(`${state.message}`)
+		} else if (state?.success === false && state?.message !== "") {
+			toast(`Message:${state.message}`)
 		}
 	}, [state, toast])
 

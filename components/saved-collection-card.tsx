@@ -9,6 +9,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatLogTimestamp } from "@/lib/utils"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
 
@@ -23,15 +24,6 @@ export function SavedCollectionCard({
 	useEffect(() => {
 		setCurrentCollection(collection)
 	}, [collection])
-
-	const formattedTime = currentCollection.createdAt.toLocaleTimeString("en-ZA", {
-		hour: "2-digit",
-		minute: "2-digit",
-		hour12: false, // Use 24-hour format
-		timeZone: "Africa/Johannesburg",
-	})
-
-	const displayTimestamp = formattedTime
 
 	const handleGenerate = async () => {
 		setIsLoading(true)
@@ -67,7 +59,7 @@ export function SavedCollectionCard({
 					if (pollingInterval) clearInterval(pollingInterval)
 					toast(`The podcast for "${updatedCollection.name}" failed to generate.`)
 				}
-			}, 5000) // Poll every 5 seconds
+			}, 10000) // Poll every  seconds
 
 			// Add a timeout to stop polling after a certain period (e.g., 5 minutes)
 			setTimeout(() => {
@@ -76,7 +68,7 @@ export function SavedCollectionCard({
 					setIsLoading(false)
 					toast("Podcast generation is taking longer than expected. Please check back later.")
 				}
-			}, 300000) // 5 minutes timeout
+			}, 500) // 30s timeout
 		} catch (_error) {
 			toast("Failed to initiate podcast generation")
 			setIsLoading(false)
@@ -88,7 +80,15 @@ export function SavedCollectionCard({
 		<Card className="w-full max-w-sm">
 			<CardHeader>
 				<CardTitle>{currentCollection.name}</CardTitle>
-				<CardDescription>Created: {displayTimestamp}</CardDescription>
+				<CardDescription>
+					Created: {formatLogTimestamp(currentCollection.createdAt.toISOString())}
+					{currentCollection.generatedAt && (
+						<>
+							<br />
+							Generated: {formatLogTimestamp(currentCollection.generatedAt.toISOString())}
+						</>
+					)}
+				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				{(currentCollection.status === "Saved" || currentCollection.status === "Failed") && (

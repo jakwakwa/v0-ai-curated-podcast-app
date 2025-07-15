@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
-import AudioPlayer from "./ui/audio-player"
 
 interface PodcastListProps {
 	episodes: Episode[]
@@ -29,9 +28,7 @@ export function PodcastList({ episodes }: PodcastListProps) {
 									{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}
 								</div> */}
 							</div>
-							<div>
-								<AudioPlayer episode={episode} />
-							</div>
+
 							{episode.description && (
 								<div
 									className="text-xs text-muted-foreground mb-0 max-h-4 "

@@ -41,7 +41,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
 			setCollection(foundCollection)
 
 			const allEpisodes = await getEpisodes()
-			const filteredEpisodes = allEpisodes.filter(ep => ep.collectionId === id)
+			const filteredEpisodes = allEpisodes.filter((ep: { collectionId: string }) => ep.collectionId === id)
 			setEpisodes(filteredEpisodes)
 			setLoading(false)
 		}
@@ -90,6 +90,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
 							audioUrl: playingEpisode.audioUrl,
 							description: playingEpisode.description || "",
 						}}
+						onClose={() => setPlayingEpisode(null)}
 					/>
 					<EpisodeTranscript transcript={playingEpisode.description || ""} />
 				</div>

@@ -48,12 +48,12 @@ export async function getCuratedCollections(): Promise<CuratedCollection[]> {
 
 	return collections.map(collection => ({
 		...collection,
-		status: collection.status as "Draft" | "Saved",
+		status: collection.status as "Draft" | "Saved" | "Generated" | "Failed",
 		sources: collection.sources.map(source => ({
 			...source,
 			imageUrl: source.imageUrl || "",
 		})),
-	}))
+	})) as unknown as CuratedCollection[]
 }
 
 export async function getEpisodes() {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
-import type { FormState } from "@/lib/types"
+import type { CuratedCollection, FormState } from "@/lib/types"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { inngest } from "../inngest/client"
 
@@ -113,7 +113,7 @@ export async function saveCuration(formData: FormData) {
 				where: { id: collectionId, userId: userId },
 				data: {
 					status: "Saved",
-					name: `of Collection: ${new Date().toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })}`, // Reverting to auto-generated name
+					name: "Source Collection",
 				},
 			}),
 			prisma.collection.create({
@@ -121,6 +121,7 @@ export async function saveCuration(formData: FormData) {
 					userId: userId,
 					name: "New Weekly Curation",
 					status: "Draft",
+					createdAt: new Date(), // Explicitly set the current timestamp
 				},
 			}),
 		])
@@ -128,6 +129,7 @@ export async function saveCuration(formData: FormData) {
 		return
 	}
 
+	revalidatePath("/")
 	redirect("/")
 }
 
@@ -191,6 +193,7 @@ export async function createDraftCollection() {
 				userId: dbUser.id,
 				name: "New Weekly Curation",
 				status: "Draft",
+				createdAt: new Date(), // Explicitly set the current timestamp
 			},
 		})
 
@@ -216,6 +219,7 @@ export async function getCollectionStatus(collectionId: string) {
 
 		return {
 			...collection,
+			status: collection.status as CuratedCollection["status"],
 			sources: collection.sources.map(source => ({
 				...source,
 				imageUrl: source.imageUrl || "",
@@ -233,6 +237,15 @@ export async function triggerPodcastGeneration(collectionId: string) {
 	}
 
 	try {
+		// Update the collection status and set generatedAt timestamp
+		await prisma.collection.update({
+			where: { id: collectionId, userId: userId },
+			data: {
+				status: "Generated",
+				generatedAt: new Date(),
+			},
+		})
+
 		await inngest.send({
 			name: "podcast/generate.requested",
 			data: { collectionId },

@@ -1,6 +1,6 @@
 // This is your Prisma schema file
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl"]
 }
 
@@ -8,7 +8,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 
 model User {
   id            String       @id @default(cuid())
@@ -21,15 +20,17 @@ model User {
 }
 
 model Collection {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  name      String
-  status    String   @default("Draft")
-  audioUrl  String?  @map("audio_url")
-  createdAt DateTime @default(now()) @map("created_at")
-  sources   Source[]
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  episodes  Episode[]
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  name        String
+  status      String    @default("Draft")
+  audioUrl    String?   @map("audio_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  generatedAt DateTime? @map("generated_at")
+  sources     Source[]
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  episodes    Episode[]
 
   @@map("collections")
 }
@@ -48,16 +49,16 @@ model Source {
 }
 
 model Episode {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  audioUrl    String
-  imageUrl    String?
-  publishedAt DateTime?
-  createdAt   DateTime @default(now())
-  sourceId    String   @map("source_id")
-  source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-  collectionId String   @map("collection_id")
+  id           String     @id @default(uuid())
+  title        String
+  description  String?
+  audioUrl     String
+  imageUrl     String?
+  publishedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  sourceId     String     @map("source_id")
+  source       Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  collectionId String     @map("collection_id")
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@map("episodes")

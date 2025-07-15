@@ -3,6 +3,7 @@ import styles from "@/components/ui/audio-player.module.css"
 import Image from "next/image"
 import type React from "react"
 import { type JSX, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 import { Button } from "./button"
 
 export const truncateTitle = (title: string, maxLength: number): string => {
@@ -69,7 +70,8 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 		}
 
 		if (episode.audioUrl && audio) {
-			audio.src = episode.audioUrl
+			audio.src =
+				episode.audioUrl !== "sample-for-simulated-tests.mp3" ? episode.audioUrl : "/sample-for-simulated-tests.mp3"
 			audio.volume = volume
 			audio.addEventListener("timeupdate", updateProgress)
 			audio.addEventListener("ended", onAudioEnd)
@@ -125,7 +127,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	}
 
 	const onAudioError = () => {
-		alert(`Audio failed to load:${episode.audioUrl}`)
+		toast(`Audio failed to load:${episode.audioUrl}`)
 		setIsPlaying(false)
 	}
 
@@ -136,6 +138,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	}
 
 	const togglePlayPause = async () => {
+		// console.log(audioRef.current)
 		if (audioRef.current) {
 			try {
 				if (isPlaying) {
@@ -146,7 +149,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 					setIsPlaying(true)
 				}
 			} catch (error) {
-				alert(`Audio Player Error: ${error}`)
+				toast(`Audio Player Error: ${error} ${audioRef.current}`)
 				setIsPlaying(false)
 			}
 		}
