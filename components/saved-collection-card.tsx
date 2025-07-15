@@ -8,7 +8,6 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatLogTimestamp } from "@/lib/utils"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
 import styles from "./saved-collection-card.module.css"
