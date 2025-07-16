@@ -61,7 +61,7 @@ export default function Page() {
 
 			if (!response.ok) {
 				const errorData = await response.json()
-				throw new Error(errorData.message || "Failed to update user curation profile")
+				throw new Error(errorData.error || errorData.message || "Failed to update user curation profile")
 			}
 
 			// Revalidate data after successful update

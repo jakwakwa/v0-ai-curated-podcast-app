@@ -5,12 +5,13 @@ import { getEpisodes } from "@/lib/data";
 import { Suspense } from "react";
 
 interface EpisodePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const EpisodeDetailPage = async ({ params }: EpisodePageProps) => {
+  const { id } = await params;
   const episodes = await getEpisodes(); // Fetch all episodes to find the one by ID
-  const episode = episodes.find((ep) => ep.id === params.id);
+  const episode = episodes.find((ep) => ep.id === id);
 
   if (!episode) {
     notFound();
