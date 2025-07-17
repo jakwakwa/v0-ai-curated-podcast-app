@@ -7,8 +7,10 @@ onlyBuiltDependencies:
   - core-js
   - esbuild
   - inngest-cli
+  - mdns
   - mdns2
   - prisma
   - protobufjs
   - sharp
+  - zeromq
   - zmq
