@@ -35,7 +35,12 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={inter.className}>
-				<ClerkProvider>
+				<ClerkProvider
+					publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+					appearance={{
+						baseTheme: undefined,
+					}}
+				>
 					<ClientProviders>
 						<Toaster />
 						{children}
