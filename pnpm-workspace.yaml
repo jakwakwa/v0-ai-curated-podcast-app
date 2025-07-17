@@ -5,7 +5,10 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - '@tailwindcss/oxide'
   - core-js
+  - esbuild
   - inngest-cli
+  - mdns2
   - prisma
   - protobufjs
   - sharp
+  - zmq

@@ -4,7 +4,7 @@ import { LinkService } from "@/lib/link-service";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -23,4 +23,4 @@ export async function POST(request: Request) {
     console.error("[SUBSCRIPTION_UPGRADE_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-} 
+}

@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -31,4 +31,4 @@ export async function GET(request: Request) {
     console.error("[CURATED_BUNDLES_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-} 
+}

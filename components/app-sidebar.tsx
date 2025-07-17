@@ -17,8 +17,20 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar-ui"
 import { VersionSwitcher } from "@/components/version-switcher"
+import styles from "./app-sidebar.module.css"
 import { NavUser } from "./nav-user"
-import styles from './app-sidebar.module.css'
+
+interface SidebarNavItem {
+	title: string
+	url: string
+	isActive?: boolean
+}
+
+interface SidebarNavGroup {
+	title: string
+	url: string
+	items: SidebarNavItem[]
+}
 
 // This is sample data.
 const data = {
@@ -62,7 +74,7 @@ const data = {
 			url: "/subscription",
 			items: [],
 		},
-	],
+	] as SidebarNavGroup[], // Apply the new type to navMain
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -77,13 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				{data.navMain.map(item => (
 					<Collapsible key={item.title} title={item.title} defaultOpen className={styles["collapsible-open"]}>
 						<SidebarGroup>
-							<SidebarGroupLabel
-								asChild
-								className={styles["collapsible-label"]}
-							>
+							<SidebarGroupLabel asChild className={styles["collapsible-label"]}>
 								<CollapsibleTrigger>
-									{item.title}{" "}
-									<ChevronRight className={styles["chevron-icon"]} />
+									{item.title} <ChevronRight className={styles["chevron-icon"]} />
 								</CollapsibleTrigger>
 							</SidebarGroupLabel>
 							<CollapsibleContent>

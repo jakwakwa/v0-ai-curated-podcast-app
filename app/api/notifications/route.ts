@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -39,4 +39,4 @@ export async function DELETE(request: Request) {
     console.error("[NOTIFICATIONS_DELETE_ALL]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-} 
+}

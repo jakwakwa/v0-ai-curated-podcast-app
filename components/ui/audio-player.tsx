@@ -1,11 +1,11 @@
 "use client"
 import styles from "@/components/ui/audio-player.module.css"
+import type { Episode } from "@/lib/types"
 import Image from "next/image"
 import type React from "react"
 import { type JSX, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "./button"
-import type { Episode } from '@/lib/types'
 
 export const truncateTitle = (title: string, maxLength: number): string => {
 	if (title.length > maxLength) {
@@ -30,7 +30,7 @@ export const formatTime = (time: number): string => {
 	return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
-export const truncateDescription = (description: string, maxLength: number): string => {
+export const truncateDescription = (description: string | null, maxLength: number): string => {
 	if (!description) return ""
 	if (description.length > maxLength) {
 		return `${description.substring(0, maxLength)}...`
@@ -178,8 +178,8 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 			<div className={styles.episodeImageContainer}>
 				{episode.imageUrl && !imageError ? (
 					<Image
-						src={episode.imageUrl}
-						alt={episode.description}
+						src={episode.imageUrl!}
+						alt={episode.description ?? ""}
 						width={56}
 						height={56}
 						className={styles.episodeImage}
@@ -196,7 +196,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 
 			<div className={styles.info}>
 				<h3 title={episode.title}>{episode.title}</h3>
-				<p title={episode.description}>{truncateDescription(episode.description, 100)}</p>
+				<p title={episode.description ?? ""}>{truncateDescription(episode.description, 100)}</p>
 			</div>
 
 			<div className={styles.controls}>

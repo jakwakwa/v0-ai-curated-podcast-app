@@ -37,8 +37,8 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 			</CardHeader>
 			<CardContent className={styles["card-content-flex"]}>
 				<div className={styles["items-center-justify-between"]}>
-					<Badge variant={getStatusBadgeVariant(episode.collection?.status || "Draft")}>
-						{episode.collection?.status || "Draft"}
+					<Badge variant={getStatusBadgeVariant(episode.userCurationProfile?.status || "Draft")}>
+						{episode.userCurationProfile?.status || "Draft"}
 					</Badge>
 					<div className={styles["text-muted-foreground-sm"]}>
 						<Clock className={styles["icon-small"]} />
@@ -47,7 +47,11 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button className={styles["button-full-width"]} disabled={!episode.audioUrl} onClick={() => onPlayEpisode(episode)}>
+				<Button
+					className={styles["button-full-width"]}
+					disabled={!episode.audioUrl}
+					onClick={() => onPlayEpisode(episode)}
+				>
 					<PlayCircle className={styles["button-icon-margin-right"]} />
 					Play Episode
 				</Button>

@@ -31,10 +31,6 @@ if (!readerKeyPath) {
 	process.exit(1) // Exit or handle gracefully
 }
 
-// Debugging: Log the resolved path to see what the application is using
-// biome-ignore lint/suspicious/noConsole: <debugging>
-console.log("Resolved GCS_UPLOADER_KEY_PATH:", uploaderKeyPath)
-
 // Initialize a Storage client Service with Key for uploading operations
 const storageUploader = new Storage({
 	keyFilename: uploaderKeyPath,
@@ -53,47 +49,58 @@ const storageReader = new Storage({
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
 	try {
 		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log("=== UPLOAD DEBUG START ===")
 		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log("Bucket name:", bucketName)
 		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log("Destination file name:", destinationFileName)
 		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log("Data buffer size:", data.length, "bytes")
 		// biome-ignore lint/suspicious/noConsole: <debugging>
-		console.log("Storage uploader key path:", uploaderKeyPath)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("GOOGLE_CLOUD_STORAGE_BUCKET_NAME env var:", process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Bucket name parameter:", bucketName)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Bucket name is undefined:", bucketName === undefined)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Bucket name is null:", bucketName === null)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
-		console.log("Bucket name is empty string:", bucketName === "")
-
 		// Check if bucket exists (commented out due to permissions issue)
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Skipping bucket existence check due to permissions...")
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Proceeding directly to upload...")
-		/*
 		const [exists] = await storageUploader.bucket(bucketName).exists()
+
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Bucket exists:", exists)
 
 		if (!exists) {
+			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.error("ERROR: Bucket does not exist:", bucketName)
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
-		*/
 
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("Attempting to upload file...")
 		await storageUploader.bucket(bucketName).file(destinationFileName).save(data)
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>		console.log("File uploaded successfully!")
 		// biome-ignore lint/suspicious/noConsole: <debugging>
-		console.log("File uploaded successfully!")
-		// biome-ignore lint/suspicious/noConsole: <debugging>
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log("=== UPLOAD DEBUG END ===")
 		return { success: true, fileName: destinationFileName }
 	} catch (error) {
@@ -144,19 +151,19 @@ export const generatePodcast = inngest.createFunction(
 		const { collectionId } = event.data
 
 		// Stage 1: Content Aggregation
-		const collection = await step.run("fetch-collection-data", async () => {
-			const fetchedCollection = await prisma.collection.findUnique({
+		const userCurationProfile = await step.run("fetch-collection-data", async () => {
+			const fetchedUserCurationProfile = await prisma.userCurationProfile.findUnique({
 				where: { id: collectionId },
 				include: { sources: true },
 			})
-			if (!fetchedCollection) {
-				throw new Error(`Collection with ID ${collectionId} not found.`)
+			if (!fetchedUserCurationProfile) {
+				throw new Error(`User Curation Profile with ID ${collectionId} not found.`)
 			}
-			return fetchedCollection
+			return fetchedUserCurationProfile
 		})
 
 		const sourcesWithTranscripts: SourceWithTranscript[] = await Promise.all(
-			collection.sources.map(async s => {
+			userCurationProfile.sources.map(async s => {
 				// Extract video ID from YouTube URL
 				const videoIdMatch = s.url.match(
 					/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/
@@ -174,7 +181,8 @@ export const generatePodcast = inngest.createFunction(
 						toast(`Failed to retrieve transcript for ${s.name} from ${s.url}. Error: ${(error as Error).message}`)
 					}
 				} else {
-					// biome-ignore lint/suspicious/noConsole: <debugging: This log is for debugging purposes when a youtubevideo ID cannot be extracted from a URL.>
+					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+					// biome-ignore lint/suspicious/noConsole: <explanation>
 					console.error(`Could not extract youtube video ID from URL: ${s.url}`)
 					toast(`Could not extract youtube video ID from URL: ${s.url}`)
 				}
@@ -182,7 +190,7 @@ export const generatePodcast = inngest.createFunction(
 				const { createdAt, ...rest } = s
 				return {
 					...rest,
-					createdAt: createdAt,
+					createdAt: createdAt.toString(), // Convert to string to match SourceWithTranscript type
 					transcript: transcriptContent,
 				} as SourceWithTranscript
 			})
@@ -236,17 +244,22 @@ export const generatePodcast = inngest.createFunction(
 
 		// Stage 4: Audio Synthesis and Upload to Google Cloud Storage
 		const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
-			// biome-ignore lint/suspicious/noConsole: <debugging>
+			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.log("=== AUDIO SYNTHESIS DEBUG START ===")
-			// biome-ignore lint/suspicious/noConsole: <debugging>
+			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.log("Collection ID:", collectionId)
-			// biome-ignore lint/suspicious/noConsole: <debugging>
+			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.log("Script length:", script.length, "characters")
-			// biome-ignore lint/suspicious/noConsole: <debugging>
+			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.log("AI config simulate audio synthesis:", aiConfig.simulateAudioSynthesis)
 
 			if (aiConfig.simulateAudioSynthesis) {
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Using simulated audio synthesis")
 				// Simulate an audio buffer and a public URL to continue the workflow
 				// const simulatedAudioFileName = `podcasts/${collectionId}-${Date.now()}.mp3`
@@ -255,11 +268,14 @@ export const generatePodcast = inngest.createFunction(
 			}
 
 			try {
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Starting ElevenLabs text-to-speech conversion...")
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Voice ID:", aiConfig.synthVoice)
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("XAI_API_KEY set:", !!process.env.XAI_API_KEY)
 
 				const audio = await elevenlabs.textToSpeech.convert(aiConfig.synthVoice, {
@@ -267,7 +283,8 @@ export const generatePodcast = inngest.createFunction(
 					modelId: "eleven_flash_v2",
 				})
 
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Audio stream received, converting to buffer...")
 
 				const streamToBuffer = async (stream: ReadableStream<Uint8Array>) => {
@@ -282,13 +299,16 @@ export const generatePodcast = inngest.createFunction(
 				}
 
 				const audioBuffer = await streamToBuffer(audio)
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Audio buffer created, size:", audioBuffer.length, "bytes")
 
 				const audioFileName = `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/podcasts/${collectionId}-${Date.now()}.mp3` // Generate filename here
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Generated audio file name:", audioFileName)
-				// biome-ignore lint/suspicious/noConsole: <debugging>
+				// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+				// biome-ignore lint/suspicious/noConsole: <explanation>
 				console.log("Bucket name for upload:", process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME)
 
 				const file = await uploadContentToBucket(
@@ -298,7 +318,8 @@ export const generatePodcast = inngest.createFunction(
 				)
 
 				if (file.success) {
-					// biome-ignore lint/suspicious/noConsole: <debugging>
+					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+					// biome-ignore lint/suspicious/noConsole: <explanation>
 					console.log("File upload successful, returning:", file.fileName)
 					return file.fileName
 				}
@@ -318,22 +339,22 @@ export const generatePodcast = inngest.createFunction(
 			}
 		})
 
-		// Create a new Episode linked to the Collection
+		// Create a new Episode linked to the UserCurationProfile
 		await step.run("create-episode", async () => {
 			// Use the first source as the main source for the episode (or adjust as needed)
-			const mainSource = collection.sources[0]
+			const mainSource = userCurationProfile.sources[0]
 			await prisma.episode.create({
 				data: {
-					title: `AI Podcast for ${collection.name}`,
+					title: `AI Podcast for ${userCurationProfile.name}`,
 					description: script,
 					audioUrl: publicUrl ? publicUrl : "",
 					imageUrl: mainSource?.imageUrl || null,
 					publishedAt: new Date(),
-					sourceId: mainSource?.id || collection.sources[0].id,
-					collectionId: collection.id,
+					sourceId: mainSource?.id || userCurationProfile.sources[0].id,
+					userCurationProfileId: userCurationProfile.id,
 				},
 			})
-			await prisma.collection.update({
+			await prisma.userCurationProfile.update({
 				where: { id: collectionId },
 				data: { status: "Generated" },
 			})
@@ -356,6 +377,7 @@ export const generatePodcast = inngest.createFunction(
 	}
 )
 function toast(message: string) {
-	// biome-ignore lint/suspicious/noConsole: <debugging>
+	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+	// biome-ignore lint/suspicious/noConsole: <explanation>
 	console.log("TOAST:", message)
 }

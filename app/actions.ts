@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
-import type { UserCurationProfile, FormState } from "@/lib/types"
+import type { FormState, UserCurationProfileWithRelations } from "@/lib/types"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { inngest } from "../inngest/client"
 
@@ -42,7 +42,7 @@ async function fetchYouTubeVideoDetails(url: string) {
 
 export async function addPodcastSource(_prevState: FormState, formData: FormData) {
 	const { userId } = await auth()
-	
+
 	if (!userId) return { success: false, message: "Not authenticated" }
 
 	const url = formData.get("url") as string
@@ -206,7 +206,9 @@ export async function createDraftUserCurationProfile() {
 	redirect("/build")
 }
 
-export async function getUserCurationProfileStatus(userCurationProfileId: string): Promise<UserCurationProfile | null> {
+export async function getUserCurationProfileStatus(
+	userCurationProfileId: string
+): Promise<UserCurationProfileWithRelations | null> {
 	const { userId } = await auth()
 	if (!userId) {
 		return null
@@ -214,19 +216,30 @@ export async function getUserCurationProfileStatus(userCurationProfileId: string
 	try {
 		const userCurationProfile = await prisma.userCurationProfile.findUnique({
 			where: { id: userCurationProfileId, userId: userId },
-			include: { sources: true },
+			include: { sources: true, selectedBundle: { include: { bundlePodcasts: { include: { podcast: true } } } } }, // Include sources and selectedBundle
 		})
 		if (!userCurationProfile) return null
 
+		// Transform the object to match UserCurationProfileWithRelations
 		return {
 			...userCurationProfile,
-			status: userCurationProfile.status as UserCurationProfile["status"],
+			status: userCurationProfile.status as UserCurationProfileWithRelations["status"],
 			sources: userCurationProfile.sources.map(source => ({
 				...source,
 				imageUrl: source.imageUrl || "",
 			})),
+			selectedBundle: userCurationProfile.selectedBundle
+				? {
+						...userCurationProfile.selectedBundle,
+						podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+					}
+				: null,
+			episodes: [], // Add this line to include the episodes property
 		}
-	} catch (_error) {
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error)
+		// biome-ignore lint/suspicious/noConsole: <explanation>
+		console.error("Error fetching user curation profile status:", message) // Keep for server-side logging
 		return null
 	}
 }
@@ -255,8 +268,10 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 		revalidatePath("/build")
 		revalidatePath("/")
 		return { success: true, message: "Podcast generation triggered." }
-	} catch (error) {
-		console.error("Error triggering podcast generation:", error)
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error)
+		// biome-ignore lint/suspicious/noConsole: <explanation>
+		console.error("Error triggering podcast generation:", message)
 		return { success: false, message: "Failed to trigger podcast generation." }
 	}
 }

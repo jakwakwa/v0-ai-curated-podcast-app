@@ -1,12 +1,15 @@
 import { DataTable } from "@/components/data-table"
-import { getCuratedCollections, getEpisodes } from "@/lib/data"
+import { getEpisodes, getUserCurationProfile } from "@/lib/data"
+import type { UserCurationProfileWithRelations } from "@/lib/types"
 
 export default async function DashboardPage() {
-	const [episodes, collections] = await Promise.all([getEpisodes(), getCuratedCollections()])
-	const savedCollections = collections.filter(c => c.status === "Saved" || c.status === "Generated")
+	const [episodes, collections] = await Promise.all([getEpisodes(), getUserCurationProfile()])
+	const savedCollections: UserCurationProfileWithRelations[] = collections.filter(
+		c => c.status === "Saved" || c.status === "Generated"
+	)
 
 	// Custom sort: "Saved" status first, then by updatedAt (newest first)
-	savedCollections.sort((a, b) => {
+	savedCollections.sort((a: UserCurationProfileWithRelations, b: UserCurationProfileWithRelations) => {
 		// Prioritize "Saved" status over "Generated"
 		if (a.status === "Saved" && b.status === "Generated") return -1
 		if (a.status === "Generated" && b.status === "Saved") return 1
@@ -17,7 +20,7 @@ export default async function DashboardPage() {
 
 	return (
 		<>
-			<DataTable episodes={episodes} collections={savedCollections} />
+			<DataTable episodes={episodes} userCurationProfiles={savedCollections} />
 		</>
 	)
 }

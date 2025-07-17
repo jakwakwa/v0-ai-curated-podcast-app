@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -63,4 +63,4 @@ export async function POST(request: Request) {
     console.error("[USER_CURATION_PROFILE_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-} 
+}

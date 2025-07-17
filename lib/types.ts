@@ -1,53 +1,72 @@
 // Import Prisma's generated types
-import type { 
-  User,
-  UserCurationProfile, 
-  Source,
-  Episode,
-  CuratedPodcast,
-  CuratedBundle,
-  CuratedBundlePodcast,
-  Notification,
-  Subscription,
-  EpisodeFeedback,
-  FeedbackRating
-} from '@prisma/client'
+import type {
+	CuratedBundle,
+	CuratedBundlePodcast,
+	CuratedPodcast,
+	EpisodeFeedback,
+	FeedbackRating,
+	Notification,
+	Source,
+	Subscription,
+	User,
+	UserCurationProfile,
+} from "@prisma/client"
 
 // Re-export for convenience
 export type {
-  User,
-  UserCurationProfile,
-  Source,
-  Episode,
-  CuratedPodcast,
-  CuratedBundle,
-  CuratedBundlePodcast,
-  Notification,
-  Subscription,
-  EpisodeFeedback,
-  FeedbackRating
+	User,
+	UserCurationProfile,
+	Source,
+	CuratedPodcast,
+	CuratedBundle,
+	CuratedBundlePodcast,
+	Notification,
+	Subscription,
+	EpisodeFeedback,
+	FeedbackRating,
+}
+
+export type Episode = {
+	id: string
+	title: string
+	description: string | null
+	audioUrl: string
+	imageUrl: string | null
+	publishedAt: Date | null
+	weekNr: Date
+	createdAt: Date
+	sourceId: string
+	userCurationProfileId: string
+	userCurationProfile?: UserCurationProfileWithRelations | null
+	source?: Source | null
 }
 
 // Custom type for CuratedBundle that includes the transformed 'podcasts' array from the API
 export interface TransformedCuratedBundle extends CuratedBundle {
-  podcasts: CuratedPodcast[];
+	podcasts: CuratedPodcast[]
 }
 
 // Custom type for UserCurationProfile that includes the 'sources' relation
 export interface UserCurationProfileWithSources extends UserCurationProfile {
-  sources: Source[];
+	sources: Source[]
+}
+
+export interface UserCurationProfileWithRelations extends UserCurationProfile {
+	sources: Source[]
+	selectedBundle?: TransformedCuratedBundle | null
+	episodes: Episode[] // Add this line
 }
 
 // Keep only custom types that aren't in Prisma schema
 export interface FormState {
-  success: boolean
-  message: string
+	success: boolean
+	message: string
 }
 
 export interface ApiResponse<T> {
-  data?: T
-  error?: string
-  message?: string
+	data?: T
+	error?: string
+	message?: string
 }
 
 // Status type helpers for better type safety

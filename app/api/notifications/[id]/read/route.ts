@@ -1,34 +1,29 @@
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma"
+import { auth } from "@clerk/nextjs/server"
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const { userId } = auth();
+export async function PATCH(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	const { id } = await params
+	const authResult = await auth()
+	const userId = authResult?.userId
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+	if (!userId) {
+		return new NextResponse("Unauthorized", { status: 401 })
+	}
 
-    if (!params.id) {
-      return new NextResponse("Notification ID is required", { status: 400 });
-    }
+	if (!id) {
+		return new NextResponse("Notification ID is required", { status: 400 })
+	}
 
-    const updatedNotification = await prisma.notification.update({
-      where: { id: params.id, userId: userId },
-      data: { isRead: true },
-    });
+	const updatedNotification = await prisma.notification.update({
+		where: { id, userId },
+		data: { isRead: true },
+	})
 
-    if (!updatedNotification) {
-      return new NextResponse("Notification not found or unauthorized", { status: 404 });
-    }
+	if (!updatedNotification) {
+		return new NextResponse("Notification not found or unauthorized", { status: 404 })
+	}
 
-    return NextResponse.json(updatedNotification);
-  } catch (error) {
-    console.error("[NOTIFICATION_MARK_READ]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-} 
+	return NextResponse.json(updatedNotification)
+}

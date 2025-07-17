@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 import Link from "next/link"
-import styles from './saved-collection-card.module.css'
+import styles from "./saved-collection-card.module.css"
 
 export function SavedCollectionCard({
 	userCurationProfile,
@@ -119,7 +119,7 @@ export function SavedCollectionCard({
 							"Generating..."
 						) : (
 							<>
-								<Sparkles className={styles["icon"]} />
+								<Sparkles className={styles.icon} />
 								Generate Podcast
 							</>
 						)}
