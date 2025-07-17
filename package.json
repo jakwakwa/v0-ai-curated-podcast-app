@@ -88,5 +88,13 @@
 		"tsx": "^4.20.3",
 		"typescript": "5.8.2",
 		"typescript-eslint": "^8.35.0"
+	},
+	"overrides": {
+		"zmq": "npm:zeromq@6.0.0-beta.17",
+		"mdns2": "npm:mdns@2.7.2"
+	},
+	"resolutions": {
+		"zmq": "npm:zeromq@6.0.0-beta.17",
+		"mdns2": "npm:mdns@2.7.2"
 	}
 }
