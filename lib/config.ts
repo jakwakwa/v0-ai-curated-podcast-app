@@ -1,7 +1,7 @@
 // Configuration for data sources
 export const CONFIG = {
   // Set to true to use dummy data, false to use real API calls
-  USE_DUMMY_DATA: true,
+  USE_DUMMY_DATA: false,
 
   // Logging configuration
   LOG_DUMMY_DATA_USAGE: true,

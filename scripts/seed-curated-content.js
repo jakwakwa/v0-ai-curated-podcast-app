@@ -222,7 +222,7 @@ const curatedBundles = [
 		name: "Business Insights",
 		description: "Deep dives into business and economics",
 		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop",
-		podcasts: ["How I Built This", "Masters of Scale", "The Tim Ferriss Show", "Freakonomics", "Planet Money"],
+		podcasts: ["The Pomp Podcast", "The Diary Of A CEO", "The Joe Rogan Experience", "The Daily", "⁠Crime Junkie"],
 		episodes: [
 			{
 				title: "Economic Trends and Market Analysis",
