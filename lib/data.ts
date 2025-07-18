@@ -71,7 +71,7 @@ const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
 const DUMMY_USER_CURATION_PROFILE: UserCurationProfileWithRelations = {
 	id: "dummyCurationProfile",
 	userId: "user_2gXwLd20u8wK51Y5YjBf02002",
-	name: "My Custom Tech Collection",
+	name: "My Custom Psychology Curated List",
 	status: "Generated" as UserCurationProfileStatus,
 	audioUrl: "https://example.com/audio/my-custom-collection-latest.mp3",
 	imageUrl: "https://example.com/image/my-custom-collection.jpg",
@@ -91,8 +91,8 @@ const DUMMY_USER_CURATION_PROFILE: UserCurationProfileWithRelations = {
 const DUMMY_EPISODES: Episode[] = [
 	{
 		id: "episode1",
-		title: "The Future of AI: A Deep Dive",
-		description: "An in-depth look into the latest advancements and ethical considerations in artificial intelligence.",
+		title: "Dr. Jordan B. Peterson sits down with Scott Adams",
+		description: "Dr. Jordan B. Peterson sits down with Scott Adams, cartoonist and creator of Dilbert, to explore the unlikely paths that shape a life—from illustrating a nationally syndicated hit comic to fatal illness and facing the metaphysical",
 		audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 		imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop",
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
@@ -105,8 +105,8 @@ const DUMMY_EPISODES: Episode[] = [
 	},
 	{
 		id: "episode2",
-		title: "Space Exploration: Beyond Our Solar System",
-		description: "Exploring the possibilities of interstellar travel and discovering exoplanets.",
+		title: "Re-ignite the spark",
+		description: "This week we look the world-renowned clinical psychologist, psychoanalyst, and lead therapist on the hit series Couples Therapy. Known for helping couples navigate the complexities of intimacy, conflict, and emotional patterns, Orna shares the real reason relationships break down — and what it actually takes to build something that lasts",
 		audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 		imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 9)),
