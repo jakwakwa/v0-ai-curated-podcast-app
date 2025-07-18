@@ -28,36 +28,53 @@ export default function WeeklyEpisodesPage() {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
+	const [userProfile, setUserProfile] = useState<any>(null)
+	const [existingProfile, setExistingProfile] = useState<any>(null)
+	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 	const userCurationProfileStore = useUserCurationProfileStore()
+
+	useEffect(() => {
+		const checkExistingProfile = async () => {
+			try {
+				const profile = await getUserCurationProfile()
+				setExistingProfile(profile)
+			} catch (error) {
+				console.error("Error checking existing profile:", error)
+			} finally {
+				setIsCheckingProfile(false)
+			}
+		}
+
+		checkExistingProfile()
+	}, [])
 
 	useEffect(() => {
 		const fetchAllEpisodes = async () => {
 			try {
+				// Fetch user curation profile first
+				const userProfileData = await getUserCurationProfile()
+				setUserProfile(userProfileData)
+
 				// Fetch user-generated episodes
 				const userEpisodes = await getEpisodes()
 				setEpisodes(userEpisodes)
 
-				// Fetch user curation profiles to get bundle episodes
-				const userProfiles = await getUserCurationProfile()
-				const bundleEpisodesList: CuratedBundleEpisode[] = []
-
-				// Collect all bundle episodes from user's selected bundles
-				userProfiles.forEach(profile => {
-					if (profile.isBundleSelection && profile.selectedBundle?.episodes) {
-						bundleEpisodesList.push(...profile.selectedBundle.episodes)
-					}
-				})
+				// Get bundle episodes if user has a bundle selection
+				let bundleEpisodesList: CuratedBundleEpisode[] = []
+				if (userProfileData?.isBundleSelection && userProfileData?.selectedBundle?.episodes) {
+					bundleEpisodesList = userProfileData.selectedBundle.episodes
+				}
 
 				setBundleEpisodes(bundleEpisodesList)
 
 				// Combine episodes for display
 				const combined: CombinedEpisode[] = [
-					// User episodes
+					// User episodes (from custom profile)
 					...userEpisodes.map(ep => ({
 						...ep,
 						type: 'user' as const
 					})),
-					// Bundle episodes
+					// Bundle episodes (from bundle selection)
 					...bundleEpisodesList.map(ep => ({
 						id: ep.id,
 						title: ep.title,
@@ -89,6 +106,9 @@ export default function WeeklyEpisodesPage() {
 	useEffect(() => {
 		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		// biome-ignore lint/suspicious/noConsole: <explanation>
+		console.log("WeeklyEpisodesPage: User Profile:", userProfile)
+		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("WeeklyEpisodesPage: User Episodes:", episodes.length)
 		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		// biome-ignore lint/suspicious/noConsole: <explanation>
@@ -96,7 +116,19 @@ export default function WeeklyEpisodesPage() {
 		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.log("WeeklyEpisodesPage: Combined Episodes:", combinedEpisodes.length)
-	}, [episodes, bundleEpisodes, combinedEpisodes])
+	}, [userProfile, episodes, bundleEpisodes, combinedEpisodes])
+
+	// Show loading state while checking for existing profile
+	if (isCheckingProfile) {
+		return (
+			<div className="w-full">
+				<div className="text-center py-12">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+					<p>Loading...</p>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className="w-full">
@@ -108,14 +140,21 @@ export default function WeeklyEpisodesPage() {
 					</div>
 					<h3 className="text-lg font-semibold mb-2">No Episodes Available</h3>
 					<p className="text-muted-foreground mb-6 max-w-md mx-auto">
-						Create a curation profile or select a bundle to start seeing episodes here.
+						{userProfile
+							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
+							: existingProfile
+							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
+							: "Create a curation profile or select a bundle to start seeing episodes here."
+						}
 					</p>
-					<Link href="/build">
-						<Button>
-							<Plus className="w-4 h-4 mr-2" />
-							Create Your First Profile
-						</Button>
-					</Link>
+					{!userProfile && !existingProfile && (
+						<Link href="/build">
+							<Button>
+								<Plus className="w-4 h-4 mr-2" />
+								Create Your First Profile
+							</Button>
+						</Link>
+					)}
 				</div>
 			) : (
 				<div className="space-y-6">
@@ -124,6 +163,9 @@ export default function WeeklyEpisodesPage() {
 						<span>Total Episodes: {combinedEpisodes.length}</span>
 						<span>User Episodes: {episodes.length}</span>
 						<span>Bundle Episodes: {bundleEpisodes.length}</span>
+						{userProfile && (
+							<span>Profile Type: {userProfile.isBundleSelection ? 'Bundle Selection' : 'Custom Profile'}</span>
+						)}
 					</div>
 
 					{/* Episodes List */}

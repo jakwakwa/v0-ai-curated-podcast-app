@@ -19,20 +19,18 @@ const formatDate = (date: Date | null | undefined) => {
 }
 
 export default function Page() {
-	const [userCurationProfiles, setUserCurationProfiles] = useState<UserCurationProfileWithRelations[]>([])
+	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const router = useRouter()
 
-	const userCurationProfile = userCurationProfiles[0] // Assuming one user curation profile per user
-
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setIsLoading(true)
-				const [fetchedProfiles, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
-				setUserCurationProfiles(fetchedProfiles)
+				const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
+				setUserCurationProfile(fetchedProfile)
 				setEpisodes(fetchedEpisodes)
 			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : String(error)
@@ -87,7 +85,7 @@ export default function Page() {
 			<div className="flex flex-1 flex-col">
 				<div className="@container/main flex flex-1 flex-col gap-2">
 					<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-						{userCurationProfiles.length > 0 ? (
+						{userCurationProfile ? (
 							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 px-4 lg:px-0">
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -165,7 +163,7 @@ export default function Page() {
 								</Card>
 							</div>
 						)}
-						{userCurationProfiles.length > 0 && <CurationDashboard userCurationProfiles={userCurationProfiles} />}
+						{userCurationProfile && <CurationDashboard userCurationProfiles={[userCurationProfile]} />}
 
 						<div className="px-4 lg:px-0">
 							<EpisodeList episodes={episodes} />

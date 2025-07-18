@@ -16,8 +16,29 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import styles from "./page.module.css"
+import { useEffect, useState } from "react"
+import { getUserCurationProfile } from "@/lib/data"
 
 export default function AboutPage() {
+  const [existingProfile, setExistingProfile] = useState<any>(null)
+  const [isCheckingProfile, setIsCheckingProfile] = useState(true)
+
+  // Check if user already has an active profile
+  useEffect(() => {
+    const checkExistingProfile = async () => {
+      try {
+        const profile = await getUserCurationProfile()
+        setExistingProfile(profile)
+      } catch (error) {
+        console.error("Error checking existing profile:", error)
+      } finally {
+        setIsCheckingProfile(false)
+      }
+    }
+
+    checkExistingProfile()
+  }, [])
+
   const features = [
     {
       icon: <Podcast className={styles.featureIcon} />,
@@ -106,6 +127,18 @@ export default function AboutPage() {
     }
   ]
 
+  // Show loading state while checking for existing profile
+  if (isCheckingProfile) {
+    return (
+      <div className={styles.container}>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.container}>
       {/* Hero Section */}
@@ -119,12 +152,21 @@ export default function AboutPage() {
             Choose from hand-picked content or create your own custom curation profile.
           </p>
           <div className={styles.heroActions}>
-            <Link href="/build">
-              <Button size="lg" className={styles.primaryButton}>
-                Get Started
-                <ArrowRight size={16} />
-              </Button>
-            </Link>
+            {existingProfile ? (
+              <Link href="/dashboard">
+                <Button size="lg" className={styles.primaryButton}>
+                  Go to Dashboard
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/build">
+                <Button size="lg" className={styles.primaryButton}>
+                  Get Started
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+            )}
             <Link href="/curated-bundles">
               <Button variant="outline" size="lg">
                 Browse Bundles
@@ -259,12 +301,21 @@ export default function AboutPage() {
               Join thousands of users who are already enjoying personalized AI-generated podcasts.
             </p>
             <div className={styles.ctaActions}>
-              <Link href="/build">
-                <Button size="lg" className={styles.primaryButton}>
-                  Create Your First Profile
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
+              {existingProfile ? (
+                <Link href="/dashboard">
+                  <Button size="lg" className={styles.primaryButton}>
+                    Go to Dashboard
+                    <ArrowRight size={16} />
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/build">
+                  <Button size="lg" className={styles.primaryButton}>
+                    Create Your First Profile
+                    <ArrowRight size={16} />
+                  </Button>
+                </Link>
+              )}
               <Link href="/curated-bundles">
                 <Button variant="outline" size="lg">
                   Explore Bundles

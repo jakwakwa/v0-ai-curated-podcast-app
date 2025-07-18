@@ -7,20 +7,20 @@ import { useEffect, useState } from "react"
 
 export default function DashboardPage() {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [savedCollections, setSavedCollections] = useState<UserCurationProfileWithRelations[]>([])
+	const [savedCollection, setSavedCollection] = useState<UserCurationProfileWithRelations | null>(null)
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [episodesData, collectionsData] = await Promise.all([getEpisodes(), getUserCurationProfile()])
+				const [episodesData, collectionData] = await Promise.all([getEpisodes(), getUserCurationProfile()])
 
-				const filteredCollections: UserCurationProfileWithRelations[] = collectionsData.filter((collection) => {
-					return collection.status === "Saved"
-				})
+				// Only set the collection if it exists and is saved
+				if (collectionData && collectionData.status === "Saved") {
+					setSavedCollection(collectionData)
+				}
 
 				setEpisodes(episodesData)
-				setSavedCollections(filteredCollections)
 			} catch (error) {
 				console.error("Error fetching data:", error)
 			} finally {
@@ -38,7 +38,7 @@ export default function DashboardPage() {
 	return (
 		<div className="p-6">
 			<h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
-			<DataTable episodes={episodes} userCurationProfiles={savedCollections} />
+			<DataTable episodes={episodes} userCurationProfiles={savedCollection ? [savedCollection] : []} />
 		</div>
 	)
 }

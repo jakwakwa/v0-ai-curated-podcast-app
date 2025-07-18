@@ -10,8 +10,8 @@ export async function GET(request: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userCurationProfiles = await prisma.userCurationProfile.findMany({
-      where: { userId },
+    const userCurationProfile = await prisma.userCurationProfile.findFirst({
+      where: { userId, isActive: true },
       include: {
         sources: true,
         episodes: true,
@@ -26,20 +26,23 @@ export async function GET(request: Request) {
           }
         }
       },
-      orderBy: { createdAt: "desc" },
     });
 
-    // Transform the data to match the expected structure
-    const transformedProfiles = userCurationProfiles.map(profile => ({
-      ...profile,
-      selectedBundle: profile.selectedBundle ? {
-        ...profile.selectedBundle,
-        podcasts: profile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
-        episodes: profile.selectedBundle.episodes || []
-      } : null
-    }));
+    if (!userCurationProfile) {
+      return NextResponse.json(null);
+    }
 
-    return NextResponse.json(transformedProfiles);
+    // Transform the data to match the expected structure
+    const transformedProfile = {
+      ...userCurationProfile,
+      selectedBundle: userCurationProfile.selectedBundle ? {
+        ...userCurationProfile.selectedBundle,
+        podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+        episodes: userCurationProfile.selectedBundle.episodes || []
+      } : null
+    };
+
+    return NextResponse.json(transformedProfile);
   } catch (error) {
     console.error("[USER_CURATION_PROFILES_GET]", error);
     return new NextResponse("Internal Error", { status: 500 });

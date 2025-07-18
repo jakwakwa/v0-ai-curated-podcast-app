@@ -67,45 +67,26 @@ const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
 	podcasts: DUMMY_CURATED_PODCASTS,
 }
 
-const DUMMY_USER_CURATION_PROFILES: UserCurationProfileWithRelations[] = [
-	{
-		id: "dummyCurationProfile",
-		userId: "user_2gXwLd20u8wK51Y5YjBf02002",
-		name: "My Custom Tech Collection",
-		status: "Generated" as UserCurationProfileStatus,
-		audioUrl: "https://example.com/audio/my-custom-collection-latest.mp3",
-		imageUrl: "https://example.com/image/my-custom-collection.jpg",
-		createdAt: new Date(new Date().setDate(new Date().getDate() - 7)),
-		updatedAt: new Date(),
-		generatedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
-		lastGenerationDate: new Date(new Date().setDate(new Date().getDate() - 8)),
-		nextGenerationDate: new Date(new Date().setDate(new Date().getDate() + 6)),
-		isActive: true,
-		isBundleSelection: false,
-		selectedBundleId: null,
-		sources: DUMMY_SOURCES,
-		episodes: [],
-	},
-	{
-		id: "profile2",
-		userId: "user_2gXwLd20u8wK51Y5YjBf02002",
-		name: "Science & Discovery Bundle",
-		status: "Saved" as UserCurationProfileStatus,
-		audioUrl: null,
-		imageUrl: DUMMY_TRANSFORMED_BUNDLE.imageUrl,
-		createdAt: new Date(new Date().setDate(new Date().getDate() - 14)),
-		updatedAt: new Date(),
-		generatedAt: null,
-		lastGenerationDate: null,
-		nextGenerationDate: null,
-		isActive: true,
-		isBundleSelection: true,
-		selectedBundleId: DUMMY_TRANSFORMED_BUNDLE.id,
-		selectedBundle: DUMMY_TRANSFORMED_BUNDLE,
-		sources: [],
-		episodes: [],
-	},
-]
+// User can only have ONE active user curation profile - either bundle or custom
+const DUMMY_USER_CURATION_PROFILE: UserCurationProfileWithRelations = {
+	id: "dummyCurationProfile",
+	userId: "user_2gXwLd20u8wK51Y5YjBf02002",
+	name: "My Custom Tech Collection",
+	status: "Generated" as UserCurationProfileStatus,
+	audioUrl: "https://example.com/audio/my-custom-collection-latest.mp3",
+	imageUrl: "https://example.com/image/my-custom-collection.jpg",
+	createdAt: new Date(new Date().setDate(new Date().getDate() - 7)),
+	updatedAt: new Date(),
+	generatedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
+	lastGenerationDate: new Date(new Date().setDate(new Date().getDate() - 8)),
+	nextGenerationDate: new Date(new Date().setDate(new Date().getDate() + 6)),
+	isActive: true,
+	isBundleSelection: false, // This user has a custom profile (not bundle)
+	selectedBundleId: null,
+	selectedBundle: null,
+	sources: DUMMY_SOURCES,
+	episodes: [],
+}
 
 const DUMMY_EPISODES: Episode[] = [
 	{
@@ -117,10 +98,10 @@ const DUMMY_EPISODES: Episode[] = [
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
 		createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
 		sourceId: DUMMY_SOURCES[0].id,
-		userCurationProfileId: DUMMY_USER_CURATION_PROFILES[0].id,
+		userCurationProfileId: DUMMY_USER_CURATION_PROFILE.id,
 		weekNr: new Date(),
 		source: DUMMY_SOURCES[0],
-		userCurationProfile: DUMMY_USER_CURATION_PROFILES[0],
+		userCurationProfile: DUMMY_USER_CURATION_PROFILE,
 	},
 	{
 		id: "episode2",
@@ -131,32 +112,32 @@ const DUMMY_EPISODES: Episode[] = [
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 9)),
 		createdAt: new Date(new Date().setDate(new Date().getDate() - 9)),
 		sourceId: DUMMY_SOURCES[1].id,
-		userCurationProfileId: DUMMY_USER_CURATION_PROFILES[0].id,
+		userCurationProfileId: DUMMY_USER_CURATION_PROFILE.id,
 		weekNr: new Date(new Date().setDate(new Date().getDate() - 7)),
 		source: DUMMY_SOURCES[1],
-		userCurationProfile: DUMMY_USER_CURATION_PROFILES[0],
+		userCurationProfile: DUMMY_USER_CURATION_PROFILE,
 	},
 ]
 
 // --- DATA FETCHING FUNCTIONS ---
 
-export async function getUserCurationProfile(): Promise<UserCurationProfileWithRelations[]> {
+export async function getUserCurationProfile(): Promise<UserCurationProfileWithRelations | null> {
 	const { userId } = await auth()
-	if (!userId) return []
+	if (!userId) return null
 
 	if (shouldUseDummyData()) {
 		logDummyDataUsage("getUserCurationProfile")
-		const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
-			...profile,
+		const dummyDataWithCorrectUserId = {
+			...DUMMY_USER_CURATION_PROFILE,
 			userId: userId,
-		})) as UserCurationProfileWithRelations[]
+		} as UserCurationProfileWithRelations
 		return dummyDataWithCorrectUserId
 	}
 
-	// Real database query
+	// Real database query - only get the active user curation profile
 	try {
-		const userCurationProfiles = await prisma.userCurationProfile.findMany({
-			where: { userId },
+		const userCurationProfile = await prisma.userCurationProfile.findFirst({
+			where: { userId, isActive: true },
 			include: {
 				sources: true,
 				episodes: true,
@@ -171,28 +152,31 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 					}
 				}
 			},
-			orderBy: { createdAt: "desc" },
 		})
 
-		// Transform the data to match the expected structure
-		const transformedProfiles = userCurationProfiles.map(profile => ({
-			...profile,
-			selectedBundle: profile.selectedBundle ? {
-				...profile.selectedBundle,
-				podcasts: profile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
-				episodes: profile.selectedBundle.episodes || []
-			} : null
-		}))
+		if (!userCurationProfile) {
+			return null
+		}
 
-		return transformedProfiles as UserCurationProfileWithRelations[]
+		// Transform the data to match the expected structure
+		const transformedProfile = {
+			...userCurationProfile,
+			selectedBundle: userCurationProfile.selectedBundle ? {
+				...userCurationProfile.selectedBundle,
+				podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+				episodes: userCurationProfile.selectedBundle.episodes || []
+			} : null
+		}
+
+		return transformedProfile as UserCurationProfileWithRelations
 	} catch (error) {
-		console.error('Error fetching user curation profiles:', error)
+		console.error('Error fetching user curation profile:', error)
 		// Fallback to dummy data if database query fails
 		logDummyDataUsage("getUserCurationProfile (Database fallback)")
-		const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
-			...profile,
+		const dummyDataWithCorrectUserId = {
+			...DUMMY_USER_CURATION_PROFILE,
 			userId: userId,
-		})) as UserCurationProfileWithRelations[]
+		} as UserCurationProfileWithRelations
 		return dummyDataWithCorrectUserId
 	}
 }
@@ -230,7 +214,23 @@ export async function getEpisodes(): Promise<Episode[]> {
 			orderBy: { createdAt: "desc" },
 		})
 
-		return episodes as Episode[]
+		// Transform the data to match the Episode type
+		const transformedEpisodes = episodes.map(episode => ({
+			id: episode.id,
+			title: episode.title,
+			description: episode.description,
+			audioUrl: episode.audioUrl,
+			imageUrl: episode.imageUrl,
+			publishedAt: episode.publishedAt,
+			createdAt: episode.createdAt,
+			sourceId: episode.sourceId,
+			userCurationProfileId: episode.userCurationProfileId,
+			weekNr: episode.weekNr,
+			source: episode.source,
+			userCurationProfile: episode.userCurationProfile
+		}))
+
+		return transformedEpisodes as Episode[]
 	} catch (error) {
 		console.error('Error fetching episodes:', error)
 		// Fallback to dummy data if database query fails

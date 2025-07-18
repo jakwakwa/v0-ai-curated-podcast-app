@@ -36,16 +36,18 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 		const fetchData = async () => {
 			const { id } = await params
 			const curationProfileData = await getUserCurationProfile()
-			const foundUserCurationProfile = curationProfileData.find(c => c.id === id)
-			if (!foundUserCurationProfile) {
+
+			// Check if the requested profile matches the user's profile
+			if (!curationProfileData || curationProfileData.id !== id) {
 				notFound()
 				return
 			}
-			setUserCurationProfile(foundUserCurationProfile)
+
+			setUserCurationProfile(curationProfileData)
 
 			// Get bundle episodes if this is a bundle selection
-			if (foundUserCurationProfile.isBundleSelection && foundUserCurationProfile.selectedBundle?.episodes) {
-				setBundleEpisodes(foundUserCurationProfile.selectedBundle.episodes)
+			if (curationProfileData.isBundleSelection && curationProfileData.selectedBundle?.episodes) {
+				setBundleEpisodes(curationProfileData.selectedBundle.episodes)
 			}
 
 			const allEpisodes = await getEpisodes()

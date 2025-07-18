@@ -1,9 +1,11 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { SavedCollectionCard } from "@/components/saved-collection-card"
-import type { UserCurationProfileWithRelations } from "@/lib/types"
+import { SavedCollectionCard } from "./saved-collection-card"
+import { Sparkles, Plus, ArrowRight } from "lucide-react"
 import Link from "next/link"
-import { Plus, Sparkles, ArrowRight } from "lucide-react"
+import type { UserCurationProfileWithRelations } from "@/lib/types"
 
 interface CurationDashboardProps {
 	userCurationProfiles: UserCurationProfileWithRelations[]
@@ -52,13 +54,16 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Your Curation Profiles</h2>
-				<Link href="/build">
-					<Button size="sm">
-						<Plus className="w-4 h-4 mr-2" />
-						Create New Profile
-					</Button>
-				</Link>
+				<h2 className="text-2xl font-bold">Your Curation Profile</h2>
+				{/* Only show "Create New Profile" if user doesn't have an active profile */}
+				{activeProfiles.length === 0 && (
+					<Link href="/build">
+						<Button size="sm">
+							<Plus className="w-4 h-4 mr-2" />
+							Create New Profile
+						</Button>
+					</Link>
+				)}
 			</div>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{activeProfiles.map((profile) => (
