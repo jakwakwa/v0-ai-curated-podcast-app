@@ -14,7 +14,6 @@
 		"caching": "ts-node ./src/caching.ts"
 	},
 	"dependencies": {
-		"1": "^0.1.2",
 		"@ai-sdk/google": "latest",
 		"@ai-sdk/react": "latest",
 		"@auth/prisma-adapter": "^2.10.0",
@@ -89,5 +88,10 @@
 	},
 	"engines": {
 		"node": "22.x"
+	},
+	"pnpm": {
+		"overrides": {
+			"mdns2": "npm:@empty-npm-package/empty-npm-package@1.0.0"
+		}
 	}
 }
