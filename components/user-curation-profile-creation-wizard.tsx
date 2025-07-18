@@ -90,6 +90,7 @@ export function UserCurationProfileCreationWizard() {
 								setIsBundleSelection(false)
 								setStep(2)
 							}}
+							variant="outline"
 						>
 							<h3>Custom User Curation Profile</h3>
 							<p>Select up to 5 individual podcasts.</p>
@@ -99,6 +100,7 @@ export function UserCurationProfileCreationWizard() {
 								setIsBundleSelection(true)
 								setStep(2)
 							}}
+							variant="outline"
 						>
 							<h3>Bundle Selection</h3>
 							<p>Choose from pre-selected bundles (uneditable).</p>
