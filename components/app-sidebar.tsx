@@ -62,18 +62,13 @@ const data = {
 					title: "Curated Bundles",
 					url: "/curated-bundles",
 				},
+				{
+					title: "Notifications",
+					url: "/notifications",
+				},
 			],
-		},
-		{
-			title: "Build",
-			url: "/build",
-			items: [],
-		},
-		{
-			title: "Subscription",
-			url: "/subscription",
-			items: [],
-		},
+		}
+
 	] as SidebarNavGroup[], // Apply the new type to navMain
 }
 

@@ -71,7 +71,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 				{episodes.length === 0 ? (
 					<div className="text-muted-foreground">No episodes generated yet.</div>
 				) : (
-					<div className="flex flex-col w-full">
+					<div className="flex flex-col w-full gap-4">
 						{episodes.map(ep => (
 							<PodcastCard key={ep.id} episode={ep} onPlayEpisode={handlePlayEpisode} />
 						))}
