@@ -16,11 +16,56 @@ export default function CuratedBundlesPage() {
       isActive: true,
       createdAt: new Date("2024-01-01T00:00:00Z"),
       podcasts: [
-        { id: "pod1", name: "Lex Fridman Podcast", description: "Conversations about science, technology, history, philosophy and the nature of intelligence, consciousness, love, and power." },
-        { id: "pod2", name: "The Vergecast", description: "The flagship podcast of The Verge... and the internet." },
-        { id: "pod3", name: "Reply All", description: "A podcast about modern life and the internet." },
-        { id: "pod4", name: "Planet Money", description: "The economy explained. Imagine you could call up a friend and say, 'Meet me at the bar and tell me what's going on with the economy.'" },
-        { id: "pod5", name: "The Indicator", description: "A little show about big ideas. From the people who make Planet Money." }
+        {
+          id: "pod1",
+          name: "Lex Fridman Podcast",
+          description: "Conversations about science, technology, history, philosophy and the nature of intelligence, consciousness, love, and power.",
+          url: "https://www.youtube.com/@lexfridman",
+          imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+          category: "Technology",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod2",
+          name: "The Vergecast",
+          description: "The flagship podcast of The Verge... and the internet.",
+          url: "https://www.youtube.com/@verge",
+          imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
+          category: "Technology",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod3",
+          name: "Reply All",
+          description: "A podcast about modern life and the internet.",
+          url: "https://gimletmedia.com/shows/reply-all",
+          imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+          category: "Technology",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod4",
+          name: "Planet Money",
+          description: "The economy explained. Imagine you could call up a friend and say, 'Meet me at the bar and tell me what's going on with the economy.'",
+          url: "https://www.npr.org/sections/money/",
+          imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop",
+          category: "Technology",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod5",
+          name: "The Indicator",
+          description: "A little show about big ideas. From the people who make Planet Money.",
+          url: "https://www.npr.org/podcasts/510325/the-indicator-from-planet-money",
+          imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=400&fit=crop",
+          category: "Technology",
+          isActive: true,
+          createdAt: new Date()
+        }
       ]
     },
     {
@@ -31,11 +76,56 @@ export default function CuratedBundlesPage() {
       isActive: true,
       createdAt: new Date("2024-01-01T00:00:00Z"),
       podcasts: [
-        { id: "pod6", name: "How I Built This", description: "Stories behind some of the world's best known companies." },
-        { id: "pod7", name: "Masters of Scale", description: "LinkedIn co-founder and Greylock partner Reid Hoffman shares startup stories and entrepreneurial insights." },
-        { id: "pod8", name: "The Tim Ferriss Show", description: "Interviews with world-class performers to extract tools and tactics you can use." },
-        { id: "pod9", name: "Freakonomics", description: "Discover the hidden side of everything with Stephen J. Dubner." },
-        { id: "pod10", name: "Planet Money", description: "The economy explained. Imagine you could call up a friend and say, 'Meet me at the bar and tell me what's going on with the economy.'" }
+        {
+          id: "pod6",
+          name: "How I Built This",
+          description: "Stories behind some of the world's best known companies.",
+          url: "https://www.npr.org/podcasts/510313/how-i-built-this",
+          imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop",
+          category: "Business",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod7",
+          name: "Masters of Scale",
+          description: "LinkedIn co-founder and Greylock partner Reid Hoffman shares startup stories and entrepreneurial insights.",
+          url: "https://mastersofscale.com/",
+          imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=400&fit=crop",
+          category: "Business",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod8",
+          name: "The Tim Ferriss Show",
+          description: "Interviews with world-class performers to extract tools and tactics you can use.",
+          url: "https://tim.blog/podcast/",
+          imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+          category: "Business",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod9",
+          name: "Freakonomics",
+          description: "Discover the hidden side of everything with Stephen J. Dubner.",
+          url: "https://freakonomics.com/",
+          imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop",
+          category: "Business",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod10",
+          name: "Planet Money",
+          description: "The economy explained. Imagine you could call up a friend and say, 'Meet me at the bar and tell me what's going on with the economy.'",
+          url: "https://www.npr.org/sections/money/",
+          imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop",
+          category: "Business",
+          isActive: true,
+          createdAt: new Date()
+        }
       ]
     },
     {
@@ -46,11 +136,56 @@ export default function CuratedBundlesPage() {
       isActive: true,
       createdAt: new Date("2024-01-01T00:00:00Z"),
       podcasts: [
-        { id: "pod11", name: "Radiolab", description: "Investigating a strange world." },
-        { id: "pod12", name: "Science Friday", description: "Covering the outer reaches of space to the tiniest microbes in our bodies." },
-        { id: "pod13", name: "Hidden Brain", description: "Shankar Vedantam uses science and storytelling to reveal the unconscious patterns that drive human behavior." },
-        { id: "pod14", name: "Invisibilia", description: "Unseeable forces control human behavior and shape our ideas, beliefs, and assumptions." },
-        { id: "pod15", name: "99% Invisible", description: "All about the thought that goes into the things we don't think about." }
+        {
+          id: "pod11",
+          name: "Radiolab",
+          description: "Investigating a strange world.",
+          url: "https://www.wnycstudios.org/podcasts/radiolab",
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+          category: "Science",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod12",
+          name: "Science Friday",
+          description: "Covering the outer reaches of space to the tiniest microbes in our bodies.",
+          url: "https://www.sciencefriday.com/",
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+          category: "Science",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod13",
+          name: "Hidden Brain",
+          description: "Shankar Vedantam uses science and storytelling to reveal the unconscious patterns that drive human behavior.",
+          url: "https://www.npr.org/series/423302056/hidden-brain",
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+          category: "Science",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod14",
+          name: "Invisibilia",
+          description: "Unseeable forces control human behavior and shape our ideas, beliefs, and assumptions.",
+          url: "https://www.npr.org/podcasts/510307/invisibilia",
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+          category: "Science",
+          isActive: true,
+          createdAt: new Date()
+        },
+        {
+          id: "pod15",
+          name: "99% Invisible",
+          description: "All about the thought that goes into the things we don't think about.",
+          url: "https://99percentinvisible.org/",
+          imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+          category: "Science",
+          isActive: true,
+          createdAt: new Date()
+        }
       ]
     }
   ]
