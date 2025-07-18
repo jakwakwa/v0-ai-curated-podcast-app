@@ -37,7 +37,7 @@ export type Episode = {
 	createdAt: Date
 	sourceId: string
 	userCurationProfileId: string
-	userCurationProfile?: UserCurationProfileWithRelations | null
+	userCurationProfile?: UserCurationProfile | null // Use base Prisma type here
 	source?: Source | null
 }
 
@@ -51,12 +51,17 @@ export interface UserCurationProfileWithSources extends UserCurationProfile {
 	sources: Source[]
 }
 
-// Add proper type override for status
-export interface UserCurationProfileWithRelations extends Omit<UserCurationProfile, 'status'> {
-	status: UserCurationProfileStatus // Use the union type instead of string
+// Fix the type mismatch by properly handling Prisma's string type
+export interface UserCurationProfileWithRelations extends UserCurationProfile {
+	status: UserCurationProfileStatus // This will be cast at runtime
 	sources: Source[]
 	selectedBundle?: TransformedCuratedBundle | null
 	episodes: Episode[]
+}
+
+// Add a type assertion helper
+export const asUserCurationProfileStatus = (status: string): UserCurationProfileStatus => {
+	return status as UserCurationProfileStatus
 }
 
 // Keep only custom types that aren't in Prisma schema
