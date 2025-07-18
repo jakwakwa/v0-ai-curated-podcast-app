@@ -4,6 +4,7 @@ import { getEpisodes } from "@/lib/data"
 import { useUserCurationProfileStore } from "@/lib/stores/user-curation-profile-store"
 import type { Episode } from "@/lib/types"
 import { useEffect, useState } from "react"
+import { EpisodeList } from "@/components/episode-list"
 
 export default function WeeklyEpisodesPage() {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
@@ -30,7 +31,7 @@ export default function WeeklyEpisodesPage() {
 		<div>
 			<h1>Weekly Episodes Page</h1>
 			<p>This page will list weekly generated episodes.</p>
-			{/* Your UI will go here */}
+			<EpisodeList episodes={episodes} />
 		</div>
 	)
 }
