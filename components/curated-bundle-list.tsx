@@ -14,6 +14,9 @@ export function CuratedBundleList({
   onSelectBundle,
   selectedBundleId,
 }: CuratedBundleListProps) {
+  const [curatedBundles, setCuratedBundles] = useState<TransformedCuratedBundle[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
   // Dummy curated bundles data
   const dummyCuratedBundles: TransformedCuratedBundle[] = [
     {
@@ -63,10 +66,43 @@ export function CuratedBundleList({
     }
   ]
 
+  useEffect(() => {
+    const fetchCuratedBundles = async () => {
+      if (shouldUseDummyData()) {
+        logDummyDataUsage("CuratedBundleList")
+        setCuratedBundles(dummyCuratedBundles)
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/curated-bundles')
+        if (!response.ok) {
+          throw new Error(`Failed to fetch curated bundles: ${response.status}`)
+        }
+        const data = await response.json()
+        setCuratedBundles(data)
+      } catch (error) {
+        console.error('Error fetching curated bundles:', error)
+        // Fallback to dummy data
+        logDummyDataUsage("CuratedBundleList (API fallback)")
+        setCuratedBundles(dummyCuratedBundles)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCuratedBundles()
+  }, [])
+
+  if (isLoading) {
+    return <div>Loading curated bundles...</div>
+  }
+
   return (
-    <div className={styles.bundleSelection}>
-      <div className={styles.bundleGrid}>
-        {dummyCuratedBundles.map((bundle) => (
+          <div className={styles.bundleSelection}>
+        <div className={styles.bundleGrid}>
+          {curatedBundles.map((bundle) => (
           <Card
             key={bundle.id}
             className={`${styles.bundleCard} ${selectedBundleId === bundle.id ? styles.selected : ""}`}
