@@ -152,16 +152,31 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 		return dummyDataWithCorrectUserId
 	}
 
-	// TODO: Implement real API call here
-	// const response = await fetch('/api/user-curation-profiles')
-	// return response.json()
+	// Real API call
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/user-curation-profiles`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
 
-	logDummyDataUsage("getUserCurationProfile (fallback)")
-	const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
-		...profile,
-		userId: userId,
-	})) as UserCurationProfileWithRelations[]
-	return dummyDataWithCorrectUserId
+		if (!response.ok) {
+			throw new Error(`Failed to fetch user curation profiles: ${response.status}`)
+		}
+
+		const data = await response.json()
+		return data
+	} catch (error) {
+		console.error('Error fetching user curation profiles:', error)
+		// Fallback to dummy data if API call fails
+		logDummyDataUsage("getUserCurationProfile (API fallback)")
+		const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
+			...profile,
+			userId: userId,
+		})) as UserCurationProfileWithRelations[]
+		return dummyDataWithCorrectUserId
+	}
 }
 
 export async function getEpisodes(): Promise<Episode[]> {
@@ -170,12 +185,27 @@ export async function getEpisodes(): Promise<Episode[]> {
 		return DUMMY_EPISODES
 	}
 
-	// TODO: Implement real API call here
-	// const response = await fetch('/api/episodes')
-	// return response.json()
+	// Real API call
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/episodes`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
 
-	logDummyDataUsage("getEpisodes (fallback)")
-	return DUMMY_EPISODES
+		if (!response.ok) {
+			throw new Error(`Failed to fetch episodes: ${response.status}`)
+		}
+
+		const data = await response.json()
+		return data
+	} catch (error) {
+		console.error('Error fetching episodes:', error)
+		// Fallback to dummy data if API call fails
+		logDummyDataUsage("getEpisodes (API fallback)")
+		return DUMMY_EPISODES
+	}
 }
 
 export async function getEpisodes() {

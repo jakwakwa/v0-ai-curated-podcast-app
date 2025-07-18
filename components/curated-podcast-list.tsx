@@ -13,6 +13,9 @@ interface CuratedPodcastListProps {
 }
 
 export function CuratedPodcastList({ onSelectPodcast, selectedPodcasts }: CuratedPodcastListProps) {
+	const [curatedPodcasts, setCuratedPodcasts] = useState<CuratedPodcast[]>([])
+	const [isLoading, setIsLoading] = useState(true)
+
 	// Dummy curated podcasts data
 	const dummyCuratedPodcasts: CuratedPodcast[] = [
 		// Technology (8 shows)
@@ -274,7 +277,40 @@ export function CuratedPodcastList({ onSelectPodcast, selectedPodcasts }: Curate
 		},
 	]
 
-	const categories = [...new Set(dummyCuratedPodcasts.map(p => p.category))]
+	const categories = [...new Set(curatedPodcasts.map(p => p.category))]
+
+	useEffect(() => {
+		const fetchCuratedPodcasts = async () => {
+			if (shouldUseDummyData()) {
+				logDummyDataUsage("CuratedPodcastList")
+				setCuratedPodcasts(dummyCuratedPodcasts)
+				setIsLoading(false)
+				return
+			}
+
+			try {
+				const response = await fetch('/api/curated-podcasts')
+				if (!response.ok) {
+					throw new Error(`Failed to fetch curated podcasts: ${response.status}`)
+				}
+				const data = await response.json()
+				setCuratedPodcasts(data)
+			} catch (error) {
+				console.error('Error fetching curated podcasts:', error)
+				// Fallback to dummy data
+				logDummyDataUsage("CuratedPodcastList (API fallback)")
+				setCuratedPodcasts(dummyCuratedPodcasts)
+			} finally {
+				setIsLoading(false)
+			}
+		}
+
+		fetchCuratedPodcasts()
+	}, [])
+
+	if (isLoading) {
+		return <div>Loading curated podcasts...</div>
+	}
 
 	return (
 		<div className={styles.customSelection}>
@@ -295,7 +331,7 @@ export function CuratedPodcastList({ onSelectPodcast, selectedPodcasts }: Curate
 				{categories.map(category => (
 					<TabsContent key={category} value={category} className={styles.tabContent}>
 						<div className={styles.podcastGrid}>
-							{dummyCuratedPodcasts
+							{curatedPodcasts
 								.filter(podcast => podcast.category === category)
 								.map(podcast => {
 									const isSelected = selectedPodcasts.some(p => p.id === podcast.id)
