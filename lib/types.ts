@@ -51,10 +51,12 @@ export interface UserCurationProfileWithSources extends UserCurationProfile {
 	sources: Source[]
 }
 
-export interface UserCurationProfileWithRelations extends UserCurationProfile {
+// Add proper type override for status
+export interface UserCurationProfileWithRelations extends Omit<UserCurationProfile, 'status'> {
+	status: UserCurationProfileStatus // Use the union type instead of string
 	sources: Source[]
 	selectedBundle?: TransformedCuratedBundle | null
-	episodes: Episode[] // Add this line
+	episodes: Episode[]
 }
 
 // Keep only custom types that aren't in Prisma schema

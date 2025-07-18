@@ -3,9 +3,11 @@ import { auth } from "@clerk/nextjs/server"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-export default function LandingPage() {
-	// @ts-ignore
-	const { userId } = auth()
+// Force this page to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic'
+
+export default async function LandingPage() {
+	const { userId } = await auth() // Remove @ts-ignore and add await
 
 	// If user is authenticated, redirect to dashboard
 	if (userId) {
