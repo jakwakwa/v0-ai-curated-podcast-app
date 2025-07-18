@@ -3,7 +3,11 @@ import { auth } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
-export async function PATCH(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+interface RouteParams {
+	params: Promise<{ id: string }>
+}
+
+export async function PATCH(_request: NextRequest, { params }: RouteParams) {
 	const { id } = await params
 	const authResult = await auth()
 	const userId = authResult?.userId

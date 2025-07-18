@@ -2,9 +2,13 @@ import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
+interface RouteParams {
+	params: Promise<{ id: string }>
+}
+
 export async function GET(
 	_request: Request, // Marked as unused
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: RouteParams
 ) {
 	try {
 		const { userId } = await auth()
@@ -37,7 +41,7 @@ export async function GET(
 	}
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: Request, { params }: RouteParams) {
 	try {
 		const { userId } = await auth()
 
@@ -144,7 +148,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(
 	_request: Request, // Marked as unused
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: RouteParams
 ) {
 	try {
 		const { userId } = await auth()

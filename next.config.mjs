@@ -17,10 +17,6 @@ const nextConfig = {
 	env: {
 		NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
 	},
-	// Disable static generation for pages that require authentication
-	async generateStaticParams() {
-		return []
-	},
 }
 
 export default nextConfig
