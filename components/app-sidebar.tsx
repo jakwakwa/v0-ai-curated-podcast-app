@@ -1,7 +1,6 @@
 import { ChevronRight } from "lucide-react"
 import type * as React from "react"
-
-import { SearchForm } from "@/components/search-form"
+import { House } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
 	Sidebar,
@@ -16,7 +15,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar-ui"
-import { VersionSwitcher } from "@/components/version-switcher"
 import styles from "./app-sidebar.module.css"
 import { NavUser } from "./nav-user"
 
@@ -75,10 +73,21 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar {...props}>
-			<SidebarHeader>
-				<VersionSwitcher versions={data.versions} defaultVersion={data.versions[0]} />
-				<SearchForm />
-			</SidebarHeader>
+		<SidebarHeader>
+			<SidebarMenu>
+			<SidebarMenuItem>
+				<SidebarMenuButton
+				asChild
+				className="data-[slot=sidebar-menu-button]:!p-1.5"
+				>
+				<a href="/">
+					<House />
+					<span className="text-base font-semibold">Home</span>
+				</a>
+				</SidebarMenuButton>
+			</SidebarMenuItem>
+			</SidebarMenu>
+		</SidebarHeader>
 			<SidebarContent className={styles["sidebar-content-gap"]}>
 				{/* We create a collapsible SidebarGroup for each parent. */}
 				{data.navMain.map(item => (
