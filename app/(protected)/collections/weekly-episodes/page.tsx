@@ -28,9 +28,9 @@ export default function WeeklyEpisodesPage() {
 	}, [episodes, userCurationProfileStore.userCurationProfile])
 
 	return (
-		<div>
-			<h1>Weekly Episodes Page</h1>
-			<p>This page will list weekly generated episodes.</p>
+		<div className="w-full">
+			<h1 className="text-2xl font-bold">Weekly Episodes Page</h1>
+			<p className="my-6 text-sm font-normal">This page will list weekly generated episodes.</p>
 			<EpisodeList episodes={episodes} />
 		</div>
 	)
