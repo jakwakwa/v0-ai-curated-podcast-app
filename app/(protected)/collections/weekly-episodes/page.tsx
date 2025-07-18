@@ -7,7 +7,9 @@ import { useEffect, useState } from "react"
 import { EpisodeList } from "@/components/episode-list"
 import { Play, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import AudioPlayer from "@/components/ui/audio-player"
 import Link from "next/link"
+import styles from "./page.module.css"
 
 // Combined episode type for display
 interface CombinedEpisode {
@@ -31,6 +33,7 @@ export default function WeeklyEpisodesPage() {
 	const [userProfile, setUserProfile] = useState<any>(null)
 	const [existingProfile, setExistingProfile] = useState<any>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
+	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
 	const userCurationProfileStore = useUserCurationProfileStore()
 
 	useEffect(() => {
@@ -118,12 +121,20 @@ export default function WeeklyEpisodesPage() {
 		console.log("WeeklyEpisodesPage: Combined Episodes:", combinedEpisodes.length)
 	}, [userProfile, episodes, bundleEpisodes, combinedEpisodes])
 
+	const handlePlayEpisode = (episodeId: string) => {
+		setPlayingEpisodeId(episodeId)
+	}
+
+	const handleClosePlayer = () => {
+		setPlayingEpisodeId(null)
+	}
+
 	// Show loading state while checking for existing profile
 	if (isCheckingProfile) {
 		return (
-			<div className="w-full">
-				<div className="text-center py-12">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+			<div className={styles.loadingContainer}>
+				<div className={styles.loadingContent}>
+					<div className={styles.loadingSpinner} />
 					<p>Loading...</p>
 				</div>
 			</div>
@@ -131,15 +142,15 @@ export default function WeeklyEpisodesPage() {
 	}
 
 	return (
-		<div className="w-full">
-			<h1 className="text-2xl font-bold mb-6">All Episodes</h1>
+		<div className={styles.container}>
+			<h1 className={styles.title}>All Episodes</h1>
 			{combinedEpisodes.length === 0 ? (
-				<div className="text-center py-12">
-					<div className="mx-auto mb-4 w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-						<Play className="w-8 h-8 text-muted-foreground" />
+				<div className={styles.emptyState}>
+					<div className={styles.emptyStateIcon}>
+						<Play className={styles.emptyStateIconInner} />
 					</div>
-					<h3 className="text-lg font-semibold mb-2">No Episodes Available</h3>
-					<p className="text-muted-foreground mb-6 max-w-md mx-auto">
+					<h3 className={styles.emptyStateTitle}>No Episodes Available</h3>
+					<p className={styles.emptyStateDescription}>
 						{userProfile
 							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
 							: existingProfile
@@ -149,8 +160,8 @@ export default function WeeklyEpisodesPage() {
 					</p>
 					{!userProfile && !existingProfile && (
 						<Link href="/build">
-							<Button>
-								<Plus className="w-4 h-4 mr-2" />
+							<Button className={styles.createButton}>
+								<Plus className={styles.createButtonIcon} />
 								Create Your First Profile
 							</Button>
 						</Link>
@@ -159,7 +170,7 @@ export default function WeeklyEpisodesPage() {
 			) : (
 				<div className="space-y-6">
 					{/* Summary */}
-					<div className="flex gap-4 text-sm text-muted-foreground">
+					<div className={styles.summary}>
 						<span>Total Episodes: {combinedEpisodes.length}</span>
 						<span>User Episodes: {episodes.length}</span>
 						<span>Bundle Episodes: {bundleEpisodes.length}</span>
@@ -169,33 +180,59 @@ export default function WeeklyEpisodesPage() {
 					</div>
 
 					{/* Episodes List */}
-					<div className="space-y-4">
+					<div className={styles.episodesList}>
 						{combinedEpisodes.map(episode => (
-							<div key={episode.id} className="border rounded-lg p-4">
-								<div className="flex items-start justify-between">
-									<div className="flex-1">
-										<div className="flex items-center gap-2 mb-2">
-											<h3 className="font-semibold">{episode.title}</h3>
-											<span className={`text-xs px-2 py-1 rounded ${
+							<div key={episode.id} className={styles.episodeCard}>
+								<div className={styles.episodeContent}>
+									<div className={styles.episodeInfo}>
+										<div className={styles.episodeHeader}>
+											<h3 className={styles.episodeTitle}>{episode.title}</h3>
+											<span className={`${styles.episodeType} ${
 												episode.type === 'bundle'
-													? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-													: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+													? styles.episodeTypeBundle
+													: styles.episodeTypeCustom
 											}`}>
 												{episode.type === 'bundle' ? 'Bundle' : 'Custom'}
 											</span>
 										</div>
+										<div className={styles.playButtonContainer}>
+											<Button
+												onClick={() => handlePlayEpisode(episode.id)}
+												variant="outline"
+												size="sm"
+												className={styles.playButton}
+											>
+												<Play className={styles.playIcon} />
+												Play Episode
+											</Button>
+										</div>
 										{episode.description && (
-											<p className="text-sm text-muted-foreground mb-2">{episode.description}</p>
+											<p className={styles.episodeDescription}>{episode.description}</p>
 										)}
-										<p className="text-xs text-muted-foreground">
+										<p className={styles.episodeDate}>
 											Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : 'N/A'}
 										</p>
 									</div>
-									{episode.audioUrl && (
-										<audio controls className="w-64">
-											<source src={episode.audioUrl} type="audio/mpeg" />
-											Your browser does not support the audio element.
-										</audio>
+									{episode.audioUrl && playingEpisodeId === episode.id && (
+										<div className={styles.episodeAudio}>
+											<AudioPlayer
+												episode={{
+													id: episode.id,
+													title: episode.title,
+													description: episode.description,
+													audioUrl: episode.audioUrl,
+													imageUrl: episode.imageUrl,
+													publishedAt: episode.publishedAt,
+													weekNr: episode.createdAt,
+													createdAt: episode.createdAt,
+													sourceId: episode.userCurationProfileId || '',
+													userCurationProfileId: episode.userCurationProfileId || '',
+													source: episode.source,
+													userCurationProfile: episode.userCurationProfile
+												}}
+												onClose={handleClosePlayer}
+											/>
+										</div>
 									)}
 								</div>
 							</div>

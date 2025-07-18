@@ -7,31 +7,95 @@ import { EpisodeList } from "@/components/episode-list"
 import { SectionCards } from "@/components/section-cards"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import AudioPlayer from "@/components/ui/audio-player"
 import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedPodcast, Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { CuratedPodcast, Episode, UserCurationProfile, UserCurationProfileWithRelations, CuratedBundleEpisode } from "@/lib/types"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { Play } from "lucide-react"
+import styles from "./page.module.css"
 
 const formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
 	return new Date(date).toLocaleString()
 }
 
+// Combined episode type for display
+interface CombinedEpisode {
+	id: string
+	title: string
+	description: string | null
+	audioUrl: string
+	imageUrl: string | null
+	publishedAt: Date | null
+	createdAt: Date
+	type: 'user' | 'bundle'
+	userCurationProfileId?: string
+	source?: any
+	userCurationProfile?: any
+}
+
 export default function Page() {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [episodes, setEpisodes] = useState<Episode[]>([])
+	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
+	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
+	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
 	const router = useRouter()
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				setIsLoading(true)
-				const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
+
+				// Fetch user curation profile and episodes in parallel
+				const [fetchedProfile, fetchedEpisodes] = await Promise.all([
+					getUserCurationProfile(),
+					getEpisodes()
+				])
+
 				setUserCurationProfile(fetchedProfile)
 				setEpisodes(fetchedEpisodes)
+
+				// Get bundle episodes if user has a bundle selection
+				let bundleEpisodesList: CuratedBundleEpisode[] = []
+				if (fetchedProfile?.isBundleSelection && fetchedProfile?.selectedBundle?.episodes) {
+					bundleEpisodesList = fetchedProfile.selectedBundle.episodes
+				}
+
+				setBundleEpisodes(bundleEpisodesList)
+
+				// Combine episodes for display
+				const combined: CombinedEpisode[] = [
+					// User episodes (from custom profile)
+					...fetchedEpisodes.map(ep => ({
+						...ep,
+						type: 'user' as const
+					})),
+					// Bundle episodes (from bundle selection)
+					...bundleEpisodesList.map(ep => ({
+						id: ep.id,
+						title: ep.title,
+						description: ep.description,
+						audioUrl: ep.audioUrl,
+						imageUrl: ep.imageUrl,
+						publishedAt: ep.publishedAt,
+						createdAt: ep.createdAt,
+						type: 'bundle' as const
+					}))
+				]
+
+				// Sort by published date (newest first)
+				combined.sort((a, b) => {
+					const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
+					const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
+					return dateB - dateA
+				})
+
+				setCombinedEpisodes(combined)
 			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : String(error)
 				toast.error(`Failed to load dashboard data: ${message}`)
@@ -69,11 +133,19 @@ export default function Page() {
 		}
 	}
 
+	const handlePlayEpisode = (episodeId: string) => {
+		setPlayingEpisodeId(episodeId)
+	}
+
+	const handleClosePlayer = () => {
+		setPlayingEpisodeId(null)
+	}
+
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+			<div className={styles.loadingContainer}>
+				<div className={styles.loadingContent}>
+					<div className={styles.loadingSpinner} />
 					<p>Loading dashboard...</p>
 				</div>
 			</div>
@@ -82,11 +154,11 @@ export default function Page() {
 
 	return (
 		<>
-			<div className="flex flex-1 flex-col">
-				<div className="@container/main flex flex-1 flex-col gap-2">
-					<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+			<div className={styles.dashboardContainer}>
+				<div className={styles.mainContainer}>
+					<div className={styles.contentWrapper}>
 						{userCurationProfile ? (
-							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 px-4 lg:px-0">
+							<div className={styles.gridContainer}>
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 										<CardTitle className="text-sm font-medium">Current User Curation Profile</CardTitle>
@@ -148,6 +220,34 @@ export default function Page() {
 										</div>
 									</CardContent>
 								</Card>
+
+								<Card>
+									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+										<CardTitle className="text-sm font-medium">Weekly Episodes Summary</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className={styles.summaryCard}>
+											<div className={styles.summaryItem}>
+												<span className={styles.summaryLabel}>Total Episodes:</span>
+												<span className={styles.summaryValue}>{combinedEpisodes.length}</span>
+											</div>
+											<div className={styles.summaryItem}>
+												<span className={styles.summaryLabel}>User Episodes:</span>
+												<span className={styles.summaryValue}>{episodes.length}</span>
+											</div>
+											<div className={styles.summaryItem}>
+												<span className={styles.summaryLabel}>Bundle Episodes:</span>
+												<span className={styles.summaryValue}>{bundleEpisodes.length}</span>
+											</div>
+											<div className={styles.summaryItem}>
+												<span className={styles.summaryLabel}>Profile Type:</span>
+												<span className={styles.summaryValue}>
+													{userCurationProfile.isBundleSelection ? 'Bundle Selection' : 'Custom Profile'}
+												</span>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
 							</div>
 						) : (
 							<div className="px-0 lg:px-6">
@@ -163,10 +263,99 @@ export default function Page() {
 								</Card>
 							</div>
 						)}
-						{userCurationProfile && <CurationDashboard userCurationProfiles={[userCurationProfile]} />}
+						{/* {userCurationProfile && <CurationDashboard userCurationProfiles={[userCurationProfile]} />} */}
 
-						<div className="px-4 lg:px-0">
-							<EpisodeList episodes={episodes} />
+						<div className={styles.episodesSection}>
+							{combinedEpisodes.length === 0 ? (
+								<Card>
+									<CardHeader>
+										<CardTitle>Weekly Episodes</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className={styles.emptyState}>
+											<h3 className={styles.emptyStateTitle}>No Episodes Available</h3>
+											<p className={styles.emptyStateDescription}>
+												{userCurationProfile
+													? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
+													: "Create a curation profile or select a bundle to start seeing episodes here."
+												}
+											</p>
+										</div>
+									</CardContent>
+								</Card>
+							) : (
+								<div className="space-y-6">
+									<div className={styles.episodesHeader}>
+										<h2 className={styles.episodesTitle}>Weekly Episodes</h2>
+										<div className={styles.episodesSummary}>
+											<span>Total: {combinedEpisodes.length}</span>
+											<span>Custom: {episodes.length}</span>
+											<span>Bundle: {bundleEpisodes.length}</span>
+										</div>
+									</div>
+
+									<div className={styles.episodesList}>
+										{combinedEpisodes.map(episode => (
+											<Card key={episode.id} className={styles.episodeCard}>
+												<CardContent className="p-4">
+													<div className={styles.episodeContent}>
+														<div className={styles.episodeInfo}>
+															<div className={styles.episodeHeader}>
+																<h3 className={styles.episodeTitle}>{episode.title}</h3>
+																<span className={`${styles.episodeType} ${
+																	episode.type === 'bundle'
+																		? styles.episodeTypeBundle
+																		: styles.episodeTypeCustom
+																}`}>
+																	{episode.type === 'bundle' ? 'Bundle' : 'Custom'}
+																</span>
+															</div>
+															<div className={styles.playButtonContainer}>
+																<Button
+																	onClick={() => handlePlayEpisode(episode.id)}
+																	variant="outline"
+																	size="sm"
+																	className={styles.playButton}
+																>
+																	<Play className={styles.playIcon} />
+																	Play Episode
+																</Button>
+															</div>
+															{episode.description && (
+																<p className={styles.episodeDescription}>{episode.description}</p>
+															)}
+															<p className={styles.episodeDate}>
+																Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : 'N/A'}
+															</p>
+														</div>
+														{episode.audioUrl && playingEpisodeId === episode.id && (
+															<div className={styles.episodeAudio}>
+																<AudioPlayer
+																	episode={{
+																		id: episode.id,
+																		title: episode.title,
+																		description: episode.description,
+																		audioUrl: episode.audioUrl,
+																		imageUrl: episode.imageUrl,
+																		publishedAt: episode.publishedAt,
+																		weekNr: episode.createdAt,
+																		createdAt: episode.createdAt,
+																		sourceId: episode.userCurationProfileId || '',
+																		userCurationProfileId: episode.userCurationProfileId || '',
+																		source: episode.source,
+																		userCurationProfile: episode.userCurationProfile
+																	}}
+																	onClose={handleClosePlayer}
+																/>
+															</div>
+														)}
+													</div>
+												</CardContent>
+											</Card>
+										))}
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

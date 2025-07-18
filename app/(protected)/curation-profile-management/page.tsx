@@ -22,19 +22,19 @@ export default function CurationProfileManagementPage() {
     fetchData()
   }, [])
 
-  	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
 					<p>Loading user curation profile...</p>
-				</div>
-			</div>
-		)
-	}
+        </div>
+      </div>
+    )
+  }
 
-	return (
-		<div className="flex flex-col gap-6 p-4">
+  return (
+    <div className="flex flex-col gap-6 p-4">
 			<div className="flex items-center justify-between mb-4">
 				<h1 className="text-2xl font-bold">Curation Profile Management</h1>
 			</div>
@@ -48,6 +48,6 @@ export default function CurationProfileManagementPage() {
 					</p>
 				</div>
 			)}
-		</div>
-	)
+    </div>
+  )
 }

@@ -59,7 +59,7 @@ export function DataTable({
 		<div className="space-y-8">
 			{/* Episodes Section */}
 			{hasEpisodes ? (
-				<PodcastList episodes={episodes} />
+			<PodcastList episodes={episodes} />
 			) : (
 				<div className="text-center py-8">
 					<div className="mx-auto mb-4 w-16 h-16 bg-muted rounded-full flex items-center justify-center">

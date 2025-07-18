@@ -16,7 +16,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 	const activeProfiles = userCurationProfiles.filter(profile => profile.isActive)
 
 	if (activeProfiles.length === 0) {
-		return (
+	return (
 			<Card className="w-full">
 				<CardHeader className="text-center">
 					<div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
@@ -43,11 +43,11 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 						<Link href="/curated-bundles">
 							<Button variant="outline" className="w-full sm:w-auto">
 								Browse Curated Bundles
-							</Button>
+					</Button>
 						</Link>
-					</div>
-				</CardContent>
-			</Card>
+				</div>
+			</CardContent>
+		</Card>
 		)
 	}
 
