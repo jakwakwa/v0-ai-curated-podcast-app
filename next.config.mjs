@@ -4,21 +4,19 @@
 const baseExperimental = {
   webpackBuildWorker: true,
   optimizePackageImports: ['lucide-react', '@tabler/icons-react', '@clerk/nextjs'],
-  // Skip static generation in development
-  skipMiddlewareUrlNormalize: true,
-  skipTrailingSlashRedirect: true,
+  // Development-specific experimental features
+  ...(process.env.NODE_ENV === 'development' && {
+    largePageDataBytes: 128 * 1000, // 128KB
+  }),
 };
 
 const nextConfig = {
-  // Aggressive performance optimizations
-  swcMinify: true,
+  // Move these to top level (no longer experimental)
+  skipMiddlewareUrlNormalize: true,
+  skipTrailingSlashRedirect: true,
 
   experimental: {
     ...baseExperimental,
-    // Development-specific experimental features
-    ...(process.env.NODE_ENV === 'development' && {
-      largePageDataBytes: 128 * 1000, // 128KB
-    }),
   },
 
   // Webpack optimizations

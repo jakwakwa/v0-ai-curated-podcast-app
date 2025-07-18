@@ -1,23 +1,27 @@
 import { CurationBuilder } from '@/components/curation-builder';
-import { getUserCurationProfile } from '@/lib/data'; // Changed from getCuratedCollections
-import type { UserCurationProfileWithRelations } from '@/lib/types'; // Changed from CuratedCollection
+import { getUserCurationProfile } from '@/lib/data';
+import type { UserCurationProfileWithRelations } from '@/lib/types';
+import styles from './page.module.css';
+
+// Force this page to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic';
 
 export default async function BuildCurationPage() {
-  let collections: UserCurationProfileWithRelations[] = []; // Explicitly type collections
+  let collections: UserCurationProfileWithRelations[] = [];
   try {
-    collections = await getUserCurationProfile(); // Changed from getCuratedCollections
-  } catch (e: unknown) { // Add unknown type for catch error
+    collections = await getUserCurationProfile();
+  } catch (e: unknown) {
     const message = e instanceof Error ? e.message : String(e);
-    console.error('Error calling getUserCurationProfile:', message); // Keep for server-side logging
+    console.error('Error calling getUserCurationProfile:', message);
     collections = [];
   }
-  const draftCollection = collections.find((c: UserCurationProfileWithRelations) => c.status === 'Draft'); // Explicitly type c
+  const draftCollection = collections.find((c: UserCurationProfileWithRelations) => c.status === 'Draft');
 
   return (
-    <div className="flex w-full flex-col">
-      <main className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <CurationBuilder userCurationProfile={draftCollection} /> {/* Changed prop name */}
+    <div className={styles.container}>
+      <main className={styles.main}>
+        <div className={styles.content}>
+          <CurationBuilder userCurationProfile={draftCollection} />
         </div>
       </main>
     </div>
