@@ -203,7 +203,7 @@ const curatedBundles = [
 			{
 				title: "The Future of AI and Machine Learning",
 				description: "This week we explore the latest developments in artificial intelligence, from GPT-4 to autonomous vehicles, and discuss the implications for society.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-15"),
 				publishedAt: new Date("2024-07-15")
@@ -211,7 +211,7 @@ const curatedBundles = [
 			{
 				title: "Startup Culture and Innovation",
 				description: "Dive into the world of startups, venture capital, and the innovative ideas shaping the future of technology and business.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-08"),
 				publishedAt: new Date("2024-07-08")
@@ -227,7 +227,7 @@ const curatedBundles = [
 			{
 				title: "Economic Trends and Market Analysis",
 				description: "This week we analyze current economic trends, market movements, and what they mean for businesses and investors.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-15"),
 				publishedAt: new Date("2024-07-15")
@@ -235,7 +235,7 @@ const curatedBundles = [
 			{
 				title: "Leadership and Entrepreneurship",
 				description: "Stories from successful entrepreneurs and insights into what makes great leaders in today's business world.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-08"),
 				publishedAt: new Date("2024-07-08")
@@ -251,7 +251,7 @@ const curatedBundles = [
 			{
 				title: "Space Exploration and Astronomy",
 				description: "Journey through the cosmos as we explore the latest discoveries in astronomy, space missions, and our understanding of the universe.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-15"),
 				publishedAt: new Date("2024-07-15")
@@ -259,7 +259,7 @@ const curatedBundles = [
 			{
 				title: "Psychology and Human Behavior",
 				description: "Explore the fascinating world of psychology, cognitive science, and what makes us human through the lens of scientific research.",
-				audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-08"),
 				publishedAt: new Date("2024-07-08")
