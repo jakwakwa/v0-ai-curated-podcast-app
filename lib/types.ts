@@ -37,7 +37,7 @@ export type Episode = {
 	createdAt: Date
 	sourceId: string
 	userCurationProfileId: string
-	userCurationProfile?: UserCurationProfile | null // Use base Prisma type here
+	userCurationProfile?: UserCurationProfile | UserCurationProfileWithRelations | null // Allow both types
 	source?: Source | null
 }
 
