@@ -111,7 +111,7 @@ const DUMMY_EPISODES: Episode[] = [
 		title: "The Future of AI: A Deep Dive",
 		description: "An in-depth look into the latest advancements and ethical considerations in artificial intelligence.",
 		audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-		imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+		imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop",
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
 		createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
 		sourceId: DUMMY_SOURCES[0].id,

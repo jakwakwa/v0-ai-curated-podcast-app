@@ -88,7 +88,7 @@ export default function Page() {
 				<div className="@container/main flex flex-1 flex-col gap-2">
 					<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 						{userCurationProfiles.length > 0 ? (
-							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6">
+							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 px-4 lg:px-0">
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 										<CardTitle className="text-sm font-medium">Current User Curation Profile</CardTitle>
@@ -138,7 +138,7 @@ export default function Page() {
 								</Card>
 							</div>
 						) : (
-							<div className="px-4 lg:px-6">
+							<div className="px-0 lg:px-6">
 								<Card>
 									<CardHeader>
 										<CardTitle>No User Curation Profile Found</CardTitle>
@@ -152,11 +152,8 @@ export default function Page() {
 							</div>
 						)}
 						{userCurationProfiles.length > 0 && <CurationDashboard userCurationProfiles={userCurationProfiles} />}
-						<SectionCards />
-						<div className="px-4 lg:px-6">
-							<ChartAreaInteractive />
-						</div>
-						<div className="px-4 lg:px-6">
+
+						<div className="px-4 lg:px-0">
 							<EpisodeList episodes={episodes} />
 						</div>
 					</div>

@@ -42,11 +42,7 @@ const data = {
 			items: [
 				{
 					title: "About Ai Curator",
-					url: "#",
-				},
-				{
-					title: "Discover	",
-					url: "#",
+					url: "/about",
 				},
 			],
 		},
@@ -61,6 +57,10 @@ const data = {
 				{
 					title: "Curation Profiles",
 					url: "/curation-profile-management",
+				},
+				{
+					title: "Curated Bundles",
+					url: "/curated-bundles",
 				},
 			],
 		},

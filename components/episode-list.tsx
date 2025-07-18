@@ -52,4 +52,4 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes }) => {
       </CardContent>
     </Card>
   );
-}; 
+};
