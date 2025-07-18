@@ -37,7 +37,24 @@ export type Episode = {
 	createdAt: Date
 	sourceId: string
 	userCurationProfileId: string
-	userCurationProfile?: UserCurationProfile | UserCurationProfileWithRelations | null // Allow both types
+	userCurationProfile?: {
+		id: string
+		audioUrl: string | null
+		imageUrl: string | null
+		createdAt: Date
+		name: string
+		userId: string
+		status: string
+		updatedAt: Date
+		generatedAt: Date | null
+		lastGenerationDate: Date | null
+		nextGenerationDate: Date | null
+		isActive: boolean
+		isBundleSelection: boolean
+		selectedBundleId: string | null
+		sources: any[]
+		episodes: any[]
+	} | null
 	source?: Source | null
 }
 
