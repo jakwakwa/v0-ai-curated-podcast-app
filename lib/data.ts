@@ -1,71 +1,161 @@
-import { createClient } from "@/utils/supabase/server"
-import type { Podcast, CuratedCollection } from "./types"
+"use server"
 
-// Mock data for podcasts until that table exists
-const mockPodcasts: Podcast[] = [
-  {
-    id: "1",
-    title: "Tech & Finance Weekly",
-    date: "July 12, 2025",
-    status: "Completed",
-    duration: "15:32",
-    audioUrl: "/placeholder.mp3",
-  },
-  {
-    id: "2",
-    title: "Science & Wellness Digest",
-    date: "July 5, 2025",
-    status: "Completed",
-    duration: "12:45",
-    audioUrl: "/placeholder.mp3",
-  },
+import type {
+	CuratedPodcast,
+	Episode,
+	Source,
+	TransformedCuratedBundle,
+	UserCurationProfileStatus,
+	UserCurationProfileWithRelations,
+} from "@/lib/types"
+import { auth } from "@clerk/nextjs/server"
+
+// --- CONCISE DUMMY DATA MATCHING PRISMA SCHEMA ---
+
+const DUMMY_CURATED_PODCASTS: CuratedPodcast[] = [
+	{
+		id: "pod1",
+		name: "Lex Fridman Podcast",
+		url: "https://www.youtube.com/@lexfridman",
+		description:
+			"Conversations about science, technology, history, philosophy and the nature of intelligence, consciousness, love, and power.",
+		imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+		category: "Technology",
+		isActive: true,
+		createdAt: new Date(),
+	},
+	{
+		id: "pod2",
+		name: "The Vergecast",
+		url: "https://www.youtube.com/@verge",
+		description: "The flagship podcast of The Verge... and the internet.",
+		imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
+		category: "Technology",
+		isActive: true,
+		createdAt: new Date(),
+	},
 ]
 
-export async function getPodcasts(): Promise<Podcast[]> {
-  // This remains mocked for now
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  return mockPodcasts
+const DUMMY_SOURCES: Source[] = [
+	{
+		id: "src1",
+		userCurationProfileId: "profile1",
+		name: "Lex Fridman Podcast Source",
+		url: "https://www.youtube.com/watch?v=lex_vid_1",
+		imageUrl: DUMMY_CURATED_PODCASTS[0].imageUrl,
+		createdAt: new Date(),
+	},
+	{
+		id: "src2",
+		userCurationProfileId: "profile1",
+		name: "The Vergecast Source",
+		url: "https://www.youtube.com/watch?v=verge_vid_1",
+		imageUrl: DUMMY_CURATED_PODCASTS[1].imageUrl,
+		createdAt: new Date(),
+	},
+]
+
+const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
+	id: "bundle1",
+	name: "Tech Weekly",
+	description: "Latest in technology and innovation",
+	imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+	isActive: true,
+	createdAt: new Date(),
+	podcasts: DUMMY_CURATED_PODCASTS,
 }
 
-export async function getCuratedCollections(): Promise<CuratedCollection[]> {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+const DUMMY_USER_CURATION_PROFILES: UserCurationProfileWithRelations[] = [
+	{
+		id: "profile1",
+		userId: "user_2gXwLd20u8wK51Y5YjBf02002",
+		name: "My Custom Tech Collection",
+		status: "Generated" as UserCurationProfileStatus,
+		audioUrl: "https://example.com/audio/my-custom-collection-latest.mp3",
+		imageUrl: "https://example.com/image/my-custom-collection.jpg",
+		createdAt: new Date(new Date().setDate(new Date().getDate() - 7)),
+		updatedAt: new Date(),
+		generatedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
+		lastGenerationDate: new Date(new Date().setDate(new Date().getDate() - 8)),
+		nextGenerationDate: new Date(new Date().setDate(new Date().getDate() + 6)),
+		isActive: true,
+		isBundleSelection: false,
+		selectedBundleId: null,
+		sources: DUMMY_SOURCES,
+		episodes: [],
+	},
+	{
+		id: "profile2",
+		userId: "user_2gXwLd20u8wK51Y5YjBf02002",
+		name: "Science & Discovery Bundle",
+		status: "Saved" as UserCurationProfileStatus,
+		audioUrl: null,
+		imageUrl: DUMMY_TRANSFORMED_BUNDLE.imageUrl,
+		createdAt: new Date(new Date().setDate(new Date().getDate() - 14)),
+		updatedAt: new Date(),
+		generatedAt: null,
+		lastGenerationDate: null,
+		nextGenerationDate: null,
+		isActive: true,
+		isBundleSelection: true,
+		selectedBundleId: DUMMY_TRANSFORMED_BUNDLE.id,
+		selectedBundle: DUMMY_TRANSFORMED_BUNDLE,
+		sources: [],
+		episodes: [],
+	},
+]
 
-  if (!user) {
-    return []
-  }
+const DUMMY_EPISODES: Episode[] = [
+	{
+		id: "episode1",
+		title: "The Future of AI: A Deep Dive",
+		description: "An in-depth look into the latest advancements and ethical considerations in artificial intelligence.",
+		audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+		imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+		publishedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
+		createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
+		sourceId: DUMMY_SOURCES[0].id,
+		userCurationProfileId: DUMMY_USER_CURATION_PROFILES[0].id,
+		weekNr: new Date(),
+		source: DUMMY_SOURCES[0],
+		userCurationProfile: DUMMY_USER_CURATION_PROFILES[0],
+	},
+	{
+		id: "episode2",
+		title: "Space Exploration: Beyond Our Solar System",
+		description: "Exploring the possibilities of interstellar travel and discovering exoplanets.",
+		audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+		imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
+		publishedAt: new Date(new Date().setDate(new Date().getDate() - 9)),
+		createdAt: new Date(new Date().setDate(new Date().getDate() - 9)),
+		sourceId: DUMMY_SOURCES[1].id,
+		userCurationProfileId: DUMMY_USER_CURATION_PROFILES[0].id,
+		weekNr: new Date(new Date().setDate(new Date().getDate() - 7)),
+		source: DUMMY_SOURCES[1],
+		userCurationProfile: DUMMY_USER_CURATION_PROFILES[0],
+	},
+]
 
-  const { data, error } = await supabase
-    .from("collections")
-    .select(
-      `
-      id,
-      name,
-      status,
-      sources (
-        id,
-        name,
-        url,
-        image_url
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+// --- DATA FETCHING FUNCTIONS ---
 
-  if (error) {
-    console.error("Error fetching collections:", error)
-    return []
-  }
+export async function getUserCurationProfile(): Promise<UserCurationProfileWithRelations[]> {
+	const { userId } = await auth()
+	if (!userId) return []
 
-  // Map the data to the CuratedCollection type
-  return data.map((collection) => ({
-    ...collection,
-    sources: collection.sources.map((source) => ({
-      ...source,
-      imageUrl: source.image_url ?? "",
-    })),
-  }))
+	const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
+		...profile,
+		userId: userId,
+	})) as UserCurationProfileWithRelations[]
+
+	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+	// biome-ignore lint/suspicious/noConsole: <explanation>
+	console.log("Using DUMMY_USER_CURATION_PROFILES with actual user ID:", userId)
+	return dummyDataWithCorrectUserId
+}
+
+export async function getEpisodes(): Promise<Episode[]> {
+	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+	// biome-ignore lint/suspicious/noConsole: <explanation>
+	console.log("Using DUMMY_EPISODES (Temporary)")
+	return DUMMY_EPISODES
 }

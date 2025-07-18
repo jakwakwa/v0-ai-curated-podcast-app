@@ -1,0 +1,6 @@
+---
+alwaysApply: false
+---
+dont run terminals without asking
+always use pnpm
+not even npx. pnpm is the go-to please

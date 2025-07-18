@@ -1,24 +1,55 @@
-import { Header } from "@/components/header"
-import { PodcastList } from "@/components/podcast-list"
-import { CurationDashboard } from "@/components/curation-dashboard"
-import { getPodcasts, getCuratedCollections } from "@/lib/data"
+import { Button } from "@/components/ui/button"
+import { auth } from "@clerk/nextjs/server"
+import Link from "next/link"
+import { redirect } from "next/navigation"
 
-export default async function DashboardPage() {
-  const [podcasts, collections] = await Promise.all([getPodcasts(), getCuratedCollections()])
+// Force this page to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic'
 
-  const savedCollections = collections.filter((c) => c.status === "Saved")
+export default async function LandingPage() {
+	const { userId } = await auth() // Remove @ts-ignore and add await
 
-  return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
-      <main className="flex flex-1 flex-col gap-8 p-4 md:p-8">
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <PodcastList podcasts={podcasts} />
-          </div>
-          <CurationDashboard savedCollections={savedCollections} />
-        </div>
-      </main>
-    </div>
-  )
+	// If user is authenticated, redirect to dashboard
+	if (userId) {
+		redirect("/dashboard")
+	}
+
+	return (
+		<div
+			style={{
+				display: "flex",
+				flexDirection: "column",
+				minHeight: "100vh",
+				alignItems: "center",
+				justifyContent: "center",
+				background: "hsl(var(--background))",
+				textAlign: "center",
+				padding: "2rem",
+			}}
+		>
+			<h1
+				style={{
+					fontSize: "3rem",
+					fontWeight: "700",
+					color: "hsl(var(--foreground))",
+					marginBottom: "1rem",
+				}}
+			>
+				AI Podcast Curator
+			</h1>
+			<p
+				style={{
+					color: "hsl(var(--muted-foreground))",
+					fontSize: "1.25rem",
+					marginBottom: "2rem",
+					maxWidth: "32rem",
+				}}
+			>
+				Create personalized podcast collections and enjoy weekly curated episodes powered by AI.
+			</p>
+			<Link href="/login">
+				<Button size="lg">Get Started</Button>
+			</Link>
+		</div>
+	)
 }

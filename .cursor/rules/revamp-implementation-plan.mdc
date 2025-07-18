@@ -1,0 +1,111 @@
+---
+alwaysApply: true
+---
+Here's a consolidated overview of the broader scope if you are working in a task related to "revamp implementation"
+
+- structured to provide a high-level understanding while retaining essential details for implementation.
+
+# Overall Vision & Core Requirements
+
+The primary goal is to transform the podcast generation app into an automated weekly curation service. Key user requirements and constraints include:
+Single Collection per User: Each user can create and manage only one podcast collection to control AI costs.
+Collection Management: Users can edit (add/remove sources) or delete their collection. Even after deletion, previously generated episodes remain viewable.
+Automated Generation: A single podcast episode will be automatically generated weekly (Friday midnight cutoff) based on the user's collection. The existing podcast generation logic will remain untouched.
+Curated Content: Instead of arbitrary YouTube links, users will choose from a pre-curated list of 25 "editor's choice" podcast shows.
+Flexible Selection: Users can either build a "custom" collection by selecting up to 5 individual shows, or choose one of 3 pre-selected "editor's choice" bundles (each containing 5 shows, which are uneditable).
+Notifications: Users will receive in-app notifications (bell icon) and weekly emails when their new podcast episode is ready.
+Subscription Model: A simple subscription system will be implemented, featuring a 1-week free trial and a premium monthly tier, with payments handled via Link.com for the South African market.
+Focus: The primary focus is on the data side and business logic, excluding changes to @functions.ts and @ai.ts.
+
+## Key Architectural Decisions
+
+Single Collection Enforcement: A unique constraint on the collections table ensures each user has only one active collection.
+Hybrid Content Selection: The system supports both user-defined custom collections and pre-defined, uneditable bundles.
+Scheduled Automation: A cron job or webhook system will trigger weekly podcast generation.
+Real-time & Email Notifications: A dual notification system keeps users informed.
+Link.com Payment Gateway: Chosen for its local support and features in South Africa, providing a simple, monthly subscription model.
+
+## Consolidated Database Schema (Prisma)
+
+This schema reflects the final state, incorporating image URLs, curated content, notifications, and the Link-based subscription model.
+
+## Consolidated Prisma Schema
+
+Data Management & Seeding
+
+The system will start with a manageable set of pre-curated content:
+25 Curated Podcasts: These are the individual shows users can select from.
+3 Pre-curated Bundles: Each bundle contains 5 specific podcasts and cannot be edited by the user.
+
+## Curated Content
+
+The initial data setup involves creating these curated podcasts and bundles, and establishing their relationships in the database. This will be handled by a seed script (scripts/seed-curated-content.ts), which also includes cleanup of existing data for development purposes.
+
+## Business Logic & Automation
+
+User Collection Selection:
+Users will have the choice to create a custom collection by selecting up to 5 individual podcasts from the curated list. These collections will be editable.
+Alternatively, users can select a pre-curated bundle. These bundles are fixed (5 shows) and are not editable by the user.
+Weekly Generation:
+A scheduled task (e.g., a cron job or webhook) will run every Friday at midnight.
+This task will identify all active user collections (whether custom or bundle-based).
+For each collection, it will use the selected podcasts (either user-chosen or from the bundle) to trigger the existing podcast generation logic.
+Generation tracking fields (lastGenerationDate, nextGenerationDate) in the Collection model will help manage this process.
+
+## Subscription & Payment System (Link.com)
+
+The application will feature a simple, two-tier subscription model:
+Free Trial: 1 week, allowing 1 collection and weekly generation.
+Premium Subscription: R99/month, offering unlimited collections, weekly generation, and priority support.
+Payment processing will be handled by Link.com, chosen for its robust support for South African payment methods and local compliance.
+
+Link: Subscription Service
+Open
+Link: Payment Service Helper
+
+Link: Environment Variables
+
+Open
+
+Benefits of Link.com for South Africa:
+Local Payment Methods: Supports EFT, card payments, and QR codes, which are popular in SA.
+Better Compliance: Designed with South African financial regulations in mind.
+Competitive Fees: Offers competitive rates for local businesses.
+Faster Payouts: Potentially quicker access to funds compared to international gateways.
+Local Support: Provides dedicated customer service within South Africa.
+Multi-Currency: Supports ZAR and other relevant currencies.
+
+## User Experience (UI/UX) Reminders
+
+For each of the functional areas, consider the following UI/UX recommendations to ensure a smooth and intuitive user experience:
+Collection Creation/Selection:
+Clearly differentiate between "Custom Collection" and "Bundle Selection" options.
+Provide an easy-to-browse interface for the 25 curated podcasts (e.g., categories, search).
+Visually indicate the selection limit (e.g., "Select up to 5 shows").
+For bundle selection, clearly state that the bundle is "locked" or "uneditable" after selection.
+Collection Editing:
+For custom collections, provide clear "Add," "Change," and "Remove" source options.
+Ensure a prominent "Delete Collection" option is available, with a clear confirmation step.
+Episode Viewing:
+Implement a "View All Podcast Episodes" section that allows users to access generated episodes even if their collection is deleted.
+Notifications:
+Design a clear and visible in-app "bell" icon for notifications.
+Ensure the weekly email notification is well-formatted and informative.
+Provide user settings to opt in/out of email and in-app notifications.
+Subscription Management:
+Create a dedicated section in the user's profile or settings to view their current subscription status (trial, active, canceled).
+Provide a clear "Upgrade to Premium" or "Manage Subscription" button.
+Implement a straightforward "Cancel Subscription" flow.
+
+## Admin Management
+
+An administrative interface will be crucial for managing the curated content:
+Curated Podcast Management: Ability to add, edit, deactivate, and remove individual curated podcasts.
+Curated Bundle Management: Tools to create, update (e.g., change included podcasts), deactivate, and view usage statistics for bundles (how many users have selected them).
+
+## Areas for Future Consideration
+
+As the app evolves, keep these broader aspects in mind:
+Content Freshness: Implement a strategy to regularly verify the activity and relevance of the 25 curated podcasts. What happens if a podcast ends or changes its URL/format?
+Error Handling: Develop robust error handling for the automated generation process. How will partial failures in batch processing be managed? How will users be notified if their episode generation fails?
+Scaling Considerations: Plan for how the system will handle a growing user base (e.g., 1000+ users). How will the Friday midnight processing load be optimized?

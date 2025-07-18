@@ -1,22 +1,99 @@
-export interface Podcast {
-  id: string
-  title: string
-  date: string
-  status: "Completed" | "Processing" | "Failed"
-  duration: string
-  audioUrl: string | null
+// Import Prisma's generated types
+import type {
+	CuratedBundle,
+	CuratedBundlePodcast,
+	CuratedPodcast,
+	EpisodeFeedback,
+	FeedbackRating,
+	Notification,
+	Source,
+	Subscription,
+	User,
+	UserCurationProfile,
+} from "@prisma/client"
+
+// Re-export for convenience
+export type {
+	User,
+	UserCurationProfile,
+	Source,
+	CuratedPodcast,
+	CuratedBundle,
+	CuratedBundlePodcast,
+	Notification,
+	Subscription,
+	EpisodeFeedback,
+	FeedbackRating,
 }
 
-export interface PodcastSource {
-  id: string
-  name: string
-  url: string
-  imageUrl: string
+export type Episode = {
+	id: string
+	title: string
+	description: string | null
+	audioUrl: string
+	imageUrl: string | null
+	publishedAt: Date | null
+	weekNr: Date
+	createdAt: Date
+	sourceId: string
+	userCurationProfileId: string
+	userCurationProfile?: {
+		id: string
+		audioUrl: string | null
+		imageUrl: string | null
+		createdAt: Date
+		name: string
+		userId: string
+		status: string
+		updatedAt: Date
+		generatedAt: Date | null
+		lastGenerationDate: Date | null
+		nextGenerationDate: Date | null
+		isActive: boolean
+		isBundleSelection: boolean
+		selectedBundleId: string | null
+		sources: any[]
+		episodes: any[]
+	} | null
+	source?: Source | null
 }
 
-export interface CuratedCollection {
-  id: string
-  name: string
-  status: "Draft" | "Saved"
-  sources: PodcastSource[]
+// Custom type for CuratedBundle that includes the transformed 'podcasts' array from the API
+export interface TransformedCuratedBundle extends CuratedBundle {
+	podcasts: CuratedPodcast[]
 }
+
+// Custom type for UserCurationProfile that includes the 'sources' relation
+export interface UserCurationProfileWithSources extends UserCurationProfile {
+	sources: Source[]
+}
+
+// Fix the type mismatch by properly handling Prisma's string type
+export interface UserCurationProfileWithRelations extends UserCurationProfile {
+	status: UserCurationProfileStatus // This will be cast at runtime
+	sources: Source[]
+	selectedBundle?: TransformedCuratedBundle | null
+	episodes: Episode[]
+}
+
+// Add a type assertion helper
+export const asUserCurationProfileStatus = (status: string): UserCurationProfileStatus => {
+	return status as UserCurationProfileStatus
+}
+
+// Keep only custom types that aren't in Prisma schema
+export interface FormState {
+	success: boolean
+	message: string
+}
+
+export interface ApiResponse<T> {
+	data?: T
+	error?: string
+	message?: string
+}
+
+// Status type helpers for better type safety
+export type UserCurationProfileStatus = "Draft" | "Saved" | "Generated" | "Failed"
+export type SubscriptionStatus = "trialing" | "active" | "canceled" | "past_due" | "incomplete"
+export type NotificationType = "episode_ready" | "weekly_reminder"

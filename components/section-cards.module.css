@@ -1,0 +1,100 @@
+.main-grid-container {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem; /* gap-4 */
+  padding-left: 1rem; /* px-4 */
+  padding-right: 1rem; /* px-4 */
+}
+
+@media (min-width: 768px) {
+  .main-grid-container {
+    padding-left: 1.5rem; /* lg:px-6 */
+    padding-right: 1.5rem; /* lg:px-6 */
+  }
+}
+
+@container (min-width: 768px) {
+  .main-grid-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* @xl/main:grid-cols-2 */
+  }
+}
+
+@container (min-width: 1280px) {
+  .main-grid-container {
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* @5xl/main:grid-cols-4 */
+  }
+}
+
+.card-with-shadow-gradient {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-xs */
+  background: linear-gradient(180deg, rgba(var(--color-primary-rgb), 0.05), var(--color-card)); /* bg-gradient-to-t from-primary/5 to-card */
+}
+
+.dark-card-background {
+  background-color: var(--color-card); /* dark:*:data-[slot=card]:bg-card */
+}
+
+.card-container-styles {
+  container-type: inline-size; /* @container/card */
+}
+
+.card-header-relative {
+  position: relative;
+}
+
+.card-title-lg {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 600; /* font-semibold */
+  font-variant-numeric: tabular-nums; /* tabular-nums */
+}
+
+@container (min-width: 250px) {
+  .card-title-lg {
+    font-size: 1.875rem; /* @[250px]/card:text-3xl */
+  }
+}
+
+.absolute-top-right {
+  position: absolute;
+  right: 1rem; /* right-4 */
+  top: 1rem; /* top-4 */
+}
+
+.badge-flex {
+  display: flex;
+  gap: 0.25rem; /* gap-1 */
+  border-radius: 0.5rem; /* rounded-lg */
+  font-size: 0.75rem; /* text-xs */
+}
+
+.icon-size-small {
+  height: 0.75rem; /* size-3 */
+  width: 0.75rem; /* size-3 */
+}
+
+.card-footer-flex-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem; /* gap-1 */
+  font-size: 0.875rem; /* text-sm */
+}
+
+.line-clamp-1-flex {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* gap-2 */
+  font-weight: 500; /* font-medium */
+}
+
+.icon-size-medium {
+  height: 1rem; /* size-4 */
+  width: 1rem; /* size-4 */
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground); /* text-muted-foreground */
+} 

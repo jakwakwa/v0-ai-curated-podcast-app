@@ -1,19 +1,29 @@
-import { Header } from "@/components/header"
-import { CurationBuilder } from "@/components/curation-builder"
-import { getCuratedCollections } from "@/lib/data"
+import { CurationBuilder } from '@/components/curation-builder';
+import { getUserCurationProfile } from '@/lib/data';
+import type { UserCurationProfileWithRelations } from '@/lib/types';
+import styles from './page.module.css';
+
+// Force this page to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic';
 
 export default async function BuildCurationPage() {
-  const collections = await getCuratedCollections()
-  const draftCollection = collections.find((c) => c.status === "Draft")
+  let collections: UserCurationProfileWithRelations[] = [];
+  try {
+    collections = await getUserCurationProfile();
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error('Error calling getUserCurationProfile:', message);
+    collections = [];
+  }
+  const draftCollection = collections.find((c: UserCurationProfileWithRelations) => c.status === 'Draft');
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
-      <main className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <CurationBuilder collection={draftCollection} />
+    <div className={styles.container}>
+      <main className={styles.main}>
+        <div className={styles.content}>
+          <CurationBuilder userCurationProfile={draftCollection} />
         </div>
       </main>
     </div>
-  )
+  );
 }

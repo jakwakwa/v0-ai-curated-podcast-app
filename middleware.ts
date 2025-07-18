@@ -1,24 +1,25 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { createClient } from "@/utils/supabase/middleware"
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export async function middleware(request: NextRequest) {
-  const { supabase, response } = createClient(request)
+// Only these routes are public - everything else requires authentication
+const isPublicRoute = createRouteMatcher([
+  "/",           // Landing page
+  "/login(.*)",  // Login routes
+  "/sign-in(.*)", // Clerk sign-in routes
+  "/sign-up(.*)", // Clerk sign-up routes
+]); 
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session && request.nextUrl.pathname !== "/login") {
-    return NextResponse.redirect(new URL("/login", request.url))
+export default clerkMiddleware((auth, req) => {
+  // Protect all routes except explicitly public ones
+  if (!isPublicRoute(req)) {
+    auth.protect();
   }
-
-  if (session && request.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
-
-  return response
-}
+});
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
-}
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
+};

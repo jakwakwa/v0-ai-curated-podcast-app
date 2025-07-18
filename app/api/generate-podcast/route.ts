@@ -1,26 +1,38 @@
+import { revalidatePath } from "next/cache"
 import { NextResponse } from "next/server"
+import { inngest } from "../../../inngest/client"
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json()
-    const { collectionId } = body
+	try {
+		const body = await request.json()
+		const { collectionId } = body
 
-    if (!collectionId) {
-      return NextResponse.json({ message: "Collection ID is required." }, { status: 400 })
-    }
+		if (!collectionId) {
+			return NextResponse.json({ message: "Collection ID is required." }, { status: 400 })
+		}
 
-    console.log(`Received request to generate podcast for collection: ${collectionId}`)
+		await inngest.send({
+			name: "podcast/generate.requested",
+			data: {
+				collectionId,
+			},
+		})
 
-    // Simulate triggering the external AI workflow with the specific collection
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+		revalidatePath("/")
 
-    console.log(`AI workflow for collection ${collectionId} triggered successfully.`)
-
-    return NextResponse.json({
-      message: "Podcast generation process started successfully.",
-      workflowId: `wf-${collectionId}-${Date.now()}`,
-    })
-  } catch (error) {
-    return NextResponse.json({ message: "Invalid request body." }, { status: 400 })
-  }
+		return NextResponse.json({
+			message: "Podcast generation process started successfully.",
+			collectionId,
+		})
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: <expect>
+		console.error("Error in POST /api/generate-podcast:", error)
+		return NextResponse.json(
+			{
+				message: "Failed to start podcast generation.",
+				error: (error as Error).message,
+			},
+			{ status: 500 }
+		)
+	}
 }

@@ -1,0 +1,5 @@
+---
+alwaysApply: false
+---
+- When implementing tasks the user asked to implement. you should run all the actions required to complete the tasks. Unless the implementation have laid out steps to implement. then stop after a step and ask the user to review the step implementation.
+- Create a notebook of tasks based on step implementation plans

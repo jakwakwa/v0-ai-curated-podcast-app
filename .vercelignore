@@ -1,0 +1,14 @@
+.git
+.vscode
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+docs/
+scripts/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx

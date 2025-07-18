@@ -1,0 +1,22 @@
+.sidebar-content-gap {
+  gap: 0;
+}
+
+.collapsible-label {
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-sidebar-foreground); /* text-sidebar-foreground */
+}
+
+.collapsible-label:hover {
+  background-color: var(--color-sidebar-accent); /* hover:bg-sidebar-accent */
+  color: var(--color-sidebar-accent-foreground); /* hover:text-sidebar-accent-foreground */
+}
+
+.chevron-icon {
+  margin-left: auto; /* ml-auto */
+  transition-property: transform; /* transition-transform */
+}
+
+.collapsible-open .chevron-icon {
+  transform: rotate(90deg); /* group-data-[state=open]/collapsible:rotate-90 */
+} 

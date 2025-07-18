@@ -1,0 +1,14 @@
+---
+description: Always try to re-use existing ui components
+globs:
+alwaysApply: true
+---
+
+When building new code That requires ui jsx based components:
+
+- use exisiting added shadcn/ui components
+- use css modules. remove tailwindcss classes and replace with css in stylesheet
+  - incrementally if you worked on a file that has tailwind
+- use already created Button, Input, Sooner (Toasts), etc
+- use existing theme colors - dont change theme colors that's me, the your boss's, job
+`

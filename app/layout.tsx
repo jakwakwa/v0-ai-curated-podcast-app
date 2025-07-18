@@ -1,31 +1,52 @@
-import type React from "react"
 import type { Metadata } from "next"
+// import { Poppins } from "next/font/google"
 import { Inter } from "next/font/google"
+import type React from "react"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+// import { redirect } from "next/navigation";
 
+// import { AppSidebar } from "@/components/app-sidebar"
+// import { SiteHeader } from "@/components/site-header"
+// import { PodcastList } from "@/components/podcast-list"
+// import { SidebarProvider } from "@/components/ui/sidebar-ui"
+import { Toaster } from "@/components/ui/sonner"
+import { ClerkProvider } from "@clerk/nextjs"
+// import { auth } from "@clerk/nextjs/server"
+import { ClientProviders } from "./client-providers"
+// import { Dashboard } from "@elevenlabs/elevenlabs-js/api/resources/conversationalAi/resources/dashboard/client/Client"
+// import DashboardPage from "./page"
 const inter = Inter({ subsets: ["latin"] })
-
 export const metadata: Metadata = {
-  title: "AI-Powered Podcast Generator",
-  description: "Automated weekly podcast generation using AI.",
-    generator: 'v0.dev'
+	description: "Automated AI-Generated Weekly Podcast Application",
+	openGraph: {
+		title: "Humanly Curated AI Podcast Application",
+		description: "Automated AI-Generated Weekly Podcast Application",
+	},
+	twitter: {
+		card: "summary_large_image",
+	},
 }
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode
+	children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <div className="min-h-screen bg-background font-sans antialiased">{children}</div>
-          <Toaster />
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body className={inter.className}>
+				<ClerkProvider
+					publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+					appearance={{
+						baseTheme: undefined,
+					}}
+				>
+					<ClientProviders>
+						<Toaster />
+						{children}
+					</ClientProviders>
+				</ClerkProvider>
+			</body>
+		</html>
+	)
 }
