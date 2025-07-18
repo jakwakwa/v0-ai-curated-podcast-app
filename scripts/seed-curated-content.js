@@ -71,7 +71,7 @@ const curatedPodcasts = [
 		category: "Business",
 		url: "https://freakonomics.com/",
 		description: "Discover the hidden side of everything with Stephen J. Dubner.",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop"
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop"
 	},
 	{
 		name: "Hidden Brain",
@@ -221,7 +221,7 @@ const curatedBundles = [
 	{
 		name: "Business Insights",
 		description: "Deep dives into business and economics",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop",
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop",
 		podcasts: ["The Pomp Podcast", "The Diary Of A CEO", "The Joe Rogan Experience", "The Daily", "The Dr. Jordan B. Peterson podcast"],
 		episodes: [
 			{

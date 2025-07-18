@@ -106,7 +106,7 @@ export function CuratedPodcastList({ onSelectPodcast, selectedPodcasts }: Curate
 			name: "Freakonomics",
 			url: "https://freakonomics.com/",
 			description: "Discover the hidden side of everything with Stephen J. Dubner.",
-			imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop",
+			imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop",
 			category: "Business",
 			isActive: true,
 			createdAt: new Date(),
