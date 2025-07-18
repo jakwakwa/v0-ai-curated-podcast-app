@@ -13,14 +13,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import type {  Source, UserCurationProfileWithSources } from '@/lib/types'
-import { Loader2, Plus, X } from 'lucide-react'
+import type { UserCurationProfileWithSources } from '@/lib/types'
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
+import { CuratedBundleList } from './curated-bundle-list'
+import { CuratedPodcastList } from './curated-podcast-list'
 
 interface EditUserCurationProfileModalProps {
 	isOpen: boolean
 	onClose: () => void
-	collection: UserCurationProfileWithSources // Renamed to collection for now to avoid cascading changes everywhere
+	collection: UserCurationProfileWithSources
 	onSave: (updatedData: Partial<UserCurationProfileWithSources>) => Promise<void>
 }
 
@@ -30,172 +32,258 @@ export function EditUserCurationProfileModal({
 	collection,
 	onSave,
 }: Readonly<EditUserCurationProfileModalProps>) {
+	const [step, setStep] = useState(1)
 	const [name, setName] = useState(collection.name)
 	const [isBundleSelection, setIsBundleSelection] = useState(collection.isBundleSelection)
 	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(
 		collection.selectedBundleId ?? undefined
 	)
-	const [sources, setSources] = useState<Source[]>(collection.sources || [])
-	const [newSourceUrl, setNewSourceUrl] = useState('')
+	const [selectedPodcasts, setSelectedPodcasts] = useState<
+		Array<{
+			id: string
+			name: string
+			imageUrl: string | null
+			createdAt: Date
+			isActive: boolean
+			url: string
+			description: string | null
+			category: string
+		}>
+	>([])
 	const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-		setName(collection.name)
-		setIsBundleSelection(collection.isBundleSelection)
-		setSelectedBundleId(collection.selectedBundleId ?? undefined)
-		setSources(collection.sources || [])
+	// Initialize selected podcasts from existing sources
+	useEffect(() => {
+		if (collection.sources && collection.sources.length > 0) {
+			const podcastsFromSources = collection.sources.map(source => ({
+				id: source.id,
+				name: source.name,
+				imageUrl: source.imageUrl,
+				createdAt: source.createdAt,
+				isActive: true,
+				url: source.url,
+				description: null,
+				category: "Technology" // Default category
+			}))
+			setSelectedPodcasts(podcastsFromSources)
+		}
 	}, [collection])
+
+	// Reset form when modal opens/closes
+	useEffect(() => {
+		if (isOpen) {
+			setName(collection.name)
+			setIsBundleSelection(collection.isBundleSelection)
+			setSelectedBundleId(collection.selectedBundleId ?? undefined)
+			setStep(1)
+		}
+	}, [isOpen, collection])
 
 	const handleSave = async () => {
 		setIsLoading(true)
-		await onSave({ id: collection.id, name, isBundleSelection, selectedBundleId, sources })
-		setIsLoading(false)
-	}
-
-	const handleAddSource = async () => {
-		if (!newSourceUrl.trim()) {
-			toast.error('Source URL cannot be empty.')
-			return
-		}
-
-		// Basic validation for YouTube URL
-		const youtubeUrlRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/
-		if (!youtubeUrlRegex.test(newSourceUrl)) {
-			toast.error('Please enter a valid YouTube video URL.')
-			return
-		}
-
-		setIsLoading(true)
 		try {
-			// Fetch video details (similar to addPodcastSource action)
-			const videoIdMatch = newSourceUrl.match(
-				/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/
-			)
-			const videoId = videoIdMatch ? videoIdMatch[1] : null
-
-			if (!videoId) {
-				throw new Error('Could not extract video ID from URL')
+			let data: Partial<UserCurationProfileWithSources> = {
+				id: collection.id,
+				name,
+				isBundleSelection,
 			}
 
-			const response = await fetch(
-				`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-			)
-			if (!response.ok) {
-				throw new Error(`Failed to fetch video details: ${response.status}`)
+			if (isBundleSelection) {
+				if (!selectedBundleId) {
+					toast.error("Please select a bundle.")
+					return
+				}
+				data.selectedBundleId = selectedBundleId
+				data.sources = [] // Clear sources when switching to bundle
+			} else {
+				if (selectedPodcasts.length === 0) {
+					toast.error("Please select at least one podcast for your custom user curation profile.")
+					return
+				}
+				// Convert selected podcasts to sources format
+				data.sources = selectedPodcasts.map(podcast => ({
+					id: podcast.id,
+					name: podcast.name,
+					url: podcast.url,
+					imageUrl: podcast.imageUrl,
+					createdAt: podcast.createdAt,
+					userCurationProfileId: collection.id
+				}))
+				data.selectedBundleId = null // Clear bundle when switching to custom
 			}
-			const data = await response.json()
 
-			const newSource: Source = {
-				id: Date.now().toString(), // Temp ID, will be replaced by DB ID
-				name: data.title,
-				url: newSourceUrl,
-				imageUrl: data.thumbnail_url,
-				createdAt: new Date(), // Set to a new Date object
-				userCurationProfileId: collection.id // Set to collection.id
-			}
-			setSources(prev => [...prev, newSource])
-			setNewSourceUrl('')
-			toast.success('Source added to list. Click Save to apply changes.')
-		} catch (error: unknown) {
-			toast.error(`Failed to add source: ${(error as Error).message}`)
-    } finally {
+			await onSave(data)
+			toast.success("User Curation Profile updated successfully!")
+			onClose()
+		} catch (error) {
+			toast.error("Failed to update user curation profile")
+		} finally {
 			setIsLoading(false)
 		}
-    }
-
-	const handleRemoveSource = (urlToRemove: string) => {
-		setSources(prev => prev.filter(source => source.url !== urlToRemove))
-		toast.info('Source removed from list. Click Save to apply changes.')
 	}
 
-  return (
+	const handlePodcastSelection = (podcast: any) => {
+		const isAlreadySelected = selectedPodcasts.some(p => p.id === podcast.id)
+		if (isAlreadySelected) {
+			setSelectedPodcasts(selectedPodcasts.filter(p => p.id !== podcast.id))
+		} else {
+			if (selectedPodcasts.length < 5) {
+				setSelectedPodcasts([...selectedPodcasts, podcast])
+			} else {
+				toast.info("You can select a maximum of 5 podcasts.")
+			}
+		}
+	}
+
+	return (
 		<AlertDialog open={isOpen} onOpenChange={onClose}>
-			<AlertDialogContent className="sm:max-w-[600px]">
+			<AlertDialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
 				<AlertDialogHeader>
 					<AlertDialogTitle>Edit User Curation Profile</AlertDialogTitle>
 					<AlertDialogDescription>
-						Make changes to your user curation profile here. Click save when you're done.
+						Update your user curation profile settings and content selection.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input
-              id="name"
-							value={name}
-							onChange={e => setName(e.target.value)}
-              className="col-span-3"
-            />
-          </div>
 
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="bundleSelection" className="text-right">
-							Bundle Selection
-						</Label>
-						<Switch
-							id="bundleSelection"
-							checked={isBundleSelection}
-							onCheckedChange={setIsBundleSelection}
-							className="col-span-3"
-						/>
-					</div>
+				<div className="py-4">
+					{/* Step 1: Choose Profile Type */}
+					{step === 1 && (
+						<div className="space-y-4">
+							<h3 className="text-lg font-semibold">Choose Your User Curation Profile Type</h3>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Button
+									variant={!isBundleSelection ? "default" : "outline"}
+									className="h-auto p-4 flex flex-col items-start"
+									onClick={() => {
+										setIsBundleSelection(false)
+										setStep(2)
+									}}
+								>
+									<h4 className="font-semibold">Custom User Curation Profile</h4>
+									<p className="text-sm opacity-80">Select up to 5 individual podcasts.</p>
+								</Button>
+								<Button
+									variant={isBundleSelection ? "default" : "outline"}
+									className="h-auto p-4 flex flex-col items-start"
+									onClick={() => {
+										setIsBundleSelection(true)
+										setStep(2)
+									}}
+								>
+									<h4 className="font-semibold">Bundle Selection</h4>
+									<p className="text-sm opacity-80">Choose from pre-selected bundles (uneditable).</p>
+								</Button>
+							</div>
+						</div>
+					)}
 
-					{!isBundleSelection && (
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="sources" className="text-right">
-								Sources
-							</Label>
-							<div className="col-span-3 flex flex-col gap-2">
-								{sources.map(source => (
-									<div key={source.id} className="flex items-center justify-between rounded-md border p-2">
-										<span>{source.name}</span>
-										<Button variant="ghost" size="icon" onClick={() => handleRemoveSource(source.url)}>
-											<X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-								<div className="flex w-full items-center space-x-2">
+					{/* Step 2: Select Content */}
+					{step === 2 && (
+						<div className="space-y-4">
+							<div className="flex items-center gap-2 mb-4">
+								<Button variant="ghost" size="sm" onClick={() => setStep(1)}>
+									<ArrowLeft size={16} />
+									Back
+								</Button>
+								<h3 className="text-lg font-semibold">
+									{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}
+								</h3>
+							</div>
+
+							{isBundleSelection ? (
+								<CuratedBundleList
+									onSelectBundle={setSelectedBundleId}
+									selectedBundleId={selectedBundleId}
+								/>
+							) : (
+								<CuratedPodcastList
+									onSelectPodcast={handlePodcastSelection}
+									selectedPodcasts={selectedPodcasts}
+								/>
+							)}
+
+							<div className="flex justify-between pt-4">
+								<Button variant="outline" onClick={() => setStep(1)}>
+									Back
+								</Button>
+								<Button
+									onClick={() => setStep(3)}
+									disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}
+								>
+									Next
+									<ArrowRight size={16} />
+								</Button>
+							</div>
+						</div>
+					)}
+
+					{/* Step 3: Review and Save */}
+					{step === 3 && (
+						<div className="space-y-4">
+							<div className="flex items-center gap-2 mb-4">
+								<Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+									<ArrowLeft size={16} />
+									Back
+								</Button>
+								<h3 className="text-lg font-semibold">Review Your Changes</h3>
+							</div>
+
+							<div className="space-y-4">
+								<div>
+									<Label htmlFor="name">User Curation Profile Name</Label>
 									<Input
-										type="url"
-										placeholder="Add new YouTube source URL"
-										value={newSourceUrl}
-										onChange={e => setNewSourceUrl(e.target.value)}
+										id="name"
+										value={name}
+										onChange={e => setName(e.target.value)}
+										placeholder="Enter your profile name"
+										className="mt-1"
 									/>
-									<Button type="button" onClick={handleAddSource} disabled={isLoading}>
-										<Plus className="h-4 w-4" />
-              </Button>
+								</div>
+
+								<div>
+									<h4 className="font-medium mb-2">Selected Content:</h4>
+									{isBundleSelection && selectedBundleId ? (
+										<div className="p-3 border rounded-md">
+											<p className="font-medium">Bundle ID: {selectedBundleId}</p>
+											<p className="text-sm text-muted-foreground">Bundle details will be displayed here</p>
+										</div>
+									) : (
+										<div className="space-y-2">
+											{selectedPodcasts.map(podcast => (
+												<div key={podcast.id} className="p-3 border rounded-md">
+													<p className="font-medium">{podcast.name}</p>
+													{podcast.description && (
+														<p className="text-sm text-muted-foreground">{podcast.description}</p>
+													)}
+												</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
-            </div>
-          )}
 
-					{isBundleSelection && (
-						<div className="grid grid-cols-4 items-center gap-4">
-							<Label htmlFor="selectedBundle" className="text-right">
-								Selected Bundle ID
-							</Label>
-							<Input
-								id="selectedBundle"
-								value={selectedBundleId ?? 'No bundle selected'}
-								onChange={e => setSelectedBundleId(e.target.value)}
-								disabled // Bundles are fixed, not directly editable via ID
-								className="col-span-3"
-							/>
+							<div className="flex justify-between pt-4">
+								<Button variant="outline" onClick={() => setStep(2)}>
+									Back
+								</Button>
+								<Button
+									onClick={handleSave}
+									disabled={isLoading || name.trim() === ""}
+								>
+									{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+									Save Changes
+								</Button>
+							</div>
 						</div>
-          )}
-        </div>
+					)}
+				</div>
+
 				<AlertDialogFooter>
 					<Button variant="outline" onClick={onClose} disabled={isLoading}>
 						Cancel
 					</Button>
-					<Button type="submit" onClick={handleSave} disabled={isLoading}>
-						{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-						Save changes
-          </Button>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
 	)
-} 
+}

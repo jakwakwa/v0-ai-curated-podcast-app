@@ -131,7 +131,7 @@ export function SavedCollectionCard({
 			</CardContent>
 			{currentUserCurationProfile.status === "Generated" && (
 				<CardFooter className={styles["card-footer"]}>
-					<Link href={`/episodes/${currentUserCurationProfile.id}`}>
+					<Link href={`/collections/${currentUserCurationProfile.id}`}>
 						<Button variant="outline" className={styles["full-width-button"]}>
 							View Episodes
 						</Button>

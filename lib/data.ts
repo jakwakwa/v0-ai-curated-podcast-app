@@ -19,7 +19,7 @@ const DUMMY_CURATED_PODCASTS: CuratedPodcast[] = [
 		url: "https://www.youtube.com/@lexfridman",
 		description:
 			"Conversations about science, technology, history, philosophy and the nature of intelligence, consciousness, love, and power.",
-		imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+		imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
 		category: "Technology",
 		isActive: true,
 		createdAt: new Date(),
@@ -39,7 +39,7 @@ const DUMMY_CURATED_PODCASTS: CuratedPodcast[] = [
 const DUMMY_SOURCES: Source[] = [
 	{
 		id: "src1",
-		userCurationProfileId: "profile1",
+		userCurationProfileId: "dummyCurationProfile",
 		name: "Lex Fridman Podcast Source",
 		url: "https://www.youtube.com/watch?v=lex_vid_1",
 		imageUrl: DUMMY_CURATED_PODCASTS[0].imageUrl,
@@ -47,7 +47,7 @@ const DUMMY_SOURCES: Source[] = [
 	},
 	{
 		id: "src2",
-		userCurationProfileId: "profile1",
+		userCurationProfileId: "dummyCurationProfile",
 		name: "The Vergecast Source",
 		url: "https://www.youtube.com/watch?v=verge_vid_1",
 		imageUrl: DUMMY_CURATED_PODCASTS[1].imageUrl,
@@ -59,7 +59,7 @@ const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
 	id: "bundle1",
 	name: "Tech Weekly",
 	description: "Latest in technology and innovation",
-	imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
+	imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
 	isActive: true,
 	createdAt: new Date(),
 	podcasts: DUMMY_CURATED_PODCASTS,
@@ -67,7 +67,7 @@ const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
 
 const DUMMY_USER_CURATION_PROFILES: UserCurationProfileWithRelations[] = [
 	{
-		id: "profile1",
+		id: "dummyCurationProfile",
 		userId: "user_2gXwLd20u8wK51Y5YjBf02002",
 		name: "My Custom Tech Collection",
 		status: "Generated" as UserCurationProfileStatus,
