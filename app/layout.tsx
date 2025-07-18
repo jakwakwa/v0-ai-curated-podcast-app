@@ -13,6 +13,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ClerkProvider } from "@clerk/nextjs"
 // import { auth } from "@clerk/nextjs/server"
 import { ClientProviders } from "./client-providers"
+import { StoreInitializer } from "./store-initializer"
 // import { Dashboard } from "@elevenlabs/elevenlabs-js/api/resources/conversationalAi/resources/dashboard/client/Client"
 // import DashboardPage from "./page"
 const inter = Inter({ subsets: ["latin"] })
@@ -42,6 +43,7 @@ export default function RootLayout({
 					}}
 				>
 					<ClientProviders>
+						<StoreInitializer />
 						<Toaster />
 						{children}
 					</ClientProviders>

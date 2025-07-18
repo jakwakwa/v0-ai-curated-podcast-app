@@ -342,6 +342,9 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 				return calculateDaysUntil(subscription.trialEnd)
 			},
 		}),
-		{ name: "subscription-store" }
+		{
+			name: "subscription-store",
+			enabled: process.env.NODE_ENV === "development"
+		}
 	)
 )

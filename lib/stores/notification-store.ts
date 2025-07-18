@@ -54,16 +54,16 @@ export const useNotificationStore = create<NotificationStore>()(
         const { notifications } = get()
         const newNotifications = [notification, ...notifications]
         const unreadCount = newNotifications.filter(n => !n.isRead).length
-        
-        set({ 
+
+        set({
           notifications: newNotifications,
-          unreadCount 
+          unreadCount
         }, false, 'addNotification')
       },
 
       markAsRead: async (notificationId) => {
         set({ isLoading: true, error: null }, false, 'markAsRead:start')
-        
+
         try {
           const response = await fetch(`/api/notifications/${notificationId}/read`, {
             method: 'PATCH',
@@ -79,15 +79,15 @@ export const useNotificationStore = create<NotificationStore>()(
           )
           const unreadCount = updatedNotifications.filter(n => !n.isRead).length
 
-          set({ 
+          set({
             notifications: updatedNotifications,
             unreadCount,
-            isLoading: false 
+            isLoading: false
           }, false, 'markAsRead:success')
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            isLoading: false 
+            isLoading: false
           }, false, 'markAsRead:error')
           throw error
         }
@@ -95,7 +95,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
       markAllAsRead: async () => {
         set({ isLoading: true, error: null }, false, 'markAllAsRead:start')
-        
+
         try {
           const response = await fetch('/api/notifications/read-all', {
             method: 'PATCH',
@@ -108,15 +108,15 @@ export const useNotificationStore = create<NotificationStore>()(
           const { notifications } = get()
           const updatedNotifications = notifications.map(n => ({ ...n, isRead: true }))
 
-          set({ 
+          set({
             notifications: updatedNotifications,
             unreadCount: 0,
-            isLoading: false 
+            isLoading: false
           }, false, 'markAllAsRead:success')
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            isLoading: false 
+            isLoading: false
           }, false, 'markAllAsRead:error')
           throw error
         }
@@ -124,7 +124,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
       loadNotifications: async () => {
         set({ isLoading: true, error: null }, false, 'loadNotifications:start')
-        
+
         try {
           const response = await fetch('/api/notifications')
 
@@ -135,15 +135,15 @@ export const useNotificationStore = create<NotificationStore>()(
           const notifications = await response.json()
           const unreadCount = notifications.filter((n: Notification) => !n.isRead).length
 
-          set({ 
+          set({
             notifications,
             unreadCount,
-            isLoading: false 
+            isLoading: false
           }, false, 'loadNotifications:success')
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            isLoading: false 
+            isLoading: false
           }, false, 'loadNotifications:error')
           throw error
         }
@@ -151,7 +151,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
       deleteNotification: async (notificationId) => {
         set({ isLoading: true, error: null }, false, 'deleteNotification:start')
-        
+
         try {
           const response = await fetch(`/api/notifications/${notificationId}`, {
             method: 'DELETE',
@@ -165,15 +165,15 @@ export const useNotificationStore = create<NotificationStore>()(
           const updatedNotifications = notifications.filter(n => n.id !== notificationId)
           const unreadCount = updatedNotifications.filter(n => !n.isRead).length
 
-          set({ 
+          set({
             notifications: updatedNotifications,
             unreadCount,
-            isLoading: false 
+            isLoading: false
           }, false, 'deleteNotification:success')
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            isLoading: false 
+            isLoading: false
           }, false, 'deleteNotification:error')
           throw error
         }
@@ -181,7 +181,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
       clearAll: async () => {
         set({ isLoading: true, error: null }, false, 'clearAll:start')
-        
+
         try {
           const response = await fetch('/api/notifications', {
             method: 'DELETE',
@@ -191,15 +191,15 @@ export const useNotificationStore = create<NotificationStore>()(
             throw new Error('Failed to clear all notifications')
           }
 
-          set({ 
+          set({
             notifications: [],
             unreadCount: 0,
-            isLoading: false 
+            isLoading: false
           }, false, 'clearAll:success')
         } catch (error) {
-          set({ 
+          set({
             error: error instanceof Error ? error.message : 'Unknown error',
-            isLoading: false 
+            isLoading: false
           }, false, 'clearAll:error')
           throw error
         }
@@ -220,6 +220,9 @@ export const useNotificationStore = create<NotificationStore>()(
         set({ unreadCount }, false, 'updateUnreadCount')
       },
     }),
-    { name: 'notification-store' }
+    {
+      name: 'notification-store',
+      enabled: process.env.NODE_ENV === 'development'
+    }
   )
 )

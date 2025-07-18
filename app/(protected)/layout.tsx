@@ -5,6 +5,8 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
 import type React from 'react'
 import styles from './layout.module.css'
+import { StoreInitializer } from "../store-initializer"
+
 
 export default function ProtectedLayout({
   children,
@@ -14,6 +16,7 @@ export default function ProtectedLayout({
   // No auth check needed here - middleware handles all protection
   return (
     <SidebarProvider>
+      <StoreInitializer />
       <AppSidebar />
       <div className={styles.container}>
         <SiteHeader />
