@@ -5,6 +5,7 @@ import type { CuratedPodcast } from "@/lib/types"
 import { Check } from "lucide-react"
 import { useState } from "react"
 import styles from "./collection-creation-wizard.module.css"
+import { shouldUseDummyData, logDummyDataUsage } from "@/lib/config"
 
 interface CuratedPodcastListProps {
 	onSelectPodcast: (podcast: CuratedPodcast) => void

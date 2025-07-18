@@ -3,6 +3,7 @@ import { Check, Lock } from 'lucide-react'
 import type { TransformedCuratedBundle } from '@/lib/types'
 import { useState } from 'react'
 import styles from './collection-creation-wizard.module.css'
+import { shouldUseDummyData, logDummyDataUsage } from '@/lib/config'
 
 interface CuratedBundleListProps {
   onSelectBundle: (bundleId: string) => void;
