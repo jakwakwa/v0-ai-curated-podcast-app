@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { CuratedPodcast } from "@/lib/types"
 import { Check } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect} from "react"
 import styles from "./collection-creation-wizard.module.css"
 import { shouldUseDummyData, logDummyDataUsage } from "@/lib/config"
 
