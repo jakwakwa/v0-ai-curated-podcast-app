@@ -95,8 +95,6 @@ export const useMyStore = create<MyStore>()(
 
 ### DevTools Not Showing
 
-**"No store found. Make sure to follow the instructions."**
-
 This is the most common issue. Follow these steps in order:
 
 1. **Verify Extension Installation**
