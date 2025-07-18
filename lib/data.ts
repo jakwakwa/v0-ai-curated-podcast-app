@@ -9,6 +9,7 @@ import type {
 	UserCurationProfileWithRelations,
 } from "@/lib/types"
 import { auth } from "@clerk/nextjs/server"
+import { shouldUseDummyData, logDummyDataUsage } from "./config"
 
 // --- CONCISE DUMMY DATA MATCHING PRISMA SCHEMA ---
 
@@ -142,20 +143,37 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 	const { userId } = await auth()
 	if (!userId) return []
 
+	if (shouldUseDummyData()) {
+		logDummyDataUsage("getUserCurationProfile")
+		const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
+			...profile,
+			userId: userId,
+		})) as UserCurationProfileWithRelations[]
+		return dummyDataWithCorrectUserId
+	}
+
+	// TODO: Implement real API call here
+	// const response = await fetch('/api/user-curation-profiles')
+	// return response.json()
+
+	logDummyDataUsage("getUserCurationProfile (fallback)")
 	const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
 		...profile,
 		userId: userId,
 	})) as UserCurationProfileWithRelations[]
-
-	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-	// biome-ignore lint/suspicious/noConsole: <explanation>
-	console.log("Using DUMMY_USER_CURATION_PROFILES with actual user ID:", userId)
 	return dummyDataWithCorrectUserId
 }
 
 export async function getEpisodes(): Promise<Episode[]> {
-	// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-	// biome-ignore lint/suspicious/noConsole: <explanation>
-	console.log("Using DUMMY_EPISODES (Temporary)")
+	if (shouldUseDummyData()) {
+		logDummyDataUsage("getEpisodes")
+		return DUMMY_EPISODES
+	}
+
+	// TODO: Implement real API call here
+	// const response = await fetch('/api/episodes')
+	// return response.json()
+
+	logDummyDataUsage("getEpisodes (fallback)")
 	return DUMMY_EPISODES
 }
