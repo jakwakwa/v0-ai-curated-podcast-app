@@ -2,11 +2,11 @@
 
 import { DataTable } from "@/components/data-table"
 import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { UserCurationProfileWithRelations } from "@/lib/types"
+import type { UserCurationProfileWithRelations, Episode } from "@/lib/types"
 import { useEffect, useState } from "react"
 
 export default function DashboardPage() {
-	const [episodes, setEpisodes] = useState([])
+	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [savedCollections, setSavedCollections] = useState<UserCurationProfileWithRelations[]>([])
 	const [loading, setLoading] = useState(true)
 
@@ -15,18 +15,8 @@ export default function DashboardPage() {
 			try {
 				const [episodesData, collectionsData] = await Promise.all([getEpisodes(), getUserCurationProfile()])
 
-				const filteredCollections: UserCurationProfileWithRelations[] = collectionsData.filter(
-					c => c.status === "Saved" || c.status === "Generated"
-				)
-
-				// Custom sort: "Saved" status first, then by updatedAt (newest first)
-				filteredCollections.sort((a: UserCurationProfileWithRelations, b: UserCurationProfileWithRelations) => {
-					// Prioritize "Saved" status over "Generated"
-					if (a.status === "Saved" && b.status === "Generated") return -1
-					if (a.status === "Generated" && b.status === "Saved") return 1
-
-					// If statuses are the same, sort by updatedAt (newest first)
-					return b.updatedAt.getTime() - a.updatedAt.getTime()
+				const filteredCollections: UserCurationProfileWithRelations[] = collectionsData.filter((collection) => {
+					return collection.status === "Saved"
 				})
 
 				setEpisodes(episodesData)
@@ -46,8 +36,9 @@ export default function DashboardPage() {
 	}
 
 	return (
-		<>
-			<DataTable episodes={episodes} userCurationProfiles={savedCollections} />
-		</>
+		<div className="p-6">
+			<h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
+			<DataTable episodes={episodes} savedCollections={savedCollections} />
+		</div>
 	)
 }
