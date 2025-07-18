@@ -316,6 +316,11 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 
 			// Helper methods
 			canCreateUserCurationProfile: () => {
+				// Development mode bypass - allow creation in development
+				if (process.env.NODE_ENV === "development") {
+					return true
+				}
+
 				const { subscription } = get()
 				const userCurationProfileStore = useUserCurationProfileStore.getState()
 				const { userCurationProfile } = userCurationProfileStore
