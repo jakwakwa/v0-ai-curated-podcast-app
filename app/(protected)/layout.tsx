@@ -1,7 +1,11 @@
+"use client"
+
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
-import React from  'react'
+import type React from 'react'
+import styles from './layout.module.css'
+
 export default function ProtectedLayout({
   children,
 }: {
@@ -11,12 +15,12 @@ export default function ProtectedLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <div className="w-screen flex-col">
+      <div className={styles.container}>
         <SiteHeader />
-        <div className="p-12 flex gap-8">
+        <div className={styles.content}>
           {children}
         </div>
       </div>
     </SidebarProvider>
   )
-} 
+}
