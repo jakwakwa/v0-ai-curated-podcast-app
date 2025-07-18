@@ -201,6 +201,7 @@ export async function getEpisodes(): Promise<Episode[]> {
 				userCurationProfile: {
 					include: {
 						sources: true,
+						episodes: true, // Include episodes in the userCurationProfile
 						selectedBundle: {
 							include: {
 								bundlePodcasts: {
@@ -227,7 +228,10 @@ export async function getEpisodes(): Promise<Episode[]> {
 			userCurationProfileId: episode.userCurationProfileId,
 			weekNr: episode.weekNr,
 			source: episode.source,
-			userCurationProfile: episode.userCurationProfile
+			userCurationProfile: {
+				...episode.userCurationProfile,
+				episodes: episode.userCurationProfile.episodes || [] // Ensure episodes property exists
+			}
 		}))
 
 		return transformedEpisodes as Episode[]

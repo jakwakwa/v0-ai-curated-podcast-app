@@ -1,6 +1,6 @@
 "use client"
 
-import type { Source, UserCurationProfile } from "@/lib/types"
+import type { Source, UserCurationProfileWithRelations } from "@/lib/types"
 import { z } from "zod"
 import { CurationDashboard } from "./curation-dashboard"
 import { PodcastList } from "./podcast-list"
@@ -50,7 +50,7 @@ export function DataTable({
 	userCurationProfiles,
 }: {
 	episodes: z.infer<typeof schema>[]
-	userCurationProfiles: UserCurationProfile[] // Renamed from collections
+	userCurationProfiles: UserCurationProfileWithRelations[] // Updated to include relations
 }) {
 	const hasEpisodes = episodes.length > 0
 	const hasProfiles = userCurationProfiles.length > 0
