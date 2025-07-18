@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { Check, Lock } from 'lucide-react'
 import type { TransformedCuratedBundle } from '@/lib/types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './collection-creation-wizard.module.css'
 import { shouldUseDummyData, logDummyDataUsage } from '@/lib/config'
 

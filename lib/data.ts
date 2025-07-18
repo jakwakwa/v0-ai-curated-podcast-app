@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types"
 import { auth } from "@clerk/nextjs/server"
 import { shouldUseDummyData, logDummyDataUsage } from "./config"
+import prisma from "@/lib/prisma"
 
 // --- CONCISE DUMMY DATA MATCHING PRISMA SCHEMA ---
 
@@ -152,25 +153,42 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 		return dummyDataWithCorrectUserId
 	}
 
-	// Real API call
+	// Real database query
 	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/user-curation-profiles`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
+		const userCurationProfiles = await prisma.userCurationProfile.findMany({
+			where: { userId },
+			include: {
+				sources: true,
+				episodes: true,
+				selectedBundle: {
+					include: {
+						bundlePodcasts: {
+							include: { podcast: true }
+						},
+						episodes: {
+							orderBy: { publishedAt: "desc" }
+						}
+					}
+				}
 			},
+			orderBy: { createdAt: "desc" },
 		})
 
-		if (!response.ok) {
-			throw new Error(`Failed to fetch user curation profiles: ${response.status}`)
-		}
+		// Transform the data to match the expected structure
+		const transformedProfiles = userCurationProfiles.map(profile => ({
+			...profile,
+			selectedBundle: profile.selectedBundle ? {
+				...profile.selectedBundle,
+				podcasts: profile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+				episodes: profile.selectedBundle.episodes || []
+			} : null
+		}))
 
-		const data = await response.json()
-		return data
+		return transformedProfiles as UserCurationProfileWithRelations[]
 	} catch (error) {
 		console.error('Error fetching user curation profiles:', error)
-		// Fallback to dummy data if API call fails
-		logDummyDataUsage("getUserCurationProfile (API fallback)")
+		// Fallback to dummy data if database query fails
+		logDummyDataUsage("getUserCurationProfile (Database fallback)")
 		const dummyDataWithCorrectUserId = DUMMY_USER_CURATION_PROFILES.map(profile => ({
 			...profile,
 			userId: userId,
@@ -185,25 +203,38 @@ export async function getEpisodes(): Promise<Episode[]> {
 		return DUMMY_EPISODES
 	}
 
-	// Real API call
+	// Real database query
 	try {
-		const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/episodes`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
+		const { userId } = await auth()
+		if (!userId) return []
+
+		const episodes = await prisma.episode.findMany({
+			where: {
+				userCurationProfile: { userId }
 			},
+			include: {
+				source: true,
+				userCurationProfile: {
+					include: {
+						sources: true,
+						selectedBundle: {
+							include: {
+								bundlePodcasts: {
+									include: { podcast: true }
+								}
+							}
+						}
+					}
+				}
+			},
+			orderBy: { createdAt: "desc" },
 		})
 
-		if (!response.ok) {
-			throw new Error(`Failed to fetch episodes: ${response.status}`)
-		}
-
-		const data = await response.json()
-		return data
+		return episodes as Episode[]
 	} catch (error) {
 		console.error('Error fetching episodes:', error)
-		// Fallback to dummy data if API call fails
-		logDummyDataUsage("getEpisodes (API fallback)")
+		// Fallback to dummy data if database query fails
+		logDummyDataUsage("getEpisodes (Database fallback)")
 		return DUMMY_EPISODES
 	}
 }

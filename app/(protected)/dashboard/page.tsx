@@ -113,11 +113,25 @@ export default function Page() {
 											<div className="mt-2 text-sm">
 												<p className="font-medium">Podcasts:</p>
 												<ul className="list-disc pl-5 text-muted-foreground">
-													{userCurationProfile.selectedBundle.podcasts.map((podcast: CuratedPodcast) => (
+													{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => (
 														<li key={podcast.id}>{podcast.name}</li>
-													))}
+													)) || (
+														<li className="text-muted-foreground">No podcasts loaded</li>
+													)}
 												</ul>
 											</div>
+											{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
+												<div className="mt-4 text-sm">
+													<p className="font-medium">Bundle Episodes:</p>
+													<ul className="list-disc pl-5 text-muted-foreground">
+														{userCurationProfile.selectedBundle.episodes.map((episode) => (
+															<li key={episode.id}>
+																{episode.title} - {new Date(episode.publishedAt).toLocaleDateString()}
+															</li>
+														))}
+													</ul>
+												</div>
+											)}
 										</CardContent>
 									</Card>
 								)}

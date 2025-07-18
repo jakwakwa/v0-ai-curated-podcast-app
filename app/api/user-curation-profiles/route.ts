@@ -2,6 +2,50 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
+export async function GET(request: Request) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const userCurationProfiles = await prisma.userCurationProfile.findMany({
+      where: { userId },
+      include: {
+        sources: true,
+        episodes: true,
+        selectedBundle: {
+          include: {
+            bundlePodcasts: {
+              include: { podcast: true }
+            },
+            episodes: {
+              orderBy: { publishedAt: "desc" }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Transform the data to match the expected structure
+    const transformedProfiles = userCurationProfiles.map(profile => ({
+      ...profile,
+      selectedBundle: profile.selectedBundle ? {
+        ...profile.selectedBundle,
+        podcasts: profile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+        episodes: profile.selectedBundle.episodes || []
+      } : null
+    }));
+
+    return NextResponse.json(transformedProfiles);
+  } catch (error) {
+    console.error("[USER_CURATION_PROFILES_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
