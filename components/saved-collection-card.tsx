@@ -113,7 +113,7 @@ export function SavedCollectionCard({
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				{(currentUserCurationProfile.status === "Saved" || currentUserCurationProfile.status === "Failed") && (
+				{/* {(currentUserCurationProfile.status === "Saved" || currentUserCurationProfile.status === "Failed") && (
 					<Button type="button" onClick={handleGenerate} disabled={isLoading} variant="default">
 						{isLoading ? (
 							"Generating..."
@@ -124,7 +124,7 @@ export function SavedCollectionCard({
 							</>
 						)}
 					</Button>
-				)}
+				)} */}
 				{currentUserCurationProfile.status === "Failed" && (
 					<p className={styles["error-message"]}>Podcast generation failed. Please try again.</p>
 				)}
