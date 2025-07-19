@@ -15,7 +15,7 @@
   z-index: 50;
   display: grid;
   width: 100%;
-  max-width: 32rem; /* max-w-lg */
+  max-width: 48rem; /* max-w-lg */
   transform: translate(-50%, -50%);
   gap: 1rem;
   border-width: 1px;

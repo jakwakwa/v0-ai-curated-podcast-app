@@ -1,16 +1,15 @@
 "use server"
 
+import prisma from "@/lib/prisma"
 import type {
 	CuratedPodcast,
 	Episode,
 	Source,
-	TransformedCuratedBundle,
 	UserCurationProfileStatus,
 	UserCurationProfileWithRelations,
 } from "@/lib/types"
 import { auth } from "@clerk/nextjs/server"
-import { shouldUseDummyData, logDummyDataUsage } from "./config"
-import prisma from "@/lib/prisma"
+import { logDummyDataUsage, shouldUseDummyData } from "./config"
 
 // --- CONCISE DUMMY DATA MATCHING PRISMA SCHEMA ---
 
@@ -57,15 +56,15 @@ const DUMMY_SOURCES: Source[] = [
 	},
 ]
 
-const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
-	id: "bundle1",
-	name: "Tech Weekly",
-	description: "Latest in technology and innovation",
-	imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
-	isActive: true,
-	createdAt: new Date(),
-	podcasts: DUMMY_CURATED_PODCASTS,
-}
+// const DUMMY_TRANSFORMED_BUNDLE: TransformedCuratedBundle = {
+// 	id: "bundle1",
+// 	name: "Tech Weekly",
+// 	description: "Latest in technology and innovation",
+// 	imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
+// 	isActive: true,
+// 	createdAt: new Date(),
+// 	podcasts: DUMMY_CURATED_PODCASTS,
+// }
 
 // User can only have ONE active user curation profile - either bundle or custom
 const DUMMY_USER_CURATION_PROFILE: UserCurationProfileWithRelations = {
@@ -92,8 +91,10 @@ const DUMMY_EPISODES: Episode[] = [
 	{
 		id: "episode1",
 		title: "Dr. Jordan B. Peterson sits down with Scott Adams",
-		description: "Dr. Jordan B. Peterson sits down with Scott Adams, cartoonist and creator of Dilbert, to explore the unlikely paths that shape a life—from illustrating a nationally syndicated hit comic to fatal illness and facing the metaphysical",
-		audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+		description:
+			"Dr. Jordan B. Peterson sits down with Scott Adams, cartoonist and creator of Dilbert, to explore the unlikely paths that shape a life—from illustrating a nationally syndicated hit comic to fatal illness and facing the metaphysical",
+		audioUrl:
+			"https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 		imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop",
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 2)),
 		createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
@@ -106,8 +107,10 @@ const DUMMY_EPISODES: Episode[] = [
 	{
 		id: "episode2",
 		title: "Re-ignite the spark",
-		description: "This week we look the world-renowned clinical psychologist, psychoanalyst, and lead therapist on the hit series Couples Therapy. Known for helping couples navigate the complexities of intimacy, conflict, and emotional patterns, Orna shares the real reason relationships break down — and what it actually takes to build something that lasts",
-		audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+		description:
+			"This week we look the world-renowned clinical psychologist, psychoanalyst, and lead therapist on the hit series Couples Therapy. Known for helping couples navigate the complexities of intimacy, conflict, and emotional patterns, Orna shares the real reason relationships break down — and what it actually takes to build something that lasts",
+		audioUrl:
+			"https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 		imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
 		publishedAt: new Date(new Date().setDate(new Date().getDate() - 9)),
 		createdAt: new Date(new Date().setDate(new Date().getDate() - 9)),
@@ -144,13 +147,13 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 				selectedBundle: {
 					include: {
 						bundlePodcasts: {
-							include: { podcast: true }
+							include: { podcast: true },
 						},
 						episodes: {
-							orderBy: { publishedAt: "desc" }
-						}
-					}
-				}
+							orderBy: { publishedAt: "desc" },
+						},
+					},
+				},
 			},
 		})
 
@@ -161,16 +164,19 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 		// Transform the data to match the expected structure
 		const transformedProfile = {
 			...userCurationProfile,
-			selectedBundle: userCurationProfile.selectedBundle ? {
-				...userCurationProfile.selectedBundle,
-				podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
-				episodes: userCurationProfile.selectedBundle.episodes || []
-			} : null
+			selectedBundle: userCurationProfile.selectedBundle
+				? {
+						...userCurationProfile.selectedBundle,
+						podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+						episodes: userCurationProfile.selectedBundle.episodes || [],
+					}
+				: null,
 		}
 
 		return transformedProfile as UserCurationProfileWithRelations
 	} catch (error) {
-		console.error('Error fetching user curation profile:', error)
+		// biome-ignore lint/suspicious/noConsole: <debugging>
+		console.error("Error fetching user curation profile:", error)
 		// Fallback to dummy data if database query fails
 		logDummyDataUsage("getUserCurationProfile (Database fallback)")
 		const dummyDataWithCorrectUserId = {
@@ -194,7 +200,7 @@ export async function getEpisodes(): Promise<Episode[]> {
 
 		const episodes = await prisma.episode.findMany({
 			where: {
-				userCurationProfile: { userId }
+				userCurationProfile: { userId },
 			},
 			include: {
 				source: true,
@@ -205,12 +211,12 @@ export async function getEpisodes(): Promise<Episode[]> {
 						selectedBundle: {
 							include: {
 								bundlePodcasts: {
-									include: { podcast: true }
-								}
-							}
-						}
-					}
-				}
+									include: { podcast: true },
+								},
+							},
+						},
+					},
+				},
 			},
 			orderBy: { createdAt: "desc" },
 		})
@@ -230,13 +236,14 @@ export async function getEpisodes(): Promise<Episode[]> {
 			source: episode.source,
 			userCurationProfile: {
 				...episode.userCurationProfile,
-				episodes: episode.userCurationProfile.episodes || [] // Ensure episodes property exists
-			}
+				episodes: episode.userCurationProfile.episodes || [], // Ensure episodes property exists
+			},
 		}))
 
 		return transformedEpisodes as Episode[]
 	} catch (error) {
-		console.error('Error fetching episodes:', error)
+		// biome-ignore lint/suspicious/noConsole: <debugging>
+		console.error("Error fetching episodes:", error)
 		// Fallback to dummy data if database query fails
 		logDummyDataUsage("getEpisodes (Database fallback)")
 		return DUMMY_EPISODES

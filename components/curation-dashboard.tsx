@@ -1,11 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { SavedCollectionCard } from "./saved-collection-card"
-import { Sparkles, Plus, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
+import { ArrowRight, Plus, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { SavedCollectionCard } from "./saved-collection-card"
 
 interface CurationDashboardProps {
 	userCurationProfiles: UserCurationProfileWithRelations[]
@@ -16,7 +16,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 	const activeProfiles = userCurationProfiles.filter(profile => profile.isActive)
 
 	if (activeProfiles.length === 0) {
-	return (
+		return (
 			<Card className="w-full">
 				<CardHeader className="text-center">
 					<div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
@@ -29,8 +29,8 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 				</CardHeader>
 				<CardContent className="text-center space-y-4">
 					<p className="text-muted-foreground max-w-md mx-auto">
-						Choose from our curated bundles or create a custom profile with your favorite podcasts.
-						Our AI will generate weekly episodes based on your selections.
+						Choose from our curated bundles or create a custom profile with your favorite podcasts. Our AI will generate
+						weekly episodes based on your selections.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
 						<Link href="/build">
@@ -43,11 +43,11 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 						<Link href="/curated-bundles">
 							<Button variant="outline" className="w-full sm:w-auto">
 								Browse Curated Bundles
-					</Button>
+							</Button>
 						</Link>
-				</div>
-			</CardContent>
-		</Card>
+					</div>
+				</CardContent>
+			</Card>
 		)
 	}
 
@@ -66,7 +66,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 				)}
 			</div>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{activeProfiles.map((profile) => (
+				{activeProfiles.map(profile => (
 					<SavedCollectionCard key={profile.id} userCurationProfile={profile} />
 				))}
 			</div>

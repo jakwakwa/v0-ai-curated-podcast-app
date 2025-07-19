@@ -1,42 +1,52 @@
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma"
+import { auth } from "@clerk/nextjs/server"
+import { NextResponse } from "next/server"
 
-export async function GET(request: Request) {
-  try {
-    const { userId } = await auth();
+export async function GET(
+	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
+	// biome-ignore lint/correctness/noUnusedVariables: <expected>
+	request: Request
+) {
+	try {
+		const { userId } = await auth()
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
-    const notifications = await prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-    });
+		const notifications = await prisma.notification.findMany({
+			where: { userId },
+			orderBy: { createdAt: "desc" },
+		})
 
-    return NextResponse.json(notifications);
-  } catch (error) {
-    console.error("[NOTIFICATIONS_GET]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
+		return NextResponse.json(notifications)
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: <error debugging>
+		console.error("[NOTIFICATIONS_GET]", error)
+		return new NextResponse("Internal Error", { status: 500 })
+	}
 }
 
-export async function DELETE(request: Request) {
-  try {
-    const { userId } = await auth();
+export async function DELETE(
+	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
+	// biome-ignore lint/correctness/noUnusedVariables: <expected>
+	request: Request
+) {
+	try {
+		const { userId } = await auth()
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
-    await prisma.notification.deleteMany({
-      where: { userId },
-    });
+		await prisma.notification.deleteMany({
+			where: { userId },
+		})
 
-    return NextResponse.json({ message: "All notifications cleared successfully" });
-  } catch (error) {
-    console.error("[NOTIFICATIONS_DELETE_ALL]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
+		return NextResponse.json({ message: "All notifications cleared successfully" })
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: <error debugging>
+		console.error("[NOTIFICATIONS_DELETE_ALL]", error)
+		return new NextResponse("Internal Error", { status: 500 })
+	}
 }
