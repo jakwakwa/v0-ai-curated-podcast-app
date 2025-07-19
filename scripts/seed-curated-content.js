@@ -71,7 +71,7 @@ const curatedPodcasts = [
 		category: "Business",
 		url: "https://freakonomics.com/",
 		description: "Discover the hidden side of everything with Stephen J. Dubner.",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop"
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop"
 	},
 	{
 		name: "Hidden Brain",
@@ -221,20 +221,20 @@ const curatedBundles = [
 	{
 		name: "Business Insights",
 		description: "Deep dives into business and economics",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop",
-		podcasts: ["How I Built This", "Masters of Scale", "The Tim Ferriss Show", "Freakonomics", "Planet Money"],
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop",
+		podcasts: ["The Pomp Podcast", "The Diary Of A CEO", "The Joe Rogan Experience", "The Daily", "The Dr. Jordan B. Peterson podcast"],
 		episodes: [
 			{
-				title: "Economic Trends and Market Analysis",
-				description: "This week we analyze current economic trends, market movements, and what they mean for businesses and investors.",
+				title: "Dr. Jordan B. Peterson sits down with Scott Adams",
+				description: "Dr. Jordan B. Peterson sits down with Scott Adams, cartoonist and creator of Dilbert, to explore the unlikely paths that shape a life—from illustrating a nationally syndicated hit comic to fatal illness and facing the metaphysical",
 				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-15"),
 				publishedAt: new Date("2024-07-15")
 			},
 			{
-				title: "Leadership and Entrepreneurship",
-				description: "Stories from successful entrepreneurs and insights into what makes great leaders in today's business world.",
+				title: "Re-ignite the spark",
+				description: "This week we look the world-renowned clinical psychologist, psychoanalyst, and lead therapist on the hit series Couples Therapy. Known for helping couples navigate the complexities of intimacy, conflict, and emotional patterns, Orna shares the real reason relationships break down — and what it actually takes to build something that lasts.",
 				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
 				imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop",
 				weekNr: new Date("2024-07-08"),

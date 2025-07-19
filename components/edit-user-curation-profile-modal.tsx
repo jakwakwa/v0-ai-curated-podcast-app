@@ -154,13 +154,15 @@ export function EditUserCurationProfileModal({
 								<Button
 									variant={!isBundleSelection ? "default" : "outline"}
 									className="h-auto p-4 flex flex-col items-start"
+									disabled
 									onClick={() => {
 										setIsBundleSelection(false)
 										setStep(2)
 									}}
 								>
-									<h4 className="font-semibold">Custom User Curation Profile</h4>
-									<p className="text-sm opacity-80">Select up to 5 individual podcasts.</p>
+									<h4 className="font-semibold">Custom User Curation Profile </h4>
+									{/* <p className="text-sm opacity-80">Select up to 5 individual podcasts.</p> */}
+									<p className="text-sm opacity-80">Coming soon!</p>
 								</Button>
 								<Button
 									variant={isBundleSelection ? "default" : "outline"}
