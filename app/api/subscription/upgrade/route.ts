@@ -1,26 +1,27 @@
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { LinkService } from "@/lib/link-service";
+import { LinkService } from "@/lib/link-service"
+import { auth } from "@clerk/nextjs/server"
+import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
-  try {
-    const { userId } = await auth();
+	try {
+		const { userId } = await auth()
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
-    const { returnUrl } = await request.json(); // Expect a returnUrl from the client
+		const { returnUrl } = await request.json() // Expect a returnUrl from the client
 
-    if (!returnUrl) {
-      return new NextResponse("Return URL is required", { status: 400 });
-    }
+		if (!returnUrl) {
+			return new NextResponse("Return URL is required", { status: 400 })
+		}
 
-    const checkoutUrl = await LinkService.createCheckoutSession(userId, returnUrl);
+		const checkoutUrl = await LinkService.createCheckoutSession(userId, returnUrl)
 
-    return NextResponse.json({ checkoutUrl });
-  } catch (error) {
-    console.error("[SUBSCRIPTION_UPGRADE_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
+		return NextResponse.json({ checkoutUrl })
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: <error debugging>
+		console.error("[SUBSCRIPTION_UPGRADE_POST]", error)
+		return new NextResponse("Internal Error", { status: 500 })
+	}
 }

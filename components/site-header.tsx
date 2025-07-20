@@ -1,5 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar-ui"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import styles from "./site-header.module.css"
 
 export function SiteHeader() {
@@ -8,7 +10,9 @@ export function SiteHeader() {
 			<div className={styles["content-wrapper"]}>
 				<SidebarTrigger className={styles["sidebar-trigger-margin"]} />
 				<Separator orientation="vertical" className={styles["separator-vertical"]} />
-				<h1 className={styles["title-text"]}>Ai Podcast Curator App</h1>
+				<Button asChild variant="link" className={styles["title-text"]}>
+					<Link href="/dashboard">Ai Podcast Curator App</Link>
+				</Button>
 			</div>
 		</header>
 	)

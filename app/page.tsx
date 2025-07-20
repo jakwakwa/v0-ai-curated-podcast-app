@@ -1,24 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { auth } from "@clerk/nextjs/server"
+import { ArrowRight, Calendar, CheckCircle, Play, Podcast, Settings, Sparkles, Star, Users, Zap } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import {
-  Podcast,
-  Users,
-  Sparkles,
-  Calendar,
-  Play,
-  Settings,
-  CreditCard,
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Zap,
-  Shield
-} from "lucide-react"
 
 // Force this page to be dynamic since it uses auth()
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export default async function LandingPage() {
 	const { userId } = await auth()
@@ -32,33 +19,34 @@ export default async function LandingPage() {
 		{
 			icon: <Podcast className="w-6 h-6" />,
 			title: "AI-Generated Podcasts",
-			description: "Our advanced AI creates personalized weekly podcast episodes based on your selected content sources."
+			description:
+				"Our advanced AI creates personalized weekly podcast episodes based on your selected content sources.",
 		},
 		{
 			icon: <Users className="w-6 h-6" />,
 			title: "Curated Content",
-			description: "Choose from 25 hand-picked podcasts or select from 3 pre-curated bundles designed by our editors."
+			description: "Choose from 25 hand-picked podcasts or select from 3 pre-curated bundles designed by our editors.",
 		},
 		{
 			icon: <Sparkles className="w-6 h-6" />,
 			title: "Personalized Experience",
-			description: "Create custom curation profiles that match your interests and preferences."
+			description: "Create custom curation profiles that match your interests and preferences.",
 		},
 		{
 			icon: <Calendar className="w-6 h-6" />,
 			title: "Weekly Automation",
-			description: "New episodes are automatically generated every Friday, so you never miss fresh content."
+			description: "New episodes are automatically generated every Friday, so you never miss fresh content.",
 		},
 		{
 			icon: <Play className="w-6 h-6" />,
 			title: "High-Quality Audio",
-			description: "Enjoy professionally produced audio episodes with clear narration and seamless transitions."
+			description: "Enjoy professionally produced audio episodes with clear narration and seamless transitions.",
 		},
 		{
 			icon: <Settings className="w-6 h-6" />,
 			title: "Easy Management",
-			description: "Simple interface to manage your curation profiles, view episodes, and control your subscription."
-		}
+			description: "Simple interface to manage your curation profiles, view episodes, and control your subscription.",
+		},
 	]
 
 	const howItWorks = [
@@ -66,26 +54,26 @@ export default async function LandingPage() {
 			step: 1,
 			title: "Create Your Profile",
 			description: "Start by building a custom curation profile or choose from our pre-curated bundles.",
-			action: "Sign up to get started"
+			action: "Sign up to get started",
 		},
 		{
 			step: 2,
 			title: "Select Your Content",
 			description: "Choose up to 5 individual podcasts or pick one of our 3 curated bundles.",
-			action: "Browse curated content"
+			action: "Browse curated content",
 		},
 		{
 			step: 3,
 			title: "Wait for Generation",
 			description: "Our AI processes your selections and generates a personalized episode every Friday.",
-			action: "View weekly episodes"
+			action: "View weekly episodes",
 		},
 		{
 			step: 4,
 			title: "Enjoy Your Podcast",
 			description: "Listen to your custom episode through our built-in audio player.",
-			action: "Start listening"
-		}
+			action: "Start listening",
+		},
 	]
 
 	const pricingTiers = [
@@ -93,13 +81,8 @@ export default async function LandingPage() {
 			name: "Free Trial",
 			price: "R0",
 			duration: "1 week",
-			features: [
-				"1 curation profile",
-				"Weekly generation",
-				"Access to all curated content",
-				"Basic support"
-			],
-			popular: false
+			features: ["1 curation profile", "Weekly generation", "Access to all curated content", "Basic support"],
+			popular: false,
 		},
 		{
 			name: "Premium",
@@ -110,10 +93,10 @@ export default async function LandingPage() {
 				"Weekly generation",
 				"Priority support",
 				"Advanced analytics",
-				"Early access to new features"
+				"Early access to new features",
 			],
-			popular: true
-		}
+			popular: true,
+		},
 	]
 
 	const testimonials = [
@@ -121,20 +104,20 @@ export default async function LandingPage() {
 			name: "Sarah Johnson",
 			role: "Tech Enthusiast",
 			content: "AI Curator has transformed how I consume tech content. The personalized episodes are spot-on!",
-			rating: 5
+			rating: 5,
 		},
 		{
 			name: "Michael Chen",
 			role: "Business Owner",
 			content: "Finally, a podcast service that understands my interests. The curated bundles are excellent.",
-			rating: 5
+			rating: 5,
 		},
 		{
 			name: "Emma Rodriguez",
 			role: "Science Lover",
 			content: "The science bundle is incredible. I learn something new every week without any effort.",
-			rating: 5
-		}
+			rating: 5,
+		},
 	]
 
 	return (
@@ -147,8 +130,8 @@ export default async function LandingPage() {
 							AI Curator
 						</h1>
 						<p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-							Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests.
-							Choose from hand-picked content or create your own custom curation profile.
+							Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose
+							from hand-picked content or create your own custom curation profile.
 						</p>
 					</div>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -173,8 +156,8 @@ export default async function LandingPage() {
 					<div className="text-center mb-16">
 						<h2 className="text-4xl font-bold mb-4">Why Choose AI Curator?</h2>
 						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-							We combine the best of human curation with AI-powered generation to deliver
-							personalized podcast experiences that match your interests.
+							We combine the best of human curation with AI-powered generation to deliver personalized podcast
+							experiences that match your interests.
 						</p>
 					</div>
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -197,12 +180,12 @@ export default async function LandingPage() {
 					<div className="text-center mb-16">
 						<h2 className="text-4xl font-bold mb-4">How It Works</h2>
 						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-							Getting started with AI Curator is simple. Follow these four easy steps to
-							create your personalized podcast experience.
+							Getting started with AI Curator is simple. Follow these four easy steps to create your personalized
+							podcast experience.
 						</p>
 					</div>
 					<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-						{howItWorks.map((step) => (
+						{howItWorks.map(step => (
 							<div key={step.step} className="text-center p-6 rounded-lg border bg-card hover:shadow-lg transition-all">
 								<div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg mx-auto mb-4">
 									{step.step}
@@ -257,8 +240,11 @@ export default async function LandingPage() {
 						</p>
 					</div>
 					<div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-						{pricingTiers.map((tier) => (
-							<div key={tier.name} className={`p-8 rounded-lg border relative ${tier.popular ? 'border-primary shadow-lg scale-105' : 'bg-card'}`}>
+						{pricingTiers.map(tier => (
+							<div
+								key={tier.name}
+								className={`p-8 rounded-lg border relative ${tier.popular ? "border-primary shadow-lg scale-105" : "bg-card"}`}
+							>
 								{tier.popular && (
 									<div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
 										Most Popular
@@ -278,11 +264,7 @@ export default async function LandingPage() {
 									))}
 								</ul>
 								<Link href="/sign-up">
-									<Button
-										className="w-full"
-										variant={tier.popular ? "default" : "outline"}
-										size="lg"
-									>
+									<Button className="w-full" variant={tier.popular ? "default" : "outline"} size="lg">
 										{tier.name === "Free Trial" ? "Start Trial" : "Upgrade Now"}
 									</Button>
 								</Link>
@@ -297,8 +279,8 @@ export default async function LandingPage() {
 				<div className="max-w-4xl mx-auto text-center">
 					<h2 className="text-4xl font-bold mb-4">Ready to Start Your Podcast Journey?</h2>
 					<p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-						Join thousands of users who are already enjoying personalized AI-generated podcasts.
-						Start your free trial today and discover a new way to consume content.
+						Join thousands of users who are already enjoying personalized AI-generated podcasts. Start your free trial
+						today and discover a new way to consume content.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center">
 						<Link href="/sign-up">
@@ -323,13 +305,17 @@ export default async function LandingPage() {
 						<Zap className="w-8 h-8 text-primary mr-2" />
 						<span className="text-2xl font-bold">AI Curator</span>
 					</div>
-					<p className="text-muted-foreground mb-4">
-						Powered by AI • Curated by Humans • Made for You
-					</p>
+					<p className="text-muted-foreground mb-4">Powered by AI • Curated by Humans • Made for You</p>
 					<div className="flex justify-center items-center space-x-6 text-sm text-muted-foreground">
-						<Link href="/about" className="hover:text-foreground transition-colors">About</Link>
-						<Link href="/sign-up" className="hover:text-foreground transition-colors">Sign Up</Link>
-						<Link href="/login" className="hover:text-foreground transition-colors">Login</Link>
+						<Link href="/about" className="hover:text-foreground transition-colors">
+							About
+						</Link>
+						<Link href="/sign-up" className="hover:text-foreground transition-colors">
+							Sign Up
+						</Link>
+						<Link href="/login" className="hover:text-foreground transition-colors">
+							Login
+						</Link>
 					</div>
 				</div>
 			</footer>

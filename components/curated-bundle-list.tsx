@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { Check, Lock } from 'lucide-react'
 import type { TransformedCuratedBundle } from '@/lib/types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './collection-creation-wizard.module.css'
 import { shouldUseDummyData, logDummyDataUsage } from '@/lib/config'
 
@@ -45,7 +45,7 @@ export function CuratedBundleList({
         { id: "pod6", name: "How I Built This", description: "Stories behind some of the world's best known companies.", url: "https://www.npr.org/podcasts/510313/how-i-built-this", imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() },
         { id: "pod7", name: "Masters of Scale", description: "LinkedIn co-founder and Greylock partner Reid Hoffman shares startup stories and entrepreneurial insights.", url: "https://mastersofscale.com/", imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() },
         { id: "pod8", name: "The Tim Ferriss Show", description: "Interviews with world-class performers to extract tools and tactics you can use.", url: "https://tim.blog/podcast/", imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() },
-        { id: "pod9", name: "Freakonomics", description: "Discover the hidden side of everything with Stephen J. Dubner.", url: "https://freakonomics.com/", imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() },
+        { id: "pod9", name: "Freakonomics", description: "Discover the hidden side of everything with Stephen J. Dubner.", url: "https://freakonomics.com/", imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() },
         { id: "pod10", name: "Planet Money", description: "The economy explained. Imagine you could call up a friend and say, 'Meet me at the bar and tell me what's going on with the economy.'", url: "https://www.npr.org/sections/money/", imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop", category: "Business", isActive: true, createdAt: new Date() }
       ]
     },

@@ -3,18 +3,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Lock, Check } from "lucide-react"
+import { useState, useEffect } from "react"
+import type { TransformedCuratedBundle } from "@/lib/types"
+import { shouldUseDummyData, logDummyDataUsage } from "@/lib/config"
 import styles from "./page.module.css"
 
 export default function CuratedBundlesPage() {
-  // Dummy curated bundles data
-  const dummyCuratedBundles = [
+  const [curatedBundles, setCuratedBundles] = useState<TransformedCuratedBundle[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Dummy curated bundles data for fallback
+  const dummyCuratedBundles: TransformedCuratedBundle[] = [
     {
       id: "bundle1",
       name: "Tech Weekly",
       description: "Latest in technology and innovation",
       imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
       isActive: true,
-      createdAt: new Date("2024-01-01T00:00:00Z"),
+      createdAt: new Date(),
       podcasts: [
         {
           id: "pod1",
@@ -74,7 +80,7 @@ export default function CuratedBundlesPage() {
       description: "Deep dives into business and economics",
       imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop",
       isActive: true,
-      createdAt: new Date("2024-01-01T00:00:00Z"),
+      createdAt: new Date(),
       podcasts: [
         {
           id: "pod6",
@@ -134,7 +140,7 @@ export default function CuratedBundlesPage() {
       description: "Exploring the wonders of science",
       imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop",
       isActive: true,
-      createdAt: new Date("2024-01-01T00:00:00Z"),
+      createdAt: new Date(),
       podcasts: [
         {
           id: "pod11",
@@ -190,6 +196,46 @@ export default function CuratedBundlesPage() {
     }
   ]
 
+  useEffect(() => {
+    const fetchCuratedBundles = async () => {
+      if (shouldUseDummyData()) {
+        logDummyDataUsage("CuratedBundlesPage")
+        setCuratedBundles(dummyCuratedBundles)
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/curated-bundles')
+        if (!response.ok) {
+          throw new Error(`Failed to fetch curated bundles: ${response.status}`)
+        }
+        const data = await response.json()
+        setCuratedBundles(data)
+      } catch (error) {
+        console.error('Error fetching curated bundles:', error)
+        // Fallback to dummy data
+        logDummyDataUsage("CuratedBundlesPage (API fallback)")
+        setCuratedBundles(dummyCuratedBundles)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCuratedBundles()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner} />
+          <p>Loading curated bundles...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -198,7 +244,7 @@ export default function CuratedBundlesPage() {
       </div>
 
       <div className={styles.bundleGrid}>
-        {dummyCuratedBundles.map((bundle) => (
+        {curatedBundles.map((bundle) => (
           <Card key={bundle.id} className={styles.bundleCard}>
             <CardHeader className={styles.cardHeader}>
               {bundle.imageUrl && (

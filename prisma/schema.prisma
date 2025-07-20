@@ -10,18 +10,19 @@ datasource db {
 }
 
 model User {
-    id                   String                @id @default(cuid())
-    name                 String?
-    email                String                @unique
-    password             String
-    image                String?
-    emailVerified        DateTime?
-    emailNotifications   Boolean               @default(true) @map("email_notifications")
-    inAppNotifications   Boolean               @default(true) @map("in_app_notifications")
-    userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
-    notifications        Notification[]
-    subscriptions        Subscription[]
-    feedback             EpisodeFeedback[] // Added for feedback relation
+    id                    String                         @id @default(cuid())
+    name                  String?
+    email                 String                         @unique
+    password              String
+    image                 String?
+    emailVerified         DateTime?
+    emailNotifications    Boolean                        @default(true) @map("email_notifications")
+    inAppNotifications    Boolean                        @default(true) @map("in_app_notifications")
+    userCurationProfiles  UserCurationProfile[] // Renamed from 'collections'
+    notifications         Notification[]
+    subscriptions         Subscription[]
+    feedback              EpisodeFeedback[] // Added for feedback relation
+    bundleEpisodeFeedback CuratedBundleEpisodeFeedback[] // Added for bundle episode feedback
 
     @@map("users")
 }
@@ -115,6 +116,8 @@ model CuratedBundle {
     bundlePodcasts       CuratedBundlePodcast[]
     // User Curation Profiles that selected this bundle
     userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
+    // Weekly generated episodes for this bundle
+    episodes             CuratedBundleEpisode[]
 
     @@map("curated_bundles")
 }
@@ -129,6 +132,43 @@ model CuratedBundlePodcast {
 
     @@unique([bundleId, podcastId])
     @@map("curated_bundle_podcasts")
+}
+
+// Weekly generated episodes for curated bundles
+model CuratedBundleEpisode {
+    id          String   @id @default(uuid())
+    title       String
+    description String?
+    audioUrl    String
+    imageUrl    String?  @map("image_url")
+    publishedAt DateTime @default(now()) @map("published_at")
+    weekNr      DateTime @map("week_nr") // Week number for tracking
+    createdAt   DateTime @default(now()) @map("created_at")
+
+    // Bundle this episode belongs to
+    bundleId String        @map("bundle_id")
+    bundle   CuratedBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+    // Feedback for bundle episodes
+    feedback CuratedBundleEpisodeFeedback[]
+
+    @@map("curated_bundle_episodes")
+}
+
+// Feedback for curated bundle episodes
+model CuratedBundleEpisodeFeedback {
+    id        String         @id @default(uuid())
+    userId    String         @map("user_id")
+    episodeId String         @map("episode_id")
+    rating    FeedbackRating
+    createdAt DateTime       @default(now()) @map("created_at")
+    updatedAt DateTime       @updatedAt @map("updated_at")
+
+    user    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+    episode CuratedBundleEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, episodeId])
+    @@map("curated_bundle_episode_feedback")
 }
 
 // Notifications

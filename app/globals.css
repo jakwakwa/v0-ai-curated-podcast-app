@@ -1,4 +1,6 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer utilities {
   .text-balance {
@@ -87,10 +89,14 @@
   }
 
 
-
+  
 
 
   @layer base {
   * {
     @apply border-border;
   }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -71,7 +71,7 @@ const curatedPodcasts = [
 		category: "Business",
 		url: "https://freakonomics.com/",
 		description: "Discover the hidden side of everything with Stephen J. Dubner.",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop"
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop"
 	},
 	{
 		name: "Hidden Brain",
@@ -199,23 +199,77 @@ const curatedBundles = [
 		description: "Latest in technology and innovation",
 		imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop",
 		podcasts: ["Lex Fridman Podcast", "The Vergecast", "Reply All", "Planet Money", "The Indicator"],
+		episodes: [
+			{
+				title: "The Future of AI and Machine Learning",
+				description: "This week we explore the latest developments in artificial intelligence, from GPT-4 to autonomous vehicles, and discuss the implications for society.",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-15"),
+				publishedAt: new Date("2024-07-15")
+			},
+			{
+				title: "Startup Culture and Innovation",
+				description: "Dive into the world of startups, venture capital, and the innovative ideas shaping the future of technology and business.",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-08"),
+				publishedAt: new Date("2024-07-08")
+			}
+		]
 	},
 	{
 		name: "Business Insights",
 		description: "Deep dives into business and economics",
-		imageUrl: "https://images.unsplash.com/photo-1556761175-4acf4c6d6c96?w=400&h=400&fit=crop",
-		podcasts: ["How I Built This", "Masters of Scale", "The Tim Ferriss Show", "Freakonomics", "Planet Money"],
+		imageUrl: "https://images.unsplash.com/photo-1544927236-847e33a1e944?w=400&h=400&fit=crop",
+		podcasts: ["The Pomp Podcast", "The Diary Of A CEO", "The Joe Rogan Experience", "The Daily", "The Dr. Jordan B. Peterson podcast"],
+		episodes: [
+			{
+				title: "Dr. Jordan B. Peterson sits down with Scott Adams",
+				description: "Dr. Jordan B. Peterson sits down with Scott Adams, cartoonist and creator of Dilbert, to explore the unlikely paths that shape a life—from illustrating a nationally syndicated hit comic to fatal illness and facing the metaphysical",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T08_14_19_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-15"),
+				publishedAt: new Date("2024-07-15")
+			},
+			{
+				title: "Re-ignite the spark",
+				description: "This week we look the world-renowned clinical psychologist, psychoanalyst, and lead therapist on the hit series Couples Therapy. Known for helping couples navigate the complexities of intimacy, conflict, and emotional patterns, Orna shares the real reason relationships break down — and what it actually takes to build something that lasts.",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-08"),
+				publishedAt: new Date("2024-07-08")
+			}
+		]
 	},
 	{
 		name: "Science & Discovery",
 		description: "Exploring the wonders of science",
 		imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop",
 		podcasts: ["Radiolab", "Science Friday", "Hidden Brain", "Invisibilia", "99% Invisible"],
+		episodes: [
+			{
+				title: "Space Exploration and Astronomy",
+				description: "Journey through the cosmos as we explore the latest discoveries in astronomy, space missions, and our understanding of the universe.",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-15"),
+				publishedAt: new Date("2024-07-15")
+			},
+			{
+				title: "Psychology and Human Behavior",
+				description: "Explore the fascinating world of psychology, cognitive science, and what makes us human through the lens of scientific research.",
+				audioUrl: "https://storage.cloud.google.com/podcast-curation-bucket/podcasts/ElevenLabs_2025-07-15T09_01_38_Hope%20-%20Your%20conversational%20bestie_pvc_sp100_s50_sb75_f2.mp3",
+				imageUrl: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop",
+				weekNr: new Date("2024-07-08"),
+				publishedAt: new Date("2024-07-08")
+			}
+		]
 	},
 ]
 
 // Update the subscription tiers for South African market
-export const SUBSCRIPTION_TIERS = {
+const SUBSCRIPTION_TIERS = {
 	TRIAL: {
 		id: "trial",
 		name: "Free Trial",
@@ -230,7 +284,7 @@ export const SUBSCRIPTION_TIERS = {
 		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID,
 		features: ["Unlimited collections", "Weekly generation", "Priority support"],
 	},
-} as const
+}
 
 async function seedCuratedContent() {
 	// biome-ignore lint/suspicious/noConsole: <explanation>
@@ -282,11 +336,31 @@ async function seedCuratedContent() {
 						prisma.curatedBundlePodcast.create({
 							data: {
 								bundleId: createdBundle.id,
-								podcastId: podcast!.id,
+								podcastId: podcast.id,
 							},
 						})
 					)
 				)
+
+				// Seed episodes for the bundle
+				if (bundle.episodes && bundle.episodes.length > 0) {
+					await Promise.all(
+						bundle.episodes.map(async episode => {
+							const createdEpisode = await prisma.curatedBundleEpisode.create({
+								data: {
+									title: episode.title,
+									description: episode.description,
+									audioUrl: episode.audioUrl,
+									imageUrl: episode.imageUrl,
+									weekNr: episode.weekNr,
+									publishedAt: episode.publishedAt,
+									bundleId: createdBundle.id,
+								},
+							})
+							return createdEpisode
+						})
+					)
+				}
 
 				return createdBundle
 			})
@@ -298,11 +372,13 @@ async function seedCuratedContent() {
 		const podcastCount = await prisma.curatedPodcast.count()
 		const bundleCount = await prisma.curatedBundle.count()
 		const bundlePodcastCount = await prisma.curatedBundlePodcast.count()
+		const episodeCount = await prisma.curatedBundleEpisode.count()
 
 		console.log("\n📊 Seed Summary:")
 		console.log(`   Podcasts: ${podcastCount}`)
 		console.log(`   Bundles: ${bundleCount}`)
 		console.log(`   Bundle-Podcast connections: ${bundlePodcastCount}`)
+		console.log(`   Episodes: ${episodeCount}`)
 
 		console.log("\n🎉 Curated content seeding completed successfully!")
 	} catch (error) {

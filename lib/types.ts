@@ -1,6 +1,8 @@
 // Import Prisma's generated types
 import type {
 	CuratedBundle,
+	CuratedBundleEpisode,
+	CuratedBundleEpisodeFeedback,
 	CuratedBundlePodcast,
 	CuratedPodcast,
 	EpisodeFeedback,
@@ -19,6 +21,8 @@ export type {
 	Source,
 	CuratedPodcast,
 	CuratedBundle,
+	CuratedBundleEpisode,
+	CuratedBundleEpisodeFeedback,
 	CuratedBundlePodcast,
 	Notification,
 	Subscription,
@@ -61,6 +65,7 @@ export type Episode = {
 // Custom type for CuratedBundle that includes the transformed 'podcasts' array from the API
 export interface TransformedCuratedBundle extends CuratedBundle {
 	podcasts: CuratedPodcast[]
+	episodes?: CuratedBundleEpisode[]
 }
 
 // Custom type for UserCurationProfile that includes the 'sources' relation

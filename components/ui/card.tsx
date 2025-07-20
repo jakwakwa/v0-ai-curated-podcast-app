@@ -14,8 +14,8 @@ const Card = React.forwardRef<
     )}
     {...props}
   />
-));
-Card.displayName = 'Card';
+))
+Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -38,8 +38,8 @@ const CardTitle = React.forwardRef<
     className={cn("font-semibold leading-none tracking-tight", className)}
     {...props}
   />
-));
-CardTitle.displayName = 'CardTitle';
+))
+CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
   HTMLDivElement,

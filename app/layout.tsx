@@ -17,6 +17,22 @@ import { StoreInitializer } from "./store-initializer"
 // import { Dashboard } from "@elevenlabs/elevenlabs-js/api/resources/conversationalAi/resources/dashboard/client/Client"
 // import DashboardPage from "./page"
 const inter = Inter({ subsets: ["latin"] })
+
+// Check if Clerk environment variables are set up
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+const clerkSecretKey = process.env.CLERK_SECRET_KEY
+
+console.log(`[RootLayout] Clerk Publishable Key exists: ${!!clerkPublishableKey}`)
+console.log(`[RootLayout] Clerk Secret Key exists: ${!!clerkSecretKey}`)
+
+if (!clerkPublishableKey) {
+  console.error(`[RootLayout] NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set`)
+}
+
+if (!clerkSecretKey) {
+  console.error(`[RootLayout] CLERK_SECRET_KEY is not set`)
+}
+
 export const metadata: Metadata = {
 	description: "Automated AI-Generated Weekly Podcast Application",
 	openGraph: {
@@ -37,7 +53,7 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning>
 			<body className={inter.className}>
 				<ClerkProvider
-					publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+					publishableKey={clerkPublishableKey || ""}
 					appearance={{
 						baseTheme: undefined,
 					}}

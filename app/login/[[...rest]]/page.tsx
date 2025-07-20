@@ -9,7 +9,7 @@ export default function Login() {
       justifyContent: 'center',
       background: 'hsl(var(--background))'
     }}>
-      <SignIn
+      <SignIn 
         afterSignInUrl="/dashboard"
         afterSignUpUrl="/dashboard"
       />

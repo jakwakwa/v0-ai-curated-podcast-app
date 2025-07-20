@@ -8,10 +8,6 @@ declare global {
 	var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-declare global {
-	var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
-}
-
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
 export default prisma
