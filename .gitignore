@@ -28,10 +28,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .package-lock.json
-.yarn.lock
-.DS_Store
 
+.*-lock.yaml
+.*-lock.json
+.yarn.lock
+.DS_Store/*
+/.DS_Store
+*.DS_Store
+.cursor
+.editorconfig
 /src/generated/prisma
+
+
 google-cloud-sdk/lib/googlecloudsdk/api_lib/bms/__init__.py
 .cursor/rules/css-architecture.mdc
 .cursor/rules/css-styles-preference.mdc
@@ -41,3 +49,7 @@ google-cloud-sdk/lib/googlecloudsdk/api_lib/bms/__init__.py
 .cursor/rules/tailwind-css-to-css-modules-refactor-context.mdc
 .cursor/rules/tailwind-to-css-refactor.mdc
 components/.cursor/rules/frontend-components.mdc
+google-cloud-sdk/
+
+pnpm-lock.yaml
+
