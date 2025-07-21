@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { ArrowRight, Calendar, CheckCircle, Clock, Filter, Play, Podcast, Scissors, Settings, Sparkles, Star, Target, Users, Zap } from "lucide-react"
+import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -17,32 +17,32 @@ export default async function LandingPage() {
 
 	const features = [
 		{
-			icon: <Scissors className="w-6 h-6" />,
+			icon: <UilFile className="w-6 h-6" />,
 			title: "Cut Through the Noise",
 			description: "Skip the fluff and get straight to the insights. Our intelligent filtering extracts only the valuable content from your favorite podcasts.",
 		},
 		{
-			icon: <Target className="w-6 h-6" />,
+			icon: <UilStar className="w-6 h-6" />,
 			title: "Precision Curation",
 			description: "Choose from 25 hand-picked shows or select from 3 expertly curated bundles designed to deliver maximum insight.",
 		},
 		{
-			icon: <Filter className="w-6 h-6" />,
+			icon: <UilFile className="w-6 h-6" />,
 			title: "Smart Content Filtering",
 			description: "Create custom profiles that match your interests and automatically filter out irrelevant content.",
 		},
 		{
-			icon: <Clock className="w-6 h-6" />,
+			icon: <UilClock className="w-6 h-6" />,
 			title: "Weekly Efficiency",
 			description: "Fresh, focused episodes delivered every Friday - no more hunting through hours of content for the good parts.",
 		},
 		{
-			icon: <Play className="w-6 h-6" />,
+			icon: <UilPlay className="w-6 h-6" />,
 			title: "Crystal Clear Audio",
 			description: "Enjoy professionally produced episodes with clear narration and seamless transitions that respect your time.",
 		},
 		{
-			icon: <Settings className="w-6 h-6" />,
+			icon: <UilSetting className="w-6 h-6" />,
 			title: "Simple Control",
 			description: "Manage your content preferences, track your listening history, and control your subscription with ease.",
 		},
@@ -129,7 +129,7 @@ export default async function LandingPage() {
 						<Link href="/sign-up">
 							<Button size="lg" className="text-lg px-8 py-6">
 								Start Filtering Free
-								<ArrowRight className="ml-2 h-5 w-5" />
+								<UilArrowRight className="ml-2 h-5 w-5" />
 							</Button>
 						</Link>
 						<Link href="/about">
@@ -179,7 +179,7 @@ export default async function LandingPage() {
 								<p className="text-muted-foreground mb-4">{step.description}</p>
 								<div className="flex items-center justify-center text-primary text-sm font-medium">
 									<span>{step.action}</span>
-									<ArrowRight className="ml-1 h-4 w-4" />
+									<UilArrowRight className="ml-1 h-4 w-4" />
 								</div>
 							</div>
 						))}
@@ -199,7 +199,7 @@ export default async function LandingPage() {
 							<div key={index} className="p-6 rounded-lg border bg-background">
 								<div className="flex items-center mb-4">
 									{Array.from({ length: testimonial.rating }).map((_, i) => (
-										<Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+										<UilStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
 									))}
 								</div>
 								<p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
@@ -234,7 +234,7 @@ export default async function LandingPage() {
 								<ul className="space-y-3 mb-8">
 									{tier.features.map((feature, index) => (
 										<li key={index} className="flex items-center">
-											<CheckCircle className="w-5 h-5 text-primary mr-3" />
+											<UilCheckCircle className="w-5 h-5 text-primary mr-3" />
 											{feature}
 										</li>
 									))}
@@ -261,7 +261,7 @@ export default async function LandingPage() {
 						<Link href="/sign-up">
 							<Button size="lg" className="text-lg px-8 py-6">
 								Start Free Trial
-								<ArrowRight className="ml-2 h-5 w-5" />
+								<UilArrowRight className="ml-2 h-5 w-5" />
 							</Button>
 						</Link>
 						<Link href="/about">
@@ -277,7 +277,7 @@ export default async function LandingPage() {
 			<footer className="py-12 px-4 border-t">
 				<div className="max-w-7xl mx-auto text-center">
 					<div className="flex justify-center items-center mb-4">
-						<Zap className="w-8 h-8 text-primary mr-2" />
+						<UilStar className="w-8 h-8 text-primary mr-2" />
 						<span className="text-2xl font-bold">PodSlice</span>
 					</div>
 					<p className="text-muted-foreground mb-4">Cut the chatter. Keep the insight.</p>
