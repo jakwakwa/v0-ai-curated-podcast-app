@@ -1,10 +1,10 @@
 // Configuration for data sources
 export const CONFIG = {
 	// Set to true to use dummy data, false to use real API calls
-	USE_DUMMY_DATA: true,
-
+	USE_DUMMY_DATA: false,
+	ADMIN_EMAILS: "jakwakwa@gmail.com",
 	// Logging configuration
-	LOG_DUMMY_DATA_USAGE: true,
+	LOG_DUMMY_DATA_USAGE: false,
 
 	// Development mode settings
 	DEVELOPMENT_MODE: process.env.NODE_ENV === "development",

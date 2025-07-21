@@ -1,56 +1,51 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import type { ClerkMiddlewareAuth } from "@clerk/nextjs/server"
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import type { NextRequest } from "next/server"
 
-// Only these routes are public - everything else requires authentication
-const isPublicRoute = createRouteMatcher([
-  "/",           // Landing page
-  "/login(.*)",  // Login routes
-  "/sign-in(.*)", // Clerk sign-in routes
-  "/sign-up(.*)", // Clerk sign-up routes
-]);
+/**
+ * Clerk's system permissions consist of the following:
+ *
+ * Manage organization (org:sys_profile:manage)
+ * Delete organization (org:sys_profile:delete)
+ * Read members (org:sys_memberships:read)
+ * Manage members (org:sys_memberships:manage)
+ * Read domains (org:sys_domains:read)
+ * Manage domains (org:sys_domains:manage)
+ * Read billing (org:sys_billing:read)
+ * Manage billing (org:sys_billing:manage)
+ */
 
-// Explicitly protect these routes
-const isProtectedRoute = createRouteMatcher([
-  "/(protected)(.*)", // All protected routes
-  "/api/(.*)", // All API routes
-  "/dashboard(.*)", // Dashboard routes
-  "/curated-bundles(.*)", // Curated bundles routes
-  "/notifications(.*)", // Notifications routes
-  "/subscription(.*)", // Subscription routes
-  "/collections(.*)", // Collections routes
-  "/episodes(.*)", // Episodes routes
-  "/about(.*)", // About routes
-  "/curation-profile-management(.*)", // Curation profile management routes
-]);
+// Create route matchers to identify which token type each route should require
+const isOAuthAccessible = createRouteMatcher(["/oauth(.*)"])
+const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
+const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
+const isUserAccessible = createRouteMatcher(["/user(.*)"])
+const isAdminAccessible = createRouteMatcher(["/admin(.*)"])
 
-export default clerkMiddleware((auth, req) => {
-  const { pathname } = req.nextUrl;
+/**
+ * Clerk Middleware
+ * @constructor
+ * @param {string} auth - The auth object.
+ * @param {string} req - The request object.
+ *
+ * @returns {boolean} - Returns true if the route the user is trying to visit matches one of the routes passed to it.
+ */
 
-  // Log the request for debugging
-  console.log(`[Middleware] Request to: ${pathname}`);
-  console.log(`[Middleware] Clerk Secret Key exists: ${!!process.env.CLERK_SECRET_KEY}`);
-  console.log(`[Middleware] Clerk Publishable Key exists: ${!!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}`);
-
-  // Check if it's a protected route
-  if (isProtectedRoute(req)) {
-    console.log(`[Middleware] Explicitly protecting route: ${pathname}`);
-    auth.protect();
-    return;
-  }
-
-  // Protect all routes except explicitly public ones
-  if (!isPublicRoute(req)) {
-    console.log(`[Middleware] Protecting route: ${pathname}`);
-    auth.protect();
-  } else {
-    console.log(`[Middleware] Public route: ${pathname}`);
-  }
-});
+/**
+ * Clerk config
+ * @constructor
+ * @property {string} matcher - The matcher object. Always run for API routes
+ *
+ */
+export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
+	// Check if the request matches each route and enforce the corresponding token type
+	if (isOAuthAccessible(req)) await auth.protect({ token: "oauth_token" })
+	if (isApiKeyAccessible(req)) await auth.protect({ token: "api_key" })
+	if (isMachineTokenAccessible(req)) await auth.protect({ token: "machine_token" })
+	if (isUserAccessible(req)) await auth.protect({ token: "session_token" })
+	if (isAdminAccessible(req)) await auth.protect({ token: "session_token" })
+})
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
-};
+	matcher: ["/((?!_next/static|_next/image|favicon.ico).*)", "/((?!_next/static|_next/image|favicon.ico).*)"],
+}

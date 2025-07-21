@@ -61,7 +61,9 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 	}, [params])
 
 	const handlePlayEpisode = (episode: Episode) => {
-		setPlayingEpisode(episode)
+
+console.log("EPISODE______________:", episode)
+		// setPlayingEpisode(episode)
 	}
 
 	if (loading) {
@@ -90,7 +92,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 								</p>
 								{episode.audioUrl && (
 									<audio controls className="w-full mt-2">
-										<source src={episode.audioUrl} type="audio/mpeg" />
+										<source src={`${episode.audioUrl}`} type="audio/mpeg" />
 										Your browser does not support the audio element.
 									</audio>
 								)}

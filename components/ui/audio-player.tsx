@@ -7,6 +7,9 @@ import { type JSX, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "./button"
 
+// TODO: use these exports in Titles and Descriptions
+// TODO: export these exports to utils/text-utils.ts
+// add .cursor  rules for this file
 export const truncateTitle = (title: string, maxLength: number): string => {
 	if (title.length > maxLength) {
 		return `${title.substring(0, maxLength)}...`
@@ -30,6 +33,9 @@ export const formatTime = (time: number): string => {
 	return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
+// TODO: use these exports in Titles and Descriptions
+// TODO: export these exports to utils/text-utils.ts
+// add .cursor  rules for this file
 export const truncateDescription = (description: string | null, maxLength: number): string => {
 	if (!description) return ""
 	if (description.length > maxLength) {

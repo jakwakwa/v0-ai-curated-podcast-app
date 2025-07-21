@@ -16,6 +16,7 @@ model User {
     password              String
     image                 String?
     emailVerified         DateTime?
+    isAdmin               Boolean                        @default(false) @map("is_admin")
     emailNotifications    Boolean                        @default(true) @map("email_notifications")
     inAppNotifications    Boolean                        @default(true) @map("in_app_notifications")
     userCurationProfiles  UserCurationProfile[] // Renamed from 'collections'

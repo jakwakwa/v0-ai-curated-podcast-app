@@ -14,9 +14,11 @@ import type {
 	UserCurationProfile,
 } from "@prisma/client"
 
+
+
 // Re-export for convenience
 export type {
-	User,
+	User, // TODO: Find out why User is not used?
 	UserCurationProfile,
 	Source,
 	CuratedPodcast,
@@ -30,6 +32,8 @@ export type {
 	FeedbackRating,
 }
 
+
+// TODO EpisodeFeedback needs to be updated to include the userCurationProfileId
 export type Episode = {
 	id: string
 	title: string
@@ -92,13 +96,14 @@ export interface FormState {
 	message: string
 }
 
-export interface ApiResponse<T> {
-	data?: T
-	error?: string
-	message?: string
-}
+// TODO: Where and why is this used? Use NextJS Interfaces instead
+// export interface ApiResponse<T> {
+// 	data?: T
+// 	error?: string
+// 	message?: string
+// }
 
 // Status type helpers for better type safety
 export type UserCurationProfileStatus = "Draft" | "Saved" | "Generated" | "Failed"
 export type SubscriptionStatus = "trialing" | "active" | "canceled" | "past_due" | "incomplete"
-export type NotificationType = "episode_ready" | "weekly_reminder"
+export type NotificationType = "episode_ready" | "weekly_reminder" | "subscription_expiring" | "daily_reminder" | "podcast_ready"

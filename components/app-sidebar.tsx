@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar-ui"
 import styles from "./app-sidebar.module.css"
 import { NavUser } from "./nav-user"
+import { NavAdmin } from "./nav-admin"
 
 interface SidebarNavItem {
 	title: string
@@ -114,6 +115,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						</SidebarGroup>
 					</Collapsible>
 				))}
+				
+				{/* Admin section - only shows for admin users */}
+				<NavAdmin />
 			</SidebarContent>
 			<SidebarRail />
 			<SidebarFooter>

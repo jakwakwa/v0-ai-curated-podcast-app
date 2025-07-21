@@ -19,6 +19,11 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import styles from "./page.module.css"
 
+import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
+
+import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
 // Combined episode type for display
 interface CombinedEpisode {
 	id: string
@@ -43,6 +48,7 @@ export default function Page() {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
 	const router = useRouter()
+	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
 
 	const fetchAndUpdateData = async () => {
 		// Fetch user curation profile and episodes in parallel
@@ -143,6 +149,7 @@ export default function Page() {
 	}
 
 	const handlePlayEpisode = (episodeId: string) => {
+		console.log(episodeId)
 		setPlayingEpisodeId(episodeId)
 	}
 
@@ -224,6 +231,9 @@ export default function Page() {
 										<p className="text-muted-foreground">
 											It looks like you haven't created a user curation profile yet. Start by creating one!
 										</p>
+										<Button className="mt-4" onClick={() => setIsCreateWizardOpen(true)}>
+											Create Curation Profile
+										</Button>
 									</CardContent>
 								</Card>
 							</div>
@@ -338,6 +348,33 @@ export default function Page() {
 					onSave={handleSaveUserCurationProfile}
 				/>
 			)}
+			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
+				<DialogContent className="max-w-2xl">
+					<DialogHeader>
+						<DialogTitle>Create Your Curation Profile</DialogTitle>
+					</DialogHeader>
+					<UserCurationProfileCreationWizardWrapper onSuccess={async () => {
+						setIsCreateWizardOpen(false)
+						await fetchAndUpdateData()
+					}} />
+				</DialogContent>
+			</Dialog>
 		</>
 	)
+}
+
+function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
+	// Use a local state to track if the profile was created
+	const { userCurationProfile, error, isLoading } = useUserCurationProfileStore()
+	const [hasCreated, setHasCreated] = useState(false)
+
+	useEffect(() => {
+		if (userCurationProfile && !hasCreated) {
+			setHasCreated(true)
+			onSuccess()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [userCurationProfile])
+
+	return <UserCurationProfileCreationWizard />
 }

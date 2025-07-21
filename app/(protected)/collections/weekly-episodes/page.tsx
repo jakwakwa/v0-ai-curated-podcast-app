@@ -26,7 +26,7 @@ interface CombinedEpisode {
 	userCurationProfile?: any
 }
 
-export default function WeeklyEpisodesPage() {
+export default function WeeklyEpisodesPage(): JSX.Element {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])

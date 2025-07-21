@@ -29,7 +29,10 @@ const nextConfig = {
 				removeAvailableModules: false,
 				removeEmptyChunks: false,
 				splitChunks: false,
-			}
+			},
+			config.infrastructureLogging = {
+				level: 'error', // Only show errors, suppress info and debug logs
+			  }
 		}
 
 		// Resolve symlink issues with pnpm
@@ -43,6 +46,10 @@ const nextConfig = {
 			{
 				protocol: "https",
 				hostname: "images.unsplash.com",
+			},
+			{
+				protocol: "https",
+				hostname: "res.cloudinary.com",
 			},
 		],
 	},

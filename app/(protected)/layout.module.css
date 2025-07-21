@@ -1,11 +1,11 @@
 .container {
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
+	width: 100vw;
+	display: flex;
+	flex-direction: column;
 }
 
 .content {
-  padding: 3rem;
-  display: flex;
-  gap: 2rem;
+	padding: 3rem;
+	display: flex;
+	gap: 2rem;
 }

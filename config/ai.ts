@@ -1,7 +1,7 @@
 export const aiConfig = {
 	geminiModel: "gemini-2.0-flash-lite", // Default Gemini model
 	maxSources: 1, // Maximum number of sources allowed per collection
-	simulateAudioSynthesis: true, // Set to `true` to simulate, `false` to use ElevenLabs API
+	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
 	// Add other AI-related configurations here if needed]
 	/* **HOPE** */
 	synthVoice: "uYXf8XasLslADfZ2MB4u",

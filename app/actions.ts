@@ -5,10 +5,15 @@ import { redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
 import type { FormState, UserCurationProfileWithRelations } from "@/lib/types"
-import { auth, currentUser } from "@clerk/nextjs/server"
+import { auth, currentUser } from "@clerk/nextjs"
 import { inngest } from "../inngest/client"
 
-async function fetchYouTubeVideoDetails(url: string) {
+
+
+// TODO: use these exports in /api/admin/
+// TODO: use these exports in /app/(protected)/admin/page.tsx
+//
+export async function fetchYouTubeVideoDetails(url: string) {
 	try {
 		// Extract video ID from YouTube URL
 		const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/)
@@ -40,6 +45,10 @@ async function fetchYouTubeVideoDetails(url: string) {
 	}
 }
 
+// TODO: use these exports in /api/admin/
+// TODO: use these exports in /app/(protected)/admin/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
 export async function addPodcastSource(_prevState: FormState, formData: FormData) {
 	const { userId } = await auth()
 
@@ -83,6 +92,10 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 	}
 }
 
+// TODO: use these exports in /api/admin/
+// TODO: use these exports in /app/(protected)/admin/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
 export async function removePodcastSource(formData: FormData) {
 	const { userId } = await auth()
 	if (!userId) return
@@ -101,6 +114,7 @@ export async function removePodcastSource(formData: FormData) {
 	revalidatePath("/build")
 }
 
+// TODO: use these exports in /api/admin/
 export async function saveCuration(formData: FormData) {
 	const { userId } = await auth()
 	if (!userId) return
@@ -134,6 +148,10 @@ export async function saveCuration(formData: FormData) {
 	redirect("/")
 }
 
+// TODO: use these exports in /api/admin/
+// TODO: use these exports in /app/(protected)/admin/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
 export async function updatePodcastSourceName(id: string, newName: string): Promise<FormState> {
 	const { userId } = await auth()
 	if (!userId) {
@@ -162,50 +180,9 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
 	}
 }
 
-export async function createDraftUserCurationProfile() {
-	const { userId } = await auth()
-	const user = await currentUser()
 
-	if (!userId) {
-		return
-	}
-
-	try {
-		// Ensure the user exists in our database
-		let dbUser = await prisma.user.findUnique({
-			where: { id: userId },
-		})
-
-		if (!dbUser) {
-			// If user doesn't exist in our DB, create them
-			dbUser = await prisma.user.create({
-				data: {
-					id: userId,
-					email: user?.emailAddresses?.[0]?.emailAddress || "", // Use primary email from Clerk
-					name: user?.firstName || user?.username || "", // Use first name or username
-					password: "", // Password is not stored for Clerk users
-					// Add other fields if necessary from Clerk's user object
-				},
-			})
-		}
-
-		await prisma.userCurationProfile.create({
-			data: {
-				userId: dbUser.id,
-				name: "New Weekly Curation",
-				status: "Draft",
-				createdAt: new Date(), // Explicitly set the current timestamp
-			},
-		})
-
-		revalidatePath("/build")
-	} catch (_error) {
-		return
-	}
-
-	redirect("/build")
-}
-
+// TODO: use these exports in /app/(protected)/curated-bundles
+// TODO: use these exports in /app/(protected)/dashboard/page.tsx
 export async function getUserCurationProfileStatus(
 	userCurationProfileId: string
 ): Promise<UserCurationProfileWithRelations | null> {
@@ -244,6 +221,11 @@ export async function getUserCurationProfileStatus(
 	}
 }
 
+// TODO: use these exports in /app/(protected)/dashboard/page.tsx
+// TODO: use these exports in /app/(protected)/curated-bundles/page.tsx
+// TODO: use these exports in /app/(protected)/admin/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
+// TODO: use these exports in /app/(protected)/build/page.tsx
 export async function triggerPodcastGeneration(userCurationProfileId: string) {
 	const { userId } = await auth()
 	if (!userId) {

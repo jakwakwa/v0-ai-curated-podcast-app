@@ -1,43 +1,24 @@
 import type { Metadata } from "next"
-// import { Poppins } from "next/font/google"
 import { Inter } from "next/font/google"
 import type React from "react"
 import "./globals.css"
-// import { redirect } from "next/navigation";
-
-// import { AppSidebar } from "@/components/app-sidebar"
-// import { SiteHeader } from "@/components/site-header"
-// import { PodcastList } from "@/components/podcast-list"
-// import { SidebarProvider } from "@/components/ui/sidebar-ui"
-import { Toaster } from "@/components/ui/sonner"
 import { ClerkProvider } from "@clerk/nextjs"
-// import { auth } from "@clerk/nextjs/server"
+import { Toaster } from "sonner"
 import { ClientProviders } from "./client-providers"
 import { StoreInitializer } from "./store-initializer"
-// import { Dashboard } from "@elevenlabs/elevenlabs-js/api/resources/conversationalAi/resources/dashboard/client/Client"
-// import DashboardPage from "./page"
+
 const inter = Inter({ subsets: ["latin"] })
-
-// Check if Clerk environment variables are set up
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-const clerkSecretKey = process.env.CLERK_SECRET_KEY
-
-console.log(`[RootLayout] Clerk Publishable Key exists: ${!!clerkPublishableKey}`)
-console.log(`[RootLayout] Clerk Secret Key exists: ${!!clerkSecretKey}`)
-
 if (!clerkPublishableKey) {
-  console.error(`[RootLayout] NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set`)
-}
-
-if (!clerkSecretKey) {
-  console.error(`[RootLayout] CLERK_SECRET_KEY is not set`)
+	throw new Error("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set")
 }
 
 export const metadata: Metadata = {
-	description: "Automated AI-Generated Weekly Podcast Application",
+	title: "PodSlice | AI Podcast Summaries | Cut the Chatter, Keep the Insight.",
+	description: "Experience the future of listening. PodSlice crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
 	openGraph: {
-		title: "Humanly Curated AI Podcast Application",
-		description: "Automated AI-Generated Weekly Podcast Application",
+		title: "PodSlice: Cut the Chatter, Keep the Insight.",
+		description: "Experience the future of listening. PodSlice crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
 	},
 	twitter: {
 		card: "summary_large_image",
@@ -60,8 +41,8 @@ export default function RootLayout({
 				>
 					<ClientProviders>
 						<StoreInitializer />
-						<Toaster />
 						{children}
+						<Toaster />
 					</ClientProviders>
 				</ClerkProvider>
 			</body>
