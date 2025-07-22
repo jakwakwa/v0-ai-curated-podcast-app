@@ -1,7 +1,6 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs"
-import { useEffect, useState } from "react"
+import { Protect, useAuth } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock, Zap } from "lucide-react"
@@ -13,83 +12,8 @@ interface AccessControlProps {
 	children: React.ReactNode
 }
 
-interface SubscriptionData {
-	subscription: any
-	plan: any
-	hasActiveSubscription: boolean
-}
-
 export function AccessControl({ feature, fallback, children }: AccessControlProps) {
-	const { user, isLoaded } = useUser()
-	const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null)
-	const [loading, setLoading] = useState(true)
-	const [hasAccess, setHasAccess] = useState(false)
-
-	useEffect(() => {
-		if (isLoaded && user) {
-			fetchSubscriptionData()
-		} else if (isLoaded) {
-			setLoading(false)
-		}
-	}, [isLoaded, user])
-
-	const fetchSubscriptionData = async () => {
-		try {
-			const response = await fetch("/api/subscription")
-			if (response.ok) {
-				const data = await response.json()
-				setSubscriptionData(data)
-				
-				// Check if user has access to the feature
-				const userHasAccess = data.plan?.features?.includes(feature) || false
-				setHasAccess(userHasAccess)
-			}
-		} catch (error) {
-			console.error("Error fetching subscription data:", error)
-			setHasAccess(false)
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	if (!isLoaded || loading) {
-		return (
-			<div className="animate-pulse">
-				<div className="h-32 bg-muted rounded"></div>
-			</div>
-		)
-	}
-
-	if (!user) {
-		return (
-			<Card className="border-orange-200 bg-orange-50">
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2 text-orange-800">
-						<Lock className="h-5 w-5" />
-						Sign In Required
-					</CardTitle>
-					<CardDescription className="text-orange-700">
-						Please sign in to access this feature.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Button asChild>
-						<Link href="/sign-in">Sign In</Link>
-					</Button>
-				</CardContent>
-			</Card>
-		)
-	}
-
-	if (hasAccess) {
-		return <>{children}</>
-	}
-
-	if (fallback) {
-		return <>{fallback}</>
-	}
-
-	return (
+	const defaultFallback = (
 		<Card className="border-amber-200 bg-amber-50">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2 text-amber-800">
@@ -97,7 +21,7 @@ export function AccessControl({ feature, fallback, children }: AccessControlProp
 					Premium Feature
 				</CardTitle>
 				<CardDescription className="text-amber-700">
-					This feature requires a {subscriptionData?.plan?.name || "premium"} subscription or higher.
+					This feature requires a subscription to access.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
@@ -111,14 +35,18 @@ export function AccessControl({ feature, fallback, children }: AccessControlProp
 							Upgrade Plan
 						</Link>
 					</Button>
-					<Button variant="outline" asChild>
-						<Link href="/subscription">
-							View Current Plan
-						</Link>
-					</Button>
 				</div>
 			</CardContent>
 		</Card>
+	)
+
+	return (
+		<Protect
+			feature={feature}
+			fallback={fallback || defaultFallback}
+		>
+			{children}
+		</Protect>
 	)
 }
 
@@ -137,36 +65,11 @@ export function withAccessControl(
 	}
 }
 
-// Hook for checking access programmatically
+// Hook for checking access programmatically using Clerk's has() method
 export function useFeatureAccess(feature: string) {
-	const { user, isLoaded } = useUser()
-	const [hasAccess, setHasAccess] = useState(false)
-	const [loading, setLoading] = useState(true)
+	const { has, isLoaded } = useAuth()
+	
+	const hasAccess = has && has({ feature }) || false
 
-	useEffect(() => {
-		if (isLoaded && user) {
-			checkAccess()
-		} else if (isLoaded) {
-			setLoading(false)
-			setHasAccess(false)
-		}
-	}, [isLoaded, user, feature])
-
-	const checkAccess = async () => {
-		try {
-			const response = await fetch("/api/subscription")
-			if (response.ok) {
-				const data = await response.json()
-				const userHasAccess = data.plan?.features?.includes(feature) || false
-				setHasAccess(userHasAccess)
-			}
-		} catch (error) {
-			console.error("Error checking feature access:", error)
-			setHasAccess(false)
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	return { hasAccess, loading, isLoaded }
+	return { hasAccess, loading: !isLoaded, isLoaded }
 }
