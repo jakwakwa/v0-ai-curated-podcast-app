@@ -77,18 +77,25 @@ export default async function LandingPage() {
 
 	const pricingTiers = [
 		{
-			name: "Free Trial",
+			name: "FreeSlice",
 			price: "R0",
-			duration: "1 week",
-			features: ["1 content profile", "Weekly filtering", "Access to curated content", "Basic support"],
+			duration: "forever",
+			features: ["Free curated bundle", "Basic content filtering", "Community support"],
 			popular: false,
 		},
 		{
-			name: "Premium",
+			name: "Casual Listener",
+			price: "R49",
+			duration: "per month",
+			features: ["Free curated bundle", "Basic content filtering", "Weekly combo episodes", "Email support"],
+			popular: true,
+		},
+		{
+			name: "Curate & Control",
 			price: "R99",
 			duration: "per month",
-			features: ["Unlimited content profiles", "Weekly filtering", "Priority support", "Detailed analytics", "Early access to new features"],
-			popular: true,
+			features: ["Free curated bundle", "Basic content filtering", "Weekly combo episodes", "Custom curation profiles", "Priority support", "Advanced analytics"],
+			popular: false,
 		},
 	]
 
@@ -218,9 +225,9 @@ export default async function LandingPage() {
 				<div className="max-w-7xl mx-auto">
 					<div className="text-center mb-16">
 						<h2 className="text-4xl font-bold mb-4">Simple Pricing</h2>
-						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">Start with a free trial and upgrade when you're ready for unlimited focused content.</p>
+						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">Start free forever, or upgrade for advanced curation features and priority support.</p>
 					</div>
-					<div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+					<div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
 						{pricingTiers.map(tier => (
 							<div key={tier.name} className={`p-8 rounded-lg border relative ${tier.popular ? "border-primary shadow-lg scale-105" : "bg-card"}`}>
 								{tier.popular && (
@@ -239,9 +246,9 @@ export default async function LandingPage() {
 										</li>
 									))}
 								</ul>
-								<Link href="/sign-up">
+								<Link href={tier.name === "FreeSlice" ? "/sign-up" : "/pricing"}>
 									<Button className="w-full" variant={tier.popular ? "default" : "outline"} size="lg">
-										{tier.name === "Free Trial" ? "Start Trial" : "Upgrade Now"}
+										{tier.name === "FreeSlice" ? "Get Started Free" : "Choose Plan"}
 									</Button>
 								</Link>
 							</div>
@@ -255,12 +262,12 @@ export default async function LandingPage() {
 				<div className="max-w-4xl mx-auto text-center">
 					<h2 className="text-4xl font-bold mb-4">Ready to Cut Through the Noise?</h2>
 					<p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-						Join thousands of users who are already saving time and getting more value from their content. Start your free trial today and discover focused content that respects your time.
+						Join thousands of users who are already saving time and getting more value from their content. Start with our free plan today and discover focused content that respects your time.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center">
 						<Link href="/sign-up">
 							<Button size="lg" className="text-lg px-8 py-6">
-								Start Free Trial
+								Get Started Free
 								<UilArrowRight className="ml-2 h-5 w-5" />
 							</Button>
 						</Link>
