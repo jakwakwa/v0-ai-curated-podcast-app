@@ -306,26 +306,31 @@ export const StripeService = {
 	 */
 	async hasActiveSubscription(userId: string): Promise<boolean> {
 		const subscription = await this.getUserSubscription(userId)
+		return this.isSubscriptionActive(subscription)
+	},
 
+	/**
+	 * Helper method to check if a subscription is active (without fetching data)
+	 */
+	isSubscriptionActive(subscription: any): boolean {
 		if (!subscription) return false
 
 		const now = new Date()
 
 		// Check if subscription is active and not expired
-		if (["active", "trialing"].includes(subscription.status) && subscription.currentPeriodEnd && subscription.currentPeriodEnd > now) {
-			return true
-		}
-
-		return false
+		return ["active", "trialing"].includes(subscription.status) && 
+			   subscription.currentPeriodEnd && 
+			   subscription.currentPeriodEnd > now
 	},
 
 	/**
-	 * Get user's subscription plan
+	 * Get user's subscription plan (optimized to avoid redundant queries)
 	 */
 	async getUserPlan(userId: string): Promise<SubscriptionPlan> {
 		const subscription = await this.getUserSubscription(userId)
 
-		if (!(subscription && (await this.hasActiveSubscription(userId)))) {
+		// Use the helper method instead of calling hasActiveSubscription again
+		if (!(subscription && this.isSubscriptionActive(subscription))) {
 			return SUBSCRIPTION_PLANS.FREE
 		}
 
