@@ -1,9 +1,10 @@
 import { Card } from '@/components/ui/card'
-import { Check, Lock } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Check, Lock, AlertCircle, RefreshCw } from 'lucide-react'
 import type { TransformedCuratedBundle } from '@/lib/types'
 import { useState, useEffect } from 'react'
 import styles from './collection-creation-wizard.module.css'
-import { shouldUseDummyData, logDummyDataUsage } from '@/lib/config'
 
 interface CuratedBundleListProps {
   onSelectBundle: (bundleId: string) => void;
@@ -16,6 +17,7 @@ export function CuratedBundleList({
 }: CuratedBundleListProps) {
   const [curatedBundles, setCuratedBundles] = useState<TransformedCuratedBundle[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Dummy curated bundles data
   const dummyCuratedBundles: TransformedCuratedBundle[] = [
@@ -66,32 +68,27 @@ export function CuratedBundleList({
     }
   ]
 
-  useEffect(() => {
-    const fetchCuratedBundles = async () => {
-      if (shouldUseDummyData()) {
-        logDummyDataUsage("CuratedBundleList")
-        setCuratedBundles(dummyCuratedBundles)
-        setIsLoading(false)
-        return
+  const fetchCuratedBundles = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/curated-bundles')
+      if (!response.ok) {
+        throw new Error(`Failed to load curated bundles. Server responded with status ${response.status}.`)
       }
-
-      try {
-        const response = await fetch('/api/curated-bundles')
-        if (!response.ok) {
-          throw new Error(`Failed to fetch curated bundles: ${response.status}`)
-        }
-        const data = await response.json()
-        setCuratedBundles(data)
-      } catch (error) {
-        console.error('Error fetching curated bundles:', error)
-        // Fallback to dummy data
-        logDummyDataUsage("CuratedBundleList (API fallback)")
-        setCuratedBundles(dummyCuratedBundles)
-      } finally {
-        setIsLoading(false)
-      }
+      
+      const data = await response.json()
+      setCuratedBundles(data)
+    } catch (error) {
+      console.error('Error fetching curated bundles:', error)
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred while loading curated bundles.')
+    } finally {
+      setIsLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchCuratedBundles()
   }, [])
 
