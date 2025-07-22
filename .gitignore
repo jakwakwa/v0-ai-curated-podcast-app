@@ -35,11 +35,4 @@ next-env.d.ts
 REVAMP_IMPLEMENTATION_PROGRESS.md
 # /src/generated/prisma
 
-.cursor/rules/css-architecture.mdc
-.cursor/rules/css-styles-preference.mdc
-.cursor/rules/file-naming-conventions.mdc
 .cursor/rules/prisma-schema-updates.mdc
-.cursor/rules/preview-resume-rules.mdc
-.cursor/rules/tailwind-css-to-css-modules-refactor-context.mdc
-.cursor/rules/tailwind-to-css-refactor.mdc
-components/.cursor/rules/frontend-components.mdc

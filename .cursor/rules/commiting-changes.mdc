@@ -1,6 +1,5 @@
 ---
-description: This is especially for cloud agents. not local agents
-alwaysApply: false
+alwaysApply: true
 ---
 Tasks or fixes aren't considered "done" or to be commited for pull requests until the agent or llm can run a pnpm build and pnpm lint without any error. pnpm lint warning doesnt need to be solved and you can ignore them unless they seem like an obvious and easy fix. if you tried two times to fix a linting issue and failed, revert those changes and make a note in notebook then I will step in and help out.This is a crucial to adhere to.
 
