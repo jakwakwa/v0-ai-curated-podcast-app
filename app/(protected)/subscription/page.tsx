@@ -1,6 +1,6 @@
 "use client"
 
-import { UserProfile, useUser, useAuth } from "@clerk/nextjs"
+import { UserProfile, useAuth, useUser } from "@clerk/nextjs"
 
 export default function SubscriptionPage() {
 	const { user, isLoaded } = useUser()
@@ -22,9 +22,7 @@ export default function SubscriptionPage() {
 			<div className="container mx-auto px-4 py-8">
 				<div className="text-center">
 					<h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-					<p className="text-muted-foreground mb-6">
-						Please sign in to view your subscription.
-					</p>
+					<p className="text-muted-foreground mb-6">Please sign in to view your subscription.</p>
 				</div>
 			</div>
 		)
@@ -32,10 +30,10 @@ export default function SubscriptionPage() {
 
 	// Get current plan information
 	const getCurrentPlan = () => {
-		if (has && has({ feature: "custom_curation_profiles" })) {
+		if (has?.({ feature: "custom_curation_profiles" })) {
 			return "Curate & Control"
 		}
-		if (has && has({ feature: "weekly_combo" })) {
+		if (has?.({ feature: "weekly_combo" })) {
 			return "Casual Listener"
 		}
 		return "FreeSlice"
@@ -47,9 +45,7 @@ export default function SubscriptionPage() {
 		<div className="container mx-auto px-4 py-8 max-w-4xl">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold tracking-tight">Subscription Management</h1>
-				<p className="text-muted-foreground">
-					Manage your subscription, billing, and account preferences.
-				</p>
+				<p className="text-muted-foreground">Manage your subscription, billing, and account preferences.</p>
 				<div className="mt-4 p-4 bg-muted rounded-lg">
 					<p className="text-sm">
 						<strong>Current Plan:</strong> {currentPlan}
@@ -58,14 +54,14 @@ export default function SubscriptionPage() {
 			</div>
 
 			{/* Clerk's UserProfile component with billing management */}
-			<div className="max-w-2xl mx-auto">
-				<UserProfile 
+			<div className="mx-auto">
+				<UserProfile
 					routing="hash"
 					appearance={{
 						elements: {
 							rootBox: "w-full",
 							card: "shadow-none border",
-						}
+						},
 					}}
 				/>
 			</div>

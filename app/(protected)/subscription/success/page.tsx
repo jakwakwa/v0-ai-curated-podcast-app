@@ -1,33 +1,33 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs"
-import { useEffect, useState } from "react"
+import { ArrowRight, CheckCircle2 } from "lucide-react"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle2, ArrowRight } from "lucide-react"
-import Link from "next/link"
 
 interface SubscriptionData {
-	subscription: any
-	plan: any
+	subscription: {
+		id: string
+		status: string
+		currentPeriodStart: string
+		currentPeriodEnd: string
+	}
+	plan: {
+		name: string
+		features: string[]
+	}
 	hasActiveSubscription: boolean
 }
 
 export default function SubscriptionSuccessPage() {
-	const { user } = useUser()
 	const searchParams = useSearchParams()
 	const sessionId = searchParams.get("session_id")
 	const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null)
 	const [loading, setLoading] = useState(true)
 
-	useEffect(() => {
-		if (sessionId) {
-			fetchSubscriptionData()
-		}
-	}, [sessionId])
-
-	const fetchSubscriptionData = async () => {
+	const fetchSubscriptionData = useCallback(async () => {
 		try {
 			const response = await fetch("/api/subscription")
 			if (response.ok) {
@@ -39,7 +39,13 @@ export default function SubscriptionSuccessPage() {
 		} finally {
 			setLoading(false)
 		}
-	}
+	}, [])
+
+	useEffect(() => {
+		if (sessionId) {
+			fetchSubscriptionData()
+		}
+	}, [sessionId, fetchSubscriptionData])
 
 	if (loading) {
 		return (
@@ -56,16 +62,14 @@ export default function SubscriptionSuccessPage() {
 
 	return (
 		<div className="container mx-auto px-4 py-12">
-			<div className="max-w-2xl mx-auto">
+			<div className="mx-auto">
 				<Card className="text-center">
 					<CardHeader>
 						<div className="mx-auto mb-4">
 							<CheckCircle2 className="h-16 w-16 text-green-500" />
 						</div>
 						<CardTitle className="text-3xl">Welcome to {subscriptionData?.plan?.name || "Premium"}!</CardTitle>
-						<CardDescription>
-							Your subscription has been successfully activated.
-						</CardDescription>
+						<CardDescription>Your subscription has been successfully activated.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
 						<div className="bg-muted p-4 rounded-lg">
@@ -81,9 +85,7 @@ export default function SubscriptionSuccessPage() {
 						</div>
 
 						<div className="space-y-4">
-							<p className="text-sm text-muted-foreground">
-								You can now access all premium features. Manage your subscription anytime in your account settings.
-							</p>
+							<p className="text-sm text-muted-foreground">You can now access all premium features. Manage your subscription anytime in your account settings.</p>
 
 							<div className="flex flex-col sm:flex-row gap-3 justify-center">
 								<Button asChild>
@@ -93,9 +95,7 @@ export default function SubscriptionSuccessPage() {
 									</Link>
 								</Button>
 								<Button variant="outline" asChild>
-									<Link href="/subscription">
-										Manage Subscription
-									</Link>
+									<Link href="/subscription">Manage Subscription</Link>
 								</Button>
 							</div>
 						</div>

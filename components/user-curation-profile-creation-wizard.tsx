@@ -113,7 +113,7 @@ export function UserCurationProfileCreationWizard() {
 	if (existingProfile) {
 		return (
 			<div className={styles.wizardContainer}>
-				<Card className="w-full max-w-2xl mx-auto">
+				<Card className="w-full mx-auto">
 					<CardHeader className="text-center">
 						<div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
 							<CheckCircle className="w-8 h-8 text-green-600" />
