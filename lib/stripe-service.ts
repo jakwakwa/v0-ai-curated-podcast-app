@@ -2,9 +2,15 @@ import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-});
+const getStripe = () => {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY is not set');
+  }
+  return new Stripe(secretKey, {
+    apiVersion: '2025-06-30.basil',
+  });
+};
 
 export interface SubscriptionPlan {
   id: string;
@@ -106,6 +112,7 @@ export class StripeService {
     }
 
     try {
+      const stripe = getStripe();
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         payment_method_types: ['card'],
@@ -148,6 +155,7 @@ export class StripeService {
     returnUrl: string
   ): Promise<string> {
     try {
+      const stripe = getStripe();
       const session = await stripe.billingPortal.sessions.create({
         customer: customerId,
         return_url: returnUrl,
@@ -176,6 +184,7 @@ export class StripeService {
 
     try {
       // Create new Stripe customer
+      const stripe = getStripe();
       const customer = await stripe.customers.create({
         email,
         metadata: {
@@ -202,40 +211,54 @@ export class StripeService {
       throw new Error('User ID not found in subscription metadata');
     }
 
+    // Type assertion for Stripe subscription properties
+    const subscription = stripeSubscription as any;
+
     try {
-      // Update or create subscription in database
-      await prisma.subscription.upsert({
+      // First try to find existing subscription for this user
+      const existingSubscription = await prisma.subscription.findFirst({
         where: { userId },
-        update: {
-          status: stripeSubscription.status,
-          linkCustomerId: stripeSubscription.customer as string,
-          linkSubscriptionId: stripeSubscription.id,
-          linkPriceId: stripeSubscription.items.data[0]?.price.id,
-          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-          canceledAt: stripeSubscription.canceled_at 
-            ? new Date(stripeSubscription.canceled_at * 1000) 
-            : null,
-        },
-        create: {
-          userId,
-          status: stripeSubscription.status,
-          linkCustomerId: stripeSubscription.customer as string,
-          linkSubscriptionId: stripeSubscription.id,
-          linkPriceId: stripeSubscription.items.data[0]?.price.id,
-          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-          trialStart: stripeSubscription.trial_start 
-            ? new Date(stripeSubscription.trial_start * 1000) 
-            : null,
-          trialEnd: stripeSubscription.trial_end 
-            ? new Date(stripeSubscription.trial_end * 1000) 
-            : null,
-          canceledAt: stripeSubscription.canceled_at 
-            ? new Date(stripeSubscription.canceled_at * 1000) 
-            : null,
-        },
       });
+
+      if (existingSubscription) {
+        // Update existing subscription
+        await prisma.subscription.update({
+          where: { id: existingSubscription.id },
+          data: {
+            status: stripeSubscription.status,
+            linkCustomerId: stripeSubscription.customer as string,
+            linkSubscriptionId: stripeSubscription.id,
+            linkPriceId: stripeSubscription.items.data[0]?.price.id,
+            currentPeriodStart: new Date(subscription.current_period_start * 1000),
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            canceledAt: subscription.canceled_at 
+              ? new Date(subscription.canceled_at * 1000) 
+              : null,
+          },
+        });
+      } else {
+        // Create new subscription
+        await prisma.subscription.create({
+          data: {
+            userId,
+            status: stripeSubscription.status,
+            linkCustomerId: stripeSubscription.customer as string,
+            linkSubscriptionId: stripeSubscription.id,
+            linkPriceId: stripeSubscription.items.data[0]?.price.id,
+                                                     currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              trialStart: subscription.trial_start 
+                ? new Date(subscription.trial_start * 1000) 
+                : null,
+              trialEnd: subscription.trial_end 
+                ? new Date(subscription.trial_end * 1000) 
+                : null,
+              canceledAt: subscription.canceled_at 
+                ? new Date(subscription.canceled_at * 1000) 
+                : null,
+          },
+        });
+      }
     } catch (error) {
       console.error('Error updating subscription in database:', error);
       throw error;
@@ -254,6 +277,8 @@ export class StripeService {
       throw new Error('User ID not found in subscription metadata');
     }
 
+    const subscription = stripeSubscription as any;
+
     try {
       await prisma.subscription.updateMany({
         where: { 
@@ -262,11 +287,11 @@ export class StripeService {
         },
         data: {
           status: stripeSubscription.status,
-          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-          canceledAt: stripeSubscription.canceled_at 
-            ? new Date(stripeSubscription.canceled_at * 1000) 
-            : null,
+                                 currentPeriodStart: new Date(subscription.current_period_start * 1000),
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            canceledAt: subscription.canceled_at 
+              ? new Date(subscription.canceled_at * 1000) 
+              : null,
         },
       });
     } catch (error) {
@@ -376,6 +401,7 @@ export class StripeService {
     signature: string,
     secret: string
   ): Stripe.Event {
+    const stripe = getStripe();
     return stripe.webhooks.constructEvent(payload, signature, secret);
   }
 }
