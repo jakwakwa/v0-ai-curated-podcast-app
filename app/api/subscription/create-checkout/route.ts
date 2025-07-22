@@ -1,12 +1,13 @@
 import { StripeService } from "@/lib/stripe-service"
-import { auth } from "@clerk/nextjs/server"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
 	try {
 		const { userId } = await auth()
+		const user = await currentUser()
 
-		if (!userId) {
+		if (!userId || !user) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
@@ -24,8 +25,9 @@ export async function POST(request: Request) {
 		)
 
 		return NextResponse.json({ checkoutUrl })
-	} catch (error) {
-		console.error("[SUBSCRIPTION_UPGRADE_POST]", error)
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error)
+		console.error("[SUBSCRIPTION_CREATE_CHECKOUT_POST]", message)
 		return new NextResponse("Internal Error", { status: 500 })
 	}
 }

@@ -1,8 +1,8 @@
-import { LinkService } from "@/lib/link-service"
+import { StripeService } from "@/lib/stripe-service"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
-export async function POST() {
+export async function POST(request: Request) {
 	try {
 		const { userId } = await auth()
 
@@ -10,20 +10,26 @@ export async function POST() {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const subscription = await LinkService.getUserSubscription(userId)
+		const { returnUrl } = await request.json()
 
-		// As PayMongo does not expose a direct "billing portal" URL for customers,
-		// this endpoint will return the current subscription status.
-		// Future enhancements might involve building a custom billing management UI
-		// within the app using more detailed PayMongo APIs if available.
-		return NextResponse.json({
-			message: "PayMongo does not provide a direct customer billing portal URL.",
-			subscriptionStatus: subscription ? subscription.status : "no_subscription",
-			// You might add more subscription details here if needed for an in-app portal
-		})
+		if (!returnUrl) {
+			return new NextResponse("Return URL is required", { status: 400 })
+		}
+
+		const subscription = await StripeService.getUserSubscription(userId)
+
+		if (!subscription?.linkCustomerId) {
+			return new NextResponse("No active subscription found", { status: 404 })
+		}
+
+		const portalUrl = await StripeService.createBillingPortalSession(
+			subscription.linkCustomerId,
+			returnUrl
+		)
+
+		return NextResponse.json({ url: portalUrl })
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[SUBSCRIPTION_BILLING_PORTAL_POST]", message)
 		return new NextResponse("Internal Error", { status: 500 })
 	}
