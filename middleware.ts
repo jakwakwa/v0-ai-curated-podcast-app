@@ -21,6 +21,14 @@ const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
 const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
 const isAdminAccessible = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"])
+const isUserApiAccessible = createRouteMatcher([
+	"/api/curated-bundles(.*)",
+	"/api/curated-podcasts(.*)", 
+	"/api/episodes(.*)",
+	"/api/notifications(.*)",
+	"/api/subscription(.*)",
+	"/api/user-curation-profiles(.*)"
+])
 
 /**
  * Clerk Middleware
@@ -43,7 +51,8 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 	if (isMachineTokenAccessible(req)) await auth.protect({ token: "machine_token" })
 	if (isUserAccessible(req)) await auth.protect({ token: "session_token" })
 	if (isAdminAccessible(req)) await auth.protect({ token: "session_token" })
-	// Protect remaining API routes with api_key, but admin routes are handled above
+	if (isUserApiAccessible(req)) await auth.protect({ token: "session_token" })
+	// Protect remaining API routes with api_key, but user and admin routes are handled above
 	else if (isApiKeyAccessible(req)) await auth.protect({ token: "api_key" })
 })
 
