@@ -1,14 +1,12 @@
 "use client"
 
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import { useUserCurationProfileStore } from "@/lib/stores/user-curation-profile-store"
-import type { Episode, CuratedBundleEpisode } from "@/lib/types"
-import { useEffect, useState } from "react"
-import { EpisodeList } from "@/components/episode-list"
 import { Play, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import AudioPlayer from "@/components/ui/audio-player"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import AudioPlayer from "@/components/ui/audio-player"
+import { Button } from "@/components/ui/button"
+import { getEpisodes, getUserCurationProfile } from "@/lib/data"
+import type { CuratedBundleEpisode, Episode, UserCurationProfile } from "@/lib/types"
 import styles from "./page.module.css"
 
 // Combined episode type for display
@@ -20,21 +18,27 @@ interface CombinedEpisode {
 	imageUrl: string | null
 	publishedAt: Date | null
 	createdAt: Date
-	type: 'user' | 'bundle'
+	type: "user" | "bundle"
 	userCurationProfileId?: string
-	source?: any
-	userCurationProfile?: any
+	source?: {
+		name: string
+		id: string
+		imageUrl: string | null
+		createdAt: Date
+		userCurationProfileId: string | null
+		url: string
+	} | null
+	userCurationProfile?: UserCurationProfile | null
 }
 
-export default function WeeklyEpisodesPage(): JSX.Element {
+export default function WeeklyEpisodesPage() {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
-	const [userProfile, setUserProfile] = useState<any>(null)
-	const [existingProfile, setExistingProfile] = useState<any>(null)
+	const [userProfile, setUserProfile] = useState<UserCurationProfile | null>(null)
+	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
-	const userCurationProfileStore = useUserCurationProfileStore()
 
 	useEffect(() => {
 		const checkExistingProfile = async () => {
@@ -75,7 +79,7 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 					// User episodes (from custom profile)
 					...userEpisodes.map(ep => ({
 						...ep,
-						type: 'user' as const
+						type: "user" as const,
 					})),
 					// Bundle episodes (from bundle selection)
 					...bundleEpisodesList.map(ep => ({
@@ -86,8 +90,8 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 						imageUrl: ep.imageUrl,
 						publishedAt: ep.publishedAt,
 						createdAt: ep.createdAt,
-						type: 'bundle' as const
-					}))
+						type: "bundle" as const,
+					})),
 				]
 
 				// Sort by published date (newest first)
@@ -105,21 +109,6 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 
 		fetchAllEpisodes()
 	}, [])
-
-	useEffect(() => {
-		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-		// biome-ignore lint/suspicious/noConsole: <explanation>
-		console.log("WeeklyEpisodesPage: User Profile:", userProfile)
-		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-		// biome-ignore lint/suspicious/noConsole: <explanation>
-		console.log("WeeklyEpisodesPage: User Episodes:", episodes.length)
-		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-		// biome-ignore lint/suspicious/noConsole: <explanation>
-		console.log("WeeklyEpisodesPage: Bundle Episodes:", bundleEpisodes.length)
-		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-		// biome-ignore lint/suspicious/noConsole: <explanation>
-		console.log("WeeklyEpisodesPage: Combined Episodes:", combinedEpisodes.length)
-	}, [userProfile, episodes, bundleEpisodes, combinedEpisodes])
 
 	const handlePlayEpisode = (episodeId: string) => {
 		setPlayingEpisodeId(episodeId)
@@ -154,11 +143,10 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 						{userProfile
 							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
 							: existingProfile
-							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-							: "Create a curation profile or select a bundle to start seeing episodes here."
-						}
+								? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
+								: "Create a curation profile or select a bundle to start seeing episodes here."}
 					</p>
-					{!userProfile && !existingProfile && (
+					{!(userProfile || existingProfile) && (
 						<Link href="/build">
 							<Button className={styles.createButton}>
 								<Plus className={styles.createButtonIcon} />
@@ -174,9 +162,7 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 						<span>Total Episodes: {combinedEpisodes.length}</span>
 						<span>User Episodes: {episodes.length}</span>
 						<span>Bundle Episodes: {bundleEpisodes.length}</span>
-						{userProfile && (
-							<span>Profile Type: {userProfile.isBundleSelection ? 'Bundle Selection' : 'Custom Profile'}</span>
-						)}
+						{userProfile && <span>Profile Type: {userProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}</span>}
 					</div>
 
 					{/* Episodes List */}
@@ -187,31 +173,18 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 									<div className={styles.episodeInfo}>
 										<div className={styles.episodeHeader}>
 											<h3 className={styles.episodeTitle}>{episode.title}</h3>
-											<span className={`${styles.episodeType} ${
-												episode.type === 'bundle'
-													? styles.episodeTypeBundle
-													: styles.episodeTypeCustom
-											}`}>
-												{episode.type === 'bundle' ? 'Bundle' : 'Custom'}
+											<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
+												{episode.type === "bundle" ? "Bundle" : "Custom"}
 											</span>
 										</div>
 										<div className={styles.playButtonContainer}>
-											<Button
-												onClick={() => handlePlayEpisode(episode.id)}
-												variant="outline"
-												size="sm"
-												className={styles.playButton}
-											>
+											<Button onClick={() => handlePlayEpisode(episode.id)} variant="outline" size="sm" className={styles.playButton}>
 												<Play className={styles.playIcon} />
 												Play Episode
 											</Button>
 										</div>
-										{episode.description && (
-											<p className={styles.episodeDescription}>{episode.description}</p>
-										)}
-										<p className={styles.episodeDate}>
-											Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : 'N/A'}
-										</p>
+										{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
+										<p className={styles.episodeDate}>Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}</p>
 									</div>
 									{episode.audioUrl && playingEpisodeId === episode.id && (
 										<div className={styles.episodeAudio}>
@@ -225,10 +198,10 @@ export default function WeeklyEpisodesPage(): JSX.Element {
 													publishedAt: episode.publishedAt,
 													weekNr: episode.createdAt,
 													createdAt: episode.createdAt,
-													sourceId: episode.userCurationProfileId || '',
-													userCurationProfileId: episode.userCurationProfileId || '',
+													sourceId: episode.userCurationProfileId || "",
+													userCurationProfileId: episode.userCurationProfileId || "",
 													source: episode.source,
-													userCurationProfile: episode.userCurationProfile
+													userCurationProfile: null, // AudioPlayer type compatibility
 												}}
 												onClose={handleClosePlayer}
 											/>

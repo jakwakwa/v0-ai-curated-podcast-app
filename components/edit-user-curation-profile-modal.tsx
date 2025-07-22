@@ -1,23 +1,16 @@
-'use client';
+"use client"
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import {
-	AlertDialog,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import type { UserCurationProfileWithSources } from '@/lib/types'
-import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react'
-import { toast } from 'sonner'
-import { CuratedBundleList } from './curated-bundle-list'
-import { CuratedPodcastList } from './curated-podcast-list'
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+// import { Switch } from "@/components/ui/switch"
+import type { CuratedPodcast, UserCurationProfileWithSources } from "@/lib/types"
+import { CuratedBundleList } from "./curated-bundle-list"
+import { CuratedPodcastList } from "./curated-podcast-list"
 
 interface EditUserCurationProfileModalProps {
 	isOpen: boolean
@@ -26,18 +19,11 @@ interface EditUserCurationProfileModalProps {
 	onSave: (updatedData: Partial<UserCurationProfileWithSources>) => Promise<void>
 }
 
-export function EditUserCurationProfileModal({
-	isOpen,
-	onClose,
-	collection,
-	onSave,
-}: Readonly<EditUserCurationProfileModalProps>) {
+export function EditUserCurationProfileModal({ isOpen, onClose, collection, onSave }: Readonly<EditUserCurationProfileModalProps>) {
 	const [step, setStep] = useState(1)
 	const [name, setName] = useState(collection.name)
 	const [isBundleSelection, setIsBundleSelection] = useState(collection.isBundleSelection)
-	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(
-		collection.selectedBundleId ?? undefined
-	)
+	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(collection.selectedBundleId ?? undefined)
 	const [selectedPodcasts, setSelectedPodcasts] = useState<
 		Array<{
 			id: string
@@ -63,7 +49,7 @@ export function EditUserCurationProfileModal({
 				isActive: true,
 				url: source.url,
 				description: null,
-				category: "Technology" // Default category
+				category: "Technology", // Default category
 			}))
 			setSelectedPodcasts(podcastsFromSources)
 		}
@@ -82,7 +68,7 @@ export function EditUserCurationProfileModal({
 	const handleSave = async () => {
 		setIsLoading(true)
 		try {
-			let data: Partial<UserCurationProfileWithSources> = {
+			const data: Partial<UserCurationProfileWithSources> = {
 				id: collection.id,
 				name,
 				isBundleSelection,
@@ -107,7 +93,7 @@ export function EditUserCurationProfileModal({
 					url: podcast.url,
 					imageUrl: podcast.imageUrl,
 					createdAt: podcast.createdAt,
-					userCurationProfileId: collection.id
+					userCurationProfileId: collection.id,
 				}))
 				data.selectedBundleId = null // Clear bundle when switching to custom
 			}
@@ -115,14 +101,14 @@ export function EditUserCurationProfileModal({
 			await onSave(data)
 			toast.success("User Curation Profile updated successfully!")
 			onClose()
-		} catch (error) {
+		} catch (_error) {
 			toast.error("Failed to update user curation profile")
 		} finally {
 			setIsLoading(false)
 		}
 	}
 
-	const handlePodcastSelection = (podcast: any) => {
+	const handlePodcastSelection = (podcast: CuratedPodcast) => {
 		const isAlreadySelected = selectedPodcasts.some(p => p.id === podcast.id)
 		if (isAlreadySelected) {
 			setSelectedPodcasts(selectedPodcasts.filter(p => p.id !== podcast.id))
@@ -136,14 +122,12 @@ export function EditUserCurationProfileModal({
 	}
 
 	return (
-		<AlertDialog open={isOpen} onOpenChange={onClose}>
-			<AlertDialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-				<AlertDialogHeader>
-					<AlertDialogTitle>Edit User Curation Profile</AlertDialogTitle>
-					<AlertDialogDescription>
-						Update your user curation profile settings and content selection.
-					</AlertDialogDescription>
-				</AlertDialogHeader>
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+				<DialogHeader>
+					<DialogTitle>Edit User Curation Profile</DialogTitle>
+					<DialogDescription>Update your user curation profile settings and content selection.</DialogDescription>
+				</DialogHeader>
 
 				<div className="py-4">
 					{/* Step 1: Choose Profile Type */}
@@ -187,31 +171,20 @@ export function EditUserCurationProfileModal({
 									<ArrowLeft size={16} />
 									Back
 								</Button>
-								<h3 className="text-lg font-semibold">
-									{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}
-								</h3>
+								<h3 className="text-lg font-semibold">{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}</h3>
 							</div>
 
 							{isBundleSelection ? (
-								<CuratedBundleList
-									onSelectBundle={setSelectedBundleId}
-									selectedBundleId={selectedBundleId}
-								/>
+								<CuratedBundleList onSelectBundle={setSelectedBundleId} selectedBundleId={selectedBundleId} />
 							) : (
-								<CuratedPodcastList
-									onSelectPodcast={handlePodcastSelection}
-									selectedPodcasts={selectedPodcasts}
-								/>
+								<CuratedPodcastList onSelectPodcast={handlePodcastSelection} selectedPodcasts={selectedPodcasts} />
 							)}
 
 							<div className="flex justify-between pt-4">
 								<Button variant="outline" onClick={() => setStep(1)}>
 									Back
 								</Button>
-								<Button
-									onClick={() => setStep(3)}
-									disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}
-								>
+								<Button onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
 									Next
 									<ArrowRight size={16} />
 								</Button>
@@ -233,13 +206,7 @@ export function EditUserCurationProfileModal({
 							<div className="space-y-4">
 								<div>
 									<Label htmlFor="name">User Curation Profile Name</Label>
-									<Input
-										id="name"
-										value={name}
-										onChange={e => setName(e.target.value)}
-										placeholder="Enter your profile name"
-										className="mt-1"
-									/>
+									<Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your profile name" className="mt-1" />
 								</div>
 
 								<div>
@@ -254,9 +221,7 @@ export function EditUserCurationProfileModal({
 											{selectedPodcasts.map(podcast => (
 												<div key={podcast.id} className="p-3 border rounded-md">
 													<p className="font-medium">{podcast.name}</p>
-													{podcast.description && (
-														<p className="text-sm text-muted-foreground">{podcast.description}</p>
-													)}
+													{podcast.description && <p className="text-sm text-muted-foreground">{podcast.description}</p>}
 												</div>
 											))}
 										</div>
@@ -268,10 +233,7 @@ export function EditUserCurationProfileModal({
 								<Button variant="outline" onClick={() => setStep(2)}>
 									Back
 								</Button>
-								<Button
-									onClick={handleSave}
-									disabled={isLoading || name.trim() === ""}
-								>
+								<Button onClick={handleSave} disabled={isLoading || name.trim() === ""}>
 									{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 									Save Changes
 								</Button>
@@ -280,12 +242,12 @@ export function EditUserCurationProfileModal({
 					)}
 				</div>
 
-				<AlertDialogFooter>
+				<DialogFooter>
 					<Button variant="outline" onClick={onClose} disabled={isLoading}>
 						Cancel
 					</Button>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	)
 }

@@ -1,28 +1,19 @@
 "use client"
 
+import { Play } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { toast } from "sonner"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type {
-	CuratedBundleEpisode,
-	CuratedPodcast,
-	Episode,
-	Source,
-	UserCurationProfile,
-	UserCurationProfileWithRelations,
-} from "@/lib/types"
-import { Play } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import styles from "./page.module.css"
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
+import { getEpisodes, getUserCurationProfile } from "@/lib/data"
+import type { CuratedBundleEpisode, CuratedPodcast, Episode, Source, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import styles from "./page.module.css"
 
 // Combined episode type for display
 interface CombinedEpisode {
@@ -47,10 +38,9 @@ export default function Page() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
-	const router = useRouter()
 	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
 
-	const fetchAndUpdateData = async () => {
+	const fetchAndUpdateData = useCallback(async () => {
 		// Fetch user curation profile and episodes in parallel
 		const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
 
@@ -103,7 +93,7 @@ export default function Page() {
 		})
 
 		setCombinedEpisodes(combined)
-	}
+	}, [])
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -119,7 +109,7 @@ export default function Page() {
 		}
 
 		fetchData()
-	}, [])
+	}, [fetchAndUpdateData])
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return
@@ -199,24 +189,23 @@ export default function Page() {
 											<div className="mt-2 text-sm">
 												<p className="font-medium">Podcasts:</p>
 												<ul className="list-disc pl-5 text-muted-foreground">
-													{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => (
-														<li key={podcast.id}>{podcast.name}</li>
-													)) || <li className="text-muted-foreground">No podcasts loaded</li>}
+													{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
+														<li className="text-muted-foreground">No podcasts loaded</li>
+													)}
 												</ul>
 											</div>
-											{userCurationProfile.selectedBundle.episodes &&
-												userCurationProfile.selectedBundle.episodes.length > 0 && (
-													<div className="mt-4 text-sm">
-														<p className="font-medium">Bundle Episodes:</p>
-														<ul className="list-disc pl-5 text-muted-foreground">
-															{userCurationProfile.selectedBundle.episodes.map(episode => (
-																<li key={episode.id}>
-																	{episode.title} - {new Date(episode.publishedAt).toLocaleDateString()}
-																</li>
-															))}
-														</ul>
-													</div>
-												)}
+											{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
+												<div className="mt-4 text-sm">
+													<p className="font-medium">Bundle Episodes:</p>
+													<ul className="list-disc pl-5 text-muted-foreground">
+														{userCurationProfile.selectedBundle.episodes.map(episode => (
+															<li key={episode.id}>
+																{episode.title} - {new Date(episode.publishedAt).toLocaleDateString()}
+															</li>
+														))}
+													</ul>
+												</div>
+											)}
 										</CardContent>
 									</Card>
 								)}
@@ -228,9 +217,7 @@ export default function Page() {
 										<CardTitle>No User Curation Profile Found</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<p className="text-muted-foreground">
-											It looks like you haven't created a user curation profile yet. Start by creating one!
-										</p>
+										<p className="text-muted-foreground">It looks like you haven't created a user curation profile yet. Start by creating one!</p>
 										<Button className="mt-4" onClick={() => setIsCreateWizardOpen(true)}>
 											Create Curation Profile
 										</Button>
@@ -275,32 +262,18 @@ export default function Page() {
 														<div className={styles.episodeInfo}>
 															<div className={styles.episodeHeader}>
 																<h3 className={styles.episodeTitle}>{episode.title}</h3>
-																<span
-																	className={`${styles.episodeType} ${
-																		episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom
-																	}`}
-																>
+																<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
 																	{episode.type === "bundle" ? "Bundle" : "Custom"}
 																</span>
 															</div>
 															<div className={styles.playButtonContainer}>
-																<Button
-																	onClick={() => handlePlayEpisode(episode.id)}
-																	variant="outline"
-																	size="sm"
-																	className={styles.playButton}
-																>
+																<Button onClick={() => handlePlayEpisode(episode.id)} variant="outline" size="sm" className={styles.playButton}>
 																	<Play className={styles.playIcon} />
 																	Play Episode
 																</Button>
 															</div>
-															{episode.description && (
-																<p className={styles.episodeDescription}>{episode.description}</p>
-															)}
-															<p className={styles.episodeDate}>
-																Published:{" "}
-																{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
-															</p>
+															{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
+															<p className={styles.episodeDate}>Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}</p>
 														</div>
 														{episode.audioUrl && playingEpisodeId === episode.id && (
 															<div className={styles.episodeAudio}>
@@ -353,10 +326,12 @@ export default function Page() {
 					<DialogHeader>
 						<DialogTitle>Create Your Curation Profile</DialogTitle>
 					</DialogHeader>
-					<UserCurationProfileCreationWizardWrapper onSuccess={async () => {
-						setIsCreateWizardOpen(false)
-						await fetchAndUpdateData()
-					}} />
+					<UserCurationProfileCreationWizardWrapper
+						onSuccess={async () => {
+							setIsCreateWizardOpen(false)
+							await fetchAndUpdateData()
+						}}
+					/>
 				</DialogContent>
 			</Dialog>
 		</>
@@ -365,7 +340,7 @@ export default function Page() {
 
 function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
 	// Use a local state to track if the profile was created
-	const { userCurationProfile, error, isLoading } = useUserCurationProfileStore()
+	const { userCurationProfile } = useUserCurationProfileStore()
 	const [hasCreated, setHasCreated] = useState(false)
 
 	useEffect(() => {
@@ -373,8 +348,7 @@ function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: ()
 			setHasCreated(true)
 			onSuccess()
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userCurationProfile])
+	}, [userCurationProfile, hasCreated, onSuccess])
 
 	return <UserCurationProfileCreationWizard />
 }

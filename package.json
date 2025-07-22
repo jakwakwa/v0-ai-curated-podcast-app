@@ -91,6 +91,7 @@
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"biome": "^0.3.3",
+		"chalk": "^5.4.1",
 		"inngest": "^3.40.1",
 		"knip": "^5.62.0",
 		"postcss": "^8.5",

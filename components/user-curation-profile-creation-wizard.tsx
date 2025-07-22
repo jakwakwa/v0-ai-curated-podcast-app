@@ -1,17 +1,18 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import styles from "./collection-creation-wizard.module.css"
-import { CuratedBundleList } from "./curated-bundle-list" // Assuming this component exists or will be created
-import { CuratedPodcastList } from "./curated-podcast-list" // Assuming this component exists or will be created
-import { getUserCurationProfile } from "@/lib/data"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, ArrowLeft } from "lucide-react"
+import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { getUserCurationProfile } from "@/lib/data"
+import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
+import type { UserCurationProfile } from "@/lib/types"
+import styles from "./collection-creation-wizard.module.css"
+import { CuratedBundleList } from "./curated-bundle-list"
+import { CuratedPodcastList } from "./curated-podcast-list"
 
 export function UserCurationProfileCreationWizard() {
 	const [step, setStep] = useState(1)
@@ -30,7 +31,7 @@ export function UserCurationProfileCreationWizard() {
 			category: string
 		}>
 	>([])
-	const [existingProfile, setExistingProfile] = useState<any>(null)
+	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 
 	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
@@ -42,8 +43,8 @@ export function UserCurationProfileCreationWizard() {
 			try {
 				const profile = await getUserCurationProfile()
 				setExistingProfile(profile)
-			} catch (error) {
-				console.error("Error checking existing profile:", error)
+			} catch {
+				// Silently handle profile check errors
 			} finally {
 				setIsCheckingProfile(false)
 			}
@@ -54,8 +55,6 @@ export function UserCurationProfileCreationWizard() {
 
 	const handleCreateUserCurationProfile = async () => {
 		if (!canCreateUserCurationProfile()) {
-			// This check should ideally be done before showing the creation wizard or handled by a higher-level component.
-			// For now, it provides a fallback toast.
 			const message = isTrialing
 				? `You can only create one user curation profile during your trial period. Remaining trial days: ${getRemainingTrialDays()}.`
 				: "You need an active subscription to create a user curation profile."
@@ -90,7 +89,7 @@ export function UserCurationProfileCreationWizard() {
 		await createUserCurationProfile(data)
 		if (!error) {
 			toast.success("User Curation Profile created successfully!")
-			setStep(1) // Reset to first step
+			setStep(1)
 			setUserCurationProfileName("")
 			setIsBundleSelection(false)
 			setSelectedBundleId(undefined)
@@ -183,9 +182,7 @@ export function UserCurationProfileCreationWizard() {
 			{/* Step 2: Select Content */}
 			{step === 2 && (
 				<div>
-					<h2 className={styles.stepTitle}>
-						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}
-					</h2>
+					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}</h2>
 					{isBundleSelection ? (
 						<CuratedBundleList onSelectBundle={setSelectedBundleId} />
 					) : (
@@ -207,10 +204,7 @@ export function UserCurationProfileCreationWizard() {
 					)}
 					<div className={styles.navigationButtons}>
 						<Button onClick={() => setStep(1)}>Back</Button>
-						<Button
-							onClick={() => setStep(3)}
-							disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}
-						>
+						<Button onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
 							Next
 						</Button>
 					</div>
@@ -235,7 +229,7 @@ export function UserCurationProfileCreationWizard() {
 					<div className={styles.reviewSummary}>
 						<h4>Selected Content:</h4>
 						{isBundleSelection && selectedBundleId ? (
-							<p>Bundle ID: {selectedBundleId}</p> // You might want to display bundle name here
+							<p>Bundle ID: {selectedBundleId}</p>
 						) : (
 							<ul>
 								{selectedPodcasts.map(p => (
@@ -246,10 +240,7 @@ export function UserCurationProfileCreationWizard() {
 					</div>
 					<div className={styles.navigationButtons}>
 						<Button onClick={() => setStep(2)}>Back</Button>
-						<Button
-							onClick={handleCreateUserCurationProfile}
-							disabled={isLoading || userCurationProfileName.trim() === ""}
-						>
+						<Button onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
 							{isLoading ? "Creating..." : "Create User Curation Profile"}
 						</Button>
 					</div>

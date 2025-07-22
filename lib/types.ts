@@ -14,8 +14,6 @@ import type {
 	UserCurationProfile,
 } from "@prisma/client"
 
-
-
 // Re-export for convenience
 export type {
 	User, // TODO: Find out why User is not used?
@@ -31,7 +29,6 @@ export type {
 	EpisodeFeedback,
 	FeedbackRating,
 }
-
 
 // TODO EpisodeFeedback needs to be updated to include the userCurationProfileId
 export type Episode = {
@@ -60,8 +57,8 @@ export type Episode = {
 		isActive: boolean
 		isBundleSelection: boolean
 		selectedBundleId: string | null
-		sources: any[]
-		episodes: any[]
+		sources: Source[]
+		episodes: Episode[]
 	} | null
 	source?: Source | null
 }

@@ -1,8 +1,50 @@
 {
-	"editor.fontSize": 13,
 	"yaml.maxItemsComputed": 500,
 	"css.validate": false,
 	"less.validate": false,
 	"scss.validate": false,
-	"css.customData": [".vscode/css_custom_data.json"]
+	"css.customData": [".vscode/css_custom_data.json"],
+	"terminal.integrated.shellIntegration.decorationsEnabled": true,
+	"terminal.integrated.shellIntegration.enabled": true,
+	"terminal.integrated.defaultProfile.linux": "zsh",
+	"terminal.integrated.defaultProfile.osx": "zsh",
+	"terminal.integrated.defaultProfile.windows": "zsh",
+	"terminal.integrated.profiles.linux": {
+		"zsh": {
+			"path": "zsh"
+		}
+	},
+	"terminal.integrated.profiles.osx": {
+		"zsh": {
+			"path": "/bin/zsh"
+		}
+	},
+	"editor.fontFamily": "Dank Mono",
+	"editor.fontSize": 13,
+	"editor.fontLigatures": true,
+	"editor.lineHeight": 1.7,
+	"editor.fontWeight": "800",
+	"terminal.integrated.fontFamily": "Dank Mono",
+	"terminal.integrated.fontSize": 11,
+	"terminal.integrated.fontLigatures": true,
+	"terminal.integrated.lineHeight": 1.7,
+	"terminal.integrated.fontWeight": "300",
+	"terminal.integrated.suggest.enabled": true,
+	"terminal.integrated.shellIntegration.environmentReporting": true,
+	"terminal.integrated.suggest.cdPath": "relative",
+	"terminal.integrated.suggest.inlineSuggestion": "off",
+	"terminal.integrated.suggest.runOnEnter": "never",
+	"terminal.integrated.detectLocale": "auto",
+	"terminal.integrated.wordSeparators": " ()[]{}'\"`─",
+	"terminal.integrated.localEchoLatencyThreshold": 2,
+	"terminal.integrated.enableFileLinks": "on",
+
+	"terminal.integrated.allowChords": false,
+	"terminal.integrated.gpuAcceleration": "off",
+	"terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
+	"terminal.integrated.tabs.focusMode": "singleClick",
+	"terminal.integrated.tabs.hideCondition": "singleGroup",
+	"terminal.integrated.tabs.location": "left",
+	"workbench.editor.tabSizingFixedMaxWidth": 70,
+	"workbench.editor.tabSizingFixedMinWidth": 40
 }

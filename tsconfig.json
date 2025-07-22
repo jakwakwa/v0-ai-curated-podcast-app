@@ -1,93 +1,93 @@
 {
-	"compilerOptions": {
-		"target": "es2015",
-		"lib": [
-			"dom",
-			"dom.iterable",
-			"esnext"
-		],
-		"allowJs": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"noEmit": true,
-		"esModuleInterop": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"jsx": "react-jsx",
-		"incremental": true,
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
-		"paths": {
-			"@/*": [
-				"./*",
-				"./components/*",
-				"./lib/*",
-				"./hooks/*",
-				"./app/*",
-				"./store/*",
-				"./config/*",
-				"./prisma/*",
-				"./scripts/*",
-			],
-			"components/ui/*": [
-				"./components/ui/*"
-			]
-		}
-	},
-	"ts-node": {
-		"compilerOptions": {
-			"module": "commonjs"
-		}
-	},
-	"include": [
-		"next-env.d.ts",
-		"*.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		".next/types/**/*.ts"
-	],
-	"exclude": [
-		".mdc",
-		".md",
-		".css",
-		".scss",
-		".sass",
-		".less",
-		".styl",
-		".stylus",
-		".pcss",
-		".postcss",
-		".configig",
-		".cursor",
-		".cursorrules",
-		".cursorignore",
-		".cursorignorerules",
-		".cursorignorecursorrules",
-		".cursorignorecursorrules",
-		"/docs",
-		"/public",
-		"/styles",
-		"/styles/globals.css",
-		"/styles/globals.css.map",
-		"/styles/globals.css.map",
-		".yml",
-		".yaml",
-		".json",
-		".jsonc",
-		".jsonrc",
-		".json5",
-		".mjs",
-		".mts",
-		".cts",
-		".mtsx",
-		".ctsx",
-		".mjs",
-		".mts",
-		"node_modules"
-	]
+  "compilerOptions": {
+    "target": "es2015",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*",
+        "./components/*",
+        "./lib/*",
+        "./hooks/*",
+        "./app/*",
+        "./store/*",
+        "./config/*",
+        "./prisma/*",
+        "./scripts/*"
+      ],
+      "components/ui/*": [
+        "./components/ui/*"
+      ]
+    }
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "*.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    ".mdc",
+    ".md",
+    ".css",
+    ".scss",
+    ".sass",
+    ".less",
+    ".styl",
+    ".stylus",
+    ".pcss",
+    ".postcss",
+    ".configig",
+    ".cursor",
+    ".cursorrules",
+    ".cursorignore",
+    ".cursorignorerules",
+    ".cursorignorecursorrules",
+    ".cursorignorecursorrules",
+    "/docs",
+    "/public",
+    "/styles",
+    "/styles/globals.css",
+    "/styles/globals.css.map",
+    "/styles/globals.css.map",
+    ".yml",
+    ".yaml",
+    ".json",
+    ".jsonc",
+    ".jsonrc",
+    ".json5",
+    ".mjs",
+    ".mts",
+    ".cts",
+    ".mtsx",
+    ".ctsx",
+    ".mjs",
+    ".mts",
+    "node_modules"
+  ]
 }

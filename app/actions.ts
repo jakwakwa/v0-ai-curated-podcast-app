@@ -1,14 +1,11 @@
 "use server"
 
+import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-
 import prisma from "@/lib/prisma"
 import type { FormState, UserCurationProfileWithRelations } from "@/lib/types"
-import { auth, currentUser } from "@clerk/nextjs"
 import { inngest } from "../inngest/client"
-
-
 
 // TODO: use these exports in /api/admin/
 // TODO: use these exports in /app/(protected)/admin/page.tsx
@@ -24,9 +21,7 @@ export async function fetchYouTubeVideoDetails(url: string) {
 		}
 
 		// Fetch video details using YouTube oEmbed API
-		const response = await fetch(
-			`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-		)
+		const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch video details: ${response.status}`)
@@ -180,12 +175,9 @@ export async function updatePodcastSourceName(id: string, newName: string): Prom
 	}
 }
 
-
 // TODO: use these exports in /app/(protected)/curated-bundles
 // TODO: use these exports in /app/(protected)/dashboard/page.tsx
-export async function getUserCurationProfileStatus(
-	userCurationProfileId: string
-): Promise<UserCurationProfileWithRelations | null> {
+export async function getUserCurationProfileStatus(userCurationProfileId: string): Promise<UserCurationProfileWithRelations | null> {
 	const { userId } = await auth()
 	if (!userId) {
 		return null
@@ -215,7 +207,6 @@ export async function getUserCurationProfileStatus(
 		}
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("Error fetching user curation profile status:", message) // Keep for server-side logging
 		return null
 	}
@@ -252,8 +243,45 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 		return { success: true, message: "Podcast generation triggered." }
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("Error triggering podcast generation:", message)
 		return { success: false, message: "Failed to trigger podcast generation." }
+	}
+}
+
+export async function createDraftUserCurationProfile() {
+	const { userId } = await auth()
+
+	if (!userId) {
+		throw new Error("Not authenticated")
+	}
+
+	try {
+		// Check if user already has a draft profile
+		const existingDraft = await prisma.userCurationProfile.findFirst({
+			where: { userId: userId, status: "Draft" },
+		})
+
+		if (existingDraft) {
+			// If draft already exists, just redirect to the build page
+			redirect("/build")
+			return
+		}
+
+		// Create new draft user curation profile
+		await prisma.userCurationProfile.create({
+			data: {
+				userId: userId,
+				name: "New Weekly Curation",
+				status: "Draft",
+				createdAt: new Date(),
+			},
+		})
+
+		revalidatePath("/build")
+		redirect("/build")
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error)
+		console.error("Error creating draft user curation profile:", message)
+		throw new Error("Failed to create draft user curation profile")
 	}
 }

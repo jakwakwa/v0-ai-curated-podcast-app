@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth } from "@clerk/nextjs/server"
 
 /**
  * Check if the current user has a specific organization role
@@ -6,13 +6,13 @@ import { auth } from '@clerk/nextjs/server'
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function hasOrgRole(role: string): Promise<boolean> {
-  try {
-    const { has } = await auth()
-    return has({ role })
-  } catch (error) {
-    console.error('Error checking organization role:', error)
-    return false
-  }
+	try {
+		const { has } = await auth()
+		return has({ role })
+	} catch (error) {
+		console.error("Error checking organization role:", error)
+		return false
+	}
 }
 
 /**
@@ -21,13 +21,13 @@ export async function hasOrgRole(role: string): Promise<boolean> {
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function hasOrgPermission(permission: string): Promise<boolean> {
-  try {
-    const { has } = await auth()
-    return has({ permission })
-  } catch (error) {
-    console.error('Error checking organization permission:', error)
-    return false
-  }
+	try {
+		const { has } = await auth()
+		return has({ permission })
+	} catch (error) {
+		console.error("Error checking organization permission:", error)
+		return false
+	}
 }
 
 /**
@@ -36,7 +36,7 @@ export async function hasOrgPermission(permission: string): Promise<boolean> {
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function isOrgAdmin(): Promise<boolean> {
-  return hasOrgRole('org:admin')
+	return hasOrgRole("org:admin")
 }
 
 /**
@@ -45,7 +45,7 @@ export async function isOrgAdmin(): Promise<boolean> {
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function isOrgModerator(): Promise<boolean> {
-  return hasOrgRole('org:moderator')
+	return hasOrgRole("org:moderator")
 }
 
 /**
@@ -54,9 +54,20 @@ export async function isOrgModerator(): Promise<boolean> {
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function isOrgMember(): Promise<boolean> {
-  return hasOrgRole('org:member')
+	return hasOrgRole("org:member")
 }
 
+/**
+ * Require a specific organization role or throw an error
+ */
+
+// TODO: use this in /app/(protected)/admin/page.tsx
+export async function requireOrgRole(role: string): Promise<void> {
+	const hasRole = await hasOrgRole(role)
+	if (!hasRole) {
+		throw new Error(`Organization role '${role}' required`)
+	}
+}
 
 /**
  * Require a specific organization permission or throw an error
@@ -64,8 +75,8 @@ export async function isOrgMember(): Promise<boolean> {
 
 // TODO: use this in /app/(protected)/admin/page.tsx
 export async function requireOrgPermission(permission: string): Promise<void> {
-  const hasPermission = await hasOrgPermission(permission)
-  if (!hasPermission) {
-    throw new Error(`Organization permission '${permission}' required`)
-  }
+	const hasPermission = await hasOrgPermission(permission)
+	if (!hasPermission) {
+		throw new Error(`Organization permission '${permission}' required`)
+	}
 }
