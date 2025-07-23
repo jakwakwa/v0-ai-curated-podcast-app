@@ -1,8 +1,7 @@
-import { Badge } from "@/components/ui/badge"
+import { Calendar, Clock, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
-import { Calendar, Clock, PlayCircle } from "lucide-react"
 import styles from "./podcast-card.module.css"
 
 interface PodcastCardProps {
@@ -11,21 +10,6 @@ interface PodcastCardProps {
 }
 
 export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
-	// TODO: After revamp
-	//@ts-ignore
-	const getStatusBadgeVariant = (status: Episode["status"]) => {
-		switch (status) {
-			case "Completed":
-				return "outline"
-			case "Processing":
-				return "default"
-			case "Failed":
-				return "destructive"
-			default:
-				return "secondary"
-		}
-	}
-
 	return (
 		<Card className={styles["podcast-card-flex-col"]}>
 			<CardHeader>
@@ -37,9 +21,6 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 			</CardHeader>
 			<CardContent className={styles["card-content-flex"]}>
 				<div className={styles["items-center-justify-between"]}>
-					<Badge variant={getStatusBadgeVariant(episode.userCurationProfile?.status || "Draft")}>
-						{episode.userCurationProfile?.status || "Draft"}
-					</Badge>
 					<div className={styles["text-muted-foreground-sm"]}>
 						<Clock className={styles["icon-small"]} />
 						<span>{episode.audioUrl ? "Available" : "N/A"}</span>
@@ -47,11 +28,7 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button
-					className={styles["button-full-width"]}
-					disabled={!episode.audioUrl}
-					onClick={() => onPlayEpisode(episode)}
-				>
+				<Button className={styles["button-full-width"]} disabled={!episode.audioUrl} onClick={() => onPlayEpisode(episode)}>
 					<PlayCircle className={styles["button-icon-margin-right"]} />
 					Play Episode
 				</Button>

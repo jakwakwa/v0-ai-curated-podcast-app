@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 interface RouteParams {
 	params: Promise<{ id: string }>
@@ -25,7 +25,7 @@ export async function GET(
 
 		const userCurationProfile = await prisma.userCurationProfile.findUnique({
 			where: { id: id, userId: userId },
-			include: { sources: true, selectedBundle: true },
+			include: { selectedBundle: true },
 		})
 
 		if (!userCurationProfile) {
@@ -74,7 +74,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
 		if (existingUserCurationProfile.userId !== userId) {
 			// biome-ignore lint/suspicious/noConsole: Debug logging
-			// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+			// biome-ignore lint/suspicious/noConsole: <explanation>
 			console.log("User ID mismatch:", {
 				requestUserId: userId,
 				profileUserId: existingUserCurationProfile.userId,
@@ -95,7 +95,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 						name: name || existingUserCurationProfile.name,
 						isBundleSelection: true,
 						selectedBundleId,
-						sources: { deleteMany: {} }, // Clear existing sources
 					},
 				})
 			} else if (!isBundleSelection) {
@@ -111,23 +110,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 			}
 		} else if (sourceUrls) {
 			// Update sources for a custom user curation profile
-			// First, delete all existing sources for this user curation profile
-			await prisma.source.deleteMany({
-				where: { userCurationProfileId: id },
-			})
-
-			// Then, create new sources
+			// Note: Sources functionality has been temporarily disabled during migration
 			updatedUserCurationProfile = await prisma.userCurationProfile.update({
 				where: { id: id },
 				data: {
 					name: name || existingUserCurationProfile.name,
-					sources: {
-						create: sourceUrls.map((url: { name: string; url: string; imageUrl?: string }) => ({
-							name: url.name,
-							url: url.url,
-							imageUrl: url.imageUrl,
-						})),
-					},
 				},
 			})
 		} else if (name) {

@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 export async function GET(
 	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
@@ -17,11 +17,10 @@ export async function GET(
 		const userCurationProfile = await prisma.userCurationProfile.findFirst({
 			where: { userId, isActive: true },
 			include: {
-				sources: true,
 				episodes: true,
 				selectedBundle: {
 					include: {
-						bundlePodcasts: {
+						podcasts: {
 							include: { podcast: true },
 						},
 						episodes: {
@@ -42,7 +41,7 @@ export async function GET(
 			selectedBundle: userCurationProfile.selectedBundle
 				? {
 						...userCurationProfile.selectedBundle,
-						podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
+						podcasts: userCurationProfile.selectedBundle.podcasts.map(bp => bp.podcast),
 						episodes: userCurationProfile.selectedBundle.episodes || [],
 					}
 				: null,
@@ -95,18 +94,12 @@ export async function POST(request: Request) {
 			})
 		} else if (!isBundleSelection && sourceUrls) {
 			// Create a custom user curation profile with sources
+			// Note: Sources functionality has been temporarily disabled during migration
 			newUserCurationProfile = await prisma.userCurationProfile.create({
 				data: {
 					userId,
 					name,
 					isBundleSelection: false,
-					sources: {
-						create: sourceUrls.map((url: { name: string; url: string; imageUrl?: string }) => ({
-							name: url.name,
-							url: url.url,
-							imageUrl: url.imageUrl,
-						})),
-					},
 				},
 			})
 		} else {

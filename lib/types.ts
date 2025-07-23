@@ -1,83 +1,38 @@
 // Import Prisma's generated types
-import type {
-	CuratedBundle,
-	CuratedBundleEpisode,
-	CuratedBundleEpisodeFeedback,
-	CuratedBundlePodcast,
-	CuratedPodcast,
-	EpisodeFeedback,
-	FeedbackRating,
-	Notification,
-	Source,
-	Subscription,
+import type { Bundle, BundlePodcast, Episode, EpisodeFeedback, FeedbackRating, Notification, Podcast, ProfilePodcast, Subscription, User, UserCurationProfile } from "@prisma/client"
+
+// Re-export unified types for convenience
+export type {
 	User,
 	UserCurationProfile,
-} from "@prisma/client"
-
-// Re-export for convenience
-export type {
-	User, // TODO: Find out why User is not used?
-	UserCurationProfile,
-	Source,
-	CuratedPodcast,
-	CuratedBundle,
-	CuratedBundleEpisode,
-	CuratedBundleEpisodeFeedback,
-	CuratedBundlePodcast,
+	Podcast, // Unified: replaces CuratedPodcast + Source
+	Bundle, // Unified: replaces CuratedBundle
+	Episode, // Unified: replaces Episode + CuratedBundleEpisode
+	BundlePodcast, // Renamed from CuratedBundlePodcast
+	ProfilePodcast, // New: junction for user's custom podcast selections
 	Notification,
 	Subscription,
 	EpisodeFeedback,
 	FeedbackRating,
 }
 
-// TODO EpisodeFeedback needs to be updated to include the userCurationProfileId
-export type Episode = {
-	id: string
-	title: string
-	description: string | null
-	audioUrl: string
-	imageUrl: string | null
-	publishedAt: Date | null
-	weekNr: Date
-	createdAt: Date
-	sourceId: string
-	userCurationProfileId: string
-	userCurationProfile?: {
-		id: string
-		audioUrl: string | null
-		imageUrl: string | null
-		createdAt: Date
-		name: string
-		userId: string
-		status: string
-		updatedAt: Date
-		generatedAt: Date | null
-		lastGenerationDate: Date | null
-		nextGenerationDate: Date | null
-		isActive: boolean
-		isBundleSelection: boolean
-		selectedBundleId: string | null
-		sources: Source[]
-		episodes: Episode[]
-	} | null
-	source?: Source | null
+// Legacy type aliases for backward compatibility during transition
+export type CuratedPodcast = Podcast
+export type CuratedBundle = Bundle
+export type Source = Podcast
+export type CuratedBundleEpisode = Episode
+export type CuratedBundlePodcast = BundlePodcast
+
+// Custom type for Bundle that includes the transformed 'podcasts' array from the API
+export interface TransformedCuratedBundle extends Bundle {
+	podcasts: Podcast[]
+	episodes?: Episode[]
 }
 
-// Custom type for CuratedBundle that includes the transformed 'podcasts' array from the API
-export interface TransformedCuratedBundle extends CuratedBundle {
-	podcasts: CuratedPodcast[]
-	episodes?: CuratedBundleEpisode[]
-}
-
-// Custom type for UserCurationProfile that includes the 'sources' relation
-export interface UserCurationProfileWithSources extends UserCurationProfile {
-	sources: Source[]
-}
-
-// Fix the type mismatch by properly handling Prisma's string type
+// Custom type for UserCurationProfile that includes relations
 export interface UserCurationProfileWithRelations extends UserCurationProfile {
 	status: UserCurationProfileStatus // This will be cast at runtime
-	sources: Source[]
+	podcastSelections?: (ProfilePodcast & { podcast: Podcast })[]
 	selectedBundle?: TransformedCuratedBundle | null
 	episodes: Episode[]
 }
@@ -92,13 +47,6 @@ export interface FormState {
 	success: boolean
 	message: string
 }
-
-// TODO: Where and why is this used? Use NextJS Interfaces instead
-// export interface ApiResponse<T> {
-// 	data?: T
-// 	error?: string
-// 	message?: string
-// }
 
 // Status type helpers for better type safety
 export type UserCurationProfileStatus = "Draft" | "Saved" | "Generated" | "Failed"

@@ -71,12 +71,12 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 		// Fetch YouTube video details
 		const videoDetails = await fetchYouTubeVideoDetails(url)
 
-		await prisma.source.create({
+		await prisma.podcast.create({
 			data: {
-				userCurationProfileId: draftUserCurationProfile.id,
 				name: videoDetails.title,
 				url: url,
 				imageUrl: videoDetails.thumbnail,
+				description: null,
 			},
 		})
 
@@ -90,23 +90,9 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 // TODO: use these exports in /api/admin/
 // TODO: use these exports in /app/(protected)/admin/page.tsx
 // TODO: use these exports in /app/(protected)/build/page.tsx
-// TODO: use these exports in /app/(protected)/build/page.tsx
-export async function removePodcastSource(formData: FormData) {
-	const { userId } = await auth()
-	if (!userId) return
-
-	const id = formData.get("id") as string
-	try {
-		const source = await prisma.source.findUnique({
-			where: { id },
-			include: { userCurationProfile: true },
-		})
-		if (source?.userCurationProfile?.userId === userId) {
-			await prisma.source.delete({ where: { id } })
-		}
-	} catch (_error) {}
-
-	revalidatePath("/build")
+export async function removePodcastSource() {
+	// TODO: Fix this function after the database schema migration is complete
+	console.log("removePodcastSource temporarily disabled")
 }
 
 // TODO: use these exports in /api/admin/
@@ -147,69 +133,16 @@ export async function saveCuration(formData: FormData) {
 // TODO: use these exports in /app/(protected)/admin/page.tsx
 // TODO: use these exports in /app/(protected)/build/page.tsx
 // TODO: use these exports in /app/(protected)/build/page.tsx
-export async function updatePodcastSourceName(id: string, newName: string): Promise<FormState> {
-	const { userId } = await auth()
-	if (!userId) {
-		return { success: false, message: "Not authenticated." }
-	}
-
-	try {
-		const source = await prisma.source.findUnique({
-			where: { id },
-			include: { userCurationProfile: true },
-		})
-
-		if (!source || source.userCurationProfile?.userId !== userId) {
-			return { success: false, message: "Source not found or unauthorized." }
-		}
-
-		await prisma.source.update({
-			where: { id },
-			data: { name: newName },
-		})
-
-		revalidatePath("/build")
-		return { success: true, message: "Show name updated successfully." }
-	} catch (_error) {
-		return { success: false, message: "Failed to update show name." }
-	}
+export async function updatePodcastSourceName(_id: string, _newName: string): Promise<FormState> {
+	// TODO: Fix this function after the database schema migration is complete
+	return { success: false, message: "Function temporarily disabled during migration." }
 }
 
 // TODO: use these exports in /app/(protected)/curated-bundles
 // TODO: use these exports in /app/(protected)/dashboard/page.tsx
-export async function getUserCurationProfileStatus(userCurationProfileId: string): Promise<UserCurationProfileWithRelations | null> {
-	const { userId } = await auth()
-	if (!userId) {
-		return null
-	}
-	try {
-		const userCurationProfile = await prisma.userCurationProfile.findUnique({
-			where: { id: userCurationProfileId, userId: userId },
-			include: { sources: true, selectedBundle: { include: { bundlePodcasts: { include: { podcast: true } } } } }, // Include sources and selectedBundle
-		})
-		if (!userCurationProfile) return null
-
-		// Transform the object to match UserCurationProfileWithRelations
-		return {
-			...userCurationProfile,
-			status: userCurationProfile.status as UserCurationProfileWithRelations["status"],
-			sources: userCurationProfile.sources.map(source => ({
-				...source,
-				imageUrl: source.imageUrl || "",
-			})),
-			selectedBundle: userCurationProfile.selectedBundle
-				? {
-						...userCurationProfile.selectedBundle,
-						podcasts: userCurationProfile.selectedBundle.bundlePodcasts.map(bp => bp.podcast),
-					}
-				: null,
-			episodes: [], // Add this line to include the episodes property
-		}
-	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : String(error)
-		console.error("Error fetching user curation profile status:", message) // Keep for server-side logging
-		return null
-	}
+export async function getUserCurationProfileStatus(_userCurationProfileId: string): Promise<UserCurationProfileWithRelations | null> {
+	// TODO: Fix this function after the database schema migration is complete
+	return null
 }
 
 // TODO: use these exports in /app/(protected)/dashboard/page.tsx

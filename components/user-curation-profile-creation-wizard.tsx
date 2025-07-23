@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { getUserCurationProfile } from "@/lib/data"
 import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
-import type { UserCurationProfile } from "@/lib/types"
+import type { CuratedPodcast, UserCurationProfile } from "@/lib/types"
 import styles from "./collection-creation-wizard.module.css"
 import { CuratedBundleList } from "./curated-bundle-list"
 import { CuratedPodcastList } from "./curated-podcast-list"
@@ -19,18 +19,7 @@ export function UserCurationProfileCreationWizard() {
 	const [userCurationProfileName, setUserCurationProfileName] = useState("")
 	const [isBundleSelection, setIsBundleSelection] = useState(false)
 	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(undefined)
-	const [selectedPodcasts, setSelectedPodcasts] = useState<
-		Array<{
-			id: string
-			name: string
-			imageUrl: string | null
-			createdAt: Date
-			isActive: boolean
-			url: string
-			description: string | null
-			category: string
-		}>
-	>([])
+	const [selectedPodcasts, setSelectedPodcasts] = useState<CuratedPodcast[]>([])
 	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 

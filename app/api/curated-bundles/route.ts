@@ -1,23 +1,17 @@
+import { type NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { auth } from "@clerk/nextjs/server"
-import { NextResponse } from "next/server"
 
-export async function GET(
-	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
-	// biome-ignore lint/correctness/noUnusedVariables: <expected>
-	request: Request
-) {
+export async function GET(_request: NextRequest) {
 	try {
-		const { userId } = await auth()
+		// Note: Curated bundles are public data, so no authentication required
 
-		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
-		}
-
-		const curatedBundles = await prisma.curatedBundle.findMany({
-			where: { isActive: true },
+		const curatedBundles = await prisma.bundle.findMany({
+			where: {
+				isActive: true,
+				// Note: Showing all active bundles including user-created ones for admin functionality
+			},
 			include: {
-				bundlePodcasts: {
+				podcasts: {
 					include: { podcast: true },
 				},
 			},
@@ -27,12 +21,11 @@ export async function GET(
 		// Flatten the structure to include podcasts directly in the bundle object
 		const bundlesWithPodcasts = curatedBundles.map(bundle => ({
 			...bundle,
-			podcasts: bundle.bundlePodcasts.map(bp => bp.podcast),
+			podcasts: bundle.podcasts.map(bp => bp.podcast),
 		}))
 
 		return NextResponse.json(bundlesWithPodcasts)
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <error debugging>
 		console.error("[CURATED_BUNDLES_GET]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}
