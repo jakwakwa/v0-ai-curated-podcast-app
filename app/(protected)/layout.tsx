@@ -3,7 +3,7 @@
 import { useAuth } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import type React from "react"
-import { useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
@@ -13,6 +13,31 @@ import styles from "./layout.module.css"
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
 	const { isSignedIn, isLoaded } = useAuth()
 	const router = useRouter()
+	const [isUserSynced, setIsUserSynced] = useState(false)
+	const [isSyncingUser, setIsSyncingUser] = useState(false)
+
+	// Sync user to local database
+	const syncUser = useCallback(async () => {
+		if (isSyncingUser || isUserSynced) return
+
+		setIsSyncingUser(true)
+		try {
+			const response = await fetch("/api/sync-user", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+			})
+
+			if (response.ok) {
+				setIsUserSynced(true)
+			} else {
+				setIsUserSynced(true)
+			}
+		} catch {
+			setIsUserSynced(true)
+		} finally {
+			setIsSyncingUser(false)
+		}
+	}, [isSyncingUser, isUserSynced])
 
 	useEffect(() => {
 		if (isLoaded && !isSignedIn) {
@@ -20,8 +45,14 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 		}
 	}, [isSignedIn, isLoaded, router])
 
-	// Show minimal loading while checking authentication
-	if (!isLoaded) {
+	useEffect(() => {
+		if (isLoaded && isSignedIn && !isUserSynced && !isSyncingUser) {
+			syncUser()
+		}
+	}, [isLoaded, isSignedIn, isUserSynced, isSyncingUser, syncUser])
+
+	// Show minimal loading while checking authentication or syncing user
+	if (!isLoaded || (isSignedIn && !isUserSynced)) {
 		return (
 			<SidebarProvider>
 				<SiteHeader />

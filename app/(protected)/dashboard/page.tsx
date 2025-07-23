@@ -200,7 +200,7 @@ export default function Page() {
 								</div>
 							) : (
 								<div className="px-0 lg:px-0 w-full">
-									<div className="max-w-2xl md:max-w-full mt-8 w-full">
+									<div className="max-w-2xl md:max-w-full mt-0 w-full">
 										<Card>
 											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 												<CardTitle className="mb-4">Current Personalized Feed</CardTitle>

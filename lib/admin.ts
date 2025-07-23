@@ -33,18 +33,10 @@ export async function isAdmin(): Promise<boolean> {
 			user = await currentUser()
 		} catch (userError: unknown) {
 			console.error("Error fetching current user for admin check:", userError)
-			// If we can't fetch user details but have userId, still check development mode
-			if (process.env.NODE_ENV === "development") {
-				return true
-			}
 			return false
 		}
 
 		if (!user) {
-			// User ID exists but couldn't fetch user details
-			if (process.env.NODE_ENV === "development") {
-				return true
-			}
 			return false
 		}
 
@@ -54,13 +46,7 @@ export async function isAdmin(): Promise<boolean> {
 			return true
 		}
 
-		// For development/testing purposes - you can remove this later
-		if (process.env.NODE_ENV === "development") {
-			// Temporarily allow all authenticated users as admin in development
-			// Remove this in production!
-			return true
-		}
-
+		// No development override - only explicitly listed users are admins
 		return false
 	} catch (error) {
 		console.error("Error checking admin status:", error)

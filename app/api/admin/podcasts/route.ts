@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { isAdmin } from "@/lib/admin"
+import { isOrgAdmin } from "@/lib/organization-roles"
 import prisma from "@/lib/prisma"
 
 // Create a new podcast
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isAdmin()
+		const adminStatus = await isOrgAdmin()
 		if (!adminStatus) {
 			return new NextResponse("Forbidden", { status: 403 })
 		}
@@ -67,7 +67,7 @@ export async function PATCH(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isAdmin()
+		const adminStatus = await isOrgAdmin()
 		if (!adminStatus) {
 			return new NextResponse("Forbidden", { status: 403 })
 		}
@@ -134,7 +134,7 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isAdmin()
+		const adminStatus = await isOrgAdmin()
 		if (!adminStatus) {
 			return new NextResponse("Forbidden", { status: 403 })
 		}

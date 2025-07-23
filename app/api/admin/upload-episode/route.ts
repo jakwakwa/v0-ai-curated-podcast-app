@@ -1,6 +1,6 @@
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireAdmin } from "@/lib/admin"
+import { requireOrgAdmin } from "@/lib/organization-roles"
 import prisma from "@/lib/prisma"
 
 export const runtime = "nodejs" // Required for file system access
@@ -35,7 +35,7 @@ async function uploadContentToBucket(bucketName: string, data: Buffer, destinati
 
 export async function POST(request: Request) {
 	try {
-		await requireAdmin()
+		await requireOrgAdmin()
 
 		const formData = await request.formData()
 		const bundleId = formData.get("bundleId") as string
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
 	} catch (error) {
 		console.error("Error uploading episode:", error)
 
-		if (error instanceof Error && error.message === "Admin access required") {
+		if (error instanceof Error && (error.message.includes("Organization role required") || error.message === "Admin access required")) {
 			return NextResponse.json({ message: "Admin access required" }, { status: 403 })
 		}
 

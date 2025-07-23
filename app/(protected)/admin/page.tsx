@@ -1,5 +1,6 @@
 "use client"
 
+import { OrganizationSwitcher } from "@clerk/nextjs"
 import { Edit, Eye, EyeOff, FolderPlus, Mic, Plus, Sparkles, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -101,6 +102,9 @@ export default function AdminPage() {
 			// Parse JSON
 			const data = JSON.parse(text)
 			setAdminStatus(data.isAdmin)
+
+			// Only redirect if user is not admin AND not in organization context
+			// If they're in org context but not admin, we'll show a different message
 			if (!data.isAdmin) {
 				toast.error("Access denied. Admin privileges required.")
 				router.back()
@@ -570,8 +574,24 @@ export default function AdminPage() {
 	return (
 		<div className="container mx-auto p-6 max-w-6xl">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-				<p className="text-muted-foreground">Manage curated content and generate weekly podcast episodes</p>
+				<div className="flex items-center justify-between mb-4">
+					<div>
+						<h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+						<p className="text-muted-foreground">Manage curated content and generate weekly podcast episodes</p>
+					</div>
+					<div className="flex items-center gap-4">
+						<div className="text-right">
+							<p className="text-sm text-muted-foreground mb-1">Organization</p>
+							<OrganizationSwitcher
+								appearance={{
+									elements: {
+										organizationSwitcherTrigger: "border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 rounded-md text-sm",
+									},
+								}}
+							/>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<Tabs defaultValue="episode-generation" className="space-y-6">

@@ -11,6 +11,8 @@ width: 100%;
 	padding: 0rem;
 	display: flex;
 	gap: 2rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
 }
 
 /* Skeleton Loading Styles */
@@ -167,6 +169,8 @@ width: 100%;
   .content {
    flex-direction: row;
     padding: 2rem;
+		padding-left: 4rem;
+		padding-right: 0;
   }
 }
 

@@ -21,7 +21,7 @@ const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
 const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
 const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
-const isAdminAccessible = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"])
+const isAdminPageAccessible = createRouteMatcher(["/admin(.*)"])
 const isUserApiAccessible = createRouteMatcher([
 	"/api/curated-bundles(.*)",
 	"/api/curated-podcasts(.*)",
@@ -33,18 +33,11 @@ const isUserApiAccessible = createRouteMatcher([
 
 /**
  * Clerk Middleware
- * @constructor
- * @param {string} auth - The auth object.
- * @param {string} req - The request object.
  *
- * @returns {boolean} - Returns true if the route the user is trying to visit matches one of the routes passed to it.
- */
-
-/**
- * Clerk config
- * @constructor
- * @property {string} matcher - The matcher object. Always run for API routes
- *
+ * Protection Strategy:
+ * 1. Middleware ensures basic authentication for protected routes
+ * 2. Individual admin routes call requireOrgAdmin() for granular admin checking
+ * 3. Admin UI pages redirect if user lacks proper access
  */
 export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
 	// Check if the request matches each route and enforce the corresponding token type
@@ -53,7 +46,7 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 	if (isOAuthAccessible(req)) {
 		await auth.protect({ token: "oauth_token" })
 	} else if (isAdminApiAccessible(req)) {
-		// Admin API routes require session tokens
+		// Admin API routes require session tokens + individual routes check admin status
 		await auth.protect()
 	} else if (isUserApiAccessible(req)) {
 		await auth.protect({ token: "session_token" })
@@ -61,7 +54,8 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 		await auth.protect({ token: "machine_token" })
 	} else if (isUserAccessible(req)) {
 		await auth.protect({ token: "session_token" })
-	} else if (isAdminAccessible(req)) {
+	} else if (isAdminPageAccessible(req)) {
+		// Admin pages require session tokens + page-level admin checking
 		await auth.protect({ token: "session_token" })
 	} else if (isApiKeyAccessible(req)) {
 		// Don't protect general API routes by default

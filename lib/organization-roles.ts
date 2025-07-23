@@ -1,10 +1,8 @@
 import { auth } from "@clerk/nextjs/server"
 
 /**
- * Check if the current user has a specific organization role
+ * Check if the current user has a specific role in their organization
  */
-
-// TODO: use this in /app/(protected)/admin/page.tsx
 export async function hasOrgRole(role: string): Promise<boolean> {
 	try {
 		const { has } = await auth()
@@ -16,10 +14,8 @@ export async function hasOrgRole(role: string): Promise<boolean> {
 }
 
 /**
- * Check if the current user has a specific organization permission
+ * Check if the current user has a specific permission in their organization
  */
-
-// TODO: use this in /app/(protected)/admin/page.tsx
 export async function hasOrgPermission(permission: string): Promise<boolean> {
 	try {
 		const { has } = await auth()
@@ -31,52 +27,79 @@ export async function hasOrgPermission(permission: string): Promise<boolean> {
 }
 
 /**
- * Check if the current user has admin role in the organization
+ * Enhanced admin check that handles multiple admin role naming conventions
  */
-
-// TODO: use this in /app/(protected)/admin/page.tsx
 export async function isOrgAdmin(): Promise<boolean> {
-	return hasOrgRole("org:admin")
-}
+	try {
+		const { has, orgId, userId } = await auth()
 
-/**
- * Check if the current user has moderator role in the organization
- */
+		if (!userId) {
+			return false
+		}
 
-// TODO: use this in /app/(protected)/admin/page.tsx
-export async function isOrgModerator(): Promise<boolean> {
-	return hasOrgRole("org:moderator")
-}
+		if (!orgId) {
+			if (process.env.NODE_ENV === "development") {
+				const { isAdmin } = await import("@/lib/admin")
+				return await isAdmin()
+			}
+			return false
+		}
 
-/**
- * Check if the current user has member role in the organization
- */
+		const adminRoleVariations = ["org:admin", "Admin", "admin", "org:Admin"]
 
-// TODO: use this in /app/(protected)/admin/page.tsx
-export async function isOrgMember(): Promise<boolean> {
-	return hasOrgRole("org:member")
-}
+		for (const roleVariation of adminRoleVariations) {
+			if (has({ role: roleVariation })) {
+				return true
+			}
+		}
 
-/**
- * Require a specific organization role or throw an error
- */
+		return false
+	} catch (error) {
+		console.error("Error in isOrgAdmin:", error)
 
-// TODO: use this in /app/(protected)/admin/page.tsx
-export async function requireOrgRole(role: string): Promise<void> {
-	const hasRole = await hasOrgRole(role)
-	if (!hasRole) {
-		throw new Error(`Organization role '${role}' required`)
+		if (process.env.NODE_ENV === "development") {
+			try {
+				const { isAdmin } = await import("@/lib/admin")
+				return await isAdmin()
+			} catch (fallbackError) {
+				console.error("Fallback admin check also failed:", fallbackError)
+			}
+		}
+
+		return false
 	}
 }
 
 /**
- * Require a specific organization permission or throw an error
+ * Require that the current user has a specific role, throw error if not
  */
+export async function requireOrgRole(role: string): Promise<void> {
+	const hasRole = await hasOrgRole(role)
+	if (!hasRole) {
+		throw new Error(`Organization role required: ${role}`)
+	}
+}
 
-// TODO: use this in /app/(protected)/admin/page.tsx
+/**
+ * Require that the current user has a specific permission, throw error if not
+ */
 export async function requireOrgPermission(permission: string): Promise<void> {
 	const hasPermission = await hasOrgPermission(permission)
 	if (!hasPermission) {
-		throw new Error(`Organization permission '${permission}' required`)
+		throw new Error(`Organization permission required: ${permission}`)
+	}
+}
+
+/**
+ * Require admin role with enhanced error handling and multiple role support
+ */
+export async function requireOrgAdmin(): Promise<void> {
+	const isAdmin = await isOrgAdmin()
+	if (!isAdmin) {
+		const { orgId } = await auth()
+		if (!orgId) {
+			throw new Error("Organization admin role required: User must be in an organization context")
+		}
+		throw new Error("Organization admin role required: Admin access needed")
 	}
 }

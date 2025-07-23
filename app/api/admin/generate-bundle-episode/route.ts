@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { inngest } from "@/inngest/client"
-import { requireAdmin } from "@/lib/admin"
+import { requireOrgAdmin } from "@/lib/organization-roles"
 import prisma from "@/lib/prisma"
 
 interface EpisodeSource {
@@ -21,7 +21,7 @@ interface AdminGenerationRequest {
 export async function POST(request: NextRequest) {
 	try {
 		// Check admin permissions first
-		await requireAdmin()
+		await requireOrgAdmin()
 
 		const body: AdminGenerationRequest = await request.json()
 		const { bundleId, title, description, sources } = body
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error("Error in admin generate bundle episode:", error)
 
-		if (error instanceof Error && error.message === "Admin access required") {
+		if (error instanceof Error && (error.message.includes("Organization role required") || error.message === "Admin access required")) {
 			return NextResponse.json({ message: "Admin access required" }, { status: 403 })
 		}
 
