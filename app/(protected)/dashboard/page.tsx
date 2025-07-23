@@ -45,45 +45,21 @@ export default function Page() {
 		const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
 
 		setUserCurationProfile(fetchedProfile)
-		setEpisodes(fetchedEpisodes)
 
-		// Get bundle episodes if user has a bundle selection
-		let bundleEpisodesList: CuratedBundleEpisode[] = []
-		if (fetchedProfile?.isBundleSelection && fetchedProfile?.selectedBundle?.episodes) {
-			bundleEpisodesList = fetchedProfile.selectedBundle.episodes
-		}
-
-		setBundleEpisodes(bundleEpisodesList)
-
-		// Combine episodes for display
-		const combined: CombinedEpisode[] = [
-			// User episodes (from custom profile)
-			...fetchedEpisodes.map(ep => ({
-				id: ep.id,
-				title: ep.title,
-				description: ep.description,
-				audioUrl: ep.audioUrl,
-				imageUrl: ep.imageUrl,
-				publishedAt: ep.publishedAt,
-				createdAt: ep.createdAt,
-				type: "user" as const,
-				userCurationProfileId: ep.userCurationProfileId,
-				source: ep.source || undefined,
-				userCurationProfile: ep.userCurationProfile || undefined,
-			})),
-
-			// Bundle episodes (from bundle selection)
-			...bundleEpisodesList.map(ep => ({
-				id: ep.id,
-				title: ep.title,
-				description: ep.description,
-				audioUrl: ep.audioUrl,
-				imageUrl: ep.imageUrl,
-				publishedAt: ep.publishedAt,
-				createdAt: ep.createdAt,
-				type: "bundle" as const,
-			})),
-		]
+		// Convert unified episodes to display format with type detection
+		const combined: CombinedEpisode[] = fetchedEpisodes.map(ep => ({
+			id: ep.id,
+			title: ep.title,
+			description: ep.description,
+			audioUrl: ep.audioUrl,
+			imageUrl: ep.imageUrl,
+			publishedAt: ep.publishedAt,
+			createdAt: ep.createdAt,
+			type: ep.bundleId ? "bundle" : ("user" as const), // Determine type based on presence of bundle
+			userCurationProfileId: ep.userProfileId || undefined,
+			source: undefined, // We don't have the podcast relation loaded
+			userCurationProfile: undefined, // We don't have the userProfile relation loaded
+		}))
 
 		// Sort by published date (newest first)
 		combined.sort((a, b) => {
@@ -93,6 +69,8 @@ export default function Page() {
 		})
 
 		setCombinedEpisodes(combined)
+		setEpisodes(fetchedEpisodes.filter(ep => !ep.bundleId)) // User episodes only
+		setBundleEpisodes(fetchedEpisodes.filter(ep => ep.bundleId)) // Bundle episodes only
 	}, [])
 
 	useEffect(() => {
@@ -200,7 +178,7 @@ export default function Page() {
 													<ul className="list-disc pl-5 text-muted-foreground">
 														{userCurationProfile.selectedBundle.episodes.map(episode => (
 															<li key={episode.id}>
-																{episode.title} - {new Date(episode.publishedAt).toLocaleDateString()}
+																{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
 															</li>
 														))}
 													</ul>
@@ -287,16 +265,9 @@ export default function Page() {
 																		publishedAt: episode.publishedAt,
 																		weekNr: episode.createdAt,
 																		createdAt: episode.createdAt,
-																		sourceId: episode.userCurationProfileId || "",
-																		userCurationProfileId: episode.userCurationProfileId || "",
-																		source: episode.source,
-																		userCurationProfile: episode.userCurationProfile
-																			? {
-																					...episode.userCurationProfile,
-																					sources: [],
-																					episodes: [],
-																				}
-																			: undefined,
+																		podcastId: episode.source?.id || "",
+																		userProfileId: episode.userCurationProfileId || null,
+																		bundleId: null,
 																	}}
 																	onClose={handleClosePlayer}
 																/>

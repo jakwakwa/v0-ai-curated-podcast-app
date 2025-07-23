@@ -20,7 +20,7 @@
 		}
 	},
 	"editor.fontFamily": "Dank Mono",
-	"editor.fontSize": 13,
+	"editor.fontSize": 12,
 	"editor.fontLigatures": true,
 	"editor.lineHeight": 1.7,
 	"editor.fontWeight": "800",
@@ -46,5 +46,15 @@
 	"terminal.integrated.tabs.hideCondition": "singleGroup",
 	"terminal.integrated.tabs.location": "left",
 	"workbench.editor.tabSizingFixedMaxWidth": 70,
-	"workbench.editor.tabSizingFixedMinWidth": 40
+	"workbench.editor.tabSizingFixedMinWidth": 40,
+	"editor.tabSize": 2,
+	"editor.renderWhitespace": "none",
+	"editor.insertSpaces": false,
+	"editor.wordWrap": "bounded",
+	"cursor.general.enableShadowWorkspace": true,
+	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
+	"workbench.preferredDarkColorTheme": "Horizon Legacy Italic",
+	"window.autoDetectColorScheme": true,
+	"workbench.preferredLightColorTheme": "One Dark Pro",
+	"workbench.colorTheme": "Night Wolf (gray)"
 }

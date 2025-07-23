@@ -20,6 +20,7 @@ interface CombinedEpisode {
 	createdAt: Date
 	type: "user" | "bundle"
 	userCurationProfileId?: string
+	podcastId?: string
 	source?: {
 		name: string
 		id: string
@@ -80,6 +81,7 @@ export default function WeeklyEpisodesPage() {
 					...userEpisodes.map(ep => ({
 						...ep,
 						type: "user" as const,
+						podcastId: ep.podcastId,
 					})),
 					// Bundle episodes (from bundle selection)
 					...bundleEpisodesList.map(ep => ({
@@ -198,10 +200,9 @@ export default function WeeklyEpisodesPage() {
 													publishedAt: episode.publishedAt,
 													weekNr: episode.createdAt,
 													createdAt: episode.createdAt,
-													sourceId: episode.userCurationProfileId || "",
-													userCurationProfileId: episode.userCurationProfileId || "",
-													source: episode.source,
-													userCurationProfile: null, // AudioPlayer type compatibility
+													podcastId: episode.podcastId || "",
+													userProfileId: episode.userCurationProfileId || null,
+													bundleId: null,
 												}}
 												onClose={handleClosePlayer}
 											/>

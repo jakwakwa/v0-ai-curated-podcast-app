@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 export async function GET(
 	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
@@ -14,21 +14,41 @@ export async function GET(
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
+		// Unified query: get episodes from both user profiles and selected bundles
 		const episodes = await prisma.episode.findMany({
 			where: {
-				userCurationProfile: { userId },
+				OR: [
+					// Episodes from user's custom profile
+					{
+						userProfile: { userId },
+					},
+					// Episodes from user's selected bundle
+					{
+						bundle: {
+							profiles: {
+								some: { userId },
+							},
+						},
+					},
+				],
 			},
 			include: {
-				source: true,
-				userCurationProfile: {
+				podcast: true, // Unified podcast model
+				userProfile: {
 					include: {
-						sources: true,
 						selectedBundle: {
 							include: {
-								bundlePodcasts: {
+								podcasts: {
 									include: { podcast: true },
 								},
 							},
+						},
+					},
+				},
+				bundle: {
+					include: {
+						podcasts: {
+							include: { podcast: true },
 						},
 					},
 				},

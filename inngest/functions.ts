@@ -2,7 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js"
 import { Storage } from "@google-cloud/storage"
 
-import type { Source as SourceModel } from "@prisma/client"
+import type { Podcast as SourceModel } from "@prisma/client"
 import { generateText } from "ai"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
@@ -97,7 +97,11 @@ export const generatePodcast = inngest.createFunction(
 		const userCurationProfile = await step.run("fetch-collection-data", async () => {
 			const fetchedUserCurationProfile = await prisma.userCurationProfile.findUnique({
 				where: { id: collectionId },
-				include: { sources: true },
+				include: {
+					podcastSelections: {
+						include: { podcast: true },
+					},
+				},
 			})
 			if (!fetchedUserCurationProfile) {
 				throw new Error(`User Curation Profile with ID ${collectionId} not found.`)
@@ -106,7 +110,8 @@ export const generatePodcast = inngest.createFunction(
 		})
 
 		const sourcesWithTranscripts: SourceWithTranscript[] = await Promise.all(
-			userCurationProfile.sources.map(async s => {
+			userCurationProfile.podcastSelections.map(async selection => {
+				const s = selection.podcast
 				// Extract video ID from YouTube URL
 				const videoIdMatch = s.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/)
 				const videoId = videoIdMatch ? videoIdMatch[1] : null
@@ -213,17 +218,17 @@ export const generatePodcast = inngest.createFunction(
 
 		// Create a new Episode linked to the UserCurationProfile
 		await step.run("create-episode", async () => {
-			// Use the first source as the main source for the episode (or adjust as needed)
-			const mainSource = userCurationProfile.sources[0]
+			// Use the first podcast as the main source for the episode (or adjust as needed)
+			const mainPodcast = userCurationProfile.podcastSelections[0]?.podcast
 			await prisma.episode.create({
 				data: {
 					title: `AI Podcast for ${userCurationProfile.name}`,
 					description: script,
 					audioUrl: publicUrl ? publicUrl : "",
-					imageUrl: mainSource?.imageUrl || null,
+					imageUrl: mainPodcast?.imageUrl || null,
 					publishedAt: new Date(),
-					sourceId: mainSource?.id || userCurationProfile.sources[0].id,
-					userCurationProfileId: userCurationProfile.id,
+					podcastId: mainPodcast?.id || userCurationProfile.podcastSelections[0].podcast.id,
+					userProfileId: userCurationProfile.id,
 				},
 			})
 			await prisma.userCurationProfile.update({
@@ -377,7 +382,7 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 			const currentWeek = new Date()
 			currentWeek.setHours(0, 0, 0, 0) // Start of day
 
-			await prisma.curatedBundleEpisode.create({
+			await prisma.episode.create({
 				data: {
 					title: episodeTitle,
 					description: episodeDescription || script,
@@ -386,6 +391,8 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 					publishedAt: new Date(),
 					weekNr: currentWeek,
 					bundleId: bundleId,
+					// Use first source from admin curation profile as podcast
+					podcastId: adminCurationProfile.sources[0]?.id || "default-podcast-id",
 				},
 			})
 		})

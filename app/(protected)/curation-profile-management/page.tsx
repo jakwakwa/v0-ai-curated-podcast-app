@@ -1,14 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, CuratedPodcast, Episode, UserCurationProfileWithRelations } from "@/lib/types"
-import type { UserCurationProfile } from "@/lib/types"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
+import type { CuratedBundleEpisode, CuratedPodcast, Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 
 const formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
@@ -21,7 +19,6 @@ export default function CurationProfileManagementPage() {
 	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
-	const router = useRouter()
 
 	const fetchAndUpdateData = async () => {
 		// Fetch user curation profile and episodes in parallel
@@ -126,24 +123,23 @@ export default function CurationProfileManagementPage() {
 									<div className="mt-2 text-sm">
 										<p className="font-medium">Podcasts:</p>
 										<ul className="list-disc pl-5 text-muted-foreground">
-											{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => (
-												<li key={podcast.id}>{podcast.name}</li>
-											)) || <li className="text-muted-foreground">No podcasts loaded</li>}
+											{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
+												<li className="text-muted-foreground">No podcasts loaded</li>
+											)}
 										</ul>
 									</div>
-									{userCurationProfile.selectedBundle.episodes &&
-										userCurationProfile.selectedBundle.episodes.length > 0 && (
-											<div className="mt-4 text-sm">
-												<p className="font-medium">Bundle Episodes:</p>
-												<ul className="list-disc pl-5 text-muted-foreground">
-													{userCurationProfile.selectedBundle.episodes.map(episode => (
-														<li key={episode.id}>
-															{episode.title} - {new Date(episode.publishedAt).toLocaleDateString()}
-														</li>
-													))}
-												</ul>
-											</div>
-										)}
+									{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
+										<div className="mt-4 text-sm">
+											<p className="font-medium">Bundle Episodes:</p>
+											<ul className="list-disc pl-5 text-muted-foreground">
+												{userCurationProfile.selectedBundle.episodes.map(episode => (
+													<li key={episode.id}>
+														{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
+													</li>
+												))}
+											</ul>
+										</div>
+									)}
 								</CardContent>
 							</Card>
 						)}
@@ -183,9 +179,7 @@ export default function CurationProfileManagementPage() {
 									</div>
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Profile Type:</span>
-										<span className="font-medium">
-											{userCurationProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}
-										</span>
+										<span className="font-medium">{userCurationProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}</span>
 									</div>
 								</div>
 							</CardContent>
@@ -194,9 +188,7 @@ export default function CurationProfileManagementPage() {
 				) : (
 					<div className="text-center py-12">
 						<h3 className="text-lg font-semibold mb-2">No User Curation Profile Found</h3>
-						<p className="text-muted-foreground">
-							You haven't created a user curation profile yet. Create one to start managing your podcast curation.
-						</p>
+						<p className="text-muted-foreground">You haven't created a user curation profile yet. Create one to start managing your podcast curation.</p>
 					</div>
 				)}
 			</div>

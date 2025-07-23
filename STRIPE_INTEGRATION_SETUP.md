@@ -4,8 +4,8 @@ This guide explains how to set up Stripe subscription plans with Clerk authentic
 
 ## Prerequisites
 
-- Stripe account (https://stripe.com)
-- Clerk account (https://clerk.com)
+- Stripe account (<https://stripe.com>)
+- Clerk account (<https://clerk.com>)
 - Next.js application with Clerk authentication already configured
 
 ## Environment Variables
@@ -37,19 +37,22 @@ In your Stripe Dashboard:
 1. Go to Products → Add Product
 2. Create the following products:
 
-**Basic Plan**
+Basic Plan
+
 - Name: Basic Plan
 - Description: Essential features for individuals
 - Pricing: $9.99/month recurring
 - Copy the Price ID to `STRIPE_BASIC_PRICE_ID`
 
-**Pro Plan**
+Pro Plan
+
 - Name: Pro Plan
 - Description: Advanced features for power users
 - Pricing: $19.99/month recurring
 - Copy the Price ID to `STRIPE_PRO_PRICE_ID`
 
-**Enterprise Plan**
+Enterprise Plan
+
 - Name: Enterprise Plan
 - Description: Custom solutions for organizations
 - Pricing: $49.99/month recurring
@@ -96,12 +99,15 @@ The following API endpoints are available:
 ## React Components
 
 ### Pricing Page
+
 Access at `/pricing` to view and select subscription plans.
 
 ### Subscription Management
+
 Access at `/subscription` to manage current subscription.
 
 ### Access Control
+
 Use the `AccessControl` component to protect features:
 
 ```tsx
@@ -113,6 +119,7 @@ import { AccessControl } from "@/components/access-control"
 ```
 
 ### Subscription Status
+
 Add to your navigation:
 
 ```tsx
@@ -125,19 +132,22 @@ import { SubscriptionStatus } from "@/components/subscription-status"
 
 Features are controlled based on subscription plans:
 
-**Free Plan Features:**
+Free Plan Features:
+
 - 1 User Curation Profile
 - Weekly Generation
 - Basic Support
 - 7-day trial
 
-**Basic Plan Features:**
+Basic Plan Features:
+
 - Up to 3 User Curation Profiles
 - Weekly Generation
 - Email Support
 - Advanced Analytics
 
-**Pro Plan Features:**
+Pro Plan Features:
+
 - Unlimited User Curation Profiles
 - Daily Generation
 - Priority Support
@@ -145,7 +155,8 @@ Features are controlled based on subscription plans:
 - Custom Integrations
 - Team Collaboration
 
-**Enterprise Plan Features:**
+Enterprise Plan Features:
+
 - Everything in Pro
 - White-label Solution
 - Dedicated Account Manager
@@ -158,6 +169,7 @@ Features are controlled based on subscription plans:
 ### Test Cards
 
 Use Stripe's test cards for testing:
+
 - Success: `4242 4242 4242 4242`
 - Declined: `4000 0000 0000 0002`
 
@@ -198,9 +210,9 @@ import { useFeatureAccess } from "@/components/access-control"
 
 function MyComponent() {
   const { hasAccess, loading } = useFeatureAccess("Custom Integrations")
-  
+
   if (loading) return <div>Loading...</div>
-  
+
   return (
     <div>
       {hasAccess ? (
@@ -217,17 +229,17 @@ function MyComponent() {
 
 ### Common Issues
 
-1. **Webhook events not received**
+1. Webhook events not received
    - Check webhook endpoint URL
    - Verify webhook secret
    - Check webhook event selection
 
-2. **Checkout session fails**
+2. Checkout session fails
    - Verify price IDs are correct
    - Check Stripe API keys
    - Ensure user is authenticated
 
-3. **Access control not working**
+3. Access control not working
    - Verify subscription data is fetched
    - Check feature names match exactly
    - Ensure user has active subscription
@@ -235,6 +247,7 @@ function MyComponent() {
 ### Logs
 
 Check the following for debugging:
+
 - Browser console for client-side errors
 - Server logs for API errors
 - Stripe Dashboard → Events for webhook delivery
@@ -250,6 +263,7 @@ Check the following for debugging:
 ## Support
 
 For issues related to:
+
 - Stripe integration: Check Stripe documentation
 - Clerk authentication: Check Clerk documentation
 - Next.js: Check Next.js documentation

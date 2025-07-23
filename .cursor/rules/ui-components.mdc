@@ -4,7 +4,7 @@ globs:
 alwaysApply: true
 ---
 
-When building new code That requires ui jsx based components:
+# When building new code That requires ui jsx based components
 
 - use exisiting added shadcn/ui components
 - use css modules. remove tailwindcss classes and replace with css in stylesheet

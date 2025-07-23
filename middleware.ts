@@ -17,17 +17,18 @@ import type { NextRequest } from "next/server"
 
 // Create route matchers to identify which token type each route should require
 const isOAuthAccessible = createRouteMatcher(["/oauth(.*)"])
+const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
 const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
 const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
 const isAdminAccessible = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"])
 const isUserApiAccessible = createRouteMatcher([
 	"/api/curated-bundles(.*)",
-	"/api/curated-podcasts(.*)", 
+	"/api/curated-podcasts(.*)",
 	"/api/episodes(.*)",
 	"/api/notifications(.*)",
 	"/api/subscription(.*)",
-	"/api/user-curation-profiles(.*)"
+	"/api/user-curation-profiles(.*)",
 ])
 
 /**
@@ -47,13 +48,25 @@ const isUserApiAccessible = createRouteMatcher([
  */
 export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
 	// Check if the request matches each route and enforce the corresponding token type
-	if (isOAuthAccessible(req)) await auth.protect({ token: "oauth_token" })
-	if (isMachineTokenAccessible(req)) await auth.protect({ token: "machine_token" })
-	if (isUserAccessible(req)) await auth.protect({ token: "session_token" })
-	if (isAdminAccessible(req)) await auth.protect({ token: "session_token" })
-	if (isUserApiAccessible(req)) await auth.protect({ token: "session_token" })
-	// Protect remaining API routes with api_key, but user and admin routes are handled above
-	else if (isApiKeyAccessible(req)) await auth.protect({ token: "api_key" })
+	// Order matters! More specific routes should be checked first
+
+	if (isOAuthAccessible(req)) {
+		await auth.protect({ token: "oauth_token" })
+	} else if (isAdminApiAccessible(req)) {
+		// Admin API routes require session tokens
+		await auth.protect()
+	} else if (isUserApiAccessible(req)) {
+		await auth.protect({ token: "session_token" })
+	} else if (isMachineTokenAccessible(req)) {
+		await auth.protect({ token: "machine_token" })
+	} else if (isUserAccessible(req)) {
+		await auth.protect({ token: "session_token" })
+	} else if (isAdminAccessible(req)) {
+		await auth.protect({ token: "session_token" })
+	} else if (isApiKeyAccessible(req)) {
+		// Don't protect general API routes by default
+		// await auth.protect({ token: "api_key" })
+	}
 })
 
 export const config = {

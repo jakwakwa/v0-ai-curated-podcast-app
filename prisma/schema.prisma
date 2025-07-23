@@ -1,230 +1,205 @@
-// This is your Prisma schema file
 generator client {
-    provider      = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id                    String                         @id @default(cuid())
-    name                  String?
-    email                 String                         @unique
-    password              String
-    image                 String?
-    emailVerified         DateTime?
-    isAdmin               Boolean                        @default(false) @map("is_admin")
-    emailNotifications    Boolean                        @default(true) @map("email_notifications")
-    inAppNotifications    Boolean                        @default(true) @map("in_app_notifications")
-    userCurationProfiles  UserCurationProfile[] // Renamed from 'collections'
-    notifications         Notification[]
-    subscriptions         Subscription[]
-    feedback              EpisodeFeedback[] // Added for feedback relation
-    bundleEpisodeFeedback CuratedBundleEpisodeFeedback[] // Added for bundle episode feedback
+  id                   String               @id @default(cuid()) @map("user_id")
+  name                 String?              @map("name")
+  email                String               @unique @map("email")
+  password             String               @map("password")
+  image                String?              @map("image")
+  emailVerified        DateTime?            @map("email_verified")
+  isAdmin              Boolean              @default(false) @map("is_admin")
+  emailNotifications   Boolean              @default(true) @map("email_notifications")
+  inAppNotifications   Boolean              @default(true) @map("in_app_notifications")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+  ownedBundles         Bundle[]
+  feedback             EpisodeFeedback[]
+  notifications        Notification[]
+  ownedPodcasts        Podcast[]
+  subscriptions        Subscription[]
+  userCurationProfiles UserCurationProfile?
 
-    @@map("users")
+  @@map("user")
 }
 
-model UserCurationProfile {
-    id                 String    @id @default(uuid())
-    userId             String    @map("user_id")
-    name               String
-    status             String    @default("Draft")
-    audioUrl           String?   @map("audio_url")
-    imageUrl           String?   @map("image_url") // Added for collection image
-    createdAt          DateTime  @default(now()) @map("created_at")
-    updatedAt          DateTime  @updatedAt @map("updated_at")
-    generatedAt        DateTime? @map("generated_at")
-    lastGenerationDate DateTime? @map("last_generation_date")
-    nextGenerationDate DateTime? @map("next_generation_date")
-    isActive           Boolean   @default(true) @map("is_active")
+/// ───────────────────────────────────
+/// UNIFIED PODCAST CATALOG
+/// ───────────────────────────────────
+model Podcast {
+  id           String           @id @default(uuid()) @map("podcast_id")
+  name         String           @map("name")
+  description  String?          @map("description")
+  url          String           @unique @map("url")
+  imageUrl     String?          @map("image_url")
+  category     String?          @map("category")
+  isActive     Boolean          @default(true) @map("is_active")
+  ownerUserId  String?          @map("owner_user_id")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  bundleLinks  BundlePodcast[]
+  episodes     Episode[]
+  ownerUser    User?            @relation(fields: [ownerUserId], references: [id])
+  profileLinks ProfilePodcast[]
 
-    // Bundle selection (read-only) or custom selection (editable)
-    isBundleSelection Boolean        @default(false) @map("is_bundle_selection")
-    selectedBundleId  String?        @map("selected_bundle_id")
-    selectedBundle    CuratedBundle? @relation(fields: [selectedBundleId], references: [id])
-
-    // For custom selections (editable)
-    sources  Source[]
-    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    episodes Episode[]
-
-    @@unique([userId]) // One collection per user
-    @@map("user_curation_profiles")
+  @@index([ownerUserId])
+  @@index([isActive])
+  @@map("podcast")
 }
 
-model Source {
-    id                    String               @id @default(uuid())
-    userCurationProfileId String?              @map("user_curation_profile_id") // Renamed from 'collectionId'
-    name                  String
-    url                   String
-    imageUrl              String?              @map("image_url") // Added for source image
-    createdAt             DateTime             @default(now()) @map("created_at")
-    userCurationProfile   UserCurationProfile? @relation(fields: [userCurationProfileId], references: [id], onDelete: SetNull) // Changed onDelete to SetNull
-    episodes              Episode[]
-
-    @@map("sources")
-}
-
+/// ───────────────────────────────────
+/// UNIFIED EPISODE TABLE
+/// ───────────────────────────────────
 model Episode {
-    id                    String              @id @default(uuid())
-    title                 String
-    description           String?
-    audioUrl              String
-    imageUrl              String?             @map("image_url") // Added for episode image
-    publishedAt           DateTime?
-    weekNr                DateTime?           @map("week_nr") // Added for data analysis and metrics
-    createdAt             DateTime            @default(now())
-    sourceId              String              @map("source_id")
-    source                Source              @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-    userCurationProfileId String              @map("user_curation_profile_id")
-    userCurationProfile   UserCurationProfile @relation(fields: [userCurationProfileId], references: [id], onDelete: Cascade)
-    feedback              EpisodeFeedback[]
+  id            String               @id @default(uuid()) @map("episode_id")
+  podcastId     String               @map("podcast_id")
+  userProfileId String?              @map("profile_id")
+  bundleId      String?              @map("bundle_id")
+  title         String               @map("title")
+  description   String?              @map("description")
+  audioUrl      String               @map("audio_url")
+  imageUrl      String?              @map("image_url")
+  publishedAt   DateTime?            @map("published_at")
+  weekNr        DateTime?            @map("week_nr")
+  createdAt     DateTime             @default(now()) @map("created_at")
+  bundle        Bundle?              @relation(fields: [bundleId], references: [id])
+  podcast       Podcast              @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  userProfile   UserCurationProfile? @relation(fields: [userProfileId], references: [id])
+  feedback      EpisodeFeedback[]
 
-    @@map("episodes")
+  @@index([podcastId, weekNr], map: "episode_podcast_week_idx")
+  @@index([publishedAt])
+  @@index([userProfileId], map: "episode_profile_idx")
+  @@index([bundleId], map: "episode_bundle_idx")
+  @@map("episode")
 }
 
-// Pre-curated individual podcasts (25 shows)
-model CuratedPodcast {
-    id          String   @id @default(uuid())
-    name        String
-    url         String
-    description String?
-    imageUrl    String? // Added for curated podcast image
-    category    String // "Technology", "Business", "Science", "News"
-    isActive    Boolean  @default(true)
-    createdAt   DateTime @default(now())
+/// ───────────────────────────────────
+/// BUNDLES (static or user-custom)
+/// ───────────────────────────────────
+model Bundle {
+  id          String                @id @default(uuid()) @map("bundle_id")
+  name        String                @map("name")
+  description String?               @map("description")
+  imageUrl    String?               @map("image_url")
+  isStatic    Boolean               @default(true) @map("is_static")
+  isActive    Boolean               @default(true) @map("is_active")
+  ownerUserId String?               @map("owner_user_id")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  ownerUser   User?                 @relation(fields: [ownerUserId], references: [id])
+  podcasts    BundlePodcast[]
+  episodes    Episode[]
+  profiles    UserCurationProfile[]
 
-    // Many-to-many with bundles
-    bundlePodcasts CuratedBundlePodcast[]
-
-    @@map("curated_podcasts")
+  @@index([isStatic, isActive], map: "bundle_static_active_idx")
+  @@index([ownerUserId], map: "bundle_owner_idx")
+  @@map("bundle")
 }
 
-// Pre-curated bundles (3 bundles, 5 shows each)
-model CuratedBundle {
-    id          String   @id @default(uuid())
-    name        String // "Tech Weekly", "Business Insights", "Science & Discovery"
-    description String?
-    imageUrl    String? // Added for curated bundle image
-    isActive    Boolean  @default(true)
-    createdAt   DateTime @default(now())
+/// Junction table: Bundle ↔ Podcast
+model BundlePodcast {
+  bundleId  String  @map("bundle_id")
+  podcastId String  @map("podcast_id")
+  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
 
-    // Many-to-many with podcasts
-    bundlePodcasts       CuratedBundlePodcast[]
-    // User Curation Profiles that selected this bundle
-    userCurationProfiles UserCurationProfile[] // Renamed from 'collections'
-    // Weekly generated episodes for this bundle
-    episodes             CuratedBundleEpisode[]
-
-    @@map("curated_bundles")
+  @@id([bundleId, podcastId])
+  @@map("bundle_podcast")
 }
 
-// Junction table for bundle-podcast relationship
-model CuratedBundlePodcast {
-    id        String         @id @default(uuid())
-    bundleId  String         @map("bundle_id")
-    podcastId String         @map("podcast_id")
-    bundle    CuratedBundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-    podcast   CuratedPodcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+/// ───────────────────────────────────
+/// USER CURATION PROFILES
+/// ───────────────────────────────────
+model UserCurationProfile {
+  id                 String           @id @default(uuid()) @map("profile_id")
+  userId             String           @unique @map("user_id")
+  name               String           @map("name")
+  status             String           @default("Draft") @map("status")
+  audioUrl           String?          @map("audio_url")
+  imageUrl           String?          @map("image_url")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  generatedAt        DateTime?        @map("generated_at")
+  lastGenerationDate DateTime?        @map("last_generation_date")
+  nextGenerationDate DateTime?        @map("next_generation_date")
+  isActive           Boolean          @default(true) @map("is_active")
+  isBundleSelection  Boolean          @default(false) @map("is_bundle_selection")
+  selectedBundleId   String?          @map("selected_bundle_id")
+  episodes           Episode[]
+  podcastSelections  ProfilePodcast[]
+  selectedBundle     Bundle?          @relation(fields: [selectedBundleId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([bundleId, podcastId])
-    @@map("curated_bundle_podcasts")
+  @@map("user_curation_profile")
 }
 
-// Weekly generated episodes for curated bundles
-model CuratedBundleEpisode {
-    id          String   @id @default(uuid())
-    title       String
-    description String?
-    audioUrl    String
-    imageUrl    String?  @map("image_url")
-    publishedAt DateTime @default(now()) @map("published_at")
-    weekNr      DateTime @map("week_nr") // Week number for tracking
-    createdAt   DateTime @default(now()) @map("created_at")
+/// Junction table: UserCurationProfile ↔ Podcast
+model ProfilePodcast {
+  profileId String              @map("profile_id")
+  podcastId String              @map("podcast_id")
+  podcast   Podcast             @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  profile   UserCurationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-    // Bundle this episode belongs to
-    bundleId String        @map("bundle_id")
-    bundle   CuratedBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-
-    // Feedback for bundle episodes
-    feedback CuratedBundleEpisodeFeedback[]
-
-    @@map("curated_bundle_episodes")
+  @@id([profileId, podcastId])
+  @@map("profile_podcast")
 }
 
-// Feedback for curated bundle episodes
-model CuratedBundleEpisodeFeedback {
-    id        String         @id @default(uuid())
-    userId    String         @map("user_id")
-    episodeId String         @map("episode_id")
-    rating    FeedbackRating
-    createdAt DateTime       @default(now()) @map("created_at")
-    updatedAt DateTime       @updatedAt @map("updated_at")
-
-    user    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-    episode CuratedBundleEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-
-    @@unique([userId, episodeId])
-    @@map("curated_bundle_episode_feedback")
-}
-
-// Notifications
+/// ───────────────────────────────────
+/// SUPPORTING MODELS (unchanged logic)
+/// ───────────────────────────────────
 model Notification {
-    id        String   @id @default(uuid())
-    userId    String   @map("user_id")
-    type      String // "episode_ready", "weekly_reminder"
-    message   String
-    isRead    Boolean  @default(false)
-    createdAt DateTime @default(now())
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid()) @map("notification_id")
+  userId    String   @map("user_id")
+  type      String   @map("type")
+  message   String   @map("message")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("notifications")
+  @@map("notification")
 }
 
-// Simple Subscription Model for Link Integration
 model Subscription {
-    id                 String    @id @default(uuid())
-    userId             String    @map("user_id")
-    linkCustomerId     String?   @map("link_customer_id")
-    linkSubscriptionId String?   @map("link_subscription_id")
-    linkPriceId        String?   @map("link_price_id")
-    status             String    @default("trialing") // "trialing", "active", "canceled", "past_due", "incomplete"
-    currentPeriodStart DateTime? @map("current_period_start")
-    currentPeriodEnd   DateTime? @map("current_period_end")
-    trialStart         DateTime? @map("trial_start")
-    trialEnd           DateTime? @map("trial_end")
-    canceledAt         DateTime? @map("canceled_at")
-    createdAt          DateTime  @default(now()) @map("created_at")
-    updatedAt          DateTime  @updatedAt @map("updated_at")
+  id                 String    @id @default(uuid()) @map("subscription_id")
+  userId             String    @map("user_id")
+  linkCustomerId     String?   @map("link_customer_id")
+  linkSubscriptionId String?   @map("link_subscription_id")
+  linkPriceId        String?   @map("link_price_id")
+  status             String    @default("trialing") @map("status")
+  currentPeriodStart DateTime? @map("current_period_start")
+  currentPeriodEnd   DateTime? @map("current_period_end")
+  trialStart         DateTime? @map("trail_start")
+  trialEnd           DateTime? @map("trial_end")
+  canceledAt         DateTime? @map("canceled_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@map("subscriptions")
+  @@map("subscription")
 }
 
-// Enum for feedback rating
-enum FeedbackRating {
-    THUMBS_UP
-    THUMBS_DOWN
-    NEUTRAL
-}
-
-// Episode Feedback model
 model EpisodeFeedback {
-    id        String         @id @default(uuid())
-    userId    String         @map("user_id")
-    episodeId String         @map("episode_id")
-    rating    FeedbackRating
-    createdAt DateTime       @default(now()) @map("created_at")
-    updatedAt DateTime       @updatedAt @map("updated_at")
+  id        String         @id @default(uuid()) @map("feedback_id")
+  userId    String         @map("user_id")
+  episodeId String         @map("episode_id")
+  rating    FeedbackRating @map("rating")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  episode   Episode        @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    episode Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  @@unique([userId, episodeId])
+  @@map("episode_feedback")
+}
 
-    @@unique([userId, episodeId])
-    @@map("episode_feedback")
+enum FeedbackRating {
+  THUMBS_UP
+  THUMBS_DOWN
+  NEUTRAL
 }

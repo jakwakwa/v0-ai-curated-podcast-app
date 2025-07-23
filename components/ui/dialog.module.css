@@ -1,0 +1,98 @@
+/* Dialog Overlay */
+.overlay {
+  @apply fixed inset-0 z-50 bg-black/80;
+}
+
+.overlay[data-state="open"] {
+  @apply animate-in fade-in-0;
+}
+
+.overlay[data-state="closed"] {
+  @apply animate-out fade-out-0;
+}
+
+/* Dialog Content */
+.content {
+  @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg;
+}
+
+.content[data-state="open"] {
+  @apply animate-in fade-in-0 zoom-in-95;
+}
+
+.content[data-state="closed"] {
+  @apply animate-out fade-out-0 zoom-out-95;
+}
+
+/* Slide animations for content */
+.content[data-state="open"] {
+  animation: slideInFromLeft 200ms ease-out, slideInFromTop 200ms ease-out;
+}
+
+.content[data-state="closed"] {
+  animation: slideOutToLeft 200ms ease-in, slideOutToTop 200ms ease-in;
+}
+
+/* Close button */
+.close {
+  @apply absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none;
+}
+
+.close[data-state="open"] {
+  @apply bg-accent text-muted-foreground;
+}
+
+/* Header and Footer */
+.header {
+  @apply flex flex-col space-y-1.5 text-center sm:text-left;
+}
+
+.footer {
+  @apply flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2;
+}
+
+/* Title and Description */
+.title {
+  @apply text-lg font-semibold leading-none tracking-tight;
+}
+
+.description {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Slide animations */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-50%) translateY(-50%) translateX(-100%);
+  }
+  to {
+    transform: translateX(-50%) translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateX(-50%) translateY(-50%) translateY(-48%);
+  }
+  to {
+    transform: translateX(-50%) translateY(-50%) translateY(0);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(-50%) translateY(-50%) translateX(0);
+  }
+  to {
+    transform: translateX(-50%) translateY(-50%) translateX(-100%);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    transform: translateX(-50%) translateY(-50%) translateY(0);
+  }
+  to {
+    transform: translateX(-50%) translateY(-50%) translateY(-48%);
+  }
+}

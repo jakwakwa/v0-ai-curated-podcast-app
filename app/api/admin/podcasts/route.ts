@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { isAdmin } from "@/lib/admin"
+import prisma from "@/lib/prisma"
 
 // Create a new podcast
 export async function POST(request: Request) {
@@ -32,13 +32,10 @@ export async function POST(request: Request) {
 		}
 
 		// Check if a podcast with the same name or URL already exists
-		const existingPodcast = await prisma.curatedPodcast.findFirst({
+		const existingPodcast = await prisma.podcast.findFirst({
 			where: {
-				OR: [
-					{ name },
-					{ url }
-				]
-			}
+				OR: [{ name }, { url }],
+			},
 		})
 
 		if (existingPodcast) {
@@ -46,7 +43,7 @@ export async function POST(request: Request) {
 		}
 
 		// Create the podcast
-		const podcast = await prisma.curatedPodcast.create({
+		const podcast = await prisma.podcast.create({
 			data: {
 				name,
 				description,
@@ -87,7 +84,7 @@ export async function PATCH(request: Request) {
 		}
 
 		// Check if podcast exists
-		const existingPodcast = await prisma.curatedPodcast.findUnique({
+		const existingPodcast = await prisma.podcast.findUnique({
 			where: { id },
 		})
 
@@ -105,14 +102,11 @@ export async function PATCH(request: Request) {
 
 		// Check if name or URL conflicts with other podcasts
 		if (name || url) {
-			const conflictingPodcast = await prisma.curatedPodcast.findFirst({
+			const conflictingPodcast = await prisma.podcast.findFirst({
 				where: {
 					id: { not: id },
-					OR: [
-						...(name ? [{ name }] : []),
-						...(url ? [{ url }] : [])
-					]
-				}
+					OR: [...(name ? [{ name }] : []), ...(url ? [{ url }] : [])],
+				},
 			})
 
 			if (conflictingPodcast) {
@@ -121,7 +115,7 @@ export async function PATCH(request: Request) {
 		}
 
 		// Update the podcast
-		const updatedPodcast = await prisma.curatedPodcast.update({
+		const updatedPodcast = await prisma.podcast.update({
 			where: { id },
 			data: {
 				...(name && { name }),
@@ -163,21 +157,21 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if podcast exists
-		const podcast = await prisma.curatedPodcast.findUnique({
+		const podcast = await prisma.podcast.findUnique({
 			where: { id: podcastId },
 			include: {
-				bundlePodcasts: {
+				bundleLinks: {
 					include: {
 						bundle: {
 							include: {
-								userCurationProfiles: {
-									where: { isActive: true }
-								}
-							}
-						}
-					}
-				}
-			}
+								profiles: {
+									where: { isActive: true },
+								},
+							},
+						},
+					},
+				},
+			},
 		})
 
 		if (!podcast) {
@@ -185,24 +179,19 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if podcast is being used in any active bundles with active user profiles
-		const activeUsage = podcast.bundlePodcasts.some(bp => 
-			bp.bundle.userCurationProfiles.length > 0
-		)
+		const activeUsage = podcast.bundleLinks.some(bp => bp.bundle.profiles.length > 0)
 
 		if (activeUsage) {
-			return new NextResponse(
-				"Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead.", 
-				{ status: 400 }
-			)
+			return new NextResponse("Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead.", { status: 400 })
 		}
 
 		// Delete bundle-podcast relationships first
-		await prisma.curatedBundlePodcast.deleteMany({
+		await prisma.bundlePodcast.deleteMany({
 			where: { podcastId },
 		})
 
 		// Finally delete the podcast
-		await prisma.curatedPodcast.delete({
+		await prisma.podcast.delete({
 			where: { id: podcastId },
 		})
 

@@ -69,7 +69,31 @@ export default function AdminPage() {
 	const checkAdminStatus = useCallback(async () => {
 		try {
 			const response = await fetch("/api/admin/check")
-			const data = await response.json()
+
+			// Check if response is ok and has content
+			if (!response.ok) {
+				// Don't log 401 errors as they're expected for non-authenticated users
+				if (response.status !== 401) {
+					console.error("Admin check API returned error:", response.status)
+				}
+				setAdminStatus(false)
+				toast.error("Access denied. Admin privileges required.")
+				router.back()
+				return
+			}
+
+			// Check if response has content
+			const text = await response.text()
+			if (!text) {
+				console.error("Admin check API returned empty response")
+				setAdminStatus(false)
+				toast.error("Error checking admin status")
+				router.back()
+				return
+			}
+
+			// Parse JSON
+			const data = JSON.parse(text)
 			setAdminStatus(data.isAdmin)
 			if (!data.isAdmin) {
 				toast.error("Access denied. Admin privileges required.")
@@ -79,10 +103,11 @@ export default function AdminPage() {
 			console.error("Error checking admin status:", error)
 			toast.error("Error checking admin status")
 			setAdminStatus(false)
+			router.back()
 		} finally {
 			setIsCheckingAdmin(false)
 		}
-	}, [router.back])
+	}, [router])
 
 	useEffect(() => {
 		checkAdminStatus()
@@ -301,7 +326,7 @@ export default function AdminPage() {
 		setNewPodcastDescription(podcast.description || "")
 		setNewPodcastUrl(podcast.url)
 		setNewPodcastImageUrl(podcast.imageUrl || "")
-		setNewPodcastCategory(podcast.category)
+		setNewPodcastCategory(podcast.category || "")
 		setShowCreatePodcast(true)
 	}
 
