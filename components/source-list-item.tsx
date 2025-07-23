@@ -11,13 +11,7 @@ export function SourceListItem({ source }: { source: Source }) {
 	return (
 		<Card className={styles["card-container"]}>
 			<div className={styles["image-wrapper"]}>
-				<Image
-					src={source.imageUrl || "/placeholder.svg"}
-					alt={`${source.name} cover art`}
-					width={80}
-					height={80}
-					className={styles["image-styles"]}
-				/>
+				<Image src={source.imageUrl || "/placeholder.svg"} alt={`${source.name} cover art`} width={80} height={80} className={styles["image-styles"]} />
 			</div>
 			<div className={styles["text-content-wrapper"]}>
 				<p className={styles["text-xs"]}>{source.name}</p>

@@ -3,16 +3,7 @@
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"includes": [
-			"**/*.js",
-			"**/*.jsx",
-			"**/*.ts",
-			"**/*.md",
-			"**/*.tsx",
-			"!**/.cursor/**",
-			"!**/.next/**",
-			"!**/node_modules/**"
-		]
+		"includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.md", "**/*.tsx", "!**/.cursor/**", "!**/.next/**", "!**/node_modules/**", "!**/google-cloud-sdk/**", "!**/gcs/**", "!**/globals.d.ts"]
 	},
 	"formatter": {
 		"enabled": true,

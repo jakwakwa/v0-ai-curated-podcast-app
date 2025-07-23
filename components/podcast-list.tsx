@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
 import styles from "./podcast-list.module.css"
@@ -38,7 +39,7 @@ export function PodcastList({ episodes }: PodcastListProps) {
 								</div>
 							)}
 							<div className={styles["image-container"]}>
-								{episode.imageUrl && <img src={episode.imageUrl} alt="Episode" className={styles["episode-image"]} />}
+								{episode.imageUrl && <Image src={episode.imageUrl} alt="Episode" className={styles["episode-image"]} width={100} height={100} />}
 								<span className={styles["source-text"]}>Podcast ID: {episode.podcastId}</span>
 							</div>
 						</div>

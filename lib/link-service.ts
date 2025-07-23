@@ -1,5 +1,4 @@
 // @ts-nocheck
-// biome-ignore lint/complexity/noStaticOnlyClass: <temporarily disabled as this service will be used in the future>
 // Temporarily disabled type checking for this file as it's not needed yet but code should be preserved
 
 import { PrismaClient } from "@prisma/client"
@@ -31,7 +30,7 @@ export const SUBSCRIPTION_TIERS = {
 	},
 } as const
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+// biome-ignore lint/complexity/noStaticOnlyClass: Static class pattern used for service organization
 export class LinkService {
 	// Create a new subscription (trial or paid)
 	static async createSubscription(userId: string, tierId: string) {
@@ -87,7 +86,7 @@ export class LinkService {
 	}
 
 	// Update subscription from Link webhook
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: PayMongo webhook payload type is not strongly typed
 	static async updateFromLinkWebhook(linkSubscription: any) {
 		const subscription = await prisma.subscription.findFirst({
 			where: { linkSubscriptionId: linkSubscription.id },
@@ -176,11 +175,10 @@ export class LinkService {
 			const data = await response.json()
 
 			if (!response.ok) {
-				// biome-ignore lint/suspicious/noConsole: <temporary disable for future use>
 				console.error("PayMongo Link creation failed:", data)
 				throw new Error(
 					`Failed to create PayMongo Link: ${
-						// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+						// biome-ignore lint/suspicious/noExplicitAny: PayMongo error structure is not typed
 						data.errors ? data.errors.map((e: any) => e.detail).join(", ") : "Unknown error"
 					}`
 				)
@@ -188,7 +186,6 @@ export class LinkService {
 
 			return data.data.attributes.checkout_url // Return the URL to redirect the user
 		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: <temporary disable for future use>
 			console.error("Error creating PayMongo Link:", error)
 			throw error
 		}

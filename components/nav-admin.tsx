@@ -12,7 +12,7 @@ export function NavAdmin() {
 
 	useEffect(() => {
 		// Only check admin status once Clerk auth is loaded and user is signed in
-		if (!isLoaded || !isSignedIn) {
+		if (!(isLoaded && isSignedIn)) {
 			setIsAdmin(false)
 			return
 		}
@@ -42,7 +42,7 @@ export function NavAdmin() {
 
 				// Parse JSON
 				const data = JSON.parse(text)
-				const adminStatus = data.isAdmin || false
+				const adminStatus = data.isAdmin
 				setIsAdmin(adminStatus)
 			} catch (error) {
 				console.error("Error checking admin status:", error)
@@ -60,7 +60,7 @@ export function NavAdmin() {
 	// - User is not signed in
 	// - Still checking admin status
 	// - User is not admin
-	if (!isLoaded || !isSignedIn || isCheckingAdmin || !isAdmin) {
+	if (!(isLoaded && isSignedIn) || isCheckingAdmin || !isAdmin) {
 		return null
 	}
 

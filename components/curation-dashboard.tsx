@@ -23,14 +23,11 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 						<Sparkles className="w-8 h-8 text-primary" />
 					</div>
 					<CardTitle className="text-2xl">Welcome to AI Curator!</CardTitle>
-					<CardDescription className="text-lg">
-						Create your first curation profile to start generating personalized podcasts
-					</CardDescription>
+					<CardDescription className="text-lg">Create your first curation profile to start generating personalized podcasts</CardDescription>
 				</CardHeader>
 				<CardContent className="text-center space-y-4">
 					<p className="text-muted-foreground max-w-md mx-auto">
-						Choose from our curated bundles or create a custom profile with your favorite podcasts. Our AI will generate
-						weekly episodes based on your selections.
+						Choose from our curated bundles or create a custom profile with your favorite podcasts. Our AI will generate weekly episodes based on your selections.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
 						<Link href="/build">

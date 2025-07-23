@@ -1,7 +1,7 @@
-import { ClientProviders } from "@/app/client-providers"
 import { ClerkProvider } from "@clerk/nextjs"
 import type { Metadata } from "next"
 import type React from "react"
+import { ClientProviders } from "@/app/client-providers"
 
 export const metadata: Metadata = {
 	title: "AI-Powered Podcast Generator",
@@ -15,10 +15,8 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<>
-			<ClerkProvider>
-				<ClientProviders>{children}</ClientProviders>
-			</ClerkProvider>
-		</>
+		<ClerkProvider>
+			<ClientProviders>{children}</ClientProviders>
+		</ClerkProvider>
 	)
 }

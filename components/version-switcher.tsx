@@ -5,15 +5,9 @@ import * as React from "react"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar-ui"
-import styles from './version-switcher.module.css'
+import styles from "./version-switcher.module.css"
 
-export function VersionSwitcher({
-	versions,
-	defaultVersion,
-}: {
-	versions: string[]
-	defaultVersion: string
-}) {
+export function VersionSwitcher({ versions, defaultVersion }: { versions: string[]; defaultVersion: string }) {
 	const [selectedVersion, setSelectedVersion] = React.useState(defaultVersion)
 
 	return (
@@ -21,10 +15,7 @@ export function VersionSwitcher({
 			<SidebarMenuItem>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<SidebarMenuButton
-							size="lg"
-							className={styles["sidebar-menu-button"]}
-						>
+						<SidebarMenuButton size="lg" className={styles["sidebar-menu-button"]}>
 							<div className={styles["icon-wrapper"]}>
 								<GalleryVerticalEnd className={styles["icon-small"]} />
 							</div>

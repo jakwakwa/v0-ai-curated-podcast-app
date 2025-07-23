@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 export async function POST() {
 	try {
@@ -32,7 +32,6 @@ export async function POST() {
 		return NextResponse.json(newTrial, { status: 201 })
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[SUBSCRIPTION_TRIAL_POST]", message)
 		return new NextResponse("Internal Error", { status: 500 })
 	}

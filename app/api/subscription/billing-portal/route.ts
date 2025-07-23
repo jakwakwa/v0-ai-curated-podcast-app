@@ -1,6 +1,6 @@
-import { StripeService } from "@/lib/stripe-service"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { StripeService } from "@/lib/stripe-service"
 
 export async function POST(request: Request) {
 	try {
@@ -22,10 +22,7 @@ export async function POST(request: Request) {
 			return new NextResponse("No active subscription found", { status: 404 })
 		}
 
-		const portalUrl = await StripeService.createBillingPortalSession(
-			subscription.linkCustomerId,
-			returnUrl
-		)
+		const portalUrl = await StripeService.createBillingPortalSession(subscription.linkCustomerId, returnUrl)
 
 		return NextResponse.json({ url: portalUrl })
 	} catch (error: unknown) {

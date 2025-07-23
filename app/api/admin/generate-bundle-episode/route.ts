@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 import { inngest } from "@/inngest/client"
 import { requireAdmin } from "@/lib/admin"
 import prisma from "@/lib/prisma"
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
 		const { bundleId, title, description, sources } = body
 
 		// Validate input
-		if (!bundleId || !title || !sources || sources.length === 0) {
+		if (!(bundleId && title && sources) || sources.length === 0) {
 			return NextResponse.json({ message: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
 		}
 

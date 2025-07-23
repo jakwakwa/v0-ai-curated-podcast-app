@@ -1,30 +1,20 @@
 "use client"
-
-import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
-
-import type { UserCurationProfile } from "@/lib/types"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-
+import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sparkles } from "lucide-react"
-import Link from "next/link"
+import type { UserCurationProfile } from "@/lib/types"
 import styles from "./saved-collection-card.module.css"
 
-export function SavedCollectionCard({
-	userCurationProfile,
-}: {
-	userCurationProfile: UserCurationProfile
-}) {
+export function SavedCollectionCard({ userCurationProfile }: { userCurationProfile: UserCurationProfile }) {
 	const [isLoading, setIsLoading] = useState(false)
 	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState(userCurationProfile)
 
 	// New: State for formatted dates
 	const [createdAtDisplay, setCreatedAtDisplay] = useState<string>(userCurationProfile.createdAt.toISOString())
-	const [generatedAtDisplay, setGeneratedAtDisplay] = useState<string | null>(
-		userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null
-	)
+	const [generatedAtDisplay, setGeneratedAtDisplay] = useState<string | null>(userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null)
 
 	useEffect(() => {
 		setCurrentUserCurationProfile(userCurationProfile)
@@ -47,7 +37,7 @@ export function SavedCollectionCard({
 		}
 	}, [userCurationProfile])
 
-	const handleGenerate = async () => {
+	const _handleGenerate = async () => {
 		setIsLoading(true)
 		let pollingInterval: NodeJS.Timeout | null = null
 
@@ -125,9 +115,7 @@ export function SavedCollectionCard({
 						)}
 					</Button>
 				)} */}
-				{currentUserCurationProfile.status === "Failed" && (
-					<p className={styles["error-message"]}>Podcast generation failed. Please try again.</p>
-				)}
+				{currentUserCurationProfile.status === "Failed" && <p className={styles["error-message"]}>Podcast generation failed. Please try again.</p>}
 			</CardContent>
 			{currentUserCurationProfile.status === "Generated" && (
 				<CardFooter className={styles["card-footer"]}>

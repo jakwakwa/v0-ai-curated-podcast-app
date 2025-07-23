@@ -1,7 +1,8 @@
 "use client"
 
 import { AlertCircle, Lock, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import Image from "next/image"
+import { useCallback, useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ export default function CuratedBundlesPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const fetchCuratedBundles = async () => {
+	const fetchCuratedBundles = useCallback(async () => {
 		try {
 			setIsLoading(true)
 			setError(null)
@@ -32,11 +33,11 @@ export default function CuratedBundlesPage() {
 		} finally {
 			setIsLoading(false)
 		}
-	}
+	}, [])
 
 	useEffect(() => {
 		fetchCuratedBundles()
-	}, [])
+	}, [fetchCuratedBundles])
 
 	if (isLoading) {
 		return (
@@ -102,7 +103,7 @@ export default function CuratedBundlesPage() {
 				{curatedBundles.map(bundle => (
 					<Card key={bundle.id} className={styles.bundleCard}>
 						<CardHeader className={styles.cardHeader}>
-							{bundle.imageUrl && <img src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} />}
+							{bundle.imageUrl && <Image src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
 							<div className={styles.bundleInfo}>
 								<CardTitle className={styles.bundleTitle}>{bundle.name}</CardTitle>
 								<CardDescription className={styles.bundleDescription}>{bundle.description}</CardDescription>

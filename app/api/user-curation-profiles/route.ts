@@ -2,11 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 
-export async function GET(
-	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
-	// biome-ignore lint/correctness/noUnusedVariables: <expected>
-	request: Request
-) {
+export async function GET(_request: Request) {
 	try {
 		const { userId } = await auth()
 
@@ -49,7 +45,6 @@ export async function GET(
 
 		return NextResponse.json(transformedProfile)
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <error for debugging>
 		console.error("[USER_CURATION_PROFILES_GET]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}
@@ -108,7 +103,6 @@ export async function POST(request: Request) {
 
 		return NextResponse.json(newUserCurationProfile, { status: 201 })
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <debugging>
 		console.error("[USER_CURATION_PROFILE_POST]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}

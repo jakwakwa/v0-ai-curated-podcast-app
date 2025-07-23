@@ -1,31 +1,28 @@
 "use client"
 
-import { useUser, useAuth } from "@clerk/nextjs"
+import { useAuth, useUser } from "@clerk/nextjs"
+import { Crown, Gift, Zap } from "lucide-react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Zap, Crown, Gift } from "lucide-react"
-import Link from "next/link"
 
 export function SubscriptionStatus() {
 	const { user, isLoaded } = useUser()
 	const { has } = useAuth()
 
-	if (!isLoaded || !user) {
+	if (!(isLoaded && user)) {
 		return null
 	}
 
 	// Check if user has any premium features
-	const hasPremiumFeatures = has && (
-		has({ feature: "weekly_combo" }) || 
-		has({ feature: "custom_curation_profiles" })
-	)
+	const hasPremiumFeatures = has?.({ feature: "weekly_combo" }) || has?.({ feature: "custom_curation_profiles" })
 
 	// Determine plan based on features
 	const getPlanData = () => {
-		if (has && has({ feature: "custom_curation_profiles" })) {
+		if (has?.({ feature: "custom_curation_profiles" })) {
 			return { name: "Curate & Control", id: "profile_curator", icon: <Crown className="h-3 w-3" /> }
 		}
-		if (has && has({ feature: "weekly_combo" })) {
+		if (has?.({ feature: "weekly_combo" })) {
 			return { name: "Casual Listener", id: "casual-user", icon: <Zap className="h-3 w-3" /> }
 		}
 		return { name: "FreeSlice", id: "free_user", icon: <Gift className="h-3 w-3" /> }
@@ -57,9 +54,7 @@ export function SubscriptionStatus() {
 				{planData.name}
 			</Badge>
 			<Button size="sm" variant="outline" asChild>
-				<Link href="/pricing">
-					Manage
-				</Link>
+				<Link href="/pricing">Manage</Link>
 			</Button>
 		</div>
 	)

@@ -1,18 +1,13 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 interface RouteParams {
 	params: Promise<{ id: string }>
 }
 
-export async function DELETE(
-	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
-	// biome-ignore lint/correctness/noUnusedVariables: <expected>
-	request: NextRequest,
-	{ params }: RouteParams
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 	try {
 		const { userId } = await auth()
 
@@ -36,7 +31,6 @@ export async function DELETE(
 
 		return NextResponse.json({ message: "Notification deleted successfully" })
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <error debugging>
 		console.error("[NOTIFICATION_DELETE]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}

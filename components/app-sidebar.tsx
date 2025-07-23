@@ -66,29 +66,25 @@ const data = {
 					url: "/notifications",
 				},
 			],
-		}
-
+		},
 	] as SidebarNavGroup[], // Apply the new type to navMain
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar {...props}>
-		<SidebarHeader>
-			<SidebarMenu>
-			<SidebarMenuItem>
-				<SidebarMenuButton
-				asChild
-				className="data-[slot=sidebar-menu-button]:!p-1.5"
-				>
-				<a href="/">
-					<House />
-					<span className="text-base font-semibold">Home</span>
-				</a>
-				</SidebarMenuButton>
-			</SidebarMenuItem>
-			</SidebarMenu>
-		</SidebarHeader>
+			<SidebarHeader>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+							<a href="/">
+								<House />
+								<span className="text-base font-semibold">Home</span>
+							</a>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarHeader>
 			<SidebarContent className={styles["sidebar-content-gap"]}>
 				{/* We create a collapsible SidebarGroup for each parent. */}
 				{data.navMain.map(item => (
@@ -115,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						</SidebarGroup>
 					</Collapsible>
 				))}
-				
+
 				{/* Admin section - only shows for admin users */}
 				<NavAdmin />
 			</SidebarContent>

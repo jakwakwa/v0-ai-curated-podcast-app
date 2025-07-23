@@ -88,7 +88,7 @@ const DUMMY_USER_CURATION_PROFILE: UserCurationProfileWithRelations = {
 	episodes: [],
 }
 
-const DUMMY_EPISODES: Episode[] = [
+const DUMMY_EPISODES = [
 	{
 		id: "episode1",
 		title: "Dr. Jordan B. Peterson sits down with Scott Adams",
@@ -178,7 +178,6 @@ export async function getUserCurationProfile(): Promise<UserCurationProfileWithR
 
 		return transformedProfile as UserCurationProfileWithRelations
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <debugging>
 		console.error("Error fetching user curation profile:", error)
 		// Fallback to dummy data if database query fails
 		logDummyDataUsage("getUserCurationProfile (Database fallback)")
@@ -234,7 +233,6 @@ export async function getEpisodes(): Promise<Episode[]> {
 
 		return episodes
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <debugging>
 		console.error("Error fetching episodes:", error)
 		// Fallback to dummy data if database query fails
 		logDummyDataUsage("getEpisodes (Database fallback)")

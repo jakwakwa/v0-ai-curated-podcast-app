@@ -1,6 +1,6 @@
-import { LinkService } from "@/lib/link-service"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { LinkService } from "@/lib/link-service"
 
 export async function POST() {
 	try {
@@ -15,7 +15,6 @@ export async function POST() {
 		return NextResponse.json({ message: "Subscription canceled successfully" })
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[SUBSCRIPTION_CANCEL_POST]", message)
 		return new NextResponse("Internal Error", { status: 500 })
 	}

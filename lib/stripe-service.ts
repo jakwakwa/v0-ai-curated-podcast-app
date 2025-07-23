@@ -1,3 +1,4 @@
+import type { Subscription } from "@prisma/client"
 import Stripe from "stripe"
 import prisma from "@/lib/prisma"
 
@@ -312,15 +313,13 @@ export const StripeService = {
 	/**
 	 * Helper method to check if a subscription is active (without fetching data)
 	 */
-	isSubscriptionActive(subscription: any): boolean {
+	isSubscriptionActive(subscription: Subscription | null): boolean {
 		if (!subscription) return false
 
 		const now = new Date()
 
 		// Check if subscription is active and not expired
-		return ["active", "trialing"].includes(subscription.status) && 
-			   subscription.currentPeriodEnd && 
-			   subscription.currentPeriodEnd > now
+		return ["active", "trialing"].includes(subscription.status) && subscription.currentPeriodEnd !== null && subscription.currentPeriodEnd > now
 	},
 
 	/**

@@ -6,12 +6,8 @@ export default function PricingPage() {
 	return (
 		<div className="container mx-auto px-4 py-12">
 			<div className="text-center mb-12">
-				<h1 className="text-4xl font-bold tracking-tight mb-4">
-					Choose Your Plan
-				</h1>
-				<p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-					Unlock the full potential of AI-powered podcast curation with our flexible subscription plans.
-				</p>
+				<h1 className="text-4xl font-bold tracking-tight mb-4">Choose Your Plan</h1>
+				<p className="text-xl text-muted-foreground max-w-3xl mx-auto">Unlock the full potential of AI-powered podcast curation with our flexible subscription plans.</p>
 			</div>
 
 			{/* Clerk's built-in PricingTable component */}
@@ -83,27 +79,19 @@ export default function PricingPage() {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
 					<div className="text-left">
 						<h3 className="font-semibold mb-2">Can I change my plan anytime?</h3>
-						<p className="text-sm text-muted-foreground">
-							Yes, you can upgrade or downgrade your plan at any time through your account settings.
-						</p>
+						<p className="text-sm text-muted-foreground">Yes, you can upgrade or downgrade your plan at any time through your account settings.</p>
 					</div>
 					<div className="text-left">
 						<h3 className="font-semibold mb-2">Is there a free trial?</h3>
-						<p className="text-sm text-muted-foreground">
-							Yes, you can start with our FreeSlice plan and upgrade when you're ready.
-						</p>
+						<p className="text-sm text-muted-foreground">Yes, you can start with our FreeSlice plan and upgrade when you're ready.</p>
 					</div>
 					<div className="text-left">
 						<h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
-						<p className="text-sm text-muted-foreground">
-							We accept all major credit cards through our secure payment system.
-						</p>
+						<p className="text-sm text-muted-foreground">We accept all major credit cards through our secure payment system.</p>
 					</div>
 					<div className="text-left">
 						<h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
-						<p className="text-sm text-muted-foreground">
-							Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing cycle.
-						</p>
+						<p className="text-sm text-muted-foreground">Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing cycle.</p>
 					</div>
 				</div>
 			</div>

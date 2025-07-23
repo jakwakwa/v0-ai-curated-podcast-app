@@ -349,7 +349,7 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 		}),
 		{
 			name: "subscription-store",
-			enabled: process.env.NODE_ENV === "development"
+			enabled: process.env.NODE_ENV === "development",
 		}
 	)
 )

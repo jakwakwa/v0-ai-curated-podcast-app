@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label"
 import { SidebarGroup, SidebarGroupContent, SidebarInput } from "@/components/ui/sidebar-ui"
 import { Search } from "lucide-react"
 import type React from "react"
-import styles from './search-form.module.css'
+import styles from "./search-form.module.css"
 
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
 	return (

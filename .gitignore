@@ -32,6 +32,7 @@ next-env.d.ts
 .yarn.lock
 .DS_Store
 .clerk/
+/.clerk/
 REVAMP_IMPLEMENTATION_PROGRESS.md
 # /src/generated/prisma
 

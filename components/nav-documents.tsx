@@ -3,16 +3,8 @@
 import { FolderIcon, type LucideIcon, MoreHorizontalIcon, ShareIcon } from "lucide-react"
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import {
-	SidebarGroup,
-	SidebarGroupLabel,
-	SidebarMenu,
-	SidebarMenuAction,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	useSidebar,
-} from "@/components/ui/sidebar-ui"
-import styles from './nav-documents.module.css'
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar-ui"
+import styles from "./nav-documents.module.css"
 
 export function NavDocuments({
 	items,
@@ -44,11 +36,7 @@ export function NavDocuments({
 									<span className={styles["sr-only"]}>More</span>
 								</SidebarMenuAction>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className={styles["dropdown-menu-content"]}
-								side={isMobile ? "bottom" : "right"}
-								align={isMobile ? "end" : "start"}
-							>
+							<DropdownMenuContent className={styles["dropdown-menu-content"]} side={isMobile ? "bottom" : "right"} align={isMobile ? "end" : "start"}>
 								<DropdownMenuItem>
 									<FolderIcon />
 									<span>Open</span>

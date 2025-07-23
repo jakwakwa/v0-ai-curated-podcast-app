@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ export default function CurationProfileManagementPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
-	const fetchAndUpdateData = async () => {
+	const fetchAndUpdateData = useCallback(async () => {
 		// Fetch user curation profile and episodes in parallel
 		const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
 
@@ -34,7 +34,7 @@ export default function CurationProfileManagementPage() {
 		}
 
 		setBundleEpisodes(bundleEpisodesList)
-	}
+	}, [])
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -50,7 +50,7 @@ export default function CurationProfileManagementPage() {
 		}
 
 		fetchData()
-	}, [])
+	}, [fetchAndUpdateData])
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return

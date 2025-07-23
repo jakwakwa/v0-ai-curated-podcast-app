@@ -1,4 +1,4 @@
-import { CONFIG } from './config'
+import { CONFIG } from "./config"
 
 /**
  * Utility to easily toggle dummy data on/off
@@ -15,30 +15,25 @@ import { CONFIG } from './config'
  */
 
 export function getDummyDataStatus(): {
-  isEnabled: boolean
-  status: string
-  affectedFunctions: string[]
+	isEnabled: boolean
+	status: string
+	affectedFunctions: string[]
 } {
-  return {
-    isEnabled: CONFIG.USE_DUMMY_DATA,
-    status: CONFIG.USE_DUMMY_DATA ? '🟢 ENABLED' : '🔴 DISABLED',
-    affectedFunctions: [
-      'getUserCurationProfile()',
-      'getEpisodes()',
-      'CuratedPodcastList',
-      'CuratedBundleList'
-    ]
-  }
+	return {
+		isEnabled: CONFIG.USE_DUMMY_DATA,
+		status: CONFIG.USE_DUMMY_DATA ? "🟢 ENABLED" : "🔴 DISABLED",
+		affectedFunctions: ["getUserCurationProfile()", "getEpisodes()", "CuratedPodcastList", "CuratedBundleList"],
+	}
 }
 
 export function logDummyDataStatus(): void {
-  const status = getDummyDataStatus()
-  console.log('🔧 DUMMY DATA STATUS:', status.status)
-  console.log('📋 Affected functions:', status.affectedFunctions.join(', '))
-  console.log('💡 To toggle: Change USE_DUMMY_DATA in lib/config.ts')
+	const status = getDummyDataStatus()
+	console.log("🔧 DUMMY DATA STATUS:", status.status)
+	console.log("📋 Affected functions:", status.affectedFunctions.join(", "))
+	console.log("💡 To toggle: Change USE_DUMMY_DATA in lib/config.ts")
 }
 
 // Auto-log status in development
 if (CONFIG.DEVELOPMENT_MODE) {
-  logDummyDataStatus()
+	logDummyDataStatus()
 }

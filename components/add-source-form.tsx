@@ -7,7 +7,7 @@ import { PlusCircle } from "lucide-react"
 import { useActionState, useEffect, useRef } from "react"
 import { useFormStatus } from "react-dom"
 import { toast } from "sonner"
-import styles from './add-source-form.module.css'
+import styles from "./add-source-form.module.css"
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
 	const { pending } = useFormStatus()
@@ -36,14 +36,7 @@ export function AddSourceForm({ disabled }: { disabled: boolean }) {
 		<form ref={formRef} action={formAction} className={styles["form-container"]}>
 			<div className={styles["input-wrapper"]}>
 				<PlusCircle className={styles["plus-icon"]} />
-				<Input
-					type="url"
-					name="url"
-					placeholder="Enter Youtube show URL..."
-					className={styles["input-field"]}
-					disabled={disabled}
-					required
-				/>
+				<Input type="url" name="url" placeholder="Enter Youtube show URL..." className={styles["input-field"]} disabled={disabled} required />
 			</div>
 			<SubmitButton disabled={disabled} />
 		</form>

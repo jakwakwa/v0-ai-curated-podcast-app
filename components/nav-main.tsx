@@ -3,14 +3,8 @@
 import { type LucideIcon, MailIcon, PlusCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-} from "@/components/ui/sidebar-ui"
-import styles from './nav-main.module.css'
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar-ui"
+import styles from "./nav-main.module.css"
 
 export function NavMain({
 	items,
@@ -26,10 +20,7 @@ export function NavMain({
 			<SidebarGroupContent className={styles["sidebar-group-content-flex"]}>
 				<SidebarMenu>
 					<SidebarMenuItem className={styles["sidebar-menu-item-flex"]}>
-						<SidebarMenuButton
-							tooltip="Quick Create"
-							className={styles["sidebar-menu-button-primary"]}
-						>
+						<SidebarMenuButton tooltip="Quick Create" className={styles["sidebar-menu-button-primary"]}>
 							<PlusCircleIcon />
 							<span>Quick Create</span>
 						</SidebarMenuButton>

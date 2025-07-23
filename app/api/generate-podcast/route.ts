@@ -25,7 +25,6 @@ export async function POST(request: Request) {
 			collectionId,
 		})
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <expect>
 		console.error("Error in POST /api/generate-podcast:", error)
 		return NextResponse.json(
 			{

@@ -1,5 +1,6 @@
 import { AlertCircle, Check, Lock, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import Image from "next/image"
+import { useCallback, useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,7 +17,7 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const fetchCuratedBundles = async () => {
+	const fetchCuratedBundles = useCallback(async () => {
 		try {
 			setIsLoading(true)
 			setError(null)
@@ -34,11 +35,11 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 		} finally {
 			setIsLoading(false)
 		}
-	}
+	}, [])
 
 	useEffect(() => {
 		fetchCuratedBundles()
-	}, [])
+	}, [fetchCuratedBundles])
 
 	if (isLoading) {
 		return (
@@ -98,7 +99,7 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 			<div className={styles.bundleGrid}>
 				{curatedBundles.map(bundle => (
 					<Card key={bundle.id} className={`${styles.bundleCard} ${selectedBundleId === bundle.id ? styles.selected : ""}`} onClick={() => onSelectBundle(bundle.id)}>
-						{bundle.imageUrl && <img src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} />}
+						{bundle.imageUrl && <Image src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
 						<div className={styles.bundleContent}>
 							<h3>{bundle.name}</h3>
 							<p>{bundle.description}</p>

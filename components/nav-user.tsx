@@ -3,17 +3,9 @@
 import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, UserCircleIcon } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar-ui"
-import styles from './nav-user.module.css'
+import styles from "./nav-user.module.css"
 import { useClerk } from "@clerk/nextjs"
 import Link from "next/link"
 
@@ -27,17 +19,14 @@ export function NavUser({
 	}
 }) {
 	const { isMobile } = useSidebar()
-  const { signOut } = useClerk();
+	const { signOut } = useClerk()
 
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<SidebarMenuButton
-							size="lg"
-							className={styles["sidebar-menu-button"]}
-						>
+						<SidebarMenuButton size="lg" className={styles["sidebar-menu-button"]}>
 							<Avatar className={styles["avatar-image-grayscale"]}>
 								<AvatarImage src={user.avatar} alt={user.name} />
 								<AvatarFallback className={styles["avatar-fallback-rounded"]}>CN</AvatarFallback>
@@ -49,12 +38,7 @@ export function NavUser({
 							<MoreVerticalIcon className={styles["more-vertical-icon"]} />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						className={styles["dropdown-menu-content"]}
-						side={isMobile ? "bottom" : "right"}
-						align="end"
-						sideOffset={4}
-					>
+					<DropdownMenuContent className={styles["dropdown-menu-content"]} side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
 						<DropdownMenuLabel className={styles["dropdown-menu-label"]}>
 							<div className={styles["dropdown-menu-label-content"]}>
 								<Avatar className={styles["avatar-image-grayscale"]}>
@@ -89,13 +73,15 @@ export function NavUser({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={async () => {
-							try {
-								await signOut({ redirectUrl: "/" });
-							} catch {
-								// console.error("Sign out failed:", error);
-							}
-						}}>
+						<DropdownMenuItem
+							onClick={async () => {
+								try {
+									await signOut({ redirectUrl: "/" })
+								} catch {
+									// console.error("Sign out failed:", error);
+								}
+							}}
+						>
 							<LogOutIcon />
 							Log out
 						</DropdownMenuItem>

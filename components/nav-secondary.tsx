@@ -3,13 +3,7 @@
 import type { LucideIcon } from "lucide-react"
 import type * as React from "react"
 
-import {
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-} from "@/components/ui/sidebar-ui"
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar-ui"
 
 export function NavSecondary({
 	items,

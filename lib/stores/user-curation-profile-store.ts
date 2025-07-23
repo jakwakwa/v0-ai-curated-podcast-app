@@ -7,12 +7,7 @@ interface UserCurationProfileStore {
 	userCurationProfile: UserCurationProfileType | null
 	// UserCurationProfile actions
 	setUserCurationProfile: (userCurationProfile: UserCurationProfileType | null) => void
-	createUserCurationProfile: (data: {
-		name: string
-		isBundleSelection: boolean
-		selectedBundleId?: string
-		selectedPodcasts?: string[]
-	}) => Promise<void>
+	createUserCurationProfile: (data: { name: string; isBundleSelection: boolean; selectedBundleId?: string; selectedPodcasts?: string[] }) => Promise<void>
 	updateUserCurationProfile: (data: Partial<UserCurationProfileType>) => Promise<void>
 	deactivateUserCurationProfile: () => Promise<void>
 	// Loading and error states
@@ -137,7 +132,7 @@ export const useUserCurationProfileStore = create<UserCurationProfileStore>()(
 		),
 		{
 			name: "user-curation-profile-store",
-			enabled: process.env.NODE_ENV === "development"
+			enabled: process.env.NODE_ENV === "development",
 		}
 	)
 )

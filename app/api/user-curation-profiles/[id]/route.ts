@@ -35,7 +35,6 @@ export async function GET(
 		return NextResponse.json(userCurationProfile)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[USER_CURATION_PROFILE_GET_BY_ID]", message)
 		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
@@ -58,7 +57,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		const body = await request.json()
 		const { name, isBundleSelection, selectedBundleId, sourceUrls } = body
 
-		// biome-ignore lint/complexity/useSimplifiedLogicExpression: <explanation>
+		// biome-ignore lint/complexity/useSimplifiedLogicExpression: checking that at least one field is provided
 		if (!name && !isBundleSelection && !selectedBundleId && !sourceUrls) {
 			return NextResponse.json({ error: "No update data provided" }, { status: 400 })
 		}
@@ -73,17 +72,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		}
 
 		if (existingUserCurationProfile.userId !== userId) {
-			// biome-ignore lint/suspicious/noConsole: Debug logging
-			// biome-ignore lint/suspicious/noConsole: <explanation>
-			console.log("User ID mismatch:", {
-				requestUserId: userId,
-				profileUserId: existingUserCurationProfile.userId,
-				profileId: id,
-			})
 			return NextResponse.json({ error: "Unauthorized - User ID mismatch" }, { status: 403 })
 		}
-
-		// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+		// TODO: Fix no explicit any
+		// biome-ignore lint/suspicious/noImplicitAnyLet: <FIX LATER>
 		let updatedUserCurationProfile
 
 		if (isBundleSelection !== undefined) {
@@ -127,7 +119,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		return NextResponse.json(updatedUserCurationProfile)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[USER_CURATION_PROFILE_PATCH]", message)
 		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
@@ -163,7 +154,6 @@ export async function DELETE(
 		return NextResponse.json({ message: "User Curation Profile deactivated successfully" })
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
-		// biome-ignore lint/suspicious/noConsole: <explanation>
 		console.error("[USER_CURATION_PROFILE_DELETE]", message)
 		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}

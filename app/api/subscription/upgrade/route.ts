@@ -1,6 +1,6 @@
-import { StripeService } from "@/lib/stripe-service"
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { StripeService } from "@/lib/stripe-service"
 
 export async function POST(request: Request) {
 	try {
@@ -12,16 +12,11 @@ export async function POST(request: Request) {
 
 		const { planId, successUrl, cancelUrl } = await request.json()
 
-		if (!planId || !successUrl || !cancelUrl) {
+		if (!(planId && successUrl && cancelUrl)) {
 			return new NextResponse("Missing required parameters", { status: 400 })
 		}
 
-		const checkoutUrl = await StripeService.createCheckoutSession(
-			userId,
-			planId,
-			successUrl,
-			cancelUrl
-		)
+		const checkoutUrl = await StripeService.createCheckoutSession(userId, planId, successUrl, cancelUrl)
 
 		return NextResponse.json({ checkoutUrl })
 	} catch (error) {

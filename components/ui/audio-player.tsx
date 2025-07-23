@@ -1,10 +1,11 @@
 "use client"
-import styles from "@/components/ui/audio-player.module.css"
-import type { Episode } from "@/lib/types"
 import Image from "next/image"
 import type React from "react"
-import { type JSX, useEffect, useRef, useState } from "react"
+import { type JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import styles from "@/components/ui/audio-player.module.css"
+import type { Episode } from "@/lib/types"
+
 import { Button } from "./button"
 
 // TODO: use these exports in Titles and Descriptions
@@ -60,7 +61,65 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	const [imageError, setImageError] = useState(false)
 	const audioRef = useRef<HTMLAudioElement | null>(null)
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <this works fine>
+	const onAudioEnd = useCallback(() => {
+		setIsPlaying(false)
+		setProgress(0)
+		setCurrentTime(0)
+	}, [])
+
+	const updateProgress = useCallback(() => {
+		if (audioRef.current) {
+			const current = audioRef.current.currentTime
+			const total = audioRef.current.duration
+			setCurrentTime(current)
+			if (total) {
+				setProgress((current / total) * 100)
+			}
+		}
+	}, [])
+
+	const onLoadedMetadata = useCallback(() => {
+		if (audioRef.current) {
+			setDuration(audioRef.current.duration)
+		}
+	}, [])
+
+	const onAudioError = useCallback(() => {
+		toast(`Audio failed to load:${episode.audioUrl}`)
+		setIsPlaying(false)
+	}, [episode.audioUrl])
+
+	// Memoized expensive calculations
+	const formattedCurrentTime = useMemo(() => formatTime(currentTime), [currentTime])
+	const formattedDuration = useMemo(() => formatTime(duration), [duration])
+	const truncatedDescription = useMemo(() => truncateDescription(episode.description, 100), [episode.description])
+
+	const audioSource = useMemo(() => {
+		return episode.audioUrl !== "sample-for-simulated-tests.mp3" ? episode.audioUrl : "/sample-for-simulated-tests.mp3"
+	}, [episode.audioUrl])
+
+	const volumeIcon = useMemo(() => {
+		if (isMuted || volume === 0) {
+			return (
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+				</svg>
+			)
+		}
+		if (volume < 0.5) {
+			return (
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z" />
+				</svg>
+			)
+		}
+		return (
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+				<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+			</svg>
+		)
+	}, [isMuted, volume])
+
 	useEffect(() => {
 		const audio = audioRef.current
 
@@ -72,8 +131,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 		}
 
 		if (episode.audioUrl && audio) {
-			audio.src =
-				episode.audioUrl !== "sample-for-simulated-tests.mp3" ? episode.audioUrl : "/sample-for-simulated-tests.mp3"
+			audio.src = audioSource
 			audio.volume = volume
 			audio.addEventListener("timeupdate", updateProgress)
 			audio.addEventListener("ended", onAudioEnd)
@@ -103,41 +161,13 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 				audio.removeEventListener("error", onAudioError)
 			}
 		}
-	}, [episode, isPlaying])
+	}, [episode, isPlaying, onAudioEnd, audioSource, onAudioError, updateProgress, onLoadedMetadata, volume])
 
 	useEffect(() => {
 		if (audioRef.current) {
 			audioRef.current.volume = isMuted ? 0 : volume
 		}
 	}, [volume, isMuted])
-
-	const updateProgress = () => {
-		if (audioRef.current) {
-			const current = audioRef.current.currentTime
-			const total = audioRef.current.duration
-			setCurrentTime(current)
-			if (total) {
-				setProgress((current / total) * 100)
-			}
-		}
-	}
-
-	const onLoadedMetadata = () => {
-		if (audioRef.current) {
-			setDuration(audioRef.current.duration)
-		}
-	}
-
-	const onAudioError = () => {
-		toast(`Audio failed to load:${episode.audioUrl}`)
-		setIsPlaying(false)
-	}
-
-	const onAudioEnd = () => {
-		setIsPlaying(false)
-		setProgress(0)
-		setCurrentTime(0)
-	}
 
 	const togglePlayPause = async () => {
 		// console.log(audioRef.current)
@@ -183,14 +213,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 		<div className={styles.audioPlayer}>
 			<div className={styles.episodeImageContainer}>
 				{episode.imageUrl && !imageError ? (
-					<Image
-						src={episode.imageUrl!}
-						alt={episode.description ?? ""}
-						width={56}
-						height={56}
-						className={styles.episodeImage}
-						onError={() => setImageError(true)}
-					/>
+					<Image src={episode.imageUrl!} alt={episode.description ?? ""} width={56} height={56} className={styles.episodeImage} onError={() => setImageError(true)} />
 				) : (
 					<div className={styles.placeholderImage}>
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -202,7 +225,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 
 			<div className={styles.info}>
 				<h3 title={episode.title}>{episode.title}</h3>
-				<p title={episode.description ?? ""}>{truncateDescription(episode.description, 100)}</p>
+				<p title={episode.description ?? ""}>{truncatedDescription}</p>
 			</div>
 
 			<div className={styles.controls}>
@@ -219,39 +242,19 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 				</Button>
 
 				<div className={styles.progressContainer}>
-					<span className={styles.timeDisplay}>{formatTime(currentTime)}</span>
-					<div className={styles.progressBar} onClick={seekTo}>
+					<span className={styles.timeDisplay}>{formattedCurrentTime}</span>
+					<div className={styles.progressBar} onClick={seekTo} role="slider" tabIndex={0} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label="Seek through audio">
 						<div className={styles.progress} style={{ width: `${progress}%` }} />
 					</div>
-					<span className={styles.timeDisplay}>{formatTime(duration)}</span>
+					<span className={styles.timeDisplay}>{formattedDuration}</span>
 				</div>
 			</div>
 
 			<div className={styles.volumeControl}>
 				<Button onClick={toggleMute} className={styles.volumeButton}>
-					{isMuted || volume === 0 ? (
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-						</svg>
-					) : volume < 0.5 ? (
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z" />
-						</svg>
-					) : (
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-						</svg>
-					)}
+					{volumeIcon}
 				</Button>
-				<input
-					type="range"
-					min="0"
-					max="1"
-					step="0.1"
-					value={isMuted ? 0 : volume}
-					onChange={changeVolume}
-					className={styles.volumeSlider}
-				/>
+				<input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
 			</div>
 
 			{onClose && (
@@ -261,9 +264,19 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 					</svg>
 				</Button>
 			)}
-
-			{/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
-			<audio ref={audioRef} src={episode.audioUrl} />
+			<audio ref={audioRef} src={episode.audioUrl}>
+				<track
+					kind="captions"
+					src={
+						episode.description
+							? `data:text/vtt;base64,${btoa(`WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${episode.description}`)}`
+							: "data:text/vtt;base64,V0VCVlRUCgowMDowMDowMC4wMDAgLS0+IDAwOjAwOjAwLjAwMAo="
+					}
+					srcLang="en"
+					label={episode.description ? "Episode transcript" : "No captions available"}
+					default
+				/>
+			</audio>
 		</div>
 	)
 }

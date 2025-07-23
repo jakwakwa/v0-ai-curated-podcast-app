@@ -3,8 +3,7 @@ import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 
 export async function GET(
-	// biome-ignore lint/correctness/noUnusedFunctionParameters: <expected unused>
-	// biome-ignore lint/correctness/noUnusedVariables: <expected>
+	// biome-ignore lint/correctness/noUnusedFunctionParameters: expected unused parameter
 	request: Request
 ) {
 	try {
@@ -24,7 +23,6 @@ export async function GET(
 
 		return NextResponse.json(curatedPodcasts)
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: <error debugging>
 		console.error("[CURATED_PODCASTS_GET]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}

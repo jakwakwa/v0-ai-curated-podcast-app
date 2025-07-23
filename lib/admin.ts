@@ -18,7 +18,7 @@ export async function isAdmin(): Promise<boolean> {
 		const { userId } = await auth()
 		const user = await currentUser()
 
-		if (!userId || !user) {
+		if (!(userId && user)) {
 			return false
 		}
 
