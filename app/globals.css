@@ -40,7 +40,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: #10101a54;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
@@ -77,7 +77,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
+    --sidebar-background: #10101a54;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -106,6 +106,21 @@
 		color: hsl(var(--foreground));
 	}
 
+	.episodeCard {
+		background: #18181b;
+		background: #18181b;
+
+		background: linear-gradient(57deg, #37206d -30%, #110b11 90%, #e7ff00 258%) !important;
+		border: 1px solid hsl(var(--border));
+		border-radius: .5rem;
+		padding:1.2rem 2rem !important;
+		width: 100%;
+		margin: 0 auto;
+		max-width: 90vw!important;
+		box-shadow: 2px 9px 17px 0px #0000004a, inset -20px -9px 84px 5px #1c010f2b !important;
+	}
+
+
 	.header > p {
 		font-size: 1.2125rem;
 		color: hsl(var(--muted-foreground));
@@ -113,6 +128,15 @@
 		text-align: left !important;
 		line-height: 1.6;
 	}
+
+@media (min-width: 768px) {
+  .episodeCard {
+		margin: 0;
+		width: 90%;
+		max-width: 50vw !important;
+  }
+}
+
 
 
 
@@ -122,6 +146,9 @@
     @apply border-border;
   }
   body {
+		overflow-x: hidden;
+		width: 100%;
+		max-width: 100vw;
     @apply bg-background text-foreground;
   }
 }

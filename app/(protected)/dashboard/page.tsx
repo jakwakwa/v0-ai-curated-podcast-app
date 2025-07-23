@@ -146,16 +146,18 @@ export default function Page() {
 				</div>
 				<div className={styles.mainContainer}>
 					<div className={styles.contentWrapper}>
-						<div className={styles.episodesSection}>
+						<div className={styles.profileSection}>
 							{userCurationProfile ? (
 								<div className={styles.gridContainer}>
 									<div className={styles.episodesSection}>
-										<Card>
-											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-												<CardTitle className="mb-4">Current Personalized Feed</CardTitle>
-												<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-													Edit
-												</Button>
+										<Card className="mb-4">
+											<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+												<div className="w-full flex flex-row gap-1">
+													<CardTitle className="mb-0 w-2/3">Current Personalized Feed</CardTitle>
+													<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+														Edit
+													</Button>
+												</div>
 											</CardHeader>
 											<CardContent>
 												<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
@@ -262,7 +264,7 @@ export default function Page() {
 
 									<div className={styles.episodesList}>
 										{combinedEpisodes.map(episode => (
-											<Card key={episode.id} className={styles.episodeCard}>
+											<Card key={episode.id} className="episodeCard">
 												<CardContent className="p-4">
 													<div className={styles.episodeContent}>
 														<div className={styles.episodeInfo}>

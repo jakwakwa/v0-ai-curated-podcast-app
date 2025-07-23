@@ -19,7 +19,7 @@ const formatDate = (date: Date | null | undefined) => {
 
 export default function CurationProfileManagementPage() {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
-	const [episodes, setEpisodes] = useState<Episode[]>([])
+	const [_episodes, setEpisodes] = useState<Episode[]>([])
 	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
@@ -99,61 +99,58 @@ export default function CurationProfileManagementPage() {
 				) : userCurationProfile ? (
 					<div className="grid gap-4 md:grid-cols-2">
 						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">Current Personalized Feed</CardTitle>
-								<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-									Edit
-								</Button>
+							<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+								<div className="w-full flex flex-row gap-1">
+									<CardTitle className="mb-0 w-full">Current Personalized Feed</CardTitle>
+									<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+										Edit
+									</Button>
+								</div>
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
-								<p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p>
 							</CardContent>
 						</Card>
 
 						{userCurationProfile?.isBundleSelection && userCurationProfile?.selectedBundle && (
 							<Card>
-								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-									<CardTitle className="text-sm font-medium">Selected Bundle</CardTitle>
+								<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+									<div className="w-full flex flex-row gap-1">
+										<CardTitle className="mb-0 w-full">Selected Bundle</CardTitle>
+									</div>
 								</CardHeader>
 								<CardContent>
 									<div className="text-2xl font-bold">{userCurationProfile.selectedBundle.name}</div>
 									<p className="text-xs text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
 									<div className="mt-2 text-sm">
 										<p className="font-medium">Podcasts:</p>
-										<ul className="list-disc pl-5 text-muted-foreground">
+										<ul className="list-disc pl-5 py-2 text-muted-foreground">
 											{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
 												<li className="text-muted-foreground">No podcasts loaded</li>
 											)}
 										</ul>
 									</div>
-									{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
-										<div className="mt-4 text-sm">
-											<p className="font-medium">Bundle Episodes:</p>
-											<ul className="list-disc pl-5 text-muted-foreground">
-												{userCurationProfile.selectedBundle.episodes.map(episode => (
-													<li key={episode.id}>
-														{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
-													</li>
-												))}
-											</ul>
-										</div>
-									)}
 								</CardContent>
 							</Card>
 						)}
 
 						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">Personalized Feed History</CardTitle>
+							<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+								<div className="w-full flex flex-row gap-1">
+									<CardTitle className="mb-0 w-full">Personalized Activity</CardTitle>
+									<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+										Edit
+									</Button>
+								</div>
 							</CardHeader>
 							<CardContent>
 								<div className="text-sm">
-									<p>Created At: {formatDate(userCurationProfile?.createdAt)}</p>
-									<p>Updated At: {formatDate(userCurationProfile?.updatedAt)}</p>
-									<p>Generated At: {formatDate(userCurationProfile?.generatedAt)}</p>
-									<p>Last Generation: {formatDate(userCurationProfile?.lastGenerationDate)}</p>
-									<p>Next Generation: {formatDate(userCurationProfile?.nextGenerationDate)}</p>
+									<p>
+										Created: <span className="text-xs opacity-[0.5]">{formatDate(userCurationProfile?.createdAt)}</span>
+									</p>
+									<p>
+										Updated: <span className="text-xs opacity-[0.5]"> {formatDate(userCurationProfile?.updatedAt)}</span>
+									</p>
 								</div>
 							</CardContent>
 						</Card>
@@ -164,14 +161,14 @@ export default function CurationProfileManagementPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="flex flex-col gap-2 text-sm">
-									<div className="flex justify-between">
+									{/* <div className="flex justify-between">
 										<span className="text-muted-foreground">Total Episodes:</span>
 										<span className="font-medium">{episodes.length + bundleEpisodes.length}</span>
-									</div>
-									<div className="flex justify-between">
+									</div> */}
+									{/* <div className="flex justify-between">
 										<span className="text-muted-foreground">User Episodes:</span>
 										<span className="font-medium">{episodes.length}</span>
-									</div>
+									</div> */}
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Bundle Episodes:</span>
 										<span className="font-medium">{bundleEpisodes.length}</span>

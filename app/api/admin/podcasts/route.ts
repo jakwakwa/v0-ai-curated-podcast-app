@@ -25,11 +25,7 @@ export async function POST(request: Request) {
 			return new NextResponse("Missing required fields", { status: 400 })
 		}
 
-		// Validate category
-		const validCategories = ["Technology", "Business", "Science", "News"]
-		if (!validCategories.includes(category)) {
-			return new NextResponse("Invalid category", { status: 400 })
-		}
+		// Allow any category - no validation needed
 
 		// Check if a podcast with the same name or URL already exists
 		const existingPodcast = await prisma.podcast.findFirst({
@@ -92,13 +88,7 @@ export async function PATCH(request: Request) {
 			return new NextResponse("Podcast not found", { status: 404 })
 		}
 
-		// Validate category if provided
-		if (category) {
-			const validCategories = ["Technology", "Business", "Science", "News"]
-			if (!validCategories.includes(category)) {
-				return new NextResponse("Invalid category", { status: 400 })
-			}
-		}
+		// Allow any category - no validation needed
 
 		// Check if name or URL conflicts with other podcasts
 		if (name || url) {

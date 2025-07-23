@@ -2,7 +2,7 @@
 
 import { Edit, Eye, EyeOff, FolderPlus, Mic, Plus, Sparkles, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
@@ -45,6 +45,11 @@ export default function AdminPage() {
 	const [isLoading, setIsLoading] = useState(false)
 	const [isLoadingBundles, setIsLoadingBundles] = useState(true)
 
+	// Episode mode and upload state
+	const [episodeMode, setEpisodeMode] = useState<"generate" | "upload">("generate")
+	const [mp3File, setMp3File] = useState<File | null>(null)
+	const fileInputRef = useRef<HTMLInputElement | null>(null)
+
 	// Bundle management state
 	const [showCreateBundle, setShowCreateBundle] = useState(false)
 	const [newBundleName, setNewBundleName] = useState<string>("")
@@ -62,7 +67,7 @@ export default function AdminPage() {
 	const [newPodcastDescription, setNewPodcastDescription] = useState<string>("")
 	const [newPodcastUrl, setNewPodcastUrl] = useState<string>("")
 	const [newPodcastImageUrl, setNewPodcastImageUrl] = useState<string>("")
-	const [newPodcastCategory, setNewPodcastCategory] = useState<string>("Technology")
+	const [newPodcastCategory, setNewPodcastCategory] = useState<string>("")
 	const [isCreatingPodcast, setIsCreatingPodcast] = useState(false)
 	const [isUpdatingPodcast, setIsUpdatingPodcast] = useState(false)
 	const [isDeletingPodcast, setIsDeletingPodcast] = useState<string | null>(null)
@@ -221,6 +226,41 @@ export default function AdminPage() {
 		}
 	}
 
+	const uploadEpisode = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!(mp3File && selectedBundleId && episodeTitle)) {
+			toast.error("Please fill all required fields and select a file.")
+			return
+		}
+		const formData = new FormData()
+		formData.append("bundleId", selectedBundleId)
+		formData.append("title", episodeTitle)
+		formData.append("description", episodeDescription)
+		formData.append("file", mp3File)
+
+		setIsLoading(true)
+		try {
+			const response = await fetch("/api/admin/upload-episode", {
+				method: "POST",
+				body: formData,
+			})
+			if (!response.ok) {
+				const error = await response.json()
+				throw new Error(error.message || "Failed to upload episode")
+			}
+			toast.success("Episode uploaded successfully!")
+			setSelectedBundleId("")
+			setEpisodeTitle("")
+			setEpisodeDescription("")
+			setMp3File(null)
+			if (fileInputRef.current) fileInputRef.current.value = ""
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
 	const createBundle = async () => {
 		if (!newBundleName.trim()) {
 			toast.error("Please provide a bundle name")
@@ -316,7 +356,7 @@ export default function AdminPage() {
 		setNewPodcastDescription("")
 		setNewPodcastUrl("")
 		setNewPodcastImageUrl("")
-		setNewPodcastCategory("Technology")
+		setNewPodcastCategory("")
 		setEditingPodcast(null)
 		setShowCreatePodcast(false)
 	}
@@ -513,14 +553,19 @@ export default function AdminPage() {
 
 	const selectedBundle = bundles.find(b => b.id === selectedBundleId)
 
-	const categories = ["Technology", "Business", "Science", "News"]
-	const podcastsByCategory = categories.reduce(
-		(acc, category) => {
-			acc[category] = availablePodcasts.filter(p => p.category === category)
+	// Group podcasts by category dynamically
+	const podcastsByCategory = availablePodcasts.reduce(
+		(acc, podcast) => {
+			const category = podcast.category || "Uncategorized"
+			if (!acc[category]) {
+				acc[category] = []
+			}
+			acc[category].push(podcast)
 			return acc
 		},
 		{} as Record<string, CuratedPodcast[]>
 	)
+	const categories = Object.keys(podcastsByCategory).sort()
 
 	return (
 		<div className="container mx-auto p-6 max-w-6xl">
@@ -538,138 +583,251 @@ export default function AdminPage() {
 
 				{/* Episode Generation Tab */}
 				<TabsContent value="episode-generation" className="space-y-6">
-					<div className="grid gap-6">
-						{/* Step 1: Select Bundle */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
-									Select Bundle
-								</CardTitle>
-								<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a bundle..." />
-									</SelectTrigger>
-									<SelectContent>
-										{bundles.map(bundle => (
-											<SelectItem key={bundle.id} value={bundle.id}>
-												{bundle.name} ({bundle.podcasts.length} shows)
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+					<div className="flex gap-4 mb-4">
+						<Button variant={episodeMode === "generate" ? "default" : "outline"} onClick={() => setEpisodeMode("generate")}>
+							Generate Episode
+						</Button>
+						<Button variant={episodeMode === "upload" ? "default" : "outline"} onClick={() => setEpisodeMode("upload")}>
+							Upload MP3
+						</Button>
+					</div>
 
-								{selectedBundle && (
-									<div className="mt-4 p-4 bg-muted rounded-lg">
-										<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
-										<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
-										<div className="flex flex-wrap gap-2">
-											{selectedBundle.podcasts.map(podcast => (
-												<Badge key={podcast.id} variant="outline">
-													{podcast.name}
-												</Badge>
+					{episodeMode === "generate" ? (
+						<div className="grid gap-6">
+							{/* Step 1: Select Bundle */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+										Select Bundle
+									</CardTitle>
+									<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a bundle..." />
+										</SelectTrigger>
+										<SelectContent>
+											{bundles.map(bundle => (
+												<SelectItem key={bundle.id} value={bundle.id}>
+													{bundle.name} ({bundle.podcasts.length} shows)
+												</SelectItem>
 											))}
+										</SelectContent>
+									</Select>
+
+									{selectedBundle && (
+										<div className="mt-4 p-4 bg-muted rounded-lg">
+											<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
+											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
+											<div className="flex flex-wrap gap-2">
+												{selectedBundle.podcasts.map(podcast => (
+													<Badge key={podcast.id} variant="outline">
+														{podcast.name}
+													</Badge>
+												))}
+											</div>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+
+							{/* Step 2: Episode Details */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+										Episode Details
+									</CardTitle>
+									<CardDescription>Provide basic information for the episode</CardDescription>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									<div>
+										<Label htmlFor="title">Episode Title *</Label>
+										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
+									</div>
+									<div>
+										<Label htmlFor="description">Episode Description (Optional)</Label>
+										<Textarea
+											id="description"
+											value={episodeDescription}
+											onChange={e => setEpisodeDescription(e.target.value)}
+											placeholder="Brief description of this week's episode content..."
+											rows={3}
+										/>
+									</div>
+								</CardContent>
+							</Card>
+
+							{/* Step 3: Add Sources */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+										Add Episode Sources
+									</CardTitle>
+									<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									{/* Add new source form */}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<Label htmlFor="sourceName">Source Name</Label>
+											<Input id="sourceName" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} placeholder="e.g., Lex Fridman - AI Discussion" />
+										</div>
+										<div>
+											<Label htmlFor="sourceUrl">Source URL</Label>
+											<Input id="sourceUrl" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
 										</div>
 									</div>
-								)}
-							</CardContent>
-						</Card>
+									<Button onClick={addSource} variant="outline" className="w-full">
+										<Plus className="w-4 h-4 mr-2" />
+										Add Source
+									</Button>
 
-						{/* Step 2: Episode Details */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
-									Episode Details
-								</CardTitle>
-								<CardDescription>Provide basic information for the episode</CardDescription>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div>
-									<Label htmlFor="title">Episode Title *</Label>
-									<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
-								</div>
-								<div>
-									<Label htmlFor="description">Episode Description (Optional)</Label>
-									<Textarea
-										id="description"
-										value={episodeDescription}
-										onChange={e => setEpisodeDescription(e.target.value)}
-										placeholder="Brief description of this week's episode content..."
-										rows={3}
-									/>
-								</div>
-							</CardContent>
-						</Card>
-
-						{/* Step 3: Add Sources */}
-						<Card>
-							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
-									Add Episode Sources
-								</CardTitle>
-								<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								{/* Add new source form */}
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div>
-										<Label htmlFor="sourceName">Source Name</Label>
-										<Input id="sourceName" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} placeholder="e.g., Lex Fridman - AI Discussion" />
-									</div>
-									<div>
-										<Label htmlFor="sourceUrl">Source URL</Label>
-										<Input id="sourceUrl" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
-									</div>
-								</div>
-								<Button onClick={addSource} variant="outline" className="w-full">
-									<Plus className="w-4 h-4 mr-2" />
-									Add Source
-								</Button>
-
-								{/* Display added sources */}
-								{sources.length > 0 && (
-									<div className="space-y-2">
-										<h4 className="font-semibold">Added Sources ({sources.length})</h4>
-										{sources.map(source => (
-											<div key={source.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-												<div>
-													<p className="font-medium">{source.name}</p>
-													<p className="text-sm text-muted-foreground truncate">{source.url}</p>
+									{/* Display added sources */}
+									{sources.length > 0 && (
+										<div className="space-y-2">
+											<h4 className="font-semibold">Added Sources ({sources.length})</h4>
+											{sources.map(source => (
+												<div key={source.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+													<div>
+														<p className="font-medium">{source.name}</p>
+														<p className="text-sm text-muted-foreground truncate">{source.url}</p>
+													</div>
+													<Button onClick={() => removeSource(source.id)} variant="ghost" size="sm">
+														<Trash2 className="w-4 h-4" />
+													</Button>
 												</div>
-												<Button onClick={() => removeSource(source.id)} variant="ghost" size="sm">
-													<Trash2 className="w-4 h-4" />
-												</Button>
-											</div>
-										))}
-									</div>
-								)}
-							</CardContent>
-						</Card>
-
-						{/* Generate Button */}
-						<Card>
-							<CardContent className="pt-6">
-								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
-									{isLoading ? (
-										<>
-											<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
-											Generating Episode...
-										</>
-									) : (
-										<>
-											<Sparkles className="w-4 h-4 mr-2" />
-											Generate Episode
-										</>
+											))}
+										</div>
 									)}
-								</Button>
-							</CardContent>
-						</Card>
-					</div>
+								</CardContent>
+							</Card>
+
+							{/* Generate Button */}
+							<Card>
+								<CardContent className="pt-6">
+									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
+										{isLoading ? (
+											<>
+												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												Generating Episode...
+											</>
+										) : (
+											<>
+												<Sparkles className="w-4 h-4 mr-2" />
+												Generate Episode
+											</>
+										)}
+									</Button>
+								</CardContent>
+							</Card>
+						</div>
+					) : (
+						<form onSubmit={uploadEpisode} className="space-y-4">
+							{/* Step 1: Select Bundle */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+										Select Bundle
+									</CardTitle>
+									<CardDescription>Choose which curated bundle to upload an episode for</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a bundle..." />
+										</SelectTrigger>
+										<SelectContent>
+											{bundles.map(bundle => (
+												<SelectItem key={bundle.id} value={bundle.id}>
+													{bundle.name} ({bundle.podcasts.length} shows)
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+
+									{selectedBundle && (
+										<div className="mt-4 p-4 bg-muted rounded-lg">
+											<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
+											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
+											<div className="flex flex-wrap gap-2">
+												{selectedBundle.podcasts.map(podcast => (
+													<Badge key={podcast.id} variant="outline">
+														{podcast.name}
+													</Badge>
+												))}
+											</div>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+
+							{/* Step 2: Episode Details */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+										Episode Details
+									</CardTitle>
+									<CardDescription>Provide basic information for the episode</CardDescription>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									<div>
+										<Label htmlFor="title">Episode Title *</Label>
+										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
+									</div>
+									<div>
+										<Label htmlFor="description">Episode Description (Optional)</Label>
+										<Textarea
+											id="description"
+											value={episodeDescription}
+											onChange={e => setEpisodeDescription(e.target.value)}
+											placeholder="Brief description of this week's episode content..."
+											rows={3}
+										/>
+									</div>
+								</CardContent>
+							</Card>
+
+							{/* Step 3: Upload MP3 */}
+							<Card>
+								<CardHeader>
+									<CardTitle className="flex items-center gap-2">
+										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+										Upload MP3 File
+									</CardTitle>
+									<CardDescription>Upload your finalized episode audio file (MP3 only)</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
+									{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
+								</CardContent>
+							</Card>
+
+							{/* Upload Button */}
+							<Card>
+								<CardContent className="pt-6">
+									<Button type="submit" disabled={!(mp3File && selectedBundleId && episodeTitle) || isLoading} className="w-full" size="lg">
+										{isLoading ? (
+											<>
+												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												Uploading...
+											</>
+										) : (
+											<>
+												<Sparkles className="w-4 h-4 mr-2" />
+												Upload Episode
+											</>
+										)}
+									</Button>
+								</CardContent>
+							</Card>
+						</form>
+					)}
 				</TabsContent>
 
 				{/* Bundle Management Tab */}
@@ -840,18 +998,7 @@ export default function AdminPage() {
 										</div>
 										<div>
 											<Label htmlFor="podcastCategory">Category *</Label>
-											<Select value={newPodcastCategory} onValueChange={setNewPodcastCategory}>
-												<SelectTrigger>
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													{categories.map(category => (
-														<SelectItem key={category} value={category}>
-															{category}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
+											<Input id="podcastCategory" value={newPodcastCategory} onChange={e => setNewPodcastCategory(e.target.value)} placeholder="e.g., Technology, Health, Comedy, etc." />
 										</div>
 									</div>
 

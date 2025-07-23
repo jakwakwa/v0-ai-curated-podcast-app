@@ -35,15 +35,13 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes }) => {
 									<Link href={`/episodes/${episode.id}`} className="font-medium text-lg hover:underline">
 										{episode.title}
 									</Link>
-									<p className="text-sm text-muted-foreground truncate">{episode.description || "No description available."}</p>
+									<p className="text-sm text-muted-foreground">{episode.description || "No description available."}</p>
 									<p className="text-xs text-muted-foreground">Published: {formatDate(episode.publishedAt)}</p>
 								</div>
 							</li>
 						))}
 					</ul>
-				) : (
-					<p className="text-muted-foreground">No episodes generated yet.</p>
-				)}
+				) : null}
 			</CardContent>
 		</Card>
 	)

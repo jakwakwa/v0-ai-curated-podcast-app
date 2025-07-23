@@ -1,5 +1,5 @@
 .container {
-  width: 100%;
+  /* width: 100%; */
 }
 
 .title {
@@ -69,11 +69,7 @@
   gap: 1rem;
 }
 
-.episodeCard {
-  border: 1px solid hsl(var(--border));
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
+
 
 .episodeContent {
   display: flex;
@@ -154,6 +150,9 @@
   font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
   margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .episodeDate {

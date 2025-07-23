@@ -35,8 +35,8 @@ interface CombinedEpisode {
 }
 
 export default function WeeklyEpisodesPage() {
-	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
+	const [_episodes, setEpisodes] = useState<Episode[]>([])
+	const [_bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
 	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
 	const [userProfile, setUserProfile] = useState<UserCurationProfile | null>(null)
 	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
@@ -65,38 +65,20 @@ export default function WeeklyEpisodesPage() {
 				const userProfileData = await getUserCurationProfile()
 				setUserProfile(userProfileData)
 
-				// Fetch user-generated episodes
-				const userEpisodes = await getEpisodes()
-				setEpisodes(userEpisodes)
+				// Fetch all episodes (this already includes episodes from both user profiles and selected bundles)
+				const allEpisodes = await getEpisodes()
+				setEpisodes(allEpisodes)
 
-				// Get bundle episodes if user has a bundle selection
-				let bundleEpisodesList: CuratedBundleEpisode[] = []
-				if (userProfileData?.isBundleSelection && userProfileData?.selectedBundle?.episodes) {
-					bundleEpisodesList = userProfileData.selectedBundle.episodes
-				}
+				// For bundle episodes, we'll categorize them based on their source
+				// Episodes with bundleId are bundle episodes, others are custom episodes
+				const combined: CombinedEpisode[] = allEpisodes.map(ep => ({
+					...ep,
+					type: ep.bundleId ? ("bundle" as const) : ("user" as const),
+					podcastId: ep.podcastId,
+				}))
 
-				setBundleEpisodes(bundleEpisodesList)
-
-				// Combine episodes for display
-				const combined: CombinedEpisode[] = [
-					// User episodes (from custom profile)
-					...userEpisodes.map(ep => ({
-						...ep,
-						type: "user" as const,
-						podcastId: ep.podcastId,
-					})),
-					// Bundle episodes (from bundle selection)
-					...bundleEpisodesList.map(ep => ({
-						id: ep.id,
-						title: ep.title,
-						description: ep.description,
-						audioUrl: ep.audioUrl,
-						imageUrl: ep.imageUrl,
-						publishedAt: ep.publishedAt,
-						createdAt: ep.createdAt,
-						type: "bundle" as const,
-					})),
-				]
+				// No need to separately fetch bundle episodes since they're already included in allEpisodes
+				setBundleEpisodes(combined.filter(ep => ep.type === "bundle") as unknown as CuratedBundleEpisode[])
 
 				// Sort by published date (newest first)
 				combined.sort((a, b) => {
@@ -163,15 +145,15 @@ export default function WeeklyEpisodesPage() {
 					{/* Summary */}
 					<div className={styles.summary}>
 						<span>Total Episodes: {combinedEpisodes.length}</span>
-						<span>User Episodes: {episodes.length}</span>
-						<span>Bundle Episodes: {bundleEpisodes.length}</span>
+						<span>User Episodes: {combinedEpisodes.filter(ep => ep.type === "user").length}</span>
+						<span>Bundle Episodes: {combinedEpisodes.filter(ep => ep.type === "bundle").length}</span>
 						{userProfile && <span>Profile Type: {userProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}</span>}
 					</div>
 
 					{/* Episodes List */}
 					<div className={styles.episodesList}>
 						{combinedEpisodes.map(episode => (
-							<div key={episode.id} className={styles.episodeCard}>
+							<div key={episode.id} className="episodeCard">
 								<div className={styles.episodeContent}>
 									<div className={styles.episodeInfo}>
 										<div className={styles.episodeHeader}>
