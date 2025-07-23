@@ -2,6 +2,7 @@ import { AlertCircle, Check, Lock, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import type { TransformedCuratedBundle } from "@/lib/types"
@@ -24,14 +25,14 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 
 			const response = await fetch("/api/curated-bundles")
 			if (!response.ok) {
-				throw new Error(`Failed to load curated bundles. Server responded with status ${response.status}.`)
+				throw new Error(`Failed to load PodSlice Bundles. Server responded with status ${response.status}.`)
 			}
 
 			const data = await response.json()
 			setCuratedBundles(data)
 		} catch (error) {
-			console.error("Error fetching curated bundles:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading curated bundles.")
+			console.error("Error fetching PodSlice Bundles:", error)
+			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading PodSlice Bundles.")
 		} finally {
 			setIsLoading(false)
 		}
@@ -45,10 +46,7 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 		return (
 			<div className={styles.bundleSelection}>
 				<div className="flex items-center justify-center min-h-[200px]">
-					<div className="text-center">
-						<RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-						<p className="text-muted-foreground">Loading curated bundles...</p>
-					</div>
+					<AppSpinner size="lg" label="Loading PodSlice Bundles..." />
 				</div>
 			</div>
 		)
@@ -60,7 +58,7 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 				<div className="max-w-2xl mx-auto">
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Unable to Load Curated Bundles</AlertTitle>
+						<AlertTitle>Unable to Load PodSlice Bundles</AlertTitle>
 						<AlertDescription className="mt-2">{error}</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
@@ -80,8 +78,8 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 				<div className="max-w-2xl mx-auto">
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>No Curated Bundles Available</AlertTitle>
-						<AlertDescription className="mt-2">There are no curated bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
+						<AlertTitle>No PodSlice Bundles Available</AlertTitle>
+						<AlertDescription className="mt-2">There are no PodSlice Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
 						<Button onClick={fetchCuratedBundles} variant="outline">

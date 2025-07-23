@@ -1,10 +1,10 @@
 "use client"
 
+import { ArrowRight, Plus, Sparkles } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
-import { ArrowRight, Plus, Sparkles } from "lucide-react"
-import Link from "next/link"
 import { SavedCollectionCard } from "./saved-collection-card"
 
 interface CurationDashboardProps {
@@ -22,12 +22,12 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 					<div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
 						<Sparkles className="w-8 h-8 text-primary" />
 					</div>
-					<CardTitle className="text-2xl">Welcome to AI Curator!</CardTitle>
-					<CardDescription className="text-lg">Create your first curation profile to start generating personalized podcasts</CardDescription>
+					<CardTitle className="text-2xl">Welcome to PodSlice!</CardTitle>
+					<CardDescription className="text-lg">Create your first Personalized Feed to start generating personalized podcasts</CardDescription>
 				</CardHeader>
 				<CardContent className="text-center space-y-4">
 					<p className="text-muted-foreground max-w-md mx-auto">
-						Choose from our curated bundles or create a custom profile with your favorite podcasts. Our AI will generate weekly episodes based on your selections.
+						Choose from our PodSlice Bundles or create a custom profile with your favorite podcasts. Our AI will generate weekly episodes based on your selections.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
 						<Link href="/build">
@@ -39,7 +39,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 						</Link>
 						<Link href="/curated-bundles">
 							<Button variant="outline" className="w-full sm:w-auto">
-								Browse Curated Bundles
+								Browse PodSlice Bundles
 							</Button>
 						</Link>
 					</div>
@@ -51,7 +51,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
-				<h2 className="text-2xl font-bold">Your Curation Profile</h2>
+				<h2 className="text-2xl font-bold">Your Personalized Feed</h2>
 				{/* Only show "Create New Profile" if user doesn't have an active profile */}
 				{activeProfiles.length === 0 && (
 					<Link href="/build">

@@ -25,15 +25,3 @@ export function getDummyDataStatus(): {
 		affectedFunctions: ["getUserCurationProfile()", "getEpisodes()", "CuratedPodcastList", "CuratedBundleList"],
 	}
 }
-
-export function logDummyDataStatus(): void {
-	const status = getDummyDataStatus()
-	console.log("🔧 DUMMY DATA STATUS:", status.status)
-	console.log("📋 Affected functions:", status.affectedFunctions.join(", "))
-	console.log("💡 To toggle: Change USE_DUMMY_DATA in lib/config.ts")
-}
-
-// Auto-log status in development
-if (CONFIG.DEVELOPMENT_MODE) {
-	logDummyDataStatus()
-}

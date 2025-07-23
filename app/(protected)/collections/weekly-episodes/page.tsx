@@ -1,8 +1,10 @@
 "use client"
 
-import { Play, Plus } from "lucide-react"
+import { AlertCircle, Play, Plus } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { getEpisodes, getUserCurationProfile } from "@/lib/data"
@@ -120,41 +122,38 @@ export default function WeeklyEpisodesPage() {
 		setPlayingEpisodeId(null)
 	}
 
-	// Show loading state while checking for existing profile
-	if (isCheckingProfile) {
-		return (
-			<div className={styles.loadingContainer}>
-				<div className={styles.loadingContent}>
-					<div className={styles.loadingSpinner} />
-					<p>Loading...</p>
-				</div>
-			</div>
-		)
-	}
-
 	return (
 		<div className={styles.container}>
 			<h1 className={styles.title}>All Episodes</h1>
-			{combinedEpisodes.length === 0 ? (
-				<div className={styles.emptyState}>
-					<div className={styles.emptyStateIcon}>
-						<Play className={styles.emptyStateIconInner} />
+
+			{isCheckingProfile ? (
+				<div className={styles.loadingContainer}>
+					<div className={styles.loadingWrapper}>
+						<AppSpinner size="lg" label="Loading..." />
 					</div>
-					<h3 className={styles.emptyStateTitle}>No Episodes Available</h3>
-					<p className={styles.emptyStateDescription}>
-						{userProfile
-							? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-							: existingProfile
-								? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-								: "Create a curation profile or select a bundle to start seeing episodes here."}
-					</p>
+				</div>
+			) : combinedEpisodes.length === 0 ? (
+				<div className="max-w-2xl mx-auto mt-8">
+					<Alert>
+						<AlertCircle className="h-4 w-4" />
+						<AlertTitle>No Episodes Available</AlertTitle>
+						<AlertDescription className="mt-2">
+							{userProfile
+								? "Your personalized episodes are on their way! New episodes are generated weekly."
+								: existingProfile
+									? "Your personalized episodes are on their way! New episodes are generated weekly."
+									: "Start your journey by creating a Personalized Feed or selecting a bundle to discover episodes."}
+						</AlertDescription>
+					</Alert>
 					{!(userProfile || existingProfile) && (
-						<Link href="/build">
-							<Button className={styles.createButton}>
-								<Plus className={styles.createButtonIcon} />
-								Create Your First Profile
-							</Button>
-						</Link>
+						<div className="mt-6 text-center">
+							<Link href="/build">
+								<Button>
+									<Plus className="h-4 w-4 mr-2" />
+									Create Your First Profile
+								</Button>
+							</Link>
+						</div>
 					)}
 				</div>
 			) : (

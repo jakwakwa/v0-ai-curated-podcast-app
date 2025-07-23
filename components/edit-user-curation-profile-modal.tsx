@@ -16,7 +16,7 @@ export function EditUserCurationProfileModal({ isOpen, onClose }: Readonly<EditU
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Edit User Curation Profile</DialogTitle>
+					<DialogTitle>Edit Personalized Feed</DialogTitle>
 					<DialogDescription>This feature is temporarily disabled during database schema migration.</DialogDescription>
 				</DialogHeader>
 				<div className="py-4">

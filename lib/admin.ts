@@ -1,3 +1,4 @@
+import type { User } from "@clerk/nextjs/server"
 import { auth, currentUser } from "@clerk/nextjs/server"
 
 // Admin user IDs - you should replace these with your actual admin user IDs from Clerk
@@ -16,15 +17,35 @@ const ADMIN_EMAILS = [
 export async function isAdmin(): Promise<boolean> {
 	try {
 		const { userId } = await auth()
-		const user = await currentUser()
 
-		if (!(userId && user)) {
+		if (!userId) {
 			return false
 		}
 
-		// Check if user ID is in admin list
+		// Check if user ID is in admin list first (fastest check)
 		if (ADMIN_USER_IDS.includes(userId)) {
 			return true
+		}
+
+		// Only fetch user details if we need to check email
+		let user: User | null = null
+		try {
+			user = await currentUser()
+		} catch (userError: unknown) {
+			console.error("Error fetching current user for admin check:", userError)
+			// If we can't fetch user details but have userId, still check development mode
+			if (process.env.NODE_ENV === "development") {
+				return true
+			}
+			return false
+		}
+
+		if (!user) {
+			// User ID exists but couldn't fetch user details
+			if (process.env.NODE_ENV === "development") {
+				return true
+			}
+			return false
 		}
 
 		// Check if user email is in admin list

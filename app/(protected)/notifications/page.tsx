@@ -3,6 +3,7 @@
 import { Bell, Calendar, Check, Clock, Play, Trash2 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -52,7 +53,7 @@ export default function NotificationsPage() {
 				id: "notif4",
 				userId: "user_123",
 				type: "trial_ending",
-				message: "Your free trial ends tomorrow. Upgrade to premium to keep creating unlimited curation profiles.",
+				message: "Your free trial ends tomorrow. Upgrade to premium to keep creating unlimited Personalized Feeds.",
 				isRead: true,
 				createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
 			},
@@ -148,8 +149,9 @@ export default function NotificationsPage() {
 	if (isLoading) {
 		return (
 			<div className={styles.loadingContainer}>
-				<div className={styles.loadingSpinner}></div>
-				<p>Loading notifications...</p>
+				<div className={styles.loadingWrapper}>
+					<AppSpinner size="lg" label="Loading notifications..." />
+				</div>
 			</div>
 		)
 	}

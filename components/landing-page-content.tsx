@@ -1,11 +1,16 @@
 "use client"
 
 import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { motion, useScroll, useTransform } from "framer-motion"
+import Link from "next/link"
+import { useFeatureAccess } from "@/components/access-control"
+import { Button } from "@/components/ui/button"
+import styles from "./landing-page-content.module.css"
 
 export default function LandingPageContent() {
+	// Check current subscription level
+	const { hasAccess: hasCustomProfiles } = useFeatureAccess("custom_curation_profiles")
+	const { hasAccess: hasWeeklyCombo } = useFeatureAccess("weekly_combo")
 	const features = [
 		{
 			icon: <UilStar className="w-6 h-6" />,
@@ -49,7 +54,7 @@ export default function LandingPageContent() {
 		{
 			step: 1,
 			title: "Choose Your Focus",
-			description: "Select from expertly curated bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
+			description: "Select from expertly PodSlice Bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
 			action: "Start your profile",
 		},
 		{
@@ -74,20 +79,76 @@ export default function LandingPageContent() {
 
 	const pricingTiers = [
 		{
-			name: "Free Trial",
-			price: "R0",
-			duration: "1 week",
-			features: ["1 content profile", "Weekly filtering", "Access to curated content", "Basic support"],
+			name: "FreeSlice",
+			price: "Free",
+			duration: "forever",
+			description: "Perfect for podcast discovery and light listening",
+			features: [
+				"Access to 3 pre-selected PodSlice Bundles (Tech, Business, Culture)",
+				"1 weekly combo episode (20-30 minutes)",
+				"Standard audio quality",
+				"Basic podcast player with essential controls",
+				"Community forums access",
+			],
 			popular: false,
+			cta: "Get Started Free",
 		},
 		{
-			name: "Premium",
-			price: "R99",
+			name: "Casual Listener",
+			price: "$5",
 			duration: "per month",
-			features: ["Unlimited content profiles", "Weekly filtering", "Priority support", "Detailed analytics", "Early access to new features"],
+			description: "Enhanced experience with premium features and priority access",
+			features: [
+				"Access to ALL available PodSlice Bundles (10+ categories)",
+				"Up to 3 weekly episodes (30-45 minutes each)",
+				"Premium audio quality with enhanced voice synthesis",
+				"Priority processing - episodes ready by Friday morning",
+				"Advanced player with speed controls, bookmarks, and offline download",
+				"Email notifications when episodes are ready",
+			],
+			popular: false,
+			cta: "Upgrade to Casual",
+		},
+		{
+			name: "Curate & Control",
+			price: "$10",
+			duration: "per month",
+			description: "Ultimate control with unlimited custom curation profiles",
+			features: [
+				"Everything in Casual Listener, plus:",
+				"Create unlimited custom Personalized Feeds from 25+ hand-picked podcasts",
+				"Advanced AI curation that learns your preferences and adapts over time",
+				"Custom episode themes and topics - guide the AI to focus on specific subjects",
+			],
 			popular: true,
+			cta: "Go Pro",
 		},
 	]
+
+	// Determine current plan and button states
+	const getCurrentPlan = () => {
+		if (hasCustomProfiles) return "Curate & Control"
+		if (hasWeeklyCombo) return "Casual Listener"
+		return "FreeSlice"
+	}
+
+	const getButtonProps = (tierName: string) => {
+		const currentPlan = getCurrentPlan()
+		if (currentPlan === tierName) {
+			return {
+				children: "Active",
+				disabled: true,
+				variant: "secondary" as const,
+			}
+		}
+
+		const tier = pricingTiers.find(t => t.name === tierName)
+		return {
+			children: tierName === "FreeSlice" ? "Downgrade" : tier?.cta,
+			disabled: false,
+			variant: tier?.popular ? ("default" as const) : ("outline" as const),
+		}
+	}
 
 	const testimonials = [
 		{
@@ -114,39 +175,24 @@ export default function LandingPageContent() {
 	]
 
 	return (
-		<div className="min-h-screen bg-background">
+		<div className={styles.container}>
 			{/* Hero Section */}
-			<section className="relative overflow-hidden py-20 px-4">
+			<section className={styles.heroSection}>
 				<motion.div
-					className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"
+					className={styles.heroBackground}
 					style={{
 						translateY: useTransform(useScroll().scrollY, [0, 500], [0, -150]),
 					}}
 				/>
-				<div className="max-w-7xl mx-auto text-center relative z-10">
-					<div className="mb-8">
-						<motion.h1
-							className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-transparent"
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.8, ease: "easeOut" }}
-						>
+				<div className={styles.heroContainer}>
+					<div className={styles.heroContent}>
+						<motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
 							PodSlice
 						</motion.h1>
-						<motion.p
-							className="text-xl md:text-2xl text-muted-foreground mb-4 font-semibold"
-							initial={{ opacity: 0, y: 15 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-						>
+						<motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
 							Cut the chatter. Keep the insight.
 						</motion.p>
-						<motion.p
-							className="text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed"
-							initial={{ opacity: 0, y: 15 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-						>
+						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
 							Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. PodSlice transforms chaotic audio into crystal-clear,
 							actionable knowledge with remarkably human AI voices. Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights
 							that actually matter.
@@ -166,10 +212,10 @@ export default function LandingPageContent() {
 								}}
 								whileTap={{ scale: 0.98 }}
 							>
-								<Button size="lg" className="text-lg px-8 py-6">
+								<Button size="lg" className={styles.heroButton}>
 									<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 400 }}>
 										Start Free Trial
-										<UilArrowRight className="ml-2 h-5 w-5" />
+										<UilArrowRight className={styles.arrowIcon} />
 									</motion.span>
 								</Button>
 							</motion.div>
@@ -186,19 +232,17 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Features Section */}
-			<section className="py-20 px-4 bg-card">
-				<div className="max-w-7xl mx-auto">
-					<motion.div className="text-center mb-16" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className="text-4xl font-bold mb-4">Why Choose PodSlice?</h2>
-						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-							We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.
-						</p>
+			<section className={styles.featuresSection}>
+				<div className={styles.featuresContainer}>
+					<motion.div className={styles.featuresHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+						<h2 className={styles.featuresTitle}>Why Choose PodSlice?</h2>
+						<p className={styles.featuresDescription}>We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.</p>
 					</motion.div>
-					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+					<div className={styles.featuresGrid}>
 						{features.map((feature, index) => (
 							<motion.div
 								key={index}
-								className="p-6 rounded-lg border bg-background hover:shadow-lg transition-all"
+								className={styles.featureCard}
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -213,7 +257,7 @@ export default function LandingPageContent() {
 								}}
 							>
 								<motion.div
-									className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-primary-foreground mb-4"
+									className={styles.featureIcon}
 									whileHover={{
 										scale: 1.1,
 										rotate: 5,
@@ -222,8 +266,8 @@ export default function LandingPageContent() {
 								>
 									{feature.icon}
 								</motion.div>
-								<h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-								<p className="text-muted-foreground">{feature.description}</p>
+								<h3 className={styles.featureTitle}>{feature.title}</h3>
+								<p className={styles.featureDescription}>{feature.description}</p>
 							</motion.div>
 						))}
 					</div>
@@ -231,19 +275,17 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* How It Works Section */}
-			<section className="py-20 px-4">
-				<div className="max-w-7xl mx-auto">
-					<motion.div className="text-center mb-16" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className="text-4xl font-bold mb-4">How PodSlice Works</h2>
-						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-							Getting started with PodSlice is straightforward. Follow these four simple steps to create your focused content experience.
-						</p>
+			<section className={styles.howItWorksSection}>
+				<div className={styles.howItWorksContainer}>
+					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+						<h2 className={styles.howItWorksTitle}>How PodSlice Works</h2>
+						<p className={styles.howItWorksDescription}>Getting started with PodSlice is straightforward. Follow these four simple steps to create your focused content experience.</p>
 					</motion.div>
-					<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className="text-center p-6 rounded-lg border bg-card hover:shadow-lg transition-all"
+								className={styles.stepCard}
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -259,7 +301,7 @@ export default function LandingPageContent() {
 								}}
 							>
 								<motion.div
-									className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg mx-auto mb-4"
+									className={styles.stepNumber}
 									whileHover={{
 										scale: 1.2,
 										boxShadow: "0 0 20px rgba(59, 130, 246, 0.4)",
@@ -268,11 +310,11 @@ export default function LandingPageContent() {
 								>
 									{step.step}
 								</motion.div>
-								<h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-								<p className="text-muted-foreground mb-4">{step.description}</p>
-								<motion.div className="flex items-center justify-center text-primary text-sm font-medium" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
+								<h3 className={styles.stepTitle}>{step.title}</h3>
+								<p className={styles.stepDescription}>{step.description}</p>
+								<motion.div className={styles.stepAction} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
 									<span>{step.action}</span>
-									<UilArrowRight className="ml-1 h-4 w-4" />
+									<UilArrowRight className={styles.arrowIcon} />
 								</motion.div>
 							</motion.div>
 						))}
@@ -281,17 +323,23 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Testimonials Section */}
-			<section className="py-20 px-4 bg-card">
-				<div className="max-w-7xl mx-auto">
-					<motion.div className="text-center mb-16" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className="text-4xl font-bold mb-4">What Our Users Say</h2>
-						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">Join thousands of satisfied users who are already saving time and getting more value from their content consumption.</p>
+			<section className={styles.testimonialsSection}>
+				<div className={styles.testimonialsContainer}>
+					<motion.div
+						className={styles.testimonialsHeader}
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						viewport={{ once: true, margin: "-100px" }}
+						transition={{ duration: 0.6 }}
+					>
+						<h2 className={styles.testimonialsTitle}>What Our Users Say</h2>
+						<p className={styles.testimonialsDescription}>Join thousands of satisfied users who are already saving time and getting more value from their content consumption.</p>
 					</motion.div>
-					<div className="grid md:grid-cols-3 gap-8">
+					<div className={styles.testimonialsGrid}>
 						{testimonials.map((testimonial, index) => (
 							<motion.div
 								key={index}
-								className="p-6 rounded-lg border bg-background"
+								className={styles.testimonialCard}
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -306,17 +354,17 @@ export default function LandingPageContent() {
 									transition: { duration: 0.2 },
 								}}
 							>
-								<div className="flex items-center mb-4">
+								<div className={styles.testimonialRating}>
 									{Array.from({ length: testimonial.rating }).map((_, i) => (
 										<motion.div key={i} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
-											<UilStar className="w-5 h-5 text-yellow-400 fill-current" />
+											<UilStar className={styles.starIcon} />
 										</motion.div>
 									))}
 								</div>
-								<p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
+								<p className={styles.testimonialContent}>"{testimonial.content}"</p>
 								<div>
-									<p className="font-semibold">{testimonial.name}</p>
-									<p className="text-sm text-muted-foreground">{testimonial.role}</p>
+									<p className={styles.testimonialAuthor}>{testimonial.name}</p>
+									<p className={styles.testimonialRole}>{testimonial.role}</p>
 								</div>
 							</motion.div>
 						))}
@@ -325,17 +373,17 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Pricing Section */}
-			<section className="py-20 px-4">
-				<div className="max-w-7xl mx-auto">
-					<motion.div className="text-center mb-16" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className="text-4xl font-bold mb-4">Simple Pricing</h2>
-						<p className="text-xl text-muted-foreground max-w-3xl mx-auto">Start with a free trial and upgrade when you're ready for unlimited focused content.</p>
+			<section className={styles.pricingSection}>
+				<div className={styles.pricingContainer}>
+					<motion.div className={styles.pricingHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+						<h2 className={styles.pricingTitle}>Choose Your Plan</h2>
+						<p className={styles.pricingDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
 					</motion.div>
-					<div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+					<div className={styles.pricingGrid}>
 						{pricingTiers.map((tier, index) => (
 							<motion.div
 								key={tier.name}
-								className={`p-8 rounded-lg border relative ${tier.popular ? "border-primary shadow-lg scale-105" : "bg-card"}`}
+								className={`${styles.pricingCard} ${tier.popular ? styles.popular : ""}`}
 								initial={{ opacity: 0, y: 30, scale: 0.9 }}
 								whileInView={{ opacity: 1, y: 0, scale: tier.popular ? 1.05 : 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -350,35 +398,50 @@ export default function LandingPageContent() {
 								}}
 							>
 								{tier.popular && (
-									<motion.div
-										className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold"
-										initial={{ opacity: 0, y: -10 }}
-										whileInView={{ opacity: 1, y: 0 }}
-										transition={{ delay: 0.5 }}
-									>
+									<motion.div className={styles.popularBadge} initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
 										Most Popular
 									</motion.div>
 								)}
-								<h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
-								<div className="mb-6">
-									<span className="text-4xl font-bold">{tier.price}</span>
-									<span className="text-muted-foreground">/{tier.duration}</span>
+								<div className={styles.pricingCardContent}>
+									<h3 className={styles.pricingCardTitle}>{tier.name}</h3>
+									<div className={styles.pricingCardPrice}>
+										<span className={styles.price}>{tier.price}</span>
+										{tier.price !== "Free" && <span className={styles.duration}>/{tier.duration}</span>}
+									</div>
+									<p className={styles.pricingCardDescription}>{tier.description}</p>
+									<ul className={styles.pricingFeatures}>
+										{tier.features.map((feature, featureIndex) => (
+											<motion.li
+												key={featureIndex}
+												className={styles.pricingFeature}
+												initial={{ opacity: 0, x: -10 }}
+												whileInView={{ opacity: 1, x: 0 }}
+												transition={{ delay: 0.3 + featureIndex * 0.1 }}
+											>
+												<UilCheckCircle className={styles.pricingFeatureIcon} />
+												<span className={styles.pricingFeatureText}>{feature}</span>
+											</motion.li>
+										))}
+									</ul>
 								</div>
-								<ul className="space-y-3 mb-8">
-									{tier.features.map((feature, featureIndex) => (
-										<motion.li key={featureIndex} className="flex items-center" initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + featureIndex * 0.1 }}>
-											<UilCheckCircle className="w-5 h-5 text-primary mr-3" />
-											{feature}
-										</motion.li>
-									))}
-								</ul>
-								<Link href="/sign-up">
-									<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-										<Button className="w-full" variant={tier.popular ? "default" : "outline"} size="lg">
-											{tier.name === "Free Trial" ? "Start Trial" : "Upgrade Now"}
-										</Button>
-									</motion.div>
-								</Link>
+								{(() => {
+									const buttonProps = getButtonProps(tier.name)
+									return buttonProps.disabled ? (
+										<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+											<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg" disabled>
+												{buttonProps.children}
+											</Button>
+										</motion.div>
+									) : (
+										<Link href="/sign-up">
+											<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+												<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg">
+													{buttonProps.children}
+												</Button>
+											</motion.div>
+										</Link>
+									)
+								})()}
 							</motion.div>
 						))}
 					</div>
@@ -386,43 +449,39 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* CTA Section */}
-			<section className="py-20 px-4 bg-card">
-				<motion.div
-					className="max-w-4xl mx-auto text-center"
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, margin: "-100px" }}
-					transition={{ duration: 0.6 }}
-				>
-					<h2 className="text-4xl font-bold mb-4">Ready to Cut Through the Noise?</h2>
-					<p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-						Join thousands of users who are already saving time and getting more value from their content. Start your free trial today and discover focused content that respects your time.
-					</p>
-					<motion.div className="flex flex-col sm:flex-row gap-4 justify-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
-						<Link href="/sign-up">
-							<motion.div
-								whileHover={{
-									scale: 1.05,
-									boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
-								}}
-								whileTap={{ scale: 0.95 }}
-							>
-								<Button size="lg" className="text-lg px-8 py-6">
-									<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
-										Start Free Trial
-										<UilArrowRight className="ml-2 h-5 w-5" />
-									</motion.span>
-								</Button>
-							</motion.div>
-						</Link>
-						<Link href="/about">
-							<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-								<Button variant="outline" size="lg" className="text-lg px-8 py-6">
-									Learn More
-								</Button>
-							</motion.div>
-						</Link>
-					</motion.div>
+			<section className={styles.ctaSection}>
+				<motion.div className={styles.ctaContainer} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
+					<div className={styles.ctaContent}>
+						<h2 className={styles.ctaTitle}>Ready to Cut Through the Noise?</h2>
+						<p className={styles.ctaDescription}>
+							Join thousands of users who are already saving time and getting more value from their content. Start your free trial today and discover focused content that respects your time.
+						</p>
+						<motion.div className="flex flex-col sm:flex-row gap-4 justify-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
+							<Link href="/sign-up">
+								<motion.div
+									whileHover={{
+										scale: 1.05,
+										boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+									}}
+									whileTap={{ scale: 0.95 }}
+								>
+									<Button size="lg" className={styles.ctaButton}>
+										<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
+											Start Free Trial
+											<UilArrowRight className={styles.arrowIcon} />
+										</motion.span>
+									</Button>
+								</motion.div>
+							</Link>
+							<Link href="/about">
+								<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+									<Button variant="outline" size="lg" className={styles.ctaButton}>
+										Learn More
+									</Button>
+								</motion.div>
+							</Link>
+						</motion.div>
+					</div>
 				</motion.div>
 			</section>
 

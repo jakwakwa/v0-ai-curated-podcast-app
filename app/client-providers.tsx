@@ -1,7 +1,7 @@
 "use client"
-
-import { ThemeProvider } from "@/components/theme-provider"
+// @ts-ignore
 import type React from "react"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
 	return (

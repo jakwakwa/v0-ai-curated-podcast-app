@@ -26,7 +26,7 @@ export function DataTable({ episodes, userCurationProfiles }: { episodes: Episod
 						<Play className="w-8 h-8 text-muted-foreground" />
 					</div>
 					<h3 className="text-lg font-semibold mb-2">No Episodes Yet</h3>
-					<p className="text-muted-foreground mb-4">Create a curation profile to start generating episodes</p>
+					<p className="text-muted-foreground mb-4">Create a Personalized Feed to start generating episodes</p>
 				</div>
 			)}
 
@@ -38,8 +38,8 @@ export function DataTable({ episodes, userCurationProfiles }: { episodes: Episod
 					<div className="mx-auto mb-4 w-16 h-16 bg-muted rounded-full flex items-center justify-center">
 						<Play className="w-8 h-8 text-muted-foreground" />
 					</div>
-					<h3 className="text-lg font-semibold mb-2">No User Curation Profiles Yet</h3>
-					<p className="text-muted-foreground mb-4">Create your first user curation profile to get started</p>
+					<h3 className="text-lg font-semibold mb-2">No Personalized Feeds Yet</h3>
+					<p className="text-muted-foreground mb-4">Create your first Personalized Feed to get started</p>
 				</div>
 			)}
 		</div>

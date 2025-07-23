@@ -62,17 +62,24 @@ export interface SubscriptionStore {
 // Subscription tiers from requirements
 const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 	{
-		id: "trial",
-		name: "Free Trial",
+		id: "freeslice",
+		name: "FreeSlice",
 		price: 0,
-		features: ["1 week trial", "1 user curation profile", "Weekly generation"],
+		features: ["Always free", "Free member", "Free Bundle"],
 	},
 	{
-		id: "premium",
-		name: "Premium",
-		price: 99, // R99/month in ZAR
+		id: "casual_listener",
+		name: "Casual Listener",
+		price: 5, // $5/month in USD
+		linkPriceId: process.env.NEXT_PUBLIC_LINK_CASUAL_PRICE_ID,
+		features: ["Only billed monthly", "Free member", "Free Bundle"],
+	},
+	{
+		id: "curate_control",
+		name: "Curate & Control",
+		price: 10, // $10/month in USD
 		linkPriceId: process.env.NEXT_PUBLIC_LINK_PREMIUM_PRICE_ID,
-		features: ["Unlimited user curation profiles", "Weekly generation", "Priority support"],
+		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
 	},
 ]
 

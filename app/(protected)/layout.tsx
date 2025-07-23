@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation"
 import type React from "react"
 import { useEffect } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-
-import { DummyDataTogglePanel } from "@/components/dummy-data-toggle-panel"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
 import { StoreInitializer } from "../store-initializer"
@@ -22,27 +20,31 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 		}
 	}, [isSignedIn, isLoaded, router])
 
-	// Show loading while checking authentication
+	// Show minimal loading while checking authentication
 	if (!isLoaded) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Loading authentication...</p>
+			<SidebarProvider>
+				<SiteHeader />
+				<div className={styles.progressLoader}>
+					<div className={styles.progressBar}>
+						<div className={styles.progressFill} />
+					</div>
 				</div>
-			</div>
+			</SidebarProvider>
 		)
 	}
 
 	// Redirect if not signed in
 	if (!isSignedIn) {
 		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Redirecting to sign-in...</p>
+			<SidebarProvider>
+				<SiteHeader />
+				<div className={styles.progressLoader}>
+					<div className={styles.progressBar}>
+						<div className={styles.progressFill} />
+					</div>
 				</div>
-			</div>
+			</SidebarProvider>
 		)
 	}
 
@@ -50,12 +52,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	return (
 		<SidebarProvider>
 			<StoreInitializer />
+			<SiteHeader />
 			<AppSidebar />
 			<div className={styles.container}>
-				<SiteHeader />
 				<div className={styles.content}>{children}</div>
 			</div>
-			<DummyDataTogglePanel />
 		</SidebarProvider>
 	)
 }

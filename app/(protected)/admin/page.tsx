@@ -4,6 +4,7 @@ import { Edit, Eye, EyeOff, FolderPlus, Mic, Plus, Sparkles, Trash2, X } from "l
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -484,10 +485,7 @@ export default function AdminPage() {
 	if (isCheckingAdmin) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Checking admin access...</p>
-				</div>
+				<AppSpinner size="lg" label="Checking admin access..." />
 			</div>
 		)
 	}
@@ -508,10 +506,7 @@ export default function AdminPage() {
 	if (isLoadingBundles) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Loading bundles...</p>
-				</div>
+				<AppSpinner size="lg" label="Loading bundles..." />
 			</div>
 		)
 	}
@@ -662,7 +657,7 @@ export default function AdminPage() {
 								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
 									{isLoading ? (
 										<>
-											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+											<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
 											Generating Episode...
 										</>
 									) : (
@@ -768,7 +763,7 @@ export default function AdminPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Existing Bundles ({bundles.length})</CardTitle>
-							<CardDescription>Manage your curated bundles</CardDescription>
+							<CardDescription>Manage your PodSlice Bundles</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="space-y-4">
@@ -793,7 +788,7 @@ export default function AdminPage() {
 												size="sm"
 												className="text-destructive hover:text-destructive hover:bg-destructive/10"
 											>
-												{isDeletingBundle === bundle.id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" /> : <Trash2 className="w-4 h-4" />}
+												{isDeletingBundle === bundle.id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
 											</Button>
 										</div>
 									</div>
@@ -884,7 +879,7 @@ export default function AdminPage() {
 									<Button onClick={editingPodcast ? updatePodcast : createPodcast} disabled={isCreatingPodcast || isUpdatingPodcast} className="w-full">
 										{isCreatingPodcast || isUpdatingPodcast ? (
 											<>
-												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
 												{editingPodcast ? "Updating..." : "Creating..."}
 											</>
 										) : editingPodcast ? (
@@ -944,7 +939,7 @@ export default function AdminPage() {
 													className="text-destructive hover:text-destructive hover:bg-destructive/10"
 													title="Delete"
 												>
-													{isDeletingPodcast === podcast.id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" /> : <Trash2 className="w-4 h-4" />}
+													{isDeletingPodcast === podcast.id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
 												</Button>
 											</div>
 										</div>

@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -45,8 +46,8 @@ export function UserCurationProfileCreationWizard() {
 	const handleCreateUserCurationProfile = async () => {
 		if (!canCreateUserCurationProfile()) {
 			const message = isTrialing
-				? `You can only create one user curation profile during your trial period. Remaining trial days: ${getRemainingTrialDays()}.`
-				: "You need an active subscription to create a user curation profile."
+				? `You can only create one Personalized Feed during your trial period. Remaining trial days: ${getRemainingTrialDays()}.`
+				: "You need an active subscription to create a Personalized Feed."
 			toast.error(message)
 			return
 		}
@@ -65,7 +66,7 @@ export function UserCurationProfileCreationWizard() {
 			}
 		} else {
 			if (selectedPodcasts.length === 0) {
-				toast.error("Please select at least one podcast for your custom user curation profile.")
+				toast.error("Please select at least one podcast for your custom Personalized Feed.")
 				return
 			}
 			data = {
@@ -77,7 +78,7 @@ export function UserCurationProfileCreationWizard() {
 
 		await createUserCurationProfile(data)
 		if (!error) {
-			toast.success("User Curation Profile created successfully!")
+			toast.success("Personalized Feed created successfully!")
 			setStep(1)
 			setUserCurationProfileName("")
 			setIsBundleSelection(false)
@@ -91,8 +92,7 @@ export function UserCurationProfileCreationWizard() {
 		return (
 			<div className={styles.wizardContainer}>
 				<div className="text-center py-12">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Checking your profile status...</p>
+					<AppSpinner size="lg" label="Checking your profile status..." />
 				</div>
 			</div>
 		)
@@ -109,13 +109,11 @@ export function UserCurationProfileCreationWizard() {
 						</div>
 						<CardTitle className="text-2xl">You Already Have a Profile</CardTitle>
 						<CardDescription className="text-lg">
-							You already have an active curation profile: <strong>{existingProfile.name}</strong>
+							You already have an active Personalized Feed: <strong>{existingProfile.name}</strong>
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="text-center space-y-4">
-						<p className="text-muted-foreground max-w-md mx-auto">
-							Users can only have one active curation profile at a time. You can edit your existing profile or deactivate it to create a new one.
-						</p>
+						<p className="text-muted-foreground max-w-md mx-auto">You can only have one active Personalized Feed at a time. You can edit your existing profile or deactivate it to create a new one.</p>
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
 							<Link href="/dashboard">
 								<Button className="w-full sm:w-auto">
@@ -137,12 +135,12 @@ export function UserCurationProfileCreationWizard() {
 
 	return (
 		<div className={styles.wizardContainer}>
-			<h1 className={styles.title}>Create Your Podcast User Curation Profile</h1>
+			<h1 className={styles.title}>Create Your Podcast Personalized Feed</h1>
 
 			{/* Step 1: Choose User Curation Profile Type */}
 			{step === 1 && (
 				<div>
-					<h2 className={styles.stepTitle}>Choose Your User Curation Profile Type</h2>
+					<h2 className={styles.stepTitle}>Choose Your Personalized Feed Type</h2>
 					<div className={styles.buttonGroup}>
 						<Button
 							onClick={() => {
@@ -151,7 +149,7 @@ export function UserCurationProfileCreationWizard() {
 							}}
 							variant="outline"
 						>
-							<h3>Custom User Curation Profile</h3>
+							<h3>Custom Personalized Feed</h3>
 							<p>Select up to 5 individual podcasts.</p>
 						</Button>
 						<Button
@@ -171,7 +169,7 @@ export function UserCurationProfileCreationWizard() {
 			{/* Step 2: Select Content */}
 			{step === 2 && (
 				<div>
-					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom User Curation Profile"}</h2>
+					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}</h2>
 					{isBundleSelection ? (
 						<CuratedBundleList onSelectBundle={setSelectedBundleId} />
 					) : (
@@ -203,10 +201,10 @@ export function UserCurationProfileCreationWizard() {
 			{/* Step 3: Review and Create */}
 			{step === 3 && (
 				<div>
-					<h2 className={styles.stepTitle}>Review Your User Curation Profile</h2>
-					<h3>User Curation Profile Details</h3>
+					<h2 className={styles.stepTitle}>Review Your Personalized Feed</h2>
+					<h3>Personalized Feed Details</h3>
 					<div className={styles.formGroup}>
-						<label htmlFor="userCurationProfileName">User Curation Profile Name</label>
+						<label htmlFor="userCurationProfileName">Personalized Feed Name</label>
 						<Input
 							id="userCurationProfileName"
 							type="text"
@@ -230,7 +228,7 @@ export function UserCurationProfileCreationWizard() {
 					<div className={styles.navigationButtons}>
 						<Button onClick={() => setStep(2)}>Back</Button>
 						<Button onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
-							{isLoading ? "Creating..." : "Create User Curation Profile"}
+							{isLoading ? "Creating..." : "Create Personalized Feed"}
 						</Button>
 					</div>
 				</div>

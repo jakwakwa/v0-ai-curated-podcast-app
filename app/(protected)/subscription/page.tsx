@@ -61,6 +61,9 @@ export default function SubscriptionPage() {
 						elements: {
 							rootBox: "w-full",
 							card: "shadow-none border",
+							// Hide the features list in billing section
+							planFeaturesList: "display: none",
+							planFeaturesItem: "display: none",
 						},
 					}}
 				/>

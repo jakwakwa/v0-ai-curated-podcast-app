@@ -14,19 +14,26 @@ export interface SubscriptionTier {
 }
 
 export const SUBSCRIPTION_TIERS = {
-	TRIAL: {
-		id: "trial",
-		name: "Free Trial",
+	FREESLICE: {
+		id: "freeslice",
+		name: "FreeSlice",
 		price: 0,
 		linkPriceId: null,
-		features: ["1 week trial", "1 user curation profile", "Weekly generation"],
+		features: ["Always free", "Free member", "Free Bundle"],
 	},
-	PREMIUM: {
-		id: "premium",
-		name: "Premium",
-		price: 99, // R99/month in ZAR
-		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID || null, // Ensure it's explicitly null if undefined
-		features: ["Unlimited user curation profiles", "Weekly generation", "Priority support"],
+	CASUAL_LISTENER: {
+		id: "casual_listener",
+		name: "Casual Listener",
+		price: 5, // $5/month in USD
+		linkPriceId: process.env.LINK_CASUAL_PRICE_ID || null,
+		features: ["Only billed monthly", "Free member", "Free Bundle"],
+	},
+	CURATE_CONTROL: {
+		id: "curate_control",
+		name: "Curate & Control",
+		price: 10, // $10/month in USD
+		linkPriceId: process.env.LINK_PREMIUM_PRICE_ID || null,
+		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
 	},
 } as const
 

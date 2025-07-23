@@ -181,10 +181,18 @@
 /* Pricing Grid */
 .pricingGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Desktop: Force 3 columns when screen is wide enough */
+@media (min-width: 1024px) {
+  .pricingGrid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1400px;
+  }
 }
 
 .pricingCard {
@@ -192,6 +200,8 @@
   transition: all 0.2s ease;
   position: relative;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .pricingCard:hover {
@@ -257,17 +267,45 @@
   flex-shrink: 0;
 }
 
+.pricingCardContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
 .pricingButton {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  margin-top: auto;
 }
 
 .popularButton {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+}
+
+.pricingDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.pricingButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--secondary));
+}
+
+.pricingButton:disabled:hover {
+  background: hsl(var(--secondary));
+  transform: none;
 }
 
 /* CTA Section */
@@ -373,4 +411,11 @@
   .ctaTitle {
     font-size: 1.75rem;
   }
+}
+
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 }

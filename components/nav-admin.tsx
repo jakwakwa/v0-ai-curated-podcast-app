@@ -75,7 +75,7 @@ export function NavAdmin() {
 					<SidebarMenuButton asChild>
 						<a href="/admin">
 							<Settings className="h-4 w-4" />
-							<span>Generate Episodes</span>
+							<span>Content Configuration</span>
 						</a>
 					</SidebarMenuButton>
 				</SidebarMenuItem>

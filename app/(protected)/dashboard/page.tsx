@@ -1,9 +1,11 @@
 "use client"
 
-import { Play } from "lucide-react"
+import { AlertCircle, Play } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -108,11 +110,11 @@ export default function Page() {
 			// Refetch data after successful update to show new bundle selection
 			await fetchAndUpdateData()
 
-			toast.success("User Curation Profile updated successfully!")
+			toast.success("Personalized Feed updated successfully!")
 			setIsModalOpen(false)
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : String(error)
-			toast.error(`Failed to update user curation profile: ${message}`)
+			toast.error(`Failed to update Personalized Feed: ${message}`)
 		}
 	}
 
@@ -128,9 +130,8 @@ export default function Page() {
 	if (isLoading) {
 		return (
 			<div className={styles.loadingContainer}>
-				<div className={styles.loadingContent}>
-					<div className={styles.loadingSpinner} />
-					<p>Loading dashboard...</p>
+				<div className={styles.loadingWrapper}>
+					<AppSpinner size="lg" label="Loading dashboard..." />
 				</div>
 			</div>
 		)
@@ -145,7 +146,7 @@ export default function Page() {
 							<div className={styles.gridContainer}>
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-										<CardTitle className="text-sm font-medium">Current User Curation Profile</CardTitle>
+										<CardTitle className="text-sm font-medium">Current Personalized Feed</CardTitle>
 										<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
 											Edit
 										</Button>
@@ -190,17 +191,16 @@ export default function Page() {
 							</div>
 						) : (
 							<div className="px-0 lg:px-6">
-								<Card>
-									<CardHeader>
-										<CardTitle>No User Curation Profile Found</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="text-muted-foreground">It looks like you haven't created a user curation profile yet. Start by creating one!</p>
-										<Button className="mt-4" onClick={() => setIsCreateWizardOpen(true)}>
-											Create Curation Profile
-										</Button>
-									</CardContent>
-								</Card>
+								<div className="max-w-2xl mx-auto mt-8">
+									<Alert>
+										<AlertCircle className="h-4 w-4" />
+										<AlertTitle>No Personalized Feed Found</AlertTitle>
+										<AlertDescription className="mt-2">It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
+									</Alert>
+									<div className="mt-6 text-center">
+										<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
+									</div>
+								</div>
 							</div>
 						)}
 
@@ -211,14 +211,15 @@ export default function Page() {
 										<CardTitle>Weekly Episodes</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<div className={styles.emptyState}>
-											<h3 className={styles.emptyStateTitle}>No Episodes Available</h3>
-											<p className={styles.emptyStateDescription}>
+										<Alert>
+											<AlertCircle className="h-4 w-4" />
+											<AlertTitle>No Episodes Available</AlertTitle>
+											<AlertDescription className="mt-2">
 												{userCurationProfile
 													? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-													: "Create a curation profile or select a bundle to start seeing episodes here."}
-											</p>
-										</div>
+													: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
+											</AlertDescription>
+										</Alert>
 									</CardContent>
 								</Card>
 							) : (
@@ -295,7 +296,7 @@ export default function Page() {
 			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
 				<DialogContent className="max-w-2xl">
 					<DialogHeader>
-						<DialogTitle>Create Your Curation Profile</DialogTitle>
+						<DialogTitle>Create Your Personalized Feed</DialogTitle>
 					</DialogHeader>
 					<UserCurationProfileCreationWizardWrapper
 						onSuccess={async () => {

@@ -1,10 +1,16 @@
 .header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
   display: flex;
   height: 3rem; /* h-12 */
   flex-shrink: 0;
   align-items: center;
   gap: 0.5rem; /* gap-2 */
-  border-bottom: 1px solid var(--color-border); /* border-b */
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
   transition-property: width, height; /* transition-[width,height] */
   transition-timing-function: linear; /* ease-linear */
 }
@@ -46,4 +52,4 @@
 .title-text {
   font-size: 1rem; /* text-base */
   font-weight: 500; /* font-medium */
-} 
+}

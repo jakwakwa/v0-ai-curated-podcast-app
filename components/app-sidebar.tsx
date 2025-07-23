@@ -1,6 +1,8 @@
-import { ChevronRight } from "lucide-react"
+"use client"
+
+import { useUser } from "@clerk/nextjs"
+import { BookOpen, ChevronRight, House, Library } from "lucide-react"
 import type * as React from "react"
-import { House } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
 	Sidebar,
@@ -17,7 +19,6 @@ import {
 } from "@/components/ui/sidebar-ui"
 import styles from "./app-sidebar.module.css"
 import { NavUser } from "./nav-user"
-import { NavAdmin } from "./nav-admin"
 
 interface SidebarNavItem {
 	title: string
@@ -28,6 +29,7 @@ interface SidebarNavItem {
 interface SidebarNavGroup {
 	title: string
 	url: string
+	icon?: React.ReactNode
 	items: SidebarNavItem[]
 }
 
@@ -38,9 +40,10 @@ const data = {
 		{
 			title: "Getting Started",
 			url: "#",
+			icon: <BookOpen className="h-4 w-4 mr-1" />,
 			items: [
 				{
-					title: "About Ai Curator",
+					title: "About PodSlice",
 					url: "/about",
 				},
 			],
@@ -48,22 +51,19 @@ const data = {
 		{
 			title: "Your Library",
 			url: "#",
+			icon: <Library className="h-4 w-4 mr-1" />,
 			items: [
 				{
 					title: "Weekly Episodes",
 					url: "/collections/weekly-episodes",
 				},
 				{
-					title: "Curation Profiles",
+					title: "Personalized Feeds",
 					url: "/curation-profile-management",
 				},
 				{
-					title: "Curated Bundles",
+					title: "Active PodSlice Bundles",
 					url: "/curated-bundles",
-				},
-				{
-					title: "Notifications",
-					url: "/notifications",
 				},
 			],
 		},
@@ -71,6 +71,8 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { user } = useUser()
+
 	return (
 		<Sidebar {...props}>
 			<SidebarHeader>
@@ -92,6 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						<SidebarGroup>
 							<SidebarGroupLabel asChild className={styles["collapsible-label"]}>
 								<CollapsibleTrigger>
+									{item.icon}
 									{item.title} <ChevronRight className={styles["chevron-icon"]} />
 								</CollapsibleTrigger>
 							</SidebarGroupLabel>
@@ -99,7 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<SidebarGroupContent>
 									<SidebarMenu>
 										{item.items.map(item => (
-											<SidebarMenuItem key={item.title}>
+											<SidebarMenuItem key={item.title} className={styles["sidebar-menu-item"]}>
 												<SidebarMenuButton asChild isActive={item.isActive}>
 													<a href={item.url}>{item.title}</a>
 												</SidebarMenuButton>
@@ -111,13 +114,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						</SidebarGroup>
 					</Collapsible>
 				))}
-
-				{/* Admin section - only shows for admin users */}
-				<NavAdmin />
 			</SidebarContent>
 			<SidebarRail />
 			<SidebarFooter>
-				<NavUser user={{ name: "", email: "", avatar: "" }} />
+				<NavUser
+					user={{
+						name: user?.fullName || user?.firstName || "User",
+						email: user?.emailAddresses?.[0]?.emailAddress || "",
+						avatar: user?.imageUrl || "",
+					}}
+				/>
 			</SidebarFooter>
 		</Sidebar>
 	)

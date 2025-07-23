@@ -1,12 +1,16 @@
 "use client"
 
+import { AlertCircle } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getEpisodes, getUserCurationProfile } from "@/lib/data"
 import type { CuratedBundleEpisode, CuratedPodcast, Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import styles from "./page.module.css"
 
 const formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
@@ -71,37 +75,32 @@ export default function CurationProfileManagementPage() {
 			// Refetch data after successful update to show new bundle selection
 			await fetchAndUpdateData()
 
-			toast.success("User Curation Profile updated successfully!")
+			toast.success("Personalized Feed updated successfully!")
 			setIsModalOpen(false)
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : String(error)
-			toast.error(`Failed to update user curation profile: ${message}`)
+			toast.error(`Failed to update Personalized Feed: ${message}`)
 		}
-	}
-
-	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4" />
-					<p>Loading user curation profile...</p>
-				</div>
-			</div>
-		)
 	}
 
 	return (
 		<>
-			<div className="flex flex-col gap-6 p-4">
+			<div className="flex flex-col w-full gap-6 p-4">
 				<div className="flex items-center justify-between mb-4">
-					<h1 className="text-2xl font-bold">Curation Profile Management</h1>
+					<h1 className="text-2xl font-bold">Personalized Feed Management</h1>
 				</div>
 
-				{userCurationProfile ? (
+				{isLoading ? (
+					<div className={styles.loadingContainer}>
+						<div className={styles.loadingWrapper}>
+							<AppSpinner size="lg" label="Loading Personalized Feed..." />
+						</div>
+					</div>
+				) : userCurationProfile ? (
 					<div className="grid gap-4 md:grid-cols-2">
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">Current User Curation Profile</CardTitle>
+								<CardTitle className="text-sm font-medium">Current Personalized Feed</CardTitle>
 								<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
 									Edit
 								</Button>
@@ -146,7 +145,7 @@ export default function CurationProfileManagementPage() {
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">User Curation Profile History</CardTitle>
+								<CardTitle className="text-sm font-medium">Personalized Feed History</CardTitle>
 							</CardHeader>
 							<CardContent>
 								<div className="text-sm">
@@ -186,21 +185,17 @@ export default function CurationProfileManagementPage() {
 						</Card>
 					</div>
 				) : (
-					<div className="text-center py-12">
-						<h3 className="text-lg font-semibold mb-2">No User Curation Profile Found</h3>
-						<p className="text-muted-foreground">You haven't created a user curation profile yet. Create one to start managing your podcast curation.</p>
+					<div className="max-w-2xl mx-auto mt-8">
+						<Alert>
+							<AlertCircle className="h-4 w-4" />
+							<AlertTitle>No Personalized Feed Found</AlertTitle>
+							<AlertDescription className="mt-2">You haven't created a Personalized Feed yet. Create one to start managing your podcast curation.</AlertDescription>
+						</Alert>
 					</div>
 				)}
 			</div>
 
-			{userCurationProfile && (
-				<EditUserCurationProfileModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-					collection={userCurationProfile as UserCurationProfileWithRelations}
-					onSave={handleSaveUserCurationProfile}
-				/>
-			)}
+			{userCurationProfile && <EditUserCurationProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
 		</>
 	)
 }

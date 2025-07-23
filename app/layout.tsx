@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import type React from "react"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import { dark } from "@clerk/themes"
 import { Toaster } from "sonner"
 import { ClientProviders } from "./client-providers"
 import { StoreInitializer } from "./store-initializer"
@@ -36,7 +37,7 @@ export default function RootLayout({
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
-						baseTheme: undefined,
+						baseTheme: dark,
 					}}
 				>
 					<ClientProviders>

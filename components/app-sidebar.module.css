@@ -3,7 +3,13 @@
 }
 
 .collapsible-label {
-  font-size: 0.875rem; /* text-sm */
+  font-size: 0.9375rem; /* slightly larger than text-sm */
+  font-weight: 600; /* semi-bold */
+  color: var(--color-sidebar-foreground); /* text-sidebar-foreground */
+}
+
+.collapsible-label > a {
+  font-size: 0.675rem; /* text-sm */
   color: var(--color-sidebar-foreground); /* text-sidebar-foreground */
 }
 
@@ -19,4 +25,8 @@
 
 .collapsible-open .chevron-icon {
   transform: rotate(90deg); /* group-data-[state=open]/collapsible:rotate-90 */
-} 
+}
+
+.sidebar-menu-item {
+  margin-left: 0.75rem; /* ml-3 - slight indentation for child items */
+}

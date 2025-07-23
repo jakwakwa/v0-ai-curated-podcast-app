@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -51,10 +52,7 @@ export default function SubscriptionSuccessPage() {
 		return (
 			<div className="container mx-auto px-4 py-12">
 				<div className="flex justify-center items-center min-h-[400px]">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-						<p>Processing your subscription...</p>
-					</div>
+					<AppSpinner size="lg" label="Processing your subscription..." />
 				</div>
 			</div>
 		)

@@ -2,10 +2,187 @@
 	width: 100vw;
 	display: flex;
 	flex-direction: column;
+	margin-top: 3rem; /* Account for fixed header height */
 }
 
 .content {
 	padding: 3rem;
 	display: flex;
 	gap: 2rem;
+}
+
+/* Skeleton Loading Styles */
+.skeletonContainer {
+	min-height: 100vh;
+	background: hsl(var(--background));
+	display: flex;
+}
+
+.skeletonSidebar {
+	width: 16rem;
+	border-right: 1px solid hsl(var(--border));
+	background: hsl(var(--sidebar));
+	padding: 1rem;
+}
+
+.skeletonLogo {
+	height: 2rem;
+	background: hsl(var(--muted));
+	border-radius: 0.375rem;
+	margin-bottom: 1.5rem;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonNavGroup {
+	margin-bottom: 1.5rem;
+}
+
+.skeletonNavItem {
+	height: 1rem;
+	background: hsl(var(--muted));
+	border-radius: 0.375rem;
+	margin-bottom: 0.75rem;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonNavItem:nth-child(2) {
+	width: 75%;
+}
+
+.skeletonNavItem:nth-child(3) {
+	width: 50%;
+}
+
+.skeletonMain {
+	flex: 1;
+}
+
+.skeletonHeader {
+	border-bottom: 1px solid hsl(var(--border));
+	padding: 1rem;
+}
+
+.skeletonHeaderTitle {
+	height: 1.5rem;
+	width: 12rem;
+	background: hsl(var(--muted));
+	border-radius: 0.375rem;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonContent {
+	padding: 1.5rem;
+}
+
+.skeletonContentTitle {
+	height: 2rem;
+	width: 16rem;
+	background: hsl(var(--muted));
+	border-radius: 0.375rem;
+	margin-bottom: 1rem;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonContentLines {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.skeletonLine {
+	height: 1rem;
+	background: hsl(var(--muted));
+	border-radius: 0.375rem;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonLine:nth-child(2) {
+	width: 83.333333%;
+}
+
+.skeletonLine:nth-child(3) {
+	width: 66.666667%;
+}
+
+/* Minimal Loading Styles */
+.minimalLoader {
+	min-height: 100vh;
+	background: hsl(var(--background));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.minimalContent {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.minimalTitle {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: hsl(var(--muted-foreground));
+}
+
+.minimalBar {
+	width: 2rem;
+	height: 0.25rem;
+	background: hsl(var(--primary));
+	border-radius: 9999px;
+	margin: 0 auto;
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Progress Bar Loading */
+.progressLoader {
+	min-height: 100vh;
+	background: hsl(var(--background));
+}
+
+.progressBar {
+	height: 0.25rem;
+	background: hsl(var(--primary) / 0.2);
+	overflow: hidden;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 50;
+}
+
+.progressFill {
+	height: 100%;
+	background: hsl(var(--primary));
+	width: 100%;
+	animation: progressSlide 1.5s ease-in-out infinite;
+	transform-origin: left;
+}
+
+@keyframes progressSlide {
+	0% {
+		transform: translateX(-100%) scaleX(0);
+	}
+	50% {
+		transform: translateX(0%) scaleX(1);
+	}
+	100% {
+		transform: translateX(100%) scaleX(0);
+	}
+}
+
+/* Silent Loading */
+.silentLoader {
+	min-height: 100vh;
+	background: hsl(var(--background));
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
 }

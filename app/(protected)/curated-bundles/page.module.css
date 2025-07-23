@@ -33,6 +33,13 @@
   text-align: center;
 }
 
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
 .loadingSpinner {
   width: 2rem;
   height: 2rem;

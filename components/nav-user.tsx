@@ -1,13 +1,13 @@
 "use client"
 
-import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, UserCircleIcon } from "lucide-react"
-
+import { useAuth, useClerk } from "@clerk/nextjs"
+import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar-ui"
 import styles from "./nav-user.module.css"
-import { useClerk } from "@clerk/nextjs"
-import Link from "next/link"
 
 export function NavUser({
 	user,
@@ -20,6 +20,60 @@ export function NavUser({
 }) {
 	const { isMobile } = useSidebar()
 	const { signOut } = useClerk()
+	const { isLoaded, isSignedIn } = useAuth()
+	const [isAdmin, setIsAdmin] = useState(false)
+
+	// Generate initials from user name
+	const getInitials = (name: string) => {
+		if (!name) return "U"
+		return name
+			.split(" ")
+			.map(part => part.charAt(0).toUpperCase())
+			.slice(0, 2)
+			.join("")
+	}
+
+	useEffect(() => {
+		// Only check admin status once Clerk auth is loaded and user is signed in
+		if (!(isLoaded && isSignedIn)) {
+			setIsAdmin(false)
+			return
+		}
+
+		const checkAdminStatus = async () => {
+			try {
+				const response = await fetch("/api/admin/check")
+
+				// Check if response is ok and has content
+				if (!response.ok) {
+					// Don't log 401 errors as they're expected for non-authenticated users
+					if (response.status !== 401) {
+						console.error("Admin check API returned error:", response.status)
+					}
+					setIsAdmin(false)
+					return
+				}
+
+				// Check if response has content
+				const text = await response.text()
+				if (!text) {
+					console.error("Admin check API returned empty response")
+					setIsAdmin(false)
+					return
+				}
+
+				// Parse JSON
+				const data = JSON.parse(text)
+				const adminStatus = data.isAdmin
+				setIsAdmin(adminStatus)
+			} catch (error) {
+				console.error("Error checking admin status:", error)
+				setIsAdmin(false)
+			}
+		}
+
+		checkAdminStatus()
+	}, [isLoaded, isSignedIn])
 
 	return (
 		<SidebarMenu>
@@ -29,7 +83,7 @@ export function NavUser({
 						<SidebarMenuButton size="lg" className={styles["sidebar-menu-button"]}>
 							<Avatar className={styles["avatar-image-grayscale"]}>
 								<AvatarImage src={user.avatar} alt={user.name} />
-								<AvatarFallback className={styles["avatar-fallback-rounded"]}>CN</AvatarFallback>
+								<AvatarFallback className={styles["avatar-fallback-rounded"]}>{getInitials(user.name)}</AvatarFallback>
 							</Avatar>
 							<div className={styles["text-grid-container"]}>
 								<span className={styles["truncate-font-medium"]}>{user.name}</span>
@@ -42,8 +96,8 @@ export function NavUser({
 						<DropdownMenuLabel className={styles["dropdown-menu-label"]}>
 							<div className={styles["dropdown-menu-label-content"]}>
 								<Avatar className={styles["avatar-image-grayscale"]}>
-									{/* <AvatarImage src={user?.avatar} alt={user.name} /> */}
-									<AvatarFallback className={styles["avatar-fallback-rounded"]}>CN</AvatarFallback>
+									<AvatarImage src={user.avatar} alt={user.name} />
+									<AvatarFallback className={styles["avatar-fallback-rounded"]}>{getInitials(user.name)}</AvatarFallback>
 								</Avatar>
 								<div className={styles["text-grid-container"]}>
 									<span className={styles["truncate-font-medium"]}>{user.name}</span>
@@ -56,7 +110,7 @@ export function NavUser({
 							<DropdownMenuItem asChild>
 								<Link href="/curation-profile-management">
 									<UserCircleIcon />
-									Curation Profile Management
+									Personalized Feed Management
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
@@ -72,6 +126,19 @@ export function NavUser({
 								</Link>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
+						{isAdmin && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuGroup>
+									<DropdownMenuItem asChild>
+										<Link href="/admin">
+											<Shield className="h-4 w-4" />
+											Content Configuration
+										</Link>
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+							</>
+						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onClick={async () => {

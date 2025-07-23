@@ -167,12 +167,16 @@
 }
 
 .loadingContainer {
-  width: 100%;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.loadingContent {
-  text-align: center;
-  padding: 3rem 0;
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 }
 
 .loadingSpinner {
