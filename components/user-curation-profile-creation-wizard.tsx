@@ -135,23 +135,11 @@ export function UserCurationProfileCreationWizard() {
 
 	return (
 		<div className={styles.wizardContainer}>
-			<h1 className={styles.title}>Create Your Podcast Personalized Feed</h1>
-
 			{/* Step 1: Choose User Curation Profile Type */}
 			{step === 1 && (
 				<div>
-					<h2 className={styles.stepTitle}>Choose Your Personalized Feed Type</h2>
+					<h2 className={styles.stepTitle}>Select a Feed:</h2>
 					<div className={styles.buttonGroup}>
-						<Button
-							onClick={() => {
-								setIsBundleSelection(false)
-								setStep(2)
-							}}
-							variant="outline"
-						>
-							<h3>Custom Personalized Feed</h3>
-							<p>Select up to 5 individual podcasts.</p>
-						</Button>
 						<Button
 							onClick={() => {
 								setIsBundleSelection(true)
@@ -159,8 +147,20 @@ export function UserCurationProfileCreationWizard() {
 							}}
 							variant="outline"
 						>
-							<h3>Bundle Selection</h3>
+							<h3>PODSLICE Bundles</h3>
 							<p>Choose from pre-selected bundles (uneditable).</p>
+						</Button>
+						{/* TODO: THIS SHOULD BE PROTECTED */}
+						<Button
+							onClick={() => {
+								setIsBundleSelection(false)
+								setStep(2)
+							}}
+							disabled
+							variant="outline"
+						>
+							<h3>Custom Personalized Feed</h3>
+							<p>Select up to 5 individual podcasts.</p>
 						</Button>
 					</div>
 				</div>

@@ -140,71 +140,97 @@ export default function Page() {
 	return (
 		<>
 			<div className={styles.dashboardContainer}>
+				<div className="header">
+					<h1>Your Dashboard</h1>
+					<p>Overview of your episodes, selected bundles, feeds etc.</p>
+				</div>
 				<div className={styles.mainContainer}>
 					<div className={styles.contentWrapper}>
-						{userCurationProfile ? (
-							<div className={styles.gridContainer}>
-								<Card>
-									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-										<CardTitle className="text-sm font-medium">Current Personalized Feed</CardTitle>
-										<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-											Edit
-										</Button>
-									</CardHeader>
-									<CardContent>
-										<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
-										<p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p>
-									</CardContent>
-								</Card>
+						<div className={styles.episodesSection}>
+							{userCurationProfile ? (
+								<div className={styles.gridContainer}>
+									<div className={styles.episodesSection}>
+										<Card>
+											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+												<CardTitle className="mb-4">Current Personalized Feed</CardTitle>
+												<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+													Edit
+												</Button>
+											</CardHeader>
+											<CardContent>
+												<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
+												<p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p>
+											</CardContent>
+										</Card>
 
-								{userCurationProfile?.isBundleSelection && userCurationProfile?.selectedBundle && (
-									<Card>
-										<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-											<CardTitle className="text-sm font-medium">Selected Bundle</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="text-2xl font-bold">{userCurationProfile.selectedBundle.name}</div>
-											<p className="text-xs text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
-											<div className="mt-2 text-sm">
-												<p className="font-medium">Podcasts:</p>
-												<ul className="list-disc pl-5 text-muted-foreground">
-													{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
-														<li className="text-muted-foreground">No podcasts loaded</li>
+										{userCurationProfile?.isBundleSelection && userCurationProfile?.selectedBundle && (
+											<Card>
+												<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+													<CardTitle className="text-sm font-medium">Selected Bundle</CardTitle>
+												</CardHeader>
+												<CardContent>
+													<div className="text-2xl font-bold">{userCurationProfile.selectedBundle.name}</div>
+													<p className="text-xs text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
+													<div className="mt-2 text-sm">
+														<p className="font-medium">Podcasts:</p>
+														<ul className="list-disc pl-5 text-muted-foreground">
+															{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
+																<li className="text-muted-foreground">No podcasts loaded</li>
+															)}
+														</ul>
+													</div>
+													{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
+														<div className="mt-4 text-sm">
+															<p className="font-medium">Bundle Episodes:</p>
+															<ul className="list-disc pl-5 text-muted-foreground">
+																{userCurationProfile.selectedBundle.episodes.map(episode => (
+																	<li key={episode.id}>
+																		{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
+																	</li>
+																))}
+															</ul>
+														</div>
 													)}
-												</ul>
-											</div>
-											{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
-												<div className="mt-4 text-sm">
-													<p className="font-medium">Bundle Episodes:</p>
-													<ul className="list-disc pl-5 text-muted-foreground">
-														{userCurationProfile.selectedBundle.episodes.map(episode => (
-															<li key={episode.id}>
-																{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
-															</li>
-														))}
-													</ul>
-												</div>
-											)}
-										</CardContent>
-									</Card>
-								)}
-							</div>
-						) : (
-							<div className="px-0 lg:px-6">
-								<div className="max-w-2xl mx-auto mt-8">
-									<Alert>
-										<AlertCircle className="h-4 w-4" />
-										<AlertTitle>No Personalized Feed Found</AlertTitle>
-										<AlertDescription className="mt-2">It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
-									</Alert>
-									<div className="mt-6 text-center">
-										<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
+												</CardContent>
+											</Card>
+										)}
 									</div>
 								</div>
-							</div>
-						)}
+							) : (
+								<div className="px-0 lg:px-0 w-full">
+									<div className="max-w-2xl md:max-w-full mt-8 w-full">
+										<Card>
+											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+												<CardTitle className="mb-4">Current Personalized Feed</CardTitle>
+												{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+													Edit
+												</Button> */}
+											</CardHeader>
+											<CardContent>
+												{/* <div className="text-2xl font-bold">{userCurationProfile?.name}</div> */}
+												{/* <p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p> */}
+												<Alert>
+													<AlertCircle className="h-4 w-4" />
+													<AlertTitle>No Personalized Feed Found</AlertTitle>
+													<AlertDescription className="mt-2">It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
+												</Alert>
+												<div className="mt-6 text-center">
+													<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
+												</div>
+											</CardContent>
+										</Card>
 
+										{/*  */}
+
+										{/*  */}
+									</div>
+									{/*  */}
+								</div>
+							)}
+						</div>
+						{/* END PRFIE */}
 						<div className={styles.episodesSection}>
+							{/*  */}
 							{combinedEpisodes.length === 0 ? (
 								<Card>
 									<CardHeader>
@@ -222,10 +248,11 @@ export default function Page() {
 										</Alert>
 									</CardContent>
 								</Card>
+								//
 							) : (
 								<div className="space-y-6">
 									<div className={styles.episodesHeader}>
-										<h2 className={styles.episodesTitle}>Weekly Episodes</h2>
+										<h2 className={styles.episodesTitle}>Weekly Episode</h2>
 										<div className={styles.episodesSummary}>
 											<span>Total: {combinedEpisodes.length}</span>
 											<span>Custom: {episodes.length}</span>
@@ -282,6 +309,8 @@ export default function Page() {
 								</div>
 							)}
 						</div>
+
+						{/* END EPISODE SECTION */}
 					</div>
 				</div>
 			</div>
@@ -293,10 +322,11 @@ export default function Page() {
 					onSave={handleSaveUserCurationProfile}
 				/>
 			)}
+
 			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
-				<DialogContent className="max-w-2xl">
+				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Create Your Personalized Feed</DialogTitle>
+						<DialogTitle>Personalized Feed Builder</DialogTitle>
 					</DialogHeader>
 					<UserCurationProfileCreationWizardWrapper
 						onSuccess={async () => {

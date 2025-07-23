@@ -1,41 +1,47 @@
 .wizardContainer {
-  max-width: 800px;
+  /* max-width: 800px; */
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem;
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  text-align: center;
+  /* text-align: center; */
   margin-bottom: 3rem;
   color: hsl(var(--foreground));
 }
 
 .stepTitle {
-  font-size: 1.875rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 2rem;
   color: hsl(var(--foreground));
 }
 
 .buttonGroup {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+	flex-direction: row;
+  gap: 1rem;
+	width: 100%;
+	text-align: l;
   margin-top: 2rem;
 }
 
 .buttonGroup button {
-  padding: 2rem;
+  padding: 2em 6rem;
   text-align: left;
   height: auto;
   min-height: 150px;
   display: flex;
+	max-width: 400px;
+	width: 100%;
   flex-direction: column;
-  justify-content: space-between;
-  border: 2px solid hsl(var(--border));
+	gap: 0;
+  justify-content: space-around;
+  border: 2px solid hsl(240 5.3% 26.1%);
   transition: all 0.2s ease;
+	background-color: hsl(240 3.7% 15.9%);
 }
 
 .buttonGroup button:hover {
@@ -47,14 +53,15 @@
 .buttonGroup button h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+	line-height: 1;
+  margin-bottom: 0rem;
   color: hsl(var(--foreground));
 }
 
 .buttonGroup button p {
   color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1;
 }
 
 .navigationButtons {
@@ -268,7 +275,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .wizardContainer {
-    padding: 1rem;
+    padding: 2rem;
   }
 
   .title {

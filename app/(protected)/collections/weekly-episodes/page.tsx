@@ -124,8 +124,10 @@ export default function WeeklyEpisodesPage() {
 
 	return (
 		<div className={styles.container}>
-			<h1 className={styles.title}>All Episodes</h1>
-
+			<div className="header">
+				<h1 className={styles.title}>All Episodes</h1>
+				<p>Your Personalized feed's episodes.</p>
+			</div>
 			{isCheckingProfile ? (
 				<div className={styles.loadingContainer}>
 					<div className={styles.loadingWrapper}>

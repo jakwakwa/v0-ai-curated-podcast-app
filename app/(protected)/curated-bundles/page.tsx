@@ -43,7 +43,7 @@ export default function CuratedBundlesPage() {
 
 	return (
 		<div className={styles.container}>
-			<div className={styles.header}>
+			<div className="header">
 				<h1>PodSlice Bundles</h1>
 				<p>Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected.</p>
 			</div>
