@@ -107,10 +107,28 @@
 	}
 
 	.episodeCard {
-		background: #18181b;
-		background: #18181b;
-
-		background: linear-gradient(57deg, #37206d -30%, #110b11 90%, #e7ff00 258%) !important;
+		/* background: #18181b; */
+		/* background: #18181b; */
+		background-image:  linear-gradient(
+			45deg,
+			hsl(60deg 3% 7%) 0%,
+			hsl(60deg 2% 9%) 16%,
+			hsl(60deg 2% 10%) 29%,
+			hsl(60deg 2% 12%) 41%,
+			hsl(0deg 0% 14%) 51%,
+			hsl(0deg 0% 15%) 59%,
+			hsl(0deg 0% 16%) 66%,
+			hsl(0deg 0% 17%) 72%,
+			hsl(0deg 0% 18%) 76%,
+			hsl(30deg 2% 20%) 80%,
+			hsl(48deg 4% 23%) 84%,
+			hsl(43deg 6% 25%) 87%,
+			hsl(48deg 7% 27%) 89%,
+			hsl(46deg 22% 28%) 92%,
+			hsl(43deg 36% 29%) 95%,
+			hsl(42deg 52% 30%) 97%,
+			hsl(39deg 66% 31%) 100%
+		) !important;
 		border: 1px solid hsl(var(--border));
 		border-radius: .5rem;
 		padding:1.2rem 2rem !important;

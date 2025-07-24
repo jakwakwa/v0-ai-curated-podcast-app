@@ -168,8 +168,10 @@ width: 100%;
 @media (min-width: 768px) {
   .content {
    flex-direction: row;
+	 width: 100%;
+	 max-width: 98%;
     padding: 2rem;
-		padding-left: 4rem;
+		padding-left: 3rem;
 		padding-right: 0;
   }
 }
