@@ -45,8 +45,9 @@ export async function GET(_request: NextRequest) {
 		})
 	} catch (error) {
 		console.error("[CURATED_BUNDLES_GET]", error)
-		// Return empty array instead of error during build
-		if (process.env.NODE_ENV === "production") {
+		// Return empty array instead of error during build or if database schema is not ready
+		if (process.env.NODE_ENV === "production" || (error instanceof Error && error.message.includes("does not exist"))) {
+			console.log("[CURATED_BUNDLES_GET] Returning empty array due to database issue during build")
 			return NextResponse.json([], {
 				headers: {
 					"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
