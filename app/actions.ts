@@ -61,7 +61,7 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 
 	try {
 		const draftUserCurationProfile = await prisma.userCurationProfile.findFirst({
-			where: { userId: userId, status: "Draft" },
+			where: { user_id: userId, status: "Draft" },
 		})
 
 		if (!draftUserCurationProfile) {
@@ -75,7 +75,7 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 			data: {
 				name: videoDetails.title,
 				url: url,
-				imageUrl: videoDetails.thumbnail,
+				image_url: videoDetails.thumbnail,
 				description: null,
 			},
 		})
@@ -106,7 +106,7 @@ export async function saveCuration(formData: FormData) {
 	try {
 		await prisma.$transaction([
 			prisma.userCurationProfile.update({
-				where: { id: userCurationProfileId, userId: userId },
+				where: { profile_id: userCurationProfileId, user_id: userId },
 				data: {
 					status: "Saved",
 					name: "Source User Curation Profile",
@@ -114,10 +114,10 @@ export async function saveCuration(formData: FormData) {
 			}),
 			prisma.userCurationProfile.create({
 				data: {
-					userId: userId,
+					user_id: userId,
 					name: "New Weekly Curation",
 					status: "Draft",
-					createdAt: new Date(), // Explicitly set the current timestamp
+					created_at: new Date(), // Explicitly set the current timestamp
 				},
 			}),
 		])
@@ -159,10 +159,10 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 	try {
 		// Update the user curation profile status and set generatedAt timestamp
 		await prisma.userCurationProfile.update({
-			where: { id: userCurationProfileId, userId: userId },
+			where: { profile_id: userCurationProfileId, user_id: userId },
 			data: {
 				status: "Generated",
-				generatedAt: new Date(),
+				generated_at: new Date(),
 			},
 		})
 
@@ -191,7 +191,7 @@ export async function createDraftUserCurationProfile() {
 	try {
 		// Check if user already has a draft profile
 		const existingDraft = await prisma.userCurationProfile.findFirst({
-			where: { userId: userId, status: "Draft" },
+			where: { user_id: userId, status: "Draft" },
 		})
 
 		if (existingDraft) {
@@ -203,10 +203,10 @@ export async function createDraftUserCurationProfile() {
 		// Create new draft user curation profile
 		await prisma.userCurationProfile.create({
 			data: {
-				userId: userId,
+				user_id: userId,
 				name: "New Weekly Curation",
 				status: "Draft",
-				createdAt: new Date(),
+				created_at: new Date(),
 			},
 		})
 

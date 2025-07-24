@@ -143,12 +143,12 @@ export const StripeService = {
 	async getOrCreateCustomer(userId: string, email: string): Promise<string> {
 		// Check if user already has a subscription with customer ID
 		const existingSubscription = await prisma.subscription.findFirst({
-			where: { userId },
-			orderBy: { createdAt: "desc" },
+			where: { user_id: userId },
+			orderBy: { created_at: "desc" },
 		})
 
-		if (existingSubscription?.linkCustomerId) {
-			return existingSubscription.linkCustomerId
+		if (existingSubscription?.link_customer_id) {
+			return existingSubscription.link_customer_id
 		}
 
 		try {
@@ -190,37 +190,37 @@ export const StripeService = {
 		try {
 			// First try to find existing subscription for this user
 			const existingSubscription = await prisma.subscription.findFirst({
-				where: { userId },
+				where: { user_id: userId },
 			})
 
 			if (existingSubscription) {
 				// Update existing subscription
 				await prisma.subscription.update({
-					where: { id: existingSubscription.id },
+					where: { subscription_id: existingSubscription.subscription_id },
 					data: {
 						status: stripeSubscription.status,
-						linkCustomerId: stripeSubscription.customer as string,
-						linkSubscriptionId: stripeSubscription.id,
-						linkPriceId: stripeSubscription.items.data[0]?.price.id,
-						currentPeriodStart: new Date(subscription.current_period_start * 1000),
-						currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-						canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+						link_customer_id: stripeSubscription.customer as string,
+						link_subscription_id: stripeSubscription.id,
+						link_price_id: stripeSubscription.items.data[0]?.price.id,
+						current_period_start: new Date(subscription.current_period_start * 1000),
+						current_period_end: new Date(subscription.current_period_end * 1000),
+						canceled_at: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
 					},
 				})
 			} else {
 				// Create new subscription
 				await prisma.subscription.create({
 					data: {
-						userId,
+						user_id: userId,
 						status: stripeSubscription.status,
-						linkCustomerId: stripeSubscription.customer as string,
-						linkSubscriptionId: stripeSubscription.id,
-						linkPriceId: stripeSubscription.items.data[0]?.price.id,
-						currentPeriodStart: new Date(subscription.current_period_start * 1000),
-						currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-						trialStart: subscription.trial_start ? new Date(subscription.trial_start * 1000) : null,
-						trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
-						canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+						link_customer_id: stripeSubscription.customer as string,
+						link_subscription_id: stripeSubscription.id,
+						link_price_id: stripeSubscription.items.data[0]?.price.id,
+						current_period_start: new Date(subscription.current_period_start * 1000),
+						current_period_end: new Date(subscription.current_period_end * 1000),
+						trail_start: subscription.trial_start ? new Date(subscription.trial_start * 1000) : null,
+						trial_end: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+						canceled_at: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
 					},
 				})
 			}
@@ -249,14 +249,14 @@ export const StripeService = {
 		try {
 			await prisma.subscription.updateMany({
 				where: {
-					userId,
-					linkSubscriptionId: stripeSubscription.id,
+					user_id: userId,
+					link_subscription_id: stripeSubscription.id,
 				},
 				data: {
 					status: stripeSubscription.status,
-					currentPeriodStart: new Date(subscription.current_period_start * 1000),
-					currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-					canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+					current_period_start: new Date(subscription.current_period_start * 1000),
+					current_period_end: new Date(subscription.current_period_end * 1000),
+					canceled_at: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
 				},
 			})
 		} catch (error) {
@@ -278,12 +278,12 @@ export const StripeService = {
 		try {
 			await prisma.subscription.updateMany({
 				where: {
-					userId,
-					linkSubscriptionId: stripeSubscription.id,
+					user_id: userId,
+					link_subscription_id: stripeSubscription.id,
 				},
 				data: {
 					status: "canceled",
-					canceledAt: new Date(),
+					canceled_at: new Date(),
 				},
 			})
 		} catch (error) {
@@ -297,8 +297,8 @@ export const StripeService = {
 	 */
 	async getUserSubscription(userId: string) {
 		return await prisma.subscription.findFirst({
-			where: { userId },
-			orderBy: { createdAt: "desc" },
+			where: { user_id: userId },
+			orderBy: { created_at: "desc" },
 		})
 	},
 
@@ -334,7 +334,7 @@ export const StripeService = {
 		}
 
 		// Find plan by price ID
-		const plan = Object.values(SUBSCRIPTION_PLANS).find(p => p.stripePriceId === subscription.linkPriceId)
+		const plan = Object.values(SUBSCRIPTION_PLANS).find(p => p.stripePriceId === subscription.link_price_id)
 
 		return plan || SUBSCRIPTION_PLANS.FREE
 	},

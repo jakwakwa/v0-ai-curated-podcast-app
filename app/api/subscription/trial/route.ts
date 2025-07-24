@@ -12,7 +12,7 @@ export async function POST() {
 
 		// Check if user already has an active subscription or trial
 		const existingSubscription = await prisma.subscription.findFirst({
-			where: { userId },
+			where: { user_id: userId },
 		})
 
 		if (existingSubscription) {
@@ -22,10 +22,10 @@ export async function POST() {
 		// Create a new trial subscription (1 week trial)
 		const newTrial = await prisma.subscription.create({
 			data: {
-				userId,
+				user_id: userId,
 				status: "trialing",
-				trialStart: new Date(),
-				trialEnd: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+				trail_start: new Date(),
+				trial_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
 			},
 		})
 

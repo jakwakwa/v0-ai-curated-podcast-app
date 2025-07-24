@@ -66,8 +66,8 @@ export class LinkService {
 	// Get user's current subscription
 	static async getUserSubscription(userId: string) {
 		return await prisma.subscription.findFirst({
-			where: { userId },
-			orderBy: { createdAt: "desc" },
+			where: { user_id: userId },
+			orderBy: { created_at: "desc" },
 		})
 	}
 
@@ -96,7 +96,7 @@ export class LinkService {
 	// biome-ignore lint/suspicious/noExplicitAny: PayMongo webhook payload type is not strongly typed
 	static async updateFromLinkWebhook(linkSubscription: any) {
 		const subscription = await prisma.subscription.findFirst({
-			where: { linkSubscriptionId: linkSubscription.id },
+			where: { link_subscription_id: linkSubscription.id },
 		})
 
 		if (!subscription) {
@@ -104,12 +104,12 @@ export class LinkService {
 		}
 
 		return await prisma.subscription.update({
-			where: { id: subscription.id },
+			where: { subscription_id: subscription.subscription_id },
 			data: {
 				status: linkSubscription.status,
-				currentPeriodStart: new Date(linkSubscription.current_period_start * 1000),
-				currentPeriodEnd: new Date(linkSubscription.current_period_end * 1000),
-				canceledAt: linkSubscription.canceled_at ? new Date(linkSubscription.canceled_at * 1000) : null,
+				current_period_start: new Date(linkSubscription.current_period_start * 1000),
+				current_period_end: new Date(linkSubscription.current_period_end * 1000),
+				canceled_at: linkSubscription.canceled_at ? new Date(linkSubscription.canceled_at * 1000) : null,
 			},
 		})
 	}
@@ -123,10 +123,10 @@ export class LinkService {
 		}
 
 		return await prisma.subscription.update({
-			where: { id: subscription.id },
+			where: { subscription_id: subscription.subscription_id },
 			data: {
 				status: "canceled",
-				canceledAt: new Date(),
+				canceled_at: new Date(),
 			},
 		})
 	}

@@ -18,7 +18,7 @@ export async function GET() {
 		let plan: SubscriptionPlan
 		if (hasActiveSubscription && subscription) {
 			// Find plan by price ID
-			const foundPlan = Object.values(SUBSCRIPTION_PLANS).find(p => p.stripePriceId === subscription.linkPriceId)
+			const foundPlan = Object.values(SUBSCRIPTION_PLANS).find(p => p.stripePriceId === subscription.link_price_id)
 			plan = foundPlan || SUBSCRIPTION_PLANS.FREE
 		} else {
 			plan = SUBSCRIPTION_PLANS.FREE

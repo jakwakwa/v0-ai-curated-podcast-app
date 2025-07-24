@@ -18,11 +18,11 @@ export async function POST(request: Request) {
 
 		const subscription = await StripeService.getUserSubscription(userId)
 
-		if (!subscription?.linkCustomerId) {
+		if (!subscription?.link_customer_id) {
 			return new NextResponse("No active subscription found", { status: 404 })
 		}
 
-		const portalUrl = await StripeService.createBillingPortalSession(subscription.linkCustomerId, returnUrl)
+		const portalUrl = await StripeService.createBillingPortalSession(subscription.link_customer_id, returnUrl)
 
 		return NextResponse.json({ url: portalUrl })
 	} catch (error: unknown) {
