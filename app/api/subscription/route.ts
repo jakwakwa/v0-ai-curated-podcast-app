@@ -1,6 +1,9 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
+// Force this API route to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
 	try {
 		const { userId } = await auth()

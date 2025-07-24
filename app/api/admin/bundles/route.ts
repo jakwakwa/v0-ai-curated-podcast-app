@@ -3,6 +3,9 @@ import { NextResponse } from "next/server"
 import { isOrgAdmin } from "@/lib/organization-roles"
 import { prisma } from "@/lib/prisma"
 
+// Force this API route to be dynamic since it uses auth()
+export const dynamic = 'force-dynamic'
+
 // Create a new bundle
 export async function POST(request: Request) {
 	try {
