@@ -2,7 +2,7 @@
 
 import { Lock } from "lucide-react"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import type { Bundle, Podcast } from "@/lib/types"
@@ -19,7 +19,7 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const fetchCuratedBundles = async () => {
+	const fetchCuratedBundles = useCallback(async () => {
 		try {
 			setIsLoading(true)
 			setError(null)
@@ -37,11 +37,11 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 		} finally {
 			setIsLoading(false)
 		}
-	}
+	}, [])
 
 	useEffect(() => {
 		fetchCuratedBundles()
-	}, [])
+	}, [fetchCuratedBundles])
 
 	if (isLoading) {
 		return (
