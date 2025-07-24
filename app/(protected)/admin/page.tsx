@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import type { Podcast, TransformedBundle } from "@/lib/types"
+import type { Bundle, Podcast } from "@/lib/types"
 
 interface EpisodeSource {
 	id: string
@@ -32,12 +32,15 @@ interface AdminGenerationRequest {
 	sources: EpisodeSource[]
 }
 
+// Type for bundle with podcasts array from API
+type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
+
 export default function AdminPage() {
 	const router = useRouter()
 	const [adminStatus, setAdminStatus] = useState<boolean | null>(null)
 	const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
 
-	const [bundles, setBundles] = useState<TransformedBundle[]>([])
+	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([])
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
 	const [episodeTitle, setEpisodeTitle] = useState<string>("")
 	const [episodeDescription, setEpisodeDescription] = useState<string>("")
@@ -241,7 +244,7 @@ export default function AdminPage() {
 			return
 		}
 		const formData = new FormData()
-		formData.append("bundle_id", selectedBundleId)
+		formData.append("bundleId", selectedBundleId)
 		formData.append("title", episodeTitle)
 		formData.append("description", episodeDescription)
 		if (episodeImageUrl.trim()) {
@@ -575,7 +578,7 @@ export default function AdminPage() {
 			acc[category].push(podcast)
 			return acc
 		},
-		{} as Record<string, CuratedPodcast[]>
+		{} as Record<string, Podcast[]>
 	)
 	const categories = Object.keys(podcastsByCategory).sort()
 

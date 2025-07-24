@@ -11,10 +11,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
-import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
 import styles from "./page.module.css"
+
+// Type for UserCurationProfile with relations
+type UserCurationProfileWithRelations = UserCurationProfile & {
+	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
+	episode: Episode[]
+}
 
 // Combined episode type for display - extending Prisma Episode with display type
 interface CombinedEpisode extends Episode {

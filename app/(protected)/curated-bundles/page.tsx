@@ -8,12 +8,15 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { TransformedBundle } from "@/lib/types"
+import type { Bundle, Podcast } from "@/lib/types"
 import styles from "./page.module.css"
+
+// Type for bundle with podcasts array from API
+type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
 // AKA PODSLICE BUNDLES
 export default function CuratedBundlesPage() {
-	const [curatedBundles, setCuratedBundles] = useState<TransformedBundle[]>([])
+	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 

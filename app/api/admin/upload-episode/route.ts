@@ -44,7 +44,17 @@ export async function POST(request: Request) {
 		const image_url = formData.get("image_url") as string | null
 		const file = formData.get("file") as File
 
+		console.log("Upload episode request:", {
+			bundleId,
+			title,
+			hasDescription: !!description,
+			hasImageUrl: !!image_url,
+			hasFile: !!file,
+			fileName: file?.name,
+		})
+
 		if (!(bundleId && title && file)) {
+			console.log("Validation failed:", { bundleId: !!bundleId, title: !!title, file: !!file })
 			return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
 		}
 
@@ -59,8 +69,20 @@ export async function POST(request: Request) {
 		})
 
 		if (!bundle) {
+			console.log("Bundle not found:", bundleId)
 			return NextResponse.json({ message: "Bundle not found" }, { status: 404 })
 		}
+
+		if (bundle.bundle_podcast.length === 0) {
+			console.log("Bundle has no podcasts:", bundleId)
+			return NextResponse.json({ message: "Bundle has no podcasts. Please add podcasts to the bundle first." }, { status: 400 })
+		}
+
+		console.log("Bundle found:", {
+			bundleId: bundle.bundle_id,
+			name: bundle.name,
+			podcastCount: bundle.bundle_podcast.length,
+		})
 
 		// Convert file to buffer
 		const buffer = Buffer.from(await file.arrayBuffer())
@@ -86,6 +108,14 @@ export async function POST(request: Request) {
 		// Use the first podcast from the bundle as the podcast reference
 		const firstPodcast = bundle.bundle_podcast[0]?.podcast
 
+		console.log("Creating episode with:", {
+			title,
+			audioUrl,
+			bundleId,
+			podcastId: firstPodcast?.podcast_id,
+			hasFirstPodcast: !!firstPodcast,
+		})
+
 		const episode = await prisma.episode.create({
 			data: {
 				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -99,6 +129,8 @@ export async function POST(request: Request) {
 				podcast_id: firstPodcast?.podcast_id || bundle.bundle_podcast[0]?.podcast_id,
 			},
 		})
+
+		console.log("Episode created successfully:", episode.episode_id)
 
 		return NextResponse.json({
 			success: true,

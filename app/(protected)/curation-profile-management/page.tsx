@@ -8,8 +8,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 import styles from "./page.module.css"
+
+// Type for UserCurationProfile with relations
+type UserCurationProfileWithRelations = UserCurationProfile & {
+	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
+	episode: Episode[]
+}
 
 const formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"

@@ -1,7 +1,13 @@
 "use client"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { UserCurationProfileWithRelations } from "@/lib/types"
+import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
+
+// Type for UserCurationProfile with relations
+type UserCurationProfileWithRelations = UserCurationProfile & {
+	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
+	episode: Episode[]
+}
 
 interface EditUserCurationProfileModalProps {
 	isOpen: boolean
