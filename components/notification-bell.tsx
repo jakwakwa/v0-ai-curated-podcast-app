@@ -1,14 +1,14 @@
 "use client"
 
+import { formatDistanceToNow } from "date-fns"
+import { Bell, Check, Trash2, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useNotificationStore } from "@/lib/stores"
-import { formatDistanceToNow } from "date-fns"
-import { Bell, Check, Trash2, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
 import styles from "./notification-bell.module.css"
 
 export function NotificationBell() {

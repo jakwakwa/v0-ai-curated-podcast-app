@@ -16,34 +16,36 @@ export function PodcastList({ episodes }: PodcastListProps) {
 			</CardHeader>
 			<CardContent>
 				<div className="grid gap-1 sm:grid-cols-1 lg:grid-cols-2">
-					{episodes.map(episode => (
-						<div key={episode.id} className={styles["podcast-card"]}>
-							<div className={styles["title-container"]}>
-								<div className="font-semibold truncate text-sm mb-1">{episode.title}</div>
-								{episode.userProfileId && <div className="text-xs text-primary">Profile ID: {episode.userProfileId}</div>}
-								{/* <div className="text-xs text-muted-foreground">
+					{episodes
+						.filter(episode => episode.profile_id)
+						.map(episode => (
+							<div key={episode.episode_id} className={styles["podcast-card"]}>
+								<div className={styles["title-container"]}>
+									<div className="font-semibold truncate text-sm mb-1">{episode.title}</div>
+									{episode.profile_id && <div className="text-xs text-primary">Profile ID: {episode.profile_id}</div>}
+									{/* <div className="text-xs text-muted-foreground">
 									{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}
 								</div> */}
-							</div>
-
-							{episode.description && (
-								<div
-									className={styles["description-text"]}
-									style={
-										{
-											// These styles are now handled by the CSS module, but keeping them here for context if needed
-										}
-									}
-								>
-									{episode.description}
 								</div>
-							)}
-							<div className={styles["image-container"]}>
-								{episode.imageUrl && <Image src={episode.imageUrl} alt="Episode" className={styles["episode-image"]} width={100} height={100} />}
-								<span className={styles["source-text"]}>Podcast ID: {episode.podcastId}</span>
+
+								{episode.description && (
+									<div
+										className={styles["description-text"]}
+										style={
+											{
+												// These styles are now handled by the CSS module, but keeping them here for context if needed
+											}
+										}
+									>
+										{episode.description}
+									</div>
+								)}
+								<div className={styles["image-container"]}>
+									{episode.image_url && <Image src={episode.image_url} alt="Episode" className={styles["episode-image"]} width={100} height={100} />}
+									<span className={styles["source-text"]}>Podcast ID: {episode.podcast_id}</span>
+								</div>
 							</div>
-						</div>
-					))}
+						))}
 				</div>
 			</CardContent>
 		</Card>

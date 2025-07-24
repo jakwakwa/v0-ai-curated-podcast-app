@@ -16,13 +16,13 @@ export async function GET(_request: Request) {
 				OR: [
 					// Episodes from user's custom profile
 					{
-						userProfile: { userId },
+						user_curation_profile: { user_id: userId },
 					},
 					// Episodes from user's selected bundle
 					{
 						bundle: {
-							profiles: {
-								some: { userId },
+							user_curation_profile: {
+								some: { user_id: userId },
 							},
 						},
 					},
@@ -30,11 +30,11 @@ export async function GET(_request: Request) {
 			},
 			include: {
 				podcast: true, // Unified podcast model
-				userProfile: {
+				user_curation_profile: {
 					include: {
-						selectedBundle: {
+						bundle: {
 							include: {
-								podcasts: {
+								bundle_podcast: {
 									include: { podcast: true },
 								},
 							},
@@ -43,13 +43,13 @@ export async function GET(_request: Request) {
 				},
 				bundle: {
 					include: {
-						podcasts: {
+						bundle_podcast: {
 							include: { podcast: true },
 						},
 					},
 				},
 			},
-			orderBy: { createdAt: "desc" },
+			orderBy: { created_at: "desc" },
 		})
 
 		return NextResponse.json(episodes)

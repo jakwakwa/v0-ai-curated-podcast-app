@@ -11,6 +11,7 @@
 /dist/
 # production
 /build/
+/docs/
 
 # debug
 npm-debug.log*
@@ -33,7 +34,6 @@ next-env.d.ts
 .DS_Store
 .clerk/
 /.clerk/
-REVAMP_IMPLEMENTATION_PROGRESS.md
 # /src/generated/prisma
 
 .cursor/rules/prisma-schema-updates.mdc

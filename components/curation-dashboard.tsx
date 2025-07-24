@@ -13,7 +13,7 @@ interface CurationDashboardProps {
 
 export function CurationDashboard({ userCurationProfiles }: CurationDashboardProps) {
 	// Filter for active profiles only
-	const activeProfiles = userCurationProfiles.filter(profile => profile.isActive)
+	const activeProfiles = userCurationProfiles.filter(profile => profile.is_active)
 
 	if (activeProfiles.length === 0) {
 		return (
@@ -64,7 +64,7 @@ export function CurationDashboard({ userCurationProfiles }: CurationDashboardPro
 			</div>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{activeProfiles.map(profile => (
-					<SavedCollectionCard key={profile.id} userCurationProfile={profile} />
+					<SavedCollectionCard key={profile.profile_id} userCurationProfile={profile} />
 				))}
 			</div>
 		</div>

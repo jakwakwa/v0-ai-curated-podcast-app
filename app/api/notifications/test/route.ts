@@ -13,10 +13,11 @@ export async function POST() {
 		// Create a test notification
 		const notification = await prisma.notification.create({
 			data: {
-				userId,
+				notification_id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+				user_id: userId,
 				type: "episode_ready",
 				message: "🎉 Test notification! Your weekly podcast episode 'The Future of AI: Testing Edition' is ready to listen!",
-				isRead: false,
+				is_read: false,
 			},
 		})
 

@@ -1,4 +1,5 @@
 "use client"
+import { CheckCircle, Clock } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -9,40 +10,19 @@ import type { UserCurationProfile } from "@/lib/types"
 import styles from "./saved-collection-card.module.css"
 
 export function SavedCollectionCard({ userCurationProfile }: { userCurationProfile: UserCurationProfile }) {
+	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState<UserCurationProfile>(userCurationProfile)
 	const [isLoading, setIsLoading] = useState(false)
-	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState(userCurationProfile)
-
-	// New: State for formatted dates
-	const [createdAtDisplay, setCreatedAtDisplay] = useState<string>(userCurationProfile.createdAt.toISOString())
-	const [generatedAtDisplay, setGeneratedAtDisplay] = useState<string | null>(userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null)
+	let pollingInterval: NodeJS.Timeout | null = null
 
 	useEffect(() => {
 		setCurrentUserCurationProfile(userCurationProfile)
-		// Reset formatted dates on userCurationProfile change
-		setCreatedAtDisplay(userCurationProfile.createdAt.toISOString())
-		setGeneratedAtDisplay(userCurationProfile.generatedAt ? userCurationProfile.generatedAt.toISOString() : null)
-	}, [userCurationProfile])
-
-	// Format dates to local time on client after hydration
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const formatLogTimestamp = (iso: string) => {
-				const date = new Date(iso)
-				return date.toLocaleString()
-			}
-			setCreatedAtDisplay(formatLogTimestamp(userCurationProfile.createdAt.toISOString()))
-			if (userCurationProfile.generatedAt) {
-				setGeneratedAtDisplay(formatLogTimestamp(userCurationProfile.generatedAt.toISOString()))
-			}
-		}
 	}, [userCurationProfile])
 
 	const _handleGenerate = async () => {
 		setIsLoading(true)
-		let pollingInterval: NodeJS.Timeout | null = null
 
 		try {
-			const result = await triggerPodcastGeneration(currentUserCurationProfile.id)
+			const result = await triggerPodcastGeneration(currentUserCurationProfile.profile_id)
 
 			if (!result.success) {
 				throw new Error(result.message)
@@ -52,7 +32,7 @@ export function SavedCollectionCard({ userCurationProfile }: { userCurationProfi
 
 			// Start polling for status update
 			pollingInterval = setInterval(async () => {
-				const updatedUserCurationProfile = await getUserCurationProfileStatus(currentUserCurationProfile.id)
+				const updatedUserCurationProfile = await getUserCurationProfileStatus(currentUserCurationProfile.profile_id)
 				if (updatedUserCurationProfile && updatedUserCurationProfile.status === "Generated") {
 					setCurrentUserCurationProfile({
 						...updatedUserCurationProfile,
@@ -88,18 +68,41 @@ export function SavedCollectionCard({ userCurationProfile }: { userCurationProfi
 		}
 	}
 
+	const formatDate = (date: Date | null | undefined) => {
+		if (!date) return "N/A"
+		return new Date(date).toLocaleString()
+	}
+
+	const getStatusText = (userCurationProfile: UserCurationProfile) => {
+		if (userCurationProfile.status === "Generated") {
+			return `Generated on ${formatDate(userCurationProfile.generated_at)}`
+		}
+		return `Created on ${formatDate(userCurationProfile.created_at)}`
+	}
+
+	const getStatusColor = (userCurationProfile: UserCurationProfile) => {
+		if (userCurationProfile.status === "Generated") {
+			return "text-green-600"
+		}
+		return "text-yellow-600"
+	}
+
+	const getStatusIcon = (userCurationProfile: UserCurationProfile) => {
+		if (userCurationProfile.status === "Generated") {
+			return <CheckCircle className="h-4 w-4 text-green-600" />
+		}
+		return <Clock className="h-4 w-4 text-yellow-600" />
+	}
+
 	return (
 		<Card className={styles["card-container"]}>
 			<CardHeader>
 				<CardTitle>{currentUserCurationProfile.name}</CardTitle>
 				<CardDescription>
-					Created: {createdAtDisplay}
-					{generatedAtDisplay && (
-						<>
-							<br />
-							Generated: {generatedAtDisplay}
-						</>
-					)}
+					<span className={getStatusColor(currentUserCurationProfile)}>
+						{getStatusIcon(currentUserCurationProfile)}
+						{getStatusText(currentUserCurationProfile)}
+					</span>
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -119,7 +122,7 @@ export function SavedCollectionCard({ userCurationProfile }: { userCurationProfi
 			</CardContent>
 			{currentUserCurationProfile.status === "Generated" && (
 				<CardFooter className={styles["card-footer"]}>
-					<Link href={`/collections/${currentUserCurationProfile.id}`}>
+					<Link href={`/collections/${currentUserCurationProfile.profile_id}`}>
 						<Button variant="outline" className={styles["full-width-button"]}>
 							View Episodes
 						</Button>

@@ -19,37 +19,38 @@ export async function POST(request: Request) {
 		}
 
 		const body = await request.json()
-		const { name, description, imageUrl, podcastIds } = body
+		const { name, description, image_url, podcast_ids } = body
 
-		if (!(name && description && podcastIds && Array.isArray(podcastIds))) {
+		if (!(name && description && podcast_ids && Array.isArray(podcast_ids))) {
 			return new NextResponse("Missing required fields", { status: 400 })
 		}
 
 		// Create the bundle
 		const bundle = await prisma.bundle.create({
 			data: {
+				bundle_id: `bundle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				name,
 				description,
-				imageUrl,
-				isActive: true,
+				image_url: image_url,
+				is_active: true,
 			},
 		})
 
 		// Create bundle-podcast relationships
-		if (podcastIds.length > 0) {
+		if (podcast_ids.length > 0) {
 			await prisma.bundlePodcast.createMany({
-				data: podcastIds.map((podcastId: string) => ({
-					bundleId: bundle.id,
-					podcastId,
+				data: podcast_ids.map((podcastId: string) => ({
+					bundle_id: bundle.bundle_id,
+					podcast_id: podcastId,
 				})),
 			})
 		}
 
 		// Fetch the created bundle with podcasts
 		const createdBundle = await prisma.bundle.findUnique({
-			where: { id: bundle.id },
+			where: { bundle_id: bundle.bundle_id },
 			include: {
-				podcasts: {
+				bundle_podcast: {
 					include: { podcast: true },
 				},
 			},
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
 		// Transform the response to match the expected format
 		const bundleWithPodcasts = {
 			...createdBundle,
-			podcasts: createdBundle.podcasts.map(bp => bp.podcast),
+			podcasts: createdBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
 		}
 
 		return NextResponse.json(bundleWithPodcasts)
@@ -96,10 +97,10 @@ export async function DELETE(request: Request) {
 
 		// Check if bundle exists and is not being used by any active user profiles
 		const bundle = await prisma.bundle.findUnique({
-			where: { id: bundleId },
+			where: { bundle_id: bundleId },
 			include: {
-				profiles: {
-					where: { isActive: true },
+				user_curation_profile: {
+					where: { is_active: true },
 				},
 			},
 		})
@@ -108,23 +109,23 @@ export async function DELETE(request: Request) {
 			return new NextResponse("Bundle not found", { status: 404 })
 		}
 
-		if (bundle.profiles.length > 0) {
+		if (bundle.user_curation_profile.length > 0) {
 			return new NextResponse("Cannot delete bundle - it is currently being used by active user profiles", { status: 400 })
 		}
 
 		// Delete bundle-podcast relationships first
 		await prisma.bundlePodcast.deleteMany({
-			where: { bundleId },
+			where: { bundle_id: bundleId },
 		})
 
 		// Delete any bundle episodes
 		await prisma.episode.deleteMany({
-			where: { bundleId },
+			where: { bundle_id: bundleId },
 		})
 
 		// Finally delete the bundle
 		await prisma.bundle.delete({
-			where: { id: bundleId },
+			where: { bundle_id: bundleId },
 		})
 
 		return NextResponse.json({ success: true })

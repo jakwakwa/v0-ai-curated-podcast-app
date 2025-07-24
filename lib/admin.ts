@@ -1,18 +1,6 @@
 import type { User } from "@clerk/nextjs/server"
 import { auth, currentUser } from "@clerk/nextjs/server"
-
-// Admin user IDs - you should replace these with your actual admin user IDs from Clerk
-const ADMIN_USER_IDS = [
-	"user_2znO9fTWcCGHg3N7GmyyCA8730S",
-	// Add your Clerk user ID here - you can find this in Clerk Dashboard
-	// Example: "user_2abc123def456ghi"
-]
-
-// Admin email addresses - alternative way to check admin status
-const ADMIN_EMAILS = [
-	"jakwakwa@gmail.com",
-	// Example: "admin@yourdomain.com"
-]
+import prisma from "@/lib/prisma"
 
 export async function isAdmin(): Promise<boolean> {
 	try {
@@ -22,26 +10,48 @@ export async function isAdmin(): Promise<boolean> {
 			return false
 		}
 
-		// Check if user ID is in admin list first (fastest check)
+		// Check database for admin status
+		const user = await prisma.user.findUnique({
+			where: { user_id: userId },
+			select: { is_admin: true },
+		})
+
+		if (user?.is_admin) {
+			return true
+		}
+
+		// Fallback: Check if user ID is in admin list (for backward compatibility)
+		const ADMIN_USER_IDS = [
+			"user_2znO9fTWcCGHg3N7GmyyCA8730S",
+			// Add your Clerk user ID here - you can find this in Clerk Dashboard
+			// Example: "user_2abc123def456ghi"
+		]
+
 		if (ADMIN_USER_IDS.includes(userId)) {
 			return true
 		}
 
+		// Fallback: Check if user email is in admin list (for backward compatibility)
+		const ADMIN_EMAILS = [
+			"jakwakwa@gmail.com",
+			// Example: "admin@yourdomain.com"
+		]
+
 		// Only fetch user details if we need to check email
-		let user: User | null = null
+		let clerkUser: User | null = null
 		try {
-			user = await currentUser()
+			clerkUser = await currentUser()
 		} catch (userError: unknown) {
 			console.error("Error fetching current user for admin check:", userError)
 			return false
 		}
 
-		if (!user) {
+		if (!clerkUser) {
 			return false
 		}
 
 		// Check if user email is in admin list
-		const primaryEmail = user.emailAddresses?.[0]?.emailAddress
+		const primaryEmail = clerkUser.emailAddresses?.[0]?.emailAddress
 		if (primaryEmail && ADMIN_EMAILS.includes(primaryEmail)) {
 			return true
 		}

@@ -15,8 +15,8 @@ export async function GET(
 
 		const curatedPodcasts = await prisma.podcast.findMany({
 			where: {
-				isActive: true,
-				ownerUserId: null, // Only show global podcasts, not user-owned ones
+				is_active: true,
+				owner_user_id: null, // Only show global podcasts, not user-owned ones
 			},
 			orderBy: { name: "asc" },
 		})

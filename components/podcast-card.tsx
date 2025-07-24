@@ -16,19 +16,19 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 				<CardTitle className={styles["card-title-lg"]}>{episode.title}</CardTitle>
 				<CardDescription className={styles["card-description-flex"]}>
 					<Calendar className={styles["icon-small"]} />
-					<span>{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}</span>
+					<span>{episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</span>
 				</CardDescription>
 			</CardHeader>
 			<CardContent className={styles["card-content-flex"]}>
 				<div className={styles["items-center-justify-between"]}>
 					<div className={styles["text-muted-foreground-sm"]}>
 						<Clock className={styles["icon-small"]} />
-						<span>{episode.audioUrl ? "Available" : "N/A"}</span>
+						<span>{episode.audio_url ? "Available" : "N/A"}</span>
 					</div>
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button className={styles["button-full-width"]} disabled={!episode.audioUrl} onClick={() => onPlayEpisode(episode)}>
+				<Button className={styles["button-full-width"]} disabled={!episode.audio_url} onClick={() => onPlayEpisode(episode)}>
 					<PlayCircle className={styles["button-icon-margin-right"]} />
 					Play Episode
 				</Button>

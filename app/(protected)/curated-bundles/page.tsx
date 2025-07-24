@@ -8,12 +8,12 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { TransformedCuratedBundle } from "@/lib/types"
+import type { TransformedBundle } from "@/lib/types"
 import styles from "./page.module.css"
 
 // AKA PODSLICE BUNDLES
 export default function CuratedBundlesPage() {
-	const [curatedBundles, setCuratedBundles] = useState<TransformedCuratedBundle[]>([])
+	const [curatedBundles, setCuratedBundles] = useState<TransformedBundle[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
@@ -83,9 +83,9 @@ export default function CuratedBundlesPage() {
 			) : (
 				<div className={styles.bundleGrid}>
 					{curatedBundles.map(bundle => (
-						<Card key={bundle.id} className={styles.bundleCard}>
+						<Card key={bundle.bundle_id} className={styles.bundleCard}>
 							<CardHeader className={styles.cardHeader}>
-								{bundle.imageUrl && <Image src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
+								{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
 								<div className={styles.bundleInfo}>
 									<CardTitle className={styles.bundleTitle}>{bundle.name}</CardTitle>
 									<CardDescription className={styles.bundleDescription}>{bundle.description}</CardDescription>
@@ -105,7 +105,7 @@ export default function CuratedBundlesPage() {
 								<h4 className={styles.podcastListTitle}>Included Podcasts:</h4>
 								<ul className={styles.podcastList}>
 									{bundle.podcasts.map(podcast => (
-										<li key={podcast.id} className={styles.podcastItem}>
+										<li key={podcast.podcast_id} className={styles.podcastItem}>
 											<div className={styles.podcastInfo}>
 												<span className={styles.podcastName}>{podcast.name}</span>
 												<p className={styles.podcastDescription}>{podcast.description}</p>

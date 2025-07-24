@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 		const bundleId = formData.get("bundleId") as string
 		const title = formData.get("title") as string
 		const description = formData.get("description") as string
-		const imageUrl = formData.get("imageUrl") as string | null
+		const image_url = formData.get("image_url") as string | null
 		const file = formData.get("file") as File
 
 		if (!(bundleId && title && file)) {
@@ -50,9 +50,9 @@ export async function POST(request: Request) {
 
 		// Verify bundle exists
 		const bundle = await prisma.bundle.findUnique({
-			where: { id: bundleId },
+			where: { bundle_id: bundleId },
 			include: {
-				podcasts: {
+				bundle_podcast: {
 					include: { podcast: true },
 				},
 			},
@@ -84,18 +84,19 @@ export async function POST(request: Request) {
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
 		// Use the first podcast from the bundle as the podcast reference
-		const firstPodcast = bundle.podcasts[0]?.podcast
+		const firstPodcast = bundle.bundle_podcast[0]?.podcast
 
 		const episode = await prisma.episode.create({
 			data: {
+				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				title,
 				description: description || "",
-				audioUrl,
-				imageUrl: imageUrl || bundle.imageUrl || null,
-				publishedAt: new Date(),
-				weekNr: currentWeek,
-				bundleId: bundleId,
-				podcastId: firstPodcast?.id || bundle.podcasts[0]?.podcastId,
+				audio_url: audioUrl,
+				image_url: image_url || bundle.image_url || null,
+				published_at: new Date(),
+				week_nr: currentWeek,
+				bundle_id: bundleId,
+				podcast_id: firstPodcast?.podcast_id || bundle.bundle_podcast[0]?.podcast_id,
 			},
 		})
 

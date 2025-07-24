@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import type { TransformedCuratedBundle } from "@/lib/types"
+import type { TransformedBundle } from "@/lib/types"
 import styles from "./collection-creation-wizard.module.css"
 
 interface CuratedBundleListProps {
@@ -14,7 +14,7 @@ interface CuratedBundleListProps {
 }
 
 export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedBundleListProps) {
-	const [curatedBundles, setCuratedBundles] = useState<TransformedCuratedBundle[]>([])
+	const [curatedBundles, setCuratedBundles] = useState<TransformedBundle[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
@@ -96,8 +96,8 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 		<div className={styles.bundleSelection}>
 			<div className={styles.bundleGrid}>
 				{curatedBundles.map(bundle => (
-					<Card key={bundle.id} className={`${styles.bundleCard} ${selectedBundleId === bundle.id ? styles.selected : ""}`} onClick={() => onSelectBundle(bundle.id)}>
-						{bundle.imageUrl && <Image src={bundle.imageUrl} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
+					<Card key={bundle.bundle_id} className={`${styles.bundleCard} ${selectedBundleId === bundle.bundle_id ? styles.selected : ""}`} onClick={() => onSelectBundle(bundle.bundle_id)}>
+						{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
 						<div className={styles.bundleContent}>
 							<h3>{bundle.name}</h3>
 							<p>{bundle.description}</p>
@@ -105,12 +105,12 @@ export function CuratedBundleList({ onSelectBundle, selectedBundleId }: CuratedB
 								<h5>Included Podcasts:</h5>
 								<ul>
 									{bundle.podcasts?.slice(0, 3).map(podcast => (
-										<li key={podcast.id}>{podcast.name}</li>
+										<li key={podcast.podcast_id}>{podcast.name}</li>
 									))}
 									{bundle.podcasts && bundle.podcasts.length > 3 && <li>+{bundle.podcasts.length - 3} more</li>}
 								</ul>
 							</div>
-							{selectedBundleId === bundle.id && (
+							{selectedBundleId === bundle.bundle_id && (
 								<div className={styles.selectedIndicator}>
 									<Check size={16} />
 								</div>
