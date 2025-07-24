@@ -18,18 +18,29 @@ export async function GET(_request: NextRequest) {
 
 		const prisma = getPrismaClient()
 
-		// Get all active bundles
-		const bundles = await prisma.bundle.findMany({
-			where: { is_active: true },
-			include: {
-				bundle_podcast: {
-					include: {
-						podcast: true,
+		// Get all active bundles with additional error handling for build time
+		let bundles
+		try {
+			bundles = await prisma.bundle.findMany({
+				where: { is_active: true },
+				include: {
+					bundle_podcast: {
+						include: {
+							podcast: true,
+						},
 					},
 				},
-			},
-			orderBy: { created_at: "desc" },
-		})
+				orderBy: { created_at: "desc" },
+			})
+		} catch (dbError) {
+			console.log("[CURATED_BUNDLES_GET] Database query failed:", dbError instanceof Error ? dbError.message : 'Unknown error')
+			// If database query fails during build/deployment, return empty array
+			return NextResponse.json([], {
+				headers: {
+					"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+				},
+			})
+		}
 
 		// Transform data for response
 		const transformedBundles = bundles.map(bundle => ({
