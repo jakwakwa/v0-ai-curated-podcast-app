@@ -1,11 +1,11 @@
-import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
 import styles from "./page.module.css"
 
-// Force this page to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
+// Remove force-dynamic - not recommended by Vercel
+// export const dynamic = "force-dynamic"
 
 export default async function BuildCurationPage() {
 	return (
