@@ -1,6 +1,6 @@
 import type { Transporter } from "nodemailer"
 import nodemailer from "nodemailer"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export interface EmailNotification {
 	to: string

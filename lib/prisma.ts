@@ -1,14 +1,6 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client/edge"
+import { withAccelerate } from "@prisma/extension-accelerate"
 
-let prisma: PrismaClient | undefined
+export const prisma = new PrismaClient().$extends(withAccelerate())
 
-function getPrismaClient(): PrismaClient {
-	if (!prisma) {
-		prisma = new PrismaClient({
-			log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-		})
-	}
-	return prisma
-}
 
-export default getPrismaClient

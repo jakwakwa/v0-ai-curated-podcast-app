@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(_request: Request) {
 	try {
@@ -36,10 +36,10 @@ export async function GET(_request: Request) {
 			...userCurationProfile,
 			selectedBundle: userCurationProfile.bundle
 				? {
-						...userCurationProfile.bundle,
-						podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-						episodes: userCurationProfile.bundle.episode || [],
-					}
+					...userCurationProfile.bundle,
+					podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+					episodes: userCurationProfile.bundle.episode || [],
+				}
 				: null,
 		}
 

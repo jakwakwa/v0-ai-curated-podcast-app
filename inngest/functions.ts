@@ -7,7 +7,7 @@ import { generateText } from "ai"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
 import emailService from "../lib/email-service"
-import prisma from "../lib/prisma"
+import { prisma } from "../lib/prisma"
 import { inngest } from "./client"
 
 type SourceWithTranscript = Omit<SourceModel, "createdAt"> & {

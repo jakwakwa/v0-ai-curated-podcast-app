@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { isOrgAdmin } from "@/lib/organization-roles"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 // Create a new podcast
 export async function POST(request: Request) {

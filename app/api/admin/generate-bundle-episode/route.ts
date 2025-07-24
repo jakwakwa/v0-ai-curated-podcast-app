@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { inngest } from "@/inngest/client"
 import { requireOrgAdmin } from "@/lib/organization-roles"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 interface EpisodeSource {
 	id: string

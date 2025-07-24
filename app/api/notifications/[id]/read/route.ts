@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 interface RouteParams {
 	params: Promise<{ id: string }>

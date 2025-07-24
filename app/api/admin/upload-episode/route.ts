@@ -1,7 +1,7 @@
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
 import { requireOrgAdmin } from "@/lib/organization-roles"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs" // Required for file system access
 
