@@ -1,6 +1,19 @@
 import { PrismaClient } from "@prisma/client"
 import { withAccelerate } from "@prisma/extension-accelerate"
 
-export const prisma = new PrismaClient().$extends(withAccelerate())
+// Prevent multiple instances of Prisma Client in development
+const globalForPrisma = globalThis as unknown as {
+	prisma: ReturnType<typeof createPrismaClient> | undefined
+}
+
+function createPrismaClient() {
+	return new PrismaClient().$extends(withAccelerate())
+}
+
+const prisma = globalForPrisma.prisma ?? createPrismaClient()
+
+export { prisma }
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
 

@@ -23,8 +23,7 @@ export async function GET(
 			return NextResponse.json({ error: "User Curation Profile ID is required" }, { status: 400 })
 		}
 
-		const prismaClient = prisma()
-		const userCurationProfile = await prismaClient.userCurationProfile.findUnique({
+		const userCurationProfile = await prisma.userCurationProfile.findUnique({
 			where: { profile_id: id, user_id: userId },
 			include: { bundle: true },
 		})
@@ -64,8 +63,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		}
 
 		// Fetch the existing user curation profile to check ownership
-		const prismaClient = prisma()
-		const existingUserCurationProfile = await prismaClient.userCurationProfile.findUnique({
+		const existingUserCurationProfile = await prisma.userCurationProfile.findUnique({
 			where: { profile_id: id },
 		})
 
@@ -83,7 +81,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		if (isBundleSelection !== undefined) {
 			// If changing to bundle selection
 			if (isBundleSelection && selectedBundleId) {
-				updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+				updatedUserCurationProfile = await prisma.userCurationProfile.update({
 					where: { profile_id: id },
 					data: {
 						name: name || existingUserCurationProfile.name,
@@ -93,7 +91,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 				})
 			} else if (!isBundleSelection) {
 				// If changing to custom selection
-				updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+				updatedUserCurationProfile = await prisma.userCurationProfile.update({
 					where: { profile_id: id },
 					data: {
 						name: name || existingUserCurationProfile.name,
@@ -105,14 +103,14 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		} else if (sourceUrls) {
 			// Update sources for a custom user curation profile
 			// Note: Sources functionality has been temporarily disabled during migration
-			updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+			updatedUserCurationProfile = await prisma.userCurationProfile.update({
 				where: { profile_id: id },
 				data: {
 					name: name || existingUserCurationProfile.name,
 				},
 			})
 		} else if (name) {
-			updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+			updatedUserCurationProfile = await prisma.userCurationProfile.update({
 				where: { profile_id: id },
 				data: { name: name },
 			})
@@ -144,8 +142,7 @@ export async function DELETE(
 		}
 
 		// Deactivate the user curation profile instead of deleting it
-		const prismaClient = prisma()
-		const deactivatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+		const deactivatedUserCurationProfile = await prisma.userCurationProfile.update({
 			where: { profile_id: id, user_id: userId },
 			data: { is_active: false },
 		})
