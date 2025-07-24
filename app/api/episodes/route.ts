@@ -13,34 +13,39 @@ export async function GET(_request: Request) {
 			where: {
 				OR: [
 					{
-						userProfile: {
-							userId,
-						},
+						user_curation_profile: { user_id: userId },
 					},
 					{
 						bundle: {
-							profiles: {
-								some: {
-									userId,
-								},
+							user_curation_profile: {
+								some: { user_id: userId },
 							},
 						},
 					},
 				],
 			},
 			include: {
-				podcast: true,
-				userProfile: true,
-				bundle: true,
-				feedback: {
-					where: {
-						userId,
+				podcast: true, // Unified podcast model
+				user_curation_profile: {
+					include: {
+						bundle: {
+							include: {
+								bundle_podcast: {
+									include: { podcast: true },
+								},
+							},
+						},
+					},
+				},
+				bundle: {
+					include: {
+						bundle_podcast: {
+							include: { podcast: true },
+						},
 					},
 				},
 			},
-			orderBy: {
-				publishedAt: "desc",
-			},
+			orderBy: { created_at: "desc" },
 		})
 
 		return NextResponse.json(episodes)

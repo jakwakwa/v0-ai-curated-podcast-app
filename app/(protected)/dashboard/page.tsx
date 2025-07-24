@@ -11,31 +11,26 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, CuratedPodcast, Episode, Source, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
 import styles from "./page.module.css"
 
-// Combined episode type for display
-interface CombinedEpisode {
-	id: string
-	title: string
-	description: string | null
-	audioUrl: string
-	imageUrl: string | null
-	publishedAt: Date | null
-	createdAt: Date
+// Type for UserCurationProfile with relations
+type UserCurationProfileWithRelations = UserCurationProfile & {
+	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
+	episode: Episode[]
+}
+
+// Combined episode type for display - extending Prisma Episode with display type
+interface CombinedEpisode extends Episode {
 	type: "user" | "bundle"
-	userCurationProfileId?: string
-	source?: Source
-	userCurationProfile?: UserCurationProfile
 }
 
 export default function Page() {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
+	const [bundleEpisodes, setBundleEpisodes] = useState<Episode[]>([])
 	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
@@ -43,36 +38,34 @@ export default function Page() {
 	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
 
 	const fetchAndUpdateData = useCallback(async () => {
-		// Fetch user curation profile and episodes in parallel
-		const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
+		try {
+			// Fetch user curation profile and episodes in parallel
+			const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
 
-		setUserCurationProfile(fetchedProfile)
+			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null
+			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : []
 
-		// Convert unified episodes to display format with type detection
-		const combined: CombinedEpisode[] = fetchedEpisodes.map(ep => ({
-			id: ep.id,
-			title: ep.title,
-			description: ep.description,
-			audioUrl: ep.audioUrl,
-			imageUrl: ep.imageUrl,
-			publishedAt: ep.publishedAt,
-			createdAt: ep.createdAt,
-			type: ep.bundleId ? "bundle" : ("user" as const), // Determine type based on presence of bundle
-			userCurationProfileId: ep.userProfileId || undefined,
-			source: undefined, // We don't have the podcast relation loaded
-			userCurationProfile: undefined, // We don't have the userProfile relation loaded
-		}))
+			setUserCurationProfile(fetchedProfile)
 
-		// Sort by published date (newest first)
-		combined.sort((a, b) => {
-			const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
-			const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
-			return dateB - dateA
-		})
+			// Convert unified episodes to display format with type detection
+			const combined: CombinedEpisode[] = fetchedEpisodes.map((ep: Episode) => ({
+				...ep,
+				type: ep.bundle_id ? "bundle" : ("user" as const), // Determine type based on presence of bundle
+			}))
 
-		setCombinedEpisodes(combined)
-		setEpisodes(fetchedEpisodes.filter(ep => !ep.bundleId)) // User episodes only
-		setBundleEpisodes(fetchedEpisodes.filter(ep => ep.bundleId)) // Bundle episodes only
+			// Sort by published date (newest first)
+			combined.sort((a, b) => {
+				const dateA = a.published_at ? new Date(a.published_at).getTime() : 0
+				const dateB = b.published_at ? new Date(b.published_at).getTime() : 0
+				return dateB - dateA
+			})
+
+			setCombinedEpisodes(combined)
+			setEpisodes(fetchedEpisodes.filter((ep: Episode) => !ep.bundle_id)) // User episodes only
+			setBundleEpisodes(fetchedEpisodes.filter((ep: Episode) => ep.bundle_id)) // Bundle episodes only
+		} catch (error) {
+			console.error("Failed to fetch data:", error)
+		}
 	}, [])
 
 	useEffect(() => {
@@ -94,7 +87,7 @@ export default function Page() {
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return
 		try {
-			const response = await fetch(`/api/user-curation-profiles/${userCurationProfile.id}`, {
+			const response = await fetch(`/api/user-curation-profiles/${userCurationProfile.profile_id}`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -165,29 +158,33 @@ export default function Page() {
 											</CardContent>
 										</Card>
 
-										{userCurationProfile?.isBundleSelection && userCurationProfile?.selectedBundle && (
+										{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 											<Card>
 												<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 													<CardTitle className="text-sm font-medium">Selected Bundle</CardTitle>
 												</CardHeader>
 												<CardContent>
-													<div className="text-2xl font-bold">{userCurationProfile.selectedBundle.name}</div>
-													<p className="text-xs text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
-													<div className="mt-2 text-sm">
-														<p className="font-medium">Podcasts:</p>
-														<ul className="list-disc pl-5 text-muted-foreground">
-															{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
-																<li className="text-muted-foreground">No podcasts loaded</li>
-															)}
-														</ul>
-													</div>
+													<div className="text-xl font-bold">{userCurationProfile.selectedBundle.name}</div>
+													<p className="text-sm text-muted-foreground mb-4">{userCurationProfile.selectedBundle.description}</p>
+
+													{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
+														<div className="mb-4">
+															<p className="font-medium">Podcasts:</p>
+															<ul className="list-disc pl-5 text-muted-foreground">
+																{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => <li key={podcast.podcast_id}>{podcast.name}</li>) || (
+																	<li className="text-muted-foreground">No podcasts loaded</li>
+																)}
+															</ul>
+														</div>
+													)}
+
 													{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
-														<div className="mt-4 text-sm">
+														<div>
 															<p className="font-medium">Bundle Episodes:</p>
 															<ul className="list-disc pl-5 text-muted-foreground">
 																{userCurationProfile.selectedBundle.episodes.map(episode => (
-																	<li key={episode.id}>
-																		{episode.title} - {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}
+																	<li key={episode.episode_id}>
+																		{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
 																	</li>
 																))}
 															</ul>
@@ -264,7 +261,7 @@ export default function Page() {
 
 									<div className={styles.episodesList}>
 										{combinedEpisodes.map(episode => (
-											<Card key={episode.id} className="episodeCard">
+											<Card key={episode.episode_id} className="episodeCard">
 												<CardContent className="p-4">
 													<div className={styles.episodeContent}>
 														<div className={styles.episodeInfo}>
@@ -275,32 +272,17 @@ export default function Page() {
 																</span>
 															</div>
 															<div className={styles.playButtonContainer}>
-																<Button onClick={() => handlePlayEpisode(episode.id)} variant="outline" size="sm" className={styles.playButton}>
+																<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className={styles.playButton}>
 																	<Play className={styles.playIcon} />
 																	Play Episode
 																</Button>
 															</div>
 															{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
-															<p className={styles.episodeDate}>Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}</p>
+															<p className={styles.episodeDate}>Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
 														</div>
-														{episode.audioUrl && playingEpisodeId === episode.id && (
+														{episode.audio_url && playingEpisodeId === episode.episode_id && (
 															<div className={styles.episodeAudio}>
-																<AudioPlayer
-																	episode={{
-																		id: episode.id,
-																		title: episode.title,
-																		description: episode.description,
-																		audioUrl: episode.audioUrl,
-																		imageUrl: episode.imageUrl,
-																		publishedAt: episode.publishedAt,
-																		weekNr: episode.createdAt,
-																		createdAt: episode.createdAt,
-																		podcastId: episode.source?.id || "",
-																		userProfileId: episode.userCurationProfileId || null,
-																		bundleId: null,
-																	}}
-																	onClose={handleClosePlayer}
-																/>
+																<AudioPlayer episode={episode} onClose={handleClosePlayer} />
 															</div>
 														)}
 													</div>

@@ -19,18 +19,19 @@ export async function POST() {
 
 		// Check if user already exists in local database
 		const existingUser = await prisma.user.findUnique({
-			where: { id: userId },
+			where: { user_id: userId },
 		})
 
 		if (existingUser) {
 			// User exists - update their info in case it changed
 			const updatedUser = await prisma.user.update({
-				where: { id: userId },
+				where: { user_id: userId },
 				data: {
 					name: clerkUser.fullName || clerkUser.firstName || "Unknown",
 					email: clerkUser.emailAddresses[0]?.emailAddress || "unknown@example.com",
 					image: clerkUser.imageUrl || null,
-					emailVerified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
+					email_verified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
+					updated_at: new Date(),
 				},
 			})
 
@@ -44,12 +45,13 @@ export async function POST() {
 		// User doesn't exist - create new user record
 		const newUser = await prisma.user.create({
 			data: {
-				id: userId,
+				user_id: userId,
 				name: clerkUser.fullName || clerkUser.firstName || "Unknown",
 				email: clerkUser.emailAddresses[0]?.emailAddress || "unknown@example.com",
 				password: "clerk_managed", // Placeholder since Clerk manages auth
 				image: clerkUser.imageUrl || null,
-				emailVerified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
+				email_verified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
+				updated_at: new Date(),
 			},
 		})
 

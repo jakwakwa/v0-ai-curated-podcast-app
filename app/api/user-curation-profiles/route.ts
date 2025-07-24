@@ -11,16 +11,16 @@ export async function GET(_request: Request) {
 		}
 
 		const userCurationProfile = await prisma.userCurationProfile.findFirst({
-			where: { userId, isActive: true },
+			where: { user_id: userId, is_active: true },
 			include: {
-				episodes: true,
-				selectedBundle: {
+				episode: true,
+				bundle: {
 					include: {
-						podcasts: {
+						bundle_podcast: {
 							include: { podcast: true },
 						},
-						episodes: {
-							orderBy: { publishedAt: "desc" },
+						episode: {
+							orderBy: { published_at: "desc" },
 						},
 					},
 				},
@@ -34,11 +34,11 @@ export async function GET(_request: Request) {
 		// Transform the data to match the expected structure
 		const transformedProfile = {
 			...userCurationProfile,
-			selectedBundle: userCurationProfile.selectedBundle
+			selectedBundle: userCurationProfile.bundle
 				? {
-						...userCurationProfile.selectedBundle,
-						podcasts: userCurationProfile.selectedBundle.podcasts.map(bp => bp.podcast),
-						episodes: userCurationProfile.selectedBundle.episodes || [],
+						...userCurationProfile.bundle,
+						podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+						episodes: userCurationProfile.bundle.episode || [],
 					}
 				: null,
 		}
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
 		// Check if user already has an active user curation profile
 		const existingUserCurationProfile = await prisma.userCurationProfile.findFirst({
-			where: { userId, isActive: true },
+			where: { user_id: userId, is_active: true },
 		})
 
 		if (existingUserCurationProfile) {
@@ -81,10 +81,12 @@ export async function POST(request: Request) {
 			// Create a bundle-based user curation profile
 			newUserCurationProfile = await prisma.userCurationProfile.create({
 				data: {
-					userId,
+					profile_id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+					user_id: userId,
 					name,
-					isBundleSelection: true,
-					selectedBundleId,
+					is_bundle_selection: true,
+					selected_bundle_id: selectedBundleId,
+					updated_at: new Date(),
 				},
 			})
 		} else if (!isBundleSelection && sourceUrls) {
@@ -92,9 +94,11 @@ export async function POST(request: Request) {
 			// Note: Sources functionality has been temporarily disabled during migration
 			newUserCurationProfile = await prisma.userCurationProfile.create({
 				data: {
-					userId,
+					profile_id: `profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+					user_id: userId,
 					name,
-					isBundleSelection: false,
+					is_bundle_selection: false,
+					updated_at: new Date(),
 				},
 			})
 		} else {

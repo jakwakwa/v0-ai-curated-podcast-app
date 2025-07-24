@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 		}
 
 		const body = await request.json()
-		const { name, description, url, imageUrl, category } = body
+		const { name, description, url, image_url, category } = body
 
 		if (!(name && description && url && category)) {
 			return new NextResponse("Missing required fields", { status: 400 })
@@ -41,12 +41,13 @@ export async function POST(request: Request) {
 		// Create the podcast
 		const podcast = await prisma.podcast.create({
 			data: {
+				podcast_id: `podcast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				name,
 				description,
 				url,
-				imageUrl,
+				image_url,
 				category,
-				isActive: true,
+				is_active: true,
 			},
 		})
 
@@ -73,7 +74,7 @@ export async function PATCH(request: Request) {
 		}
 
 		const body = await request.json()
-		const { id, name, description, url, imageUrl, category, isActive } = body
+		const { id, name, description, url, image_url, category, is_active } = body
 
 		if (!id) {
 			return new NextResponse("Podcast ID is required", { status: 400 })
@@ -81,7 +82,7 @@ export async function PATCH(request: Request) {
 
 		// Check if podcast exists
 		const existingPodcast = await prisma.podcast.findUnique({
-			where: { id },
+			where: { podcast_id: id },
 		})
 
 		if (!existingPodcast) {
@@ -94,7 +95,7 @@ export async function PATCH(request: Request) {
 		if (name || url) {
 			const conflictingPodcast = await prisma.podcast.findFirst({
 				where: {
-					id: { not: id },
+					podcast_id: { not: id },
 					OR: [...(name ? [{ name }] : []), ...(url ? [{ url }] : [])],
 				},
 			})
@@ -106,14 +107,14 @@ export async function PATCH(request: Request) {
 
 		// Update the podcast
 		const updatedPodcast = await prisma.podcast.update({
-			where: { id },
+			where: { podcast_id: id },
 			data: {
 				...(name && { name }),
 				...(description && { description }),
 				...(url && { url }),
-				...(imageUrl !== undefined && { imageUrl }),
+				...(image_url !== undefined && { image_url: image_url }),
 				...(category && { category }),
-				...(isActive !== undefined && { isActive }),
+				...(is_active !== undefined && { is_active: is_active }),
 			},
 		})
 
@@ -148,14 +149,14 @@ export async function DELETE(request: Request) {
 
 		// Check if podcast exists
 		const podcast = await prisma.podcast.findUnique({
-			where: { id: podcastId },
+			where: { podcast_id: podcastId },
 			include: {
-				bundleLinks: {
+				bundle_podcast: {
 					include: {
 						bundle: {
 							include: {
-								profiles: {
-									where: { isActive: true },
+								user_curation_profile: {
+									where: { is_active: true },
 								},
 							},
 						},
@@ -169,7 +170,7 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if podcast is being used in any active bundles with active user profiles
-		const activeUsage = podcast.bundleLinks.some(bp => bp.bundle.profiles.length > 0)
+		const activeUsage = podcast.bundle_podcast.some((bp: { bundle: { user_curation_profile: unknown[] } }) => bp.bundle.user_curation_profile.length > 0)
 
 		if (activeUsage) {
 			return new NextResponse("Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead.", { status: 400 })
@@ -177,12 +178,12 @@ export async function DELETE(request: Request) {
 
 		// Delete bundle-podcast relationships first
 		await prisma.bundlePodcast.deleteMany({
-			where: { podcastId },
+			where: { podcast_id: podcastId },
 		})
 
 		// Finally delete the podcast
 		await prisma.podcast.delete({
-			where: { id: podcastId },
+			where: { podcast_id: podcastId },
 		})
 
 		return NextResponse.json({ success: true })

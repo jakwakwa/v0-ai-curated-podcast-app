@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import type { CuratedPodcast, TransformedCuratedBundle } from "@/lib/types"
+import type { Bundle, Podcast } from "@/lib/types"
 
 interface EpisodeSource {
 	id: string
@@ -28,16 +28,19 @@ interface AdminGenerationRequest {
 	bundleId: string
 	title: string
 	description?: string
-	imageUrl?: string
+	image_url?: string
 	sources: EpisodeSource[]
 }
+
+// Type for bundle with podcasts array from API
+type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
 export default function AdminPage() {
 	const router = useRouter()
 	const [adminStatus, setAdminStatus] = useState<boolean | null>(null)
 	const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
 
-	const [bundles, setBundles] = useState<TransformedCuratedBundle[]>([])
+	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([])
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
 	const [episodeTitle, setEpisodeTitle] = useState<string>("")
 	const [episodeDescription, setEpisodeDescription] = useState<string>("")
@@ -58,14 +61,14 @@ export default function AdminPage() {
 	const [newBundleName, setNewBundleName] = useState<string>("")
 	const [newBundleDescription, setNewBundleDescription] = useState<string>("")
 	const [newBundleImageUrl, setNewBundleImageUrl] = useState<string>("")
-	const [availablePodcasts, setAvailablePodcasts] = useState<CuratedPodcast[]>([])
+	const [availablePodcasts, setAvailablePodcasts] = useState<Podcast[]>([])
 	const [selectedPodcastIds, setSelectedPodcastIds] = useState<string[]>([])
 	const [isCreatingBundle, setIsCreatingBundle] = useState(false)
 	const [isDeletingBundle, setIsDeletingBundle] = useState<string | null>(null)
 
 	// Podcast management state
 	const [showCreatePodcast, setShowCreatePodcast] = useState(false)
-	const [editingPodcast, setEditingPodcast] = useState<CuratedPodcast | null>(null)
+	const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null)
 	const [newPodcastName, setNewPodcastName] = useState<string>("")
 	const [newPodcastDescription, setNewPodcastDescription] = useState<string>("")
 	const [newPodcastUrl, setNewPodcastUrl] = useState<string>("")
@@ -202,7 +205,7 @@ export default function AdminPage() {
 				bundleId: selectedBundleId,
 				title: episodeTitle.trim(),
 				description: episodeDescription.trim() || undefined,
-				imageUrl: episodeImageUrl.trim() || undefined,
+				image_url: episodeImageUrl.trim() || undefined,
 				sources,
 			}
 
@@ -245,7 +248,7 @@ export default function AdminPage() {
 		formData.append("title", episodeTitle)
 		formData.append("description", episodeDescription)
 		if (episodeImageUrl.trim()) {
-			formData.append("imageUrl", episodeImageUrl.trim())
+			formData.append("image_url", episodeImageUrl.trim())
 		}
 		formData.append("file", mp3File)
 
@@ -298,8 +301,8 @@ export default function AdminPage() {
 				body: JSON.stringify({
 					name: newBundleName.trim(),
 					description: newBundleDescription.trim(),
-					imageUrl: newBundleImageUrl.trim() || null,
-					podcastIds: selectedPodcastIds,
+					image_url: newBundleImageUrl.trim() || null,
+					podcast_ids: selectedPodcastIds,
 				}),
 			})
 
@@ -343,7 +346,7 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to delete bundle")
 			}
 
-			setBundles(bundles.filter(b => b.id !== bundleId))
+			setBundles(bundles.filter(b => b.bundle_id !== bundleId))
 			toast.success("Bundle deleted successfully!")
 
 			// Reset selected bundle if it was the deleted one
@@ -373,12 +376,12 @@ export default function AdminPage() {
 		setShowCreatePodcast(false)
 	}
 
-	const startEditPodcast = (podcast: CuratedPodcast) => {
+	const startEditPodcast = (podcast: Podcast) => {
 		setEditingPodcast(podcast)
 		setNewPodcastName(podcast.name)
 		setNewPodcastDescription(podcast.description || "")
 		setNewPodcastUrl(podcast.url)
-		setNewPodcastImageUrl(podcast.imageUrl || "")
+		setNewPodcastImageUrl(podcast.image_url || "")
 		setNewPodcastCategory(podcast.category || "")
 		setShowCreatePodcast(true)
 	}
@@ -409,7 +412,7 @@ export default function AdminPage() {
 					name: newPodcastName.trim(),
 					description: newPodcastDescription.trim(),
 					url: newPodcastUrl.trim(),
-					imageUrl: newPodcastImageUrl.trim() || null,
+					image_url: newPodcastImageUrl.trim() || null,
 					category: newPodcastCategory,
 				}),
 			})
@@ -456,11 +459,11 @@ export default function AdminPage() {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					id: editingPodcast.id,
+					id: editingPodcast.podcast_id,
 					name: newPodcastName.trim(),
 					description: newPodcastDescription.trim(),
 					url: newPodcastUrl.trim(),
-					imageUrl: newPodcastImageUrl.trim() || null,
+					image_url: newPodcastImageUrl.trim() || null,
 					category: newPodcastCategory,
 				}),
 			})
@@ -471,7 +474,7 @@ export default function AdminPage() {
 			}
 
 			const updatedPodcast = await response.json()
-			setAvailablePodcasts(availablePodcasts.map(p => (p.id === updatedPodcast.id ? updatedPodcast : p)))
+			setAvailablePodcasts(availablePodcasts.map(p => (p.podcast_id === updatedPodcast.podcast_id ? updatedPodcast : p)))
 			toast.success("Podcast updated successfully!")
 			resetPodcastForm()
 		} catch (error) {
@@ -499,7 +502,7 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to delete podcast")
 			}
 
-			setAvailablePodcasts(availablePodcasts.filter(p => p.id !== podcastId))
+			setAvailablePodcasts(availablePodcasts.filter(p => p.podcast_id !== podcastId))
 			toast.success("Podcast deleted successfully!")
 		} catch (error) {
 			console.error("Error deleting podcast:", error)
@@ -509,14 +512,14 @@ export default function AdminPage() {
 		}
 	}
 
-	const togglePodcastActive = async (podcast: CuratedPodcast) => {
+	const togglePodcastActive = async (podcast: Podcast) => {
 		try {
 			const response = await fetch("/api/admin/podcasts", {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					id: podcast.id,
-					isActive: !podcast.isActive,
+					id: podcast.podcast_id,
+					is_active: !podcast.is_active,
 				}),
 			})
 
@@ -526,8 +529,8 @@ export default function AdminPage() {
 			}
 
 			const updatedPodcast = await response.json()
-			setAvailablePodcasts(availablePodcasts.map(p => (p.id === updatedPodcast.id ? updatedPodcast : p)))
-			toast.success(`Podcast ${updatedPodcast.isActive ? "activated" : "deactivated"} successfully!`)
+			setAvailablePodcasts(availablePodcasts.map(p => (p.podcast_id === updatedPodcast.podcast_id ? updatedPodcast : p)))
+			toast.success(`Podcast ${updatedPodcast.is_active ? "activated" : "deactivated"} successfully!`)
 		} catch (error) {
 			console.error("Error updating podcast:", error)
 			toast.error(error instanceof Error ? error.message : "Failed to update podcast")
@@ -563,7 +566,7 @@ export default function AdminPage() {
 		)
 	}
 
-	const selectedBundle = bundles.find(b => b.id === selectedBundleId)
+	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
 
 	// Group podcasts by category dynamically
 	const podcastsByCategory = availablePodcasts.reduce(
@@ -575,7 +578,7 @@ export default function AdminPage() {
 			acc[category].push(podcast)
 			return acc
 		},
-		{} as Record<string, CuratedPodcast[]>
+		{} as Record<string, Podcast[]>
 	)
 	const categories = Object.keys(podcastsByCategory).sort()
 
@@ -639,7 +642,7 @@ export default function AdminPage() {
 										</SelectTrigger>
 										<SelectContent>
 											{bundles.map(bundle => (
-												<SelectItem key={bundle.id} value={bundle.id}>
+												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
 													{bundle.name} ({bundle.podcasts.length} shows)
 												</SelectItem>
 											))}
@@ -652,7 +655,7 @@ export default function AdminPage() {
 											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 											<div className="flex flex-wrap gap-2">
 												{selectedBundle.podcasts.map(podcast => (
-													<Badge key={podcast.id} variant="outline">
+													<Badge key={podcast.podcast_id} variant="outline">
 														{podcast.name}
 													</Badge>
 												))}
@@ -777,7 +780,7 @@ export default function AdminPage() {
 										</SelectTrigger>
 										<SelectContent>
 											{bundles.map(bundle => (
-												<SelectItem key={bundle.id} value={bundle.id}>
+												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
 													{bundle.name} ({bundle.podcasts.length} shows)
 												</SelectItem>
 											))}
@@ -790,7 +793,7 @@ export default function AdminPage() {
 											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 											<div className="flex flex-wrap gap-2">
 												{selectedBundle.podcasts.map(podcast => (
-													<Badge key={podcast.id} variant="outline">
+													<Badge key={podcast.podcast_id} variant="outline">
 														{podcast.name}
 													</Badge>
 												))}
@@ -919,12 +922,16 @@ export default function AdminPage() {
 										<Label>Select Podcasts *</Label>
 										<div className="mt-2 max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
 											{availablePodcasts
-												.filter(p => p.isActive)
+												.filter(p => p.is_active)
 												.map(podcast => (
-													<div key={podcast.id} className="flex items-start space-x-2">
-														<Checkbox id={`bundle-podcast-${podcast.id}`} checked={selectedPodcastIds.includes(podcast.id)} onCheckedChange={() => togglePodcastSelection(podcast.id)} />
+													<div key={podcast.podcast_id} className="flex items-start space-x-2">
+														<Checkbox
+															id={`bundle-podcast-${podcast.podcast_id}`}
+															checked={selectedPodcastIds.includes(podcast.podcast_id)}
+															onCheckedChange={() => togglePodcastSelection(podcast.podcast_id)}
+														/>
 														<div className="flex-1">
-															<label htmlFor={`bundle-podcast-${podcast.id}`} className="text-sm font-medium cursor-pointer">
+															<label htmlFor={`bundle-podcast-${podcast.podcast_id}`} className="text-sm font-medium cursor-pointer">
 																{podcast.name}
 															</label>
 															<p className="text-xs text-muted-foreground">{podcast.description}</p>
@@ -965,27 +972,27 @@ export default function AdminPage() {
 						<CardContent>
 							<div className="space-y-4">
 								{bundles.map(bundle => (
-									<div key={bundle.id} className="p-4 border rounded-lg">
+									<div key={bundle.bundle_id} className="p-4 border rounded-lg">
 										<div className="flex items-start justify-between mb-2">
 											<div className="flex-1">
 												<h4 className="font-semibold">{bundle.name}</h4>
 												<p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
 												<div className="flex flex-wrap gap-1">
 													{bundle.podcasts.map(podcast => (
-														<Badge key={podcast.id} variant="outline" className="text-xs">
+														<Badge key={podcast.podcast_id} variant="outline" className="text-xs">
 															{podcast.name}
 														</Badge>
 													))}
 												</div>
 											</div>
 											<Button
-												onClick={() => deleteBundle(bundle.id)}
-												disabled={isDeletingBundle === bundle.id}
+												onClick={() => deleteBundle(bundle.bundle_id)}
+												disabled={isDeletingBundle === bundle.bundle_id}
 												variant="ghost"
 												size="sm"
 												className="text-destructive hover:text-destructive hover:bg-destructive/10"
 											>
-												{isDeletingBundle === bundle.id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
+												{isDeletingBundle === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
 											</Button>
 										</div>
 									</div>
@@ -1099,11 +1106,11 @@ export default function AdminPage() {
 							<CardContent>
 								<div className="space-y-3">
 									{podcastsByCategory[category].map(podcast => (
-										<div key={podcast.id} className="flex items-start justify-between p-3 border rounded-lg">
+										<div key={podcast.podcast_id} className="flex items-start justify-between p-3 border rounded-lg">
 											<div className="flex-1">
 												<div className="flex items-center gap-2 mb-1">
 													<h4 className="font-medium">{podcast.name}</h4>
-													<Badge variant={podcast.isActive ? "default" : "secondary"}>{podcast.isActive ? "Active" : "Inactive"}</Badge>
+													<Badge variant={podcast.is_active ? "default" : "secondary"}>{podcast.is_active ? "Active" : "Inactive"}</Badge>
 												</div>
 												<p className="text-sm text-muted-foreground mb-2">{podcast.description}</p>
 												<a href={podcast.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate block">
@@ -1111,21 +1118,21 @@ export default function AdminPage() {
 												</a>
 											</div>
 											<div className="flex items-center gap-2 ml-4">
-												<Button onClick={() => togglePodcastActive(podcast)} variant="ghost" size="sm" title={podcast.isActive ? "Deactivate" : "Activate"}>
-													{podcast.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+												<Button onClick={() => togglePodcastActive(podcast)} variant="ghost" size="sm" title={podcast.is_active ? "Deactivate" : "Activate"}>
+													{podcast.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
 												</Button>
 												<Button onClick={() => startEditPodcast(podcast)} variant="ghost" size="sm" title="Edit">
 													<Edit className="w-4 h-4" />
 												</Button>
 												<Button
-													onClick={() => deletePodcast(podcast.id)}
-													disabled={isDeletingPodcast === podcast.id}
+													onClick={() => deletePodcast(podcast.podcast_id)}
+													disabled={isDeletingPodcast === podcast.podcast_id}
 													variant="ghost"
 													size="sm"
 													className="text-destructive hover:text-destructive hover:bg-destructive/10"
 													title="Delete"
 												>
-													{isDeletingPodcast === podcast.id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
+													{isDeletingPodcast === podcast.podcast_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
 												</Button>
 											</div>
 										</div>

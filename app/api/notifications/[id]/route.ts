@@ -22,7 +22,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 		}
 
 		const deletedNotification = await prisma.notification.delete({
-			where: { id, userId },
+			where: { notification_id: id, user_id: userId },
 		})
 
 		if (!deletedNotification) {

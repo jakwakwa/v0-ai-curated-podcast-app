@@ -43,11 +43,14 @@ class EmailService {
 		this.initialized = true
 
 		// Check if email is configured
-		// biome-ignore lint/complexity/useSimplifiedLogicExpression: <its ok>
-		if (!process.env.EMAIL_HOST || !process.env.EMAIL_FROM) {
-			if (process.env.NODE_ENV === "development") {
-				console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
-			}
+		if (!(process.env.EMAIL_HOST && process.env.EMAIL_FROM)) {
+			console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
+			console.warn("Current config:", {
+				hasHost: !!process.env.EMAIL_HOST,
+				hasFrom: !!process.env.EMAIL_FROM,
+				hasUser: !!process.env.EMAIL_USER,
+				hasPass: !!process.env.EMAIL_PASS,
+			})
 			return
 		}
 
@@ -90,10 +93,10 @@ class EmailService {
 	private async canSendEmail(userId: string): Promise<boolean> {
 		try {
 			const user = await prisma.user.findUnique({
-				where: { id: userId },
-				select: { emailNotifications: true },
+				where: { user_id: userId },
+				select: { email_notifications: true },
 			})
-			return user?.emailNotifications ?? false
+			return user?.email_notifications ?? false
 		} catch (error) {
 			console.error("Error checking email preferences:", error)
 			return false

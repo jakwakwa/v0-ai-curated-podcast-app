@@ -7,30 +7,46 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, Episode, UserCurationProfile } from "@/lib/types"
+import type { UserCurationProfile } from "@/lib/types"
 import styles from "./page.module.css"
+
+// Episode type for this component
+interface Episode {
+	episode_id: string
+	title: string
+	description: string | null
+	audio_url: string
+	image_url: string | null
+	published_at: Date | null
+	created_at: Date
+	profile_id?: string
+	bundle_id?: string
+	podcast_id?: string
+}
+
+// Bundle episode type for this component
+interface CuratedBundleEpisode {
+	episode_id: string
+	title: string
+	description: string | null
+	audio_url: string
+	image_url: string | null
+	published_at: Date | null
+	created_at: Date
+}
 
 // Combined episode type for display
 interface CombinedEpisode {
-	id: string
+	episode_id: string
 	title: string
 	description: string | null
-	audioUrl: string
-	imageUrl: string | null
-	publishedAt: Date | null
-	createdAt: Date
+	audio_url: string
+	image_url: string | null
+	published_at: Date | null
+	created_at: Date
 	type: "user" | "bundle"
-	userCurationProfileId?: string
-	podcastId?: string
-	source?: {
-		name: string
-		id: string
-		imageUrl: string | null
-		createdAt: Date
-		userCurationProfileId: string | null
-		url: string
-	} | null
+	profile_id?: string
+	podcast_id?: string
 	userCurationProfile?: UserCurationProfile | null
 }
 
@@ -46,8 +62,11 @@ export default function WeeklyEpisodesPage() {
 	useEffect(() => {
 		const checkExistingProfile = async () => {
 			try {
-				const profile = await getUserCurationProfile()
-				setExistingProfile(profile)
+				const response = await fetch("/api/user-curation-profiles")
+				if (response.ok) {
+					const profile = await response.json()
+					setExistingProfile(profile)
+				}
 			} catch (error) {
 				console.error("Error checking existing profile:", error)
 			} finally {
@@ -62,32 +81,38 @@ export default function WeeklyEpisodesPage() {
 		const fetchAllEpisodes = async () => {
 			try {
 				// Fetch user curation profile first
-				const userProfileData = await getUserCurationProfile()
-				setUserProfile(userProfileData)
+				const profileResponse = await fetch("/api/user-curation-profiles")
+				if (profileResponse.ok) {
+					const userProfileData = await profileResponse.json()
+					setUserProfile(userProfileData)
+				}
 
 				// Fetch all episodes (this already includes episodes from both user profiles and selected bundles)
-				const allEpisodes = await getEpisodes()
-				setEpisodes(allEpisodes)
+				const episodesResponse = await fetch("/api/episodes")
+				if (episodesResponse.ok) {
+					const allEpisodes = await episodesResponse.json()
+					setEpisodes(allEpisodes)
 
-				// For bundle episodes, we'll categorize them based on their source
-				// Episodes with bundleId are bundle episodes, others are custom episodes
-				const combined: CombinedEpisode[] = allEpisodes.map(ep => ({
-					...ep,
-					type: ep.bundleId ? ("bundle" as const) : ("user" as const),
-					podcastId: ep.podcastId,
-				}))
+					// For bundle episodes, we'll categorize them based on their source
+					// Episodes with bundleId are bundle episodes, others are custom episodes
+					const combined: CombinedEpisode[] = allEpisodes.map((ep: Episode) => ({
+						...ep,
+						type: ep.bundle_id ? ("bundle" as const) : ("user" as const),
+						podcast_id: ep.podcast_id,
+					}))
 
-				// No need to separately fetch bundle episodes since they're already included in allEpisodes
-				setBundleEpisodes(combined.filter(ep => ep.type === "bundle") as unknown as CuratedBundleEpisode[])
+					// No need to separately fetch bundle episodes since they're already included in allEpisodes
+					setBundleEpisodes(combined.filter(ep => ep.type === "bundle") as unknown as CuratedBundleEpisode[])
 
-				// Sort by published date (newest first)
-				combined.sort((a, b) => {
-					const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
-					const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
-					return dateB - dateA
-				})
+					// Sort by published date (newest first)
+					combined.sort((a, b) => {
+						const dateA = a.published_at ? new Date(a.published_at).getTime() : 0
+						const dateB = b.published_at ? new Date(b.published_at).getTime() : 0
+						return dateB - dateA
+					})
 
-				setCombinedEpisodes(combined)
+					setCombinedEpisodes(combined)
+				}
 			} catch (error) {
 				console.error("Error fetching episodes:", error)
 			}
@@ -147,13 +172,13 @@ export default function WeeklyEpisodesPage() {
 						<span>Total Episodes: {combinedEpisodes.length}</span>
 						<span>User Episodes: {combinedEpisodes.filter(ep => ep.type === "user").length}</span>
 						<span>Bundle Episodes: {combinedEpisodes.filter(ep => ep.type === "bundle").length}</span>
-						{userProfile && <span>Profile Type: {userProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}</span>}
+						{userProfile && <span>Profile Type: {userProfile.is_bundle_selection ? "Bundle Selection" : "Custom Profile"}</span>}
 					</div>
 
 					{/* Episodes List */}
 					<div className={styles.episodesList}>
 						{combinedEpisodes.map(episode => (
-							<div key={episode.id} className="episodeCard">
+							<div key={episode.episode_id} className="episodeCard">
 								<div className={styles.episodeContent}>
 									<div className={styles.episodeInfo}>
 										<div className={styles.episodeHeader}>
@@ -163,29 +188,29 @@ export default function WeeklyEpisodesPage() {
 											</span>
 										</div>
 										<div className={styles.playButtonContainer}>
-											<Button onClick={() => handlePlayEpisode(episode.id)} variant="outline" size="sm" className={styles.playButton}>
+											<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className={styles.playButton}>
 												<Play className={styles.playIcon} />
 												Play Episode
 											</Button>
 										</div>
 										{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
-										<p className={styles.episodeDate}>Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}</p>
+										<p className={styles.episodeDate}>Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
 									</div>
-									{episode.audioUrl && playingEpisodeId === episode.id && (
+									{episode.audio_url && playingEpisodeId === episode.episode_id && (
 										<div className={styles.episodeAudio}>
 											<AudioPlayer
 												episode={{
-													id: episode.id,
+													episode_id: episode.episode_id,
 													title: episode.title,
 													description: episode.description,
-													audioUrl: episode.audioUrl,
-													imageUrl: episode.imageUrl,
-													publishedAt: episode.publishedAt,
-													weekNr: episode.createdAt,
-													createdAt: episode.createdAt,
-													podcastId: episode.podcastId || "",
-													userProfileId: episode.userCurationProfileId || null,
-													bundleId: null,
+													audio_url: episode.audio_url,
+													image_url: episode.image_url,
+													published_at: episode.published_at,
+													week_nr: episode.created_at,
+													created_at: episode.created_at,
+													podcast_id: episode.podcast_id || "",
+													profile_id: episode.profile_id || null,
+													bundle_id: null,
 												}}
 												onClose={handleClosePlayer}
 											/>

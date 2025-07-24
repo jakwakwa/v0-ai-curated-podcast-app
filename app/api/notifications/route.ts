@@ -11,8 +11,8 @@ export async function GET(_request: Request) {
 		}
 
 		const notifications = await prisma.notification.findMany({
-			where: { userId },
-			orderBy: { createdAt: "desc" },
+			where: { user_id: userId },
+			orderBy: { created_at: "desc" },
 		})
 
 		return NextResponse.json(notifications)
@@ -31,10 +31,7 @@ export async function DELETE(_request: Request) {
 		}
 
 		await prisma.notification.deleteMany({
-			where: {
-				userId,
-				isRead: true,
-			},
+			where: { user_id: userId },
 		})
 
 		return NextResponse.json({ message: "Read notifications cleared" })

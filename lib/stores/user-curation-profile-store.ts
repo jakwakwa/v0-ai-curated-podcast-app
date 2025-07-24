@@ -1,4 +1,4 @@
-import type { UserCurationProfile as UserCurationProfileType } from "@/lib/types"
+import type { UserCurationProfile as UserCurationProfileType } from "@prisma/client"
 import { toast } from "sonner"
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
@@ -58,14 +58,14 @@ export const useUserCurationProfileStore = create<UserCurationProfileStore>()(
 				updateUserCurationProfile: async data => {
 					set({ isLoading: true, error: null }, false, "updateUserCurationProfile:start")
 
-					if (!data.id) {
+					if (!data.profile_id) {
 						set({ error: "User Curation Profile ID is required for update", isLoading: false }, false, "updateUserCurationProfile:idError")
 						toast.error("User Curation Profile ID is required for update")
 						return
 					}
 
 					try {
-						const response = await fetch(`/api/user-curation-profiles/${data.id}`, {
+						const response = await fetch(`/api/user-curation-profiles/${data.profile_id}`, {
 							method: "PATCH",
 							headers: {
 								"Content-Type": "application/json",
@@ -91,14 +91,14 @@ export const useUserCurationProfileStore = create<UserCurationProfileStore>()(
 				deactivateUserCurationProfile: async () => {
 					set({ isLoading: true, error: null }, false, "deactivateUserCurationProfile:start")
 
-					if (!get().userCurationProfile?.id) {
+					if (!get().userCurationProfile?.profile_id) {
 						set({ error: "No active user curation profile to deactivate", isLoading: false }, false, "deactivateUserCurationProfile:noProfile")
 						toast.error("No active user curation profile to deactivate")
 						return
 					}
 
 					try {
-						const response = await fetch(`/api/user-curation-profiles/${get().userCurationProfile!.id}`, {
+						const response = await fetch(`/api/user-curation-profiles/${get().userCurationProfile!.profile_id}`, {
 							method: "DELETE",
 						})
 

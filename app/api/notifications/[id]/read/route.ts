@@ -1,7 +1,7 @@
-import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 interface RouteParams {
 	params: Promise<{ id: string }>
@@ -21,8 +21,8 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
 	}
 
 	const updatedNotification = await prisma.notification.update({
-		where: { id, userId },
-		data: { isRead: true },
+		where: { notification_id: id, user_id: userId },
+		data: { is_read: true },
 	})
 
 	if (!updatedNotification) {

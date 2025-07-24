@@ -9,17 +9,50 @@ import { SourceList } from "@/components/source-list"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, Episode, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 
 interface UserCurationProfileProps {
 	params: Promise<{ id: string }>
 }
 
+// Type for UserCurationProfile with relations
+type UserCurationProfileWithRelations = UserCurationProfile & {
+	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
+	episode: Episode[]
+}
+
+// Helper function to fetch user curation profile
+const getUserCurationProfile = async (): Promise<UserCurationProfileWithRelations | null> => {
+	try {
+		const response = await fetch("/api/user-curation-profiles")
+		if (!response.ok) {
+			return null
+		}
+		return await response.json()
+	} catch (error) {
+		console.error("Error fetching user curation profile:", error)
+		return null
+	}
+}
+
+// Helper function to fetch episodes
+const getEpisodes = async (): Promise<Episode[]> => {
+	try {
+		const response = await fetch("/api/episodes")
+		if (!response.ok) {
+			return []
+		}
+		return await response.json()
+	} catch (error) {
+		console.error("Error fetching episodes:", error)
+		return []
+	}
+}
+
 export default function CollectionPage({ params }: UserCurationProfileProps) {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
+	const [bundleEpisodes, setBundleEpisodes] = useState<Episode[]>([])
 	const [loading, setLoading] = useState(true)
 	const [playingEpisode, setPlayingEpisode] = useState<Episode | null>(null)
 
@@ -37,7 +70,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 			const curationProfileData = await getUserCurationProfile()
 
 			// Check if the requested profile matches the user's profile
-			if (!curationProfileData || curationProfileData.id !== id) {
+			if (!curationProfileData || curationProfileData.profile_id !== id) {
 				notFound()
 				return
 			}
@@ -45,12 +78,12 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 			setUserCurationProfile(curationProfileData)
 
 			// Get bundle episodes if this is a bundle selection
-			if (curationProfileData.isBundleSelection && curationProfileData.selectedBundle?.episodes) {
+			if (curationProfileData.is_bundle_selection && curationProfileData.selectedBundle?.episodes) {
 				setBundleEpisodes(curationProfileData.selectedBundle.episodes)
 			}
 
 			const allEpisodes = await getEpisodes()
-			const filteredEpisodes = allEpisodes.filter((ep: { userProfileId: string | null }) => ep.userProfileId === id)
+			const filteredEpisodes = allEpisodes.filter((ep: { profile_id: string | null }) => ep.profile_id === id)
 			setEpisodes(filteredEpisodes)
 			setLoading(false)
 		}
@@ -76,17 +109,17 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-2xl font-bold">Episodes for {userCurationProfile.name}</h2>
 				</div>
-				{userCurationProfile.isBundleSelection && bundleEpisodes.length > 0 ? (
+				{userCurationProfile.is_bundle_selection && bundleEpisodes.length > 0 ? (
 					<div className="flex flex-col w-full gap-4">
 						<h3 className="text-lg font-semibold mb-2">Bundle Episodes</h3>
 						{bundleEpisodes.map(episode => (
-							<div key={episode.id} className="border rounded-lg p-4">
+							<div key={episode.episode_id} className="border rounded-lg p-4">
 								<h4 className="font-semibold">{episode.title}</h4>
 								<p className="text-sm text-muted-foreground mb-2">{episode.description}</p>
-								<p className="text-xs text-muted-foreground">Published: {episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : "N/A"}</p>
-								{episode.audioUrl && (
+								<p className="text-xs text-muted-foreground">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
+								{episode.audio_url && (
 									<audio controls className="w-full mt-2">
-										<source src={`${episode.audioUrl}`} type="audio/mpeg" />
+										<source src={`${episode.audio_url}`} type="audio/mpeg" />
 										<track kind="captions" src="" label="English" />
 										Your browser does not support the audio element.
 									</audio>
@@ -111,7 +144,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 				) : (
 					<div className="flex flex-col w-full gap-4">
 						{episodes.map(ep => (
-							<PodcastCard key={ep.id} episode={ep} onPlayEpisode={handlePlayEpisode} />
+							<PodcastCard key={ep.episode_id} episode={ep} onPlayEpisode={handlePlayEpisode} />
 						))}
 					</div>
 				)}

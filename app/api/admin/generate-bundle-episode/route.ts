@@ -15,7 +15,7 @@ interface AdminGenerationRequest {
 	bundleId: string
 	title: string
 	description?: string
-	imageUrl?: string
+	image_url?: string
 	sources: EpisodeSource[]
 }
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 		await requireOrgAdmin()
 
 		const body: AdminGenerationRequest = await request.json()
-		const { bundleId, title, description, imageUrl, sources } = body
+		const { bundleId, title, description, image_url, sources } = body
 
 		// Validate input
 		if (!(bundleId && title && sources) || sources.length === 0) {
@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
 
 		// Verify bundle exists
 		const bundle = await prisma.bundle.findUnique({
-			where: { id: bundleId },
+			where: { bundle_id: bundleId },
 			include: {
-				podcasts: {
+				bundle_podcast: {
 					include: { podcast: true },
 				},
 			},
@@ -59,12 +59,12 @@ export async function POST(request: NextRequest) {
 			id: `admin-${bundleId}-${Date.now()}`,
 			name: title,
 			description,
-			imageUrl,
+			image_url,
 			sources: sources.map(source => ({
 				id: source.id,
 				name: source.name,
 				url: source.url,
-				imageUrl: null,
+				image_url: null,
 				createdAt: new Date().toISOString(),
 			})),
 			bundleId,

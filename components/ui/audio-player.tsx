@@ -85,9 +85,9 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	}, [])
 
 	const onAudioError = useCallback(() => {
-		toast(`Audio failed to load:${episode.audioUrl}`)
+		toast(`Audio failed to load:${episode.audio_url}`)
 		setIsPlaying(false)
-	}, [episode.audioUrl])
+	}, [episode.audio_url])
 
 	// Memoized expensive calculations
 	const formattedCurrentTime = useMemo(() => formatTime(currentTime), [currentTime])
@@ -95,8 +95,8 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	const truncatedDescription = useMemo(() => truncateDescription(episode.description, 100), [episode.description])
 
 	const audioSource = useMemo(() => {
-		return episode.audioUrl !== "sample-for-simulated-tests.mp3" ? episode.audioUrl : "/sample-for-simulated-tests.mp3"
-	}, [episode.audioUrl])
+		return episode.audio_url !== "sample-for-simulated-tests.mp3" ? episode.audio_url : "/sample-for-simulated-tests.mp3"
+	}, [episode.audio_url])
 
 	const volumeIcon = useMemo(() => {
 		if (isMuted || volume === 0) {
@@ -130,7 +130,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 			audio.removeEventListener("error", onAudioError)
 		}
 
-		if (episode.audioUrl && audio) {
+		if (episode.audio_url && audio) {
 			audio.src = audioSource
 			audio.volume = volume
 			audio.addEventListener("timeupdate", updateProgress)
@@ -212,8 +212,8 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	return (
 		<div className={styles.audioPlayer}>
 			<div className={styles.episodeImageContainer}>
-				{episode.imageUrl && !imageError ? (
-					<Image src={episode.imageUrl!} alt={episode.description ?? ""} width={56} height={56} className={styles.episodeImage} onError={() => setImageError(true)} />
+				{episode.image_url && !imageError ? (
+					<Image src={episode.image_url!} alt={episode.description ?? ""} width={56} height={56} className={styles.episodeImage} onError={() => setImageError(true)} />
 				) : (
 					<div className={styles.placeholderImage}>
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -264,7 +264,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 					</svg>
 				</Button>
 			)}
-			<audio ref={audioRef} src={episode.audioUrl}>
+			<audio ref={audioRef} src={episode.audio_url}>
 				<track
 					kind="captions"
 					src={
