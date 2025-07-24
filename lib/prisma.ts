@@ -1,19 +1,48 @@
 import { PrismaClient } from "@prisma/client"
 import { withAccelerate } from "@prisma/extension-accelerate"
 
-// Prevent multiple instances of Prisma Client in development
-const globalForPrisma = globalThis as unknown as {
-	prisma: ReturnType<typeof createPrismaClient> | undefined
-}
+type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>
 
 function createPrismaClient() {
-	return new PrismaClient().$extends(withAccelerate())
+	const client = new PrismaClient({
+		// Serverless-specific optimizations for Vercel
+		log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+		datasources: {
+			db: {
+				url: process.env.DATABASE_URL,
+			},
+		},
+	}).$extends(withAccelerate())
+
+	// Handle connection cleanup for serverless environments
+	if (process.env.NODE_ENV === "production") {
+		// Graceful shutdown for serverless
+		process.on("beforeExit", async () => {
+			await client.$disconnect()
+		})
+	}
+
+	return client
 }
 
-const prisma = globalForPrisma.prisma ?? createPrismaClient()
+const globalForPrisma = global as unknown as {
+	prisma: ExtendedPrismaClient
+}
 
-export { prisma }
+// Add debugging for Prisma Client initialization
+if (process.env.DEBUG?.includes("prisma")) {
+	console.log("🔍 Prisma Client initialization started")
+	console.log("🔍 Environment:", process.env.NODE_ENV)
+	console.log("🔍 DATABASE_URL available:", !!process.env.DATABASE_URL)
+}
+
+export const prisma = globalForPrisma.prisma || createPrismaClient()
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+
+// Add debugging for successful initialization
+if (process.env.DEBUG?.includes("prisma")) {
+	console.log("✅ Prisma Client initialized successfully")
+}
 
 

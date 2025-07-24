@@ -30,73 +30,44 @@ export async function POST(request: NextRequest) {
 		const body: AdminGenerationRequest = await request.json()
 		const { bundleId, title, description, image_url, sources } = body
 
-		// Validate input
-		if (!(bundleId && title && sources) || sources.length === 0) {
-			return NextResponse.json({ message: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
+		if (!bundleId || !title || !sources || sources.length === 0) {
+			return NextResponse.json({ error: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
 		}
 
-		// Verify bundle exists
+		// Validate that the bundle exists
 		const bundle = await prisma.bundle.findUnique({
 			where: { bundle_id: bundleId },
-			include: {
-				bundle_podcast: {
-					include: { podcast: true },
-				},
-			},
 		})
 
 		if (!bundle) {
-			return NextResponse.json({ message: "Bundle not found" }, { status: 404 })
+			return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
 		}
 
-		// Validate YouTube URLs
-		const youtubeUrlRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/
-		for (const source of sources) {
-			if (!youtubeUrlRegex.test(source.url)) {
-				return NextResponse.json({ message: `Invalid YouTube URL for source: ${source.name}` }, { status: 400 })
-			}
-		}
-
-		// Create a temporary admin "curation profile" for this generation
-		const adminCurationProfile = {
-			id: `admin-${bundleId}-${Date.now()}`,
-			name: title,
-			description,
-			image_url,
-			sources: sources.map(source => ({
-				id: source.id,
-				name: source.name,
-				url: source.url,
-				image_url: null,
-				createdAt: new Date().toISOString(),
-			})),
-			bundleId,
-		}
-
-		// Trigger the admin podcast generation workflow
+		// Send event to Inngest for background processing
 		await inngest.send({
-			name: "podcast/admin-generate.requested",
+			name: "admin/generate-bundle-episode",
 			data: {
-				adminCurationProfile,
 				bundleId,
-				episodeTitle: title,
-				episodeDescription: description,
+				title,
+				description,
+				image_url,
+				sources,
 			},
 		})
 
 		return NextResponse.json({
-			message: "Admin episode generation started successfully",
+			success: true,
+			message: "Episode generation started successfully",
 			bundleId,
 			title,
-			sourcesCount: sources.length,
 		})
 	} catch (error) {
-		console.error("Error in admin generate bundle episode:", error)
+		console.error("[ADMIN_GENERATE_BUNDLE_EPISODE]", error)
 
-		if (error instanceof Error && (error.message.includes("Organization role required") || error.message === "Admin access required")) {
-			return NextResponse.json({ message: "Admin access required" }, { status: 403 })
+		if (error instanceof Error && error.message.includes("admin role required")) {
+			return NextResponse.json({ error: "Admin access required" }, { status: 403 })
 		}
 
-		return NextResponse.json({ message: "Internal server error" }, { status: 500 })
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }
