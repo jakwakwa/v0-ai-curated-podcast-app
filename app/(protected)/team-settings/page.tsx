@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import { isOrgAdmin } from "@/lib/organization-roles"
 import styles from "./page.module.css"
 
+// Force this page to be dynamic since it uses auth()
+export const dynamic = "force-dynamic"
+
 export default async function TeamSettingsPage() {
 	// Method 1: Using the auth() helper directly
 	const { has } = await auth()
