@@ -13,7 +13,7 @@
 		"dev": "next dev",
 		"dev:debug": "NODE_OPTIONS='--inspect' next dev",
 		"dev:debug-fast": "NODE_OPTIONS='--inspect --max-old-space-size=6144' next dev --turbo",
-		"build": "next build",
+		"build": "[[ ! \"$VERCEL\" ]] && pnpm postinstall || echo 'Skipping postinstall on Vercel'; next build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"postinstall": "prisma generate --no-engine",
 		"prisma:generate": "prisma generate",
