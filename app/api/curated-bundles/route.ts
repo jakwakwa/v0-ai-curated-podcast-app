@@ -8,7 +8,7 @@ export async function GET(_request: NextRequest) {
 	try {
 		// Check if we're in a build environment
 		if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
-			console.log("[CURATED_BUNDLES_GET] Skipping during build - no DATABASE_URL")
+			console.log("[CURATED_BUNDLES_GET] Skipping during build - no database connection")
 			return NextResponse.json([], {
 				headers: {
 					"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",

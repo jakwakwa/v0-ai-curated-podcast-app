@@ -8,28 +8,20 @@ export async function GET() {
 		await requireOrgAdmin()
 
 		// Check environment variables
-		const config = {
-			hasHost: !!process.env.EMAIL_HOST,
-			hasFrom: !!process.env.EMAIL_FROM,
-			hasUser: !!process.env.EMAIL_USER,
-			hasPass: !!process.env.EMAIL_PASS,
-			hasAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
-			host: process.env.EMAIL_HOST,
-			port: process.env.EMAIL_PORT || "587",
-			secure: process.env.EMAIL_SECURE === "true",
-			from: process.env.EMAIL_FROM,
-			user: process.env.EMAIL_USER,
-			// Don't expose password
-		}
+		const hasHost = !!process.env.EMAIL_HOST
+		const hasFrom = !!process.env.EMAIL_FROM
+		const hasUser = !!process.env.EMAIL_USER
+		const hasPass = !!process.env.EMAIL_PASS
+		const hasAppUrl = !!process.env.NEXT_PUBLIC_APP_URL
 
-		console.log("Email config verification:", config)
+		console.log("Email config verification: checking configuration status")
 
 		// Check if all required variables are present
-		if (!(config.hasHost && config.hasFrom && config.hasUser && config.hasPass)) {
+		if (!(hasHost && hasFrom && hasUser && hasPass)) {
 			return NextResponse.json({
 				success: false,
 				error: "Missing required environment variables",
-				config,
+				details: "Configuration incomplete"
 			})
 		}
 

@@ -44,13 +44,7 @@ class EmailService {
 
 		// Check if email is configured
 		if (!(process.env.EMAIL_HOST && process.env.EMAIL_FROM)) {
-			console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
-			console.warn("Current config:", {
-				hasHost: !!process.env.EMAIL_HOST,
-				hasFrom: !!process.env.EMAIL_FROM,
-				hasUser: !!process.env.EMAIL_USER,
-				hasPass: !!process.env.EMAIL_PASS,
-			})
+			console.warn("Email service not configured. Missing required email configuration.")
 			return
 		}
 

@@ -9,7 +9,7 @@ export const runtime = "nodejs" // Required for file system access
 const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
 
 if (!uploaderKeyPath) {
-	throw new Error("GCS_UPLOADER_KEY_PATH environment variable is not set.")
+			throw new Error("Google Cloud Storage uploader configuration missing.")
 }
 
 const storageUploader = new Storage({

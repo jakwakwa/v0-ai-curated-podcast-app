@@ -17,16 +17,7 @@ export async function POST() {
 		const userEmail = user.emailAddresses[0].emailAddress
 
 		// Log configuration (without sensitive data)
-		console.log("Email config check:", {
-			hasHost: !!process.env.EMAIL_HOST,
-			hasFrom: !!process.env.EMAIL_FROM,
-			hasUser: !!process.env.EMAIL_USER,
-			hasPass: !!process.env.EMAIL_PASS,
-			host: process.env.EMAIL_HOST,
-			from: process.env.EMAIL_FROM,
-			user: process.env.EMAIL_USER,
-			targetEmail: userEmail,
-		})
+		console.log("Email config check: email service configuration status logged")
 
 		// Send test email
 		const success = await emailService.sendTestEmail(userEmail)

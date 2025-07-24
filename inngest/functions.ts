@@ -30,11 +30,11 @@ const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
 const readerKeyPath = process.env.GCS_READER_KEY_PATH
 
 if (!uploaderKeyPath) {
-	console.error("ERROR: GCS_UPLOADER_KEY_PATH environment variable is not set.")
+			console.error("ERROR: Google Cloud Storage uploader key path not configured.")
 	process.exit(1)
 }
 if (!readerKeyPath) {
-	console.error("ERROR: GCS_READER_KEY_PATH environment variable is not set.")
+			console.error("ERROR: Google Cloud Storage reader key path not configured.")
 	process.exit(1)
 }
 
