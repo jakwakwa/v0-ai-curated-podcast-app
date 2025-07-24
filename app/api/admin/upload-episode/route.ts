@@ -14,20 +14,20 @@ if (!uploaderKeyPath) {
 	throw new Error("GCS_UPLOADER_KEY_PATH environment variable is not set.")
 }
 
-const storageUploader = new Storage({
+const _storageUploader = new Storage({
 	keyFilename: uploaderKeyPath,
 })
 
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
 	try {
-		const [exists] = await storageUploader.bucket(bucketName).exists()
+		const [exists] = await _storageUploader.bucket(bucketName).exists()
 
 		if (!exists) {
 			console.error("ERROR: Bucket does not exist:", bucketName)
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
 
-		await storageUploader.bucket(bucketName).file(destinationFileName).save(data)
+		await _storageUploader.bucket(bucketName).file(destinationFileName).save(data)
 		return { success: true, fileName: destinationFileName }
 	} catch (error) {
 		console.error("Upload error:", (error as Error).message)

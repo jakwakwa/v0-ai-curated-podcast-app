@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 		const body: AdminGenerationRequest = await request.json()
 		const { bundleId, title, description, image_url, sources } = body
 
-		if (!bundleId || !title || !sources || sources.length === 0) {
+		if (!((bundleId && title) && sources) || sources.length === 0) {
 			return NextResponse.json({ error: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
 		}
 
