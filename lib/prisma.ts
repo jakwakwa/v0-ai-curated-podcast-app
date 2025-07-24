@@ -15,7 +15,11 @@ function createPrismaClient() {
 	})
 
 	// Only add Accelerate extension during runtime, not during build
-	if (process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production") {
+	// Disable during build to prevent connection attempts
+	const isBuildProcess = process.env.NODE_ENV === "production" &&
+		(process.env.VERCEL_BUILD || process.env.NEXT_PHASE === "phase-production-build")
+
+	if (!isBuildProcess) {
 		return client.$extends(withAccelerate())
 	}
 
