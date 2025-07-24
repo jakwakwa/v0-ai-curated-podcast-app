@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { prismaEdge } from "@/lib/prisma-edge"
-
-export const runtime = "edge" // Use edge runtime for better performance
+import prisma from "@/lib/prisma"
 
 export async function GET(_request: Request) {
 	try {
@@ -11,7 +9,7 @@ export async function GET(_request: Request) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
-		const episodes = await prismaEdge.episode.findMany({
+		const episodes = await prisma.episode.findMany({
 			where: {
 				OR: [
 					{

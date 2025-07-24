@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { prismaEdge } from "@/lib/prisma-edge"
-
-export const runtime = "edge" // Use edge runtime for better performance
+import prisma from "@/lib/prisma"
 
 export async function GET(_request: Request) {
 	try {
@@ -12,7 +10,7 @@ export async function GET(_request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const notifications = await prismaEdge.notification.findMany({
+		const notifications = await prisma.notification.findMany({
 			where: { userId },
 			orderBy: { createdAt: "desc" },
 		})
@@ -32,7 +30,7 @@ export async function DELETE(_request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		await prismaEdge.notification.deleteMany({
+		await prisma.notification.deleteMany({
 			where: {
 				userId,
 				isRead: true,

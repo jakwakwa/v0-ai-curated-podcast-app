@@ -1,7 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { prismaEdge } from "@/lib/prisma-edge"
-
-export const runtime = "edge" // Use edge runtime for better performance
+import { NextRequest, NextResponse } from "next/server"
+import prisma from "@/lib/prisma"
 
 // Time-based revalidation - cache for 1 hour
 export const revalidate = 3600
@@ -9,7 +7,7 @@ export const revalidate = 3600
 export async function GET(_request: NextRequest) {
 	try {
 		// Get all active bundles
-		const bundles = await prismaEdge.bundle.findMany({
+		const bundles = await prisma.bundle.findMany({
 			where: { isActive: true },
 			include: {
 				podcasts: {
