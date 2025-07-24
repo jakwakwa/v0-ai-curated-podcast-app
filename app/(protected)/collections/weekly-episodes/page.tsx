@@ -7,9 +7,33 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, Episode, UserCurationProfile } from "@/lib/types"
+import type { UserCurationProfile } from "@/lib/types"
 import styles from "./page.module.css"
+
+// Episode type for this component
+interface Episode {
+	id: string
+	title: string
+	description: string | null
+	audioUrl: string
+	imageUrl: string | null
+	publishedAt: Date | null
+	createdAt: Date
+	userProfileId?: string
+	bundleId?: string
+	podcastId?: string
+}
+
+// Bundle episode type for this component
+interface CuratedBundleEpisode {
+	id: string
+	title: string
+	description: string | null
+	audioUrl: string
+	imageUrl: string | null
+	publishedAt: Date | null
+	createdAt: Date
+}
 
 // Combined episode type for display
 interface CombinedEpisode {
@@ -23,14 +47,6 @@ interface CombinedEpisode {
 	type: "user" | "bundle"
 	userCurationProfileId?: string
 	podcastId?: string
-	source?: {
-		name: string
-		id: string
-		imageUrl: string | null
-		createdAt: Date
-		userCurationProfileId: string | null
-		url: string
-	} | null
 	userCurationProfile?: UserCurationProfile | null
 }
 
@@ -46,8 +62,11 @@ export default function WeeklyEpisodesPage() {
 	useEffect(() => {
 		const checkExistingProfile = async () => {
 			try {
-				const profile = await getUserCurationProfile()
-				setExistingProfile(profile)
+				const response = await fetch("/api/user-curation-profiles")
+				if (response.ok) {
+					const profile = await response.json()
+					setExistingProfile(profile)
+				}
 			} catch (error) {
 				console.error("Error checking existing profile:", error)
 			} finally {
@@ -62,32 +81,38 @@ export default function WeeklyEpisodesPage() {
 		const fetchAllEpisodes = async () => {
 			try {
 				// Fetch user curation profile first
-				const userProfileData = await getUserCurationProfile()
-				setUserProfile(userProfileData)
+				const profileResponse = await fetch("/api/user-curation-profiles")
+				if (profileResponse.ok) {
+					const userProfileData = await profileResponse.json()
+					setUserProfile(userProfileData)
+				}
 
 				// Fetch all episodes (this already includes episodes from both user profiles and selected bundles)
-				const allEpisodes = await getEpisodes()
-				setEpisodes(allEpisodes)
+				const episodesResponse = await fetch("/api/episodes")
+				if (episodesResponse.ok) {
+					const allEpisodes = await episodesResponse.json()
+					setEpisodes(allEpisodes)
 
-				// For bundle episodes, we'll categorize them based on their source
-				// Episodes with bundleId are bundle episodes, others are custom episodes
-				const combined: CombinedEpisode[] = allEpisodes.map(ep => ({
-					...ep,
-					type: ep.bundleId ? ("bundle" as const) : ("user" as const),
-					podcastId: ep.podcastId,
-				}))
+					// For bundle episodes, we'll categorize them based on their source
+					// Episodes with bundleId are bundle episodes, others are custom episodes
+					const combined: CombinedEpisode[] = allEpisodes.map((ep: Episode) => ({
+						...ep,
+						type: ep.bundleId ? ("bundle" as const) : ("user" as const),
+						podcastId: ep.podcastId,
+					}))
 
-				// No need to separately fetch bundle episodes since they're already included in allEpisodes
-				setBundleEpisodes(combined.filter(ep => ep.type === "bundle") as unknown as CuratedBundleEpisode[])
+					// No need to separately fetch bundle episodes since they're already included in allEpisodes
+					setBundleEpisodes(combined.filter(ep => ep.type === "bundle") as unknown as CuratedBundleEpisode[])
 
-				// Sort by published date (newest first)
-				combined.sort((a, b) => {
-					const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
-					const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
-					return dateB - dateA
-				})
+					// Sort by published date (newest first)
+					combined.sort((a, b) => {
+						const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
+						const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
+						return dateB - dateA
+					})
 
-				setCombinedEpisodes(combined)
+					setCombinedEpisodes(combined)
+				}
 			} catch (error) {
 				console.error("Error fetching episodes:", error)
 			}

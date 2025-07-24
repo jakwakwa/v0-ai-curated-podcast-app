@@ -3,15 +3,14 @@ import prisma from "@/lib/prisma"
 
 export async function GET(_request: NextRequest) {
 	try {
-		// Note: Curated bundles are public data, so no authentication required
-
-		const curatedBundles = await prisma.bundle.findMany({
+		// Note: Bundles are public data, so no authentication required
+		const bundles = await prisma.bundle.findMany({
 			where: {
-				isActive: true,
+				is_active: true,
 				// Note: Showing all active bundles including user-created ones for admin functionality
 			},
 			include: {
-				podcasts: {
+				bundle_podcast: {
 					include: { podcast: true },
 				},
 			},
@@ -19,14 +18,14 @@ export async function GET(_request: NextRequest) {
 		})
 
 		// Flatten the structure to include podcasts directly in the bundle object
-		const bundlesWithPodcasts = curatedBundles.map(bundle => ({
+		const bundlesWithPodcasts = bundles.map(bundle => ({
 			...bundle,
-			podcasts: bundle.podcasts.map(bp => bp.podcast),
+			podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
 		}))
 
 		return NextResponse.json(bundlesWithPodcasts)
 	} catch (error) {
-		console.error("[CURATED_BUNDLES_GET]", error)
+		console.error("[BUNDLES_GET]", error)
 		return new NextResponse("Internal Error", { status: 500 })
 	}
 }

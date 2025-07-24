@@ -8,8 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getEpisodes, getUserCurationProfile } from "@/lib/data"
-import type { CuratedBundleEpisode, CuratedPodcast, Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 import styles from "./page.module.css"
 
 const formatDate = (date: Date | null | undefined) => {
@@ -20,24 +19,31 @@ const formatDate = (date: Date | null | undefined) => {
 export default function CurationProfileManagementPage() {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [_episodes, setEpisodes] = useState<Episode[]>([])
-	const [bundleEpisodes, setBundleEpisodes] = useState<CuratedBundleEpisode[]>([])
+	const [bundleEpisodes, setBundleEpisodes] = useState<Episode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const fetchAndUpdateData = useCallback(async () => {
-		// Fetch user curation profile and episodes in parallel
-		const [fetchedProfile, fetchedEpisodes] = await Promise.all([getUserCurationProfile(), getEpisodes()])
+		try {
+			// Fetch user curation profile and episodes in parallel
+			const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
 
-		setUserCurationProfile(fetchedProfile)
-		setEpisodes(fetchedEpisodes)
+			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null
+			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : []
 
-		// Get bundle episodes if user has a bundle selection
-		let bundleEpisodesList: CuratedBundleEpisode[] = []
-		if (fetchedProfile?.isBundleSelection && fetchedProfile?.selectedBundle?.episodes) {
-			bundleEpisodesList = fetchedProfile.selectedBundle.episodes
+			setUserCurationProfile(fetchedProfile)
+			setEpisodes(fetchedEpisodes)
+
+			// Get bundle episodes if user has a bundle selection
+			let bundleEpisodesList: Episode[] = []
+			if (fetchedProfile?.is_bundle_selection && fetchedProfile?.selectedBundle?.episodes) {
+				bundleEpisodesList = fetchedProfile.selectedBundle.episodes
+			}
+
+			setBundleEpisodes(bundleEpisodesList)
+		} catch (error) {
+			console.error("Failed to fetch data:", error)
 		}
-
-		setBundleEpisodes(bundleEpisodesList)
 	}, [])
 
 	useEffect(() => {
@@ -59,7 +65,7 @@ export default function CurationProfileManagementPage() {
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return
 		try {
-			const response = await fetch(`/api/user-curation-profiles/${userCurationProfile.id}`, {
+			const response = await fetch(`/api/user-curation-profiles/${userCurationProfile.profile_id}`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -112,7 +118,7 @@ export default function CurationProfileManagementPage() {
 							</CardContent>
 						</Card>
 
-						{userCurationProfile?.isBundleSelection && userCurationProfile?.selectedBundle && (
+						{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 							<Card>
 								<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
 									<div className="w-full flex flex-row gap-1">
@@ -125,7 +131,7 @@ export default function CurationProfileManagementPage() {
 									<div className="mt-2 text-sm">
 										<p className="font-medium">Podcasts:</p>
 										<ul className="list-disc pl-5 py-2 text-muted-foreground">
-											{userCurationProfile.selectedBundle.podcasts?.map((podcast: CuratedPodcast) => <li key={podcast.id}>{podcast.name}</li>) || (
+											{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => <li key={podcast.podcast_id}>{podcast.name}</li>) || (
 												<li className="text-muted-foreground">No podcasts loaded</li>
 											)}
 										</ul>
@@ -146,10 +152,10 @@ export default function CurationProfileManagementPage() {
 							<CardContent>
 								<div className="text-sm">
 									<p>
-										Created: <span className="text-xs opacity-[0.5]">{formatDate(userCurationProfile?.createdAt)}</span>
+										Created: <span className="text-xs opacity-[0.5]">{formatDate(userCurationProfile?.created_at)}</span>
 									</p>
 									<p>
-										Updated: <span className="text-xs opacity-[0.5]"> {formatDate(userCurationProfile?.updatedAt)}</span>
+										Updated: <span className="text-xs opacity-[0.5]"> {formatDate(userCurationProfile?.updated_at)}</span>
 									</p>
 								</div>
 							</CardContent>
@@ -175,7 +181,7 @@ export default function CurationProfileManagementPage() {
 									</div>
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Profile Type:</span>
-										<span className="font-medium">{userCurationProfile.isBundleSelection ? "Bundle Selection" : "Custom Profile"}</span>
+										<span className="font-medium">{userCurationProfile.is_bundle_selection ? "Bundle Selection" : "Custom Profile"}</span>
 									</div>
 								</div>
 							</CardContent>

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import AudioPlayer from "@/components/ui/audio-player" // Import as default
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getEpisodes } from "@/lib/data"
 
 interface EpisodePageProps {
 	params: Promise<{ id: string }>
@@ -9,8 +8,18 @@ interface EpisodePageProps {
 
 const EpisodeDetailPage = async ({ params }: EpisodePageProps) => {
 	const { id } = await params
-	const episodes = await getEpisodes() // Fetch all episodes to find the one by ID
-	const episode = episodes.find(ep => ep.id === id)
+
+	// Fetch episodes from API
+	const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/episodes`, {
+		cache: "no-store",
+	})
+
+	if (!response.ok) {
+		notFound()
+	}
+
+	const episodes = await response.json()
+	const episode = episodes.find((ep: { id: string }) => ep.id === id)
 
 	if (!episode) {
 		notFound()

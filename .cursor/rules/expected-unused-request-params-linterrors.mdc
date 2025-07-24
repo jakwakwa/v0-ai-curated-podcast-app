@@ -1,6 +1,5 @@
 ---
-globs: lib/*,app/api/**/*
-alwaysApply: false
+alwaysApply: true
 ---
 # Cursor agents fixing linting rules
 

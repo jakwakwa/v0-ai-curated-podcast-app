@@ -25,7 +25,7 @@ export async function GET() {
 		console.log("Email config verification:", config)
 
 		// Check if all required variables are present
-		if (!config.hasHost || !config.hasFrom || !config.hasUser || !config.hasPass) {
+		if (!(config.hasHost && config.hasFrom && config.hasUser && config.hasPass)) {
 			return NextResponse.json({
 				success: false,
 				error: "Missing required environment variables",

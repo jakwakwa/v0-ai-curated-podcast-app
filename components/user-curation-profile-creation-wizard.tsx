@@ -1,5 +1,6 @@
 "use client"
 
+import type { Podcast, UserCurationProfile } from "@prisma/client"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -8,9 +9,8 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { getUserCurationProfile } from "@/lib/data"
 import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
-import type { CuratedPodcast, UserCurationProfile } from "@/lib/types"
+
 import styles from "./collection-creation-wizard.module.css"
 import { CuratedBundleList } from "./curated-bundle-list"
 import { CuratedPodcastList } from "./curated-podcast-list"
@@ -20,7 +20,7 @@ export function UserCurationProfileCreationWizard() {
 	const [userCurationProfileName, setUserCurationProfileName] = useState("")
 	const [isBundleSelection, setIsBundleSelection] = useState(false)
 	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(undefined)
-	const [selectedPodcasts, setSelectedPodcasts] = useState<CuratedPodcast[]>([])
+	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([])
 	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 
@@ -31,8 +31,11 @@ export function UserCurationProfileCreationWizard() {
 	useEffect(() => {
 		const checkExistingProfile = async () => {
 			try {
-				const profile = await getUserCurationProfile()
-				setExistingProfile(profile)
+				const response = await fetch("/api/user-curation-profiles")
+				if (response.ok) {
+					const profile = await response.json()
+					setExistingProfile(profile)
+				}
 			} catch {
 				// Silently handle profile check errors
 			} finally {
@@ -72,7 +75,7 @@ export function UserCurationProfileCreationWizard() {
 			data = {
 				name: userCurationProfileName,
 				isBundleSelection: false,
-				selectedPodcasts: selectedPodcasts.map(p => p.id),
+				selectedPodcasts: selectedPodcasts.map(p => p.podcast_id),
 			}
 		}
 
@@ -175,9 +178,9 @@ export function UserCurationProfileCreationWizard() {
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {
-								const isAlreadySelected = selectedPodcasts.some(p => p.id === podcast.id)
+								const isAlreadySelected = selectedPodcasts.some(p => p.podcast_id === podcast.podcast_id)
 								if (isAlreadySelected) {
-									setSelectedPodcasts(selectedPodcasts.filter(p => p.id !== podcast.id))
+									setSelectedPodcasts(selectedPodcasts.filter(p => p.podcast_id !== podcast.podcast_id))
 								} else {
 									if (selectedPodcasts.length < 5) {
 										setSelectedPodcasts([...selectedPodcasts, podcast])
@@ -220,7 +223,7 @@ export function UserCurationProfileCreationWizard() {
 						) : (
 							<ul>
 								{selectedPodcasts.map(p => (
-									<li key={p.id}>{p.name}</li>
+									<li key={p.podcast_id}>{p.name}</li>
 								))}
 							</ul>
 						)}

@@ -8,23 +8,16 @@ export type {
 	Podcast, // Unified: replaces CuratedPodcast + Source
 	Bundle, // Unified: replaces CuratedBundle
 	Episode, // Unified: replaces Episode + CuratedBundleEpisode
-	BundlePodcast, // Renamed from CuratedBundlePodcast
-	ProfilePodcast, // New: junction for user's custom podcast selections
+	BundlePodcast, // Junction table for Bundle ↔ Podcast
+	ProfilePodcast, // Junction table for UserCurationProfile ↔ Podcast
 	Notification,
 	Subscription,
 	EpisodeFeedback,
 	FeedbackRating,
 }
 
-// Legacy type aliases for backward compatibility during transition
-export type CuratedPodcast = Podcast
-export type CuratedBundle = Bundle
-export type Source = Podcast
-export type CuratedBundleEpisode = Episode
-export type CuratedBundlePodcast = BundlePodcast
-
 // Custom type for Bundle that includes the transformed 'podcasts' array from the API
-export interface TransformedCuratedBundle extends Bundle {
+export interface TransformedBundle extends Bundle {
 	podcasts: Podcast[]
 	episodes?: Episode[]
 }
@@ -33,7 +26,7 @@ export interface TransformedCuratedBundle extends Bundle {
 export interface UserCurationProfileWithRelations extends UserCurationProfile {
 	status: UserCurationProfileStatus // This will be cast at runtime
 	podcastSelections?: (ProfilePodcast & { podcast: Podcast })[]
-	selectedBundle?: TransformedCuratedBundle | null
+	selectedBundle?: TransformedBundle | null
 	episodes: Episode[]
 }
 
