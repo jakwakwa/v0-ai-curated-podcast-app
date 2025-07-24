@@ -3,6 +3,8 @@ import { NextResponse } from "next/server"
 import { requireOrgAdmin } from "@/lib/organization-roles"
 import { prisma } from "@/lib/prisma"
 
+// Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
+export const dynamic = 'force-dynamic'
 export const runtime = "nodejs" // Required for file system access
 
 // Initialize Google Cloud Storage with the same configuration as functions.ts

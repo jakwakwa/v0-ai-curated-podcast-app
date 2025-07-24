@@ -3,6 +3,9 @@ import { NextResponse } from "next/server"
 import emailService from "@/lib/email-service"
 import { requireOrgAdmin } from "@/lib/organization-roles"
 
+// Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
+export const dynamic = 'force-dynamic'
+
 export async function POST() {
 	try {
 		// Require admin access for testing

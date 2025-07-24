@@ -4,6 +4,9 @@ import { inngest } from "@/inngest/client"
 import { requireOrgAdmin } from "@/lib/organization-roles"
 import { prisma } from "@/lib/prisma"
 
+// Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
+export const dynamic = 'force-dynamic'
+
 interface EpisodeSource {
 	id: string
 	name: string
