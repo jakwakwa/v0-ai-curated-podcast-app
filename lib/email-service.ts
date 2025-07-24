@@ -43,6 +43,7 @@ class EmailService {
 		this.initialized = true
 
 		// Check if email is configured
+		// biome-ignore lint/complexity/useSimplifiedLogicExpression: <its ok>
 		if (!process.env.EMAIL_HOST || !process.env.EMAIL_FROM) {
 			if (process.env.NODE_ENV === "development") {
 				console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")

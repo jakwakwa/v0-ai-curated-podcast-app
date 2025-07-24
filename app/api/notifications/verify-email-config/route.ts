@@ -25,6 +25,7 @@ export async function GET() {
 		console.log("Email config verification:", config)
 
 		// Check if all required variables are present
+		// biome-ignore lint/complexity/useSimplifiedLogicExpression: <logic is fine>
 		if (!config.hasHost || !config.hasFrom || !config.hasUser || !config.hasPass) {
 			return NextResponse.json({
 				success: false,

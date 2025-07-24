@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { prismaEdge } from "@/lib/prisma-edge"
 
 export const runtime = "edge" // Use edge runtime for better performance
