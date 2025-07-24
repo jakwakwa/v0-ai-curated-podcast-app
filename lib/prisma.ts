@@ -11,4 +11,4 @@ function getPrismaClient(): PrismaClient {
 	return prisma
 }
 
-export default getPrismaClient()
+export default getPrismaClient
