@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { StripeService, SUBSCRIPTION_PLANS, type SubscriptionPlan } from "@/lib/stripe-service"
 
 export async function GET() {
 	try {
@@ -10,24 +9,17 @@ export async function GET() {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		// Fetch subscription once and derive other values from it (optimization)
-		const subscription = await StripeService.getUserSubscription(userId)
-		const hasActiveSubscription = StripeService.isSubscriptionActive(subscription)
-
-		// Determine plan from subscription data to avoid another DB call
-		let plan: SubscriptionPlan
-		if (hasActiveSubscription && subscription) {
-			// Find plan by price ID
-			const foundPlan = Object.values(SUBSCRIPTION_PLANS).find(p => p.stripePriceId === subscription.link_price_id)
-			plan = foundPlan || SUBSCRIPTION_PLANS.FREE
-		} else {
-			plan = SUBSCRIPTION_PLANS.FREE
-		}
-
+		// For now, return a simple response since Clerk handles subscriptions
+		// This can be extended later when you implement a proper payment system
 		return NextResponse.json({
-			subscription,
-			plan,
-			hasActiveSubscription,
+			subscription: null,
+			plan: {
+				id: "free",
+				name: "Free",
+				price: 0,
+				features: ["Basic podcast curation", "Limited episodes per week"],
+			},
+			hasActiveSubscription: false,
 		})
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import getPrismaClient from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 // Time-based revalidation - cache for 1 hour
 export const revalidate = 3600
@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest) {
 			})
 		}
 
-		const prisma = getPrismaClient()
+		// prisma is already imported
 
 		// Get all active bundles
 		const bundles = await prisma.bundle.findMany({
