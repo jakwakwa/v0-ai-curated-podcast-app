@@ -1,16 +1,15 @@
-import { NextRequest, NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { type NextRequest, NextResponse } from "next/server"
 
 // Time-based revalidation - cache for 1 hour
 export const revalidate = 3600
 
 export async function GET(_request: NextRequest) {
 	try {
-		// Check if prisma is initialized
-		if (!prisma) {
-			console.error("[CURATED_BUNDLES_GET] Prisma client not initialized")
-			return NextResponse.json({ error: "Database connection error" }, { status: 500 })
-		}
+		// Dynamic import to avoid issues during static generation
+		const { PrismaClient } = await import("@prisma/client")
+		const prisma = new PrismaClient({
+			log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+		})
 
 		// Get all active bundles
 		const bundles = await prisma.bundle.findMany({
