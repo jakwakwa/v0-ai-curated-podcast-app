@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import getPrismaClient from "@/lib/prisma"
 
 // Time-based revalidation - cache for 1 hour
