@@ -24,7 +24,7 @@ export function PodcastList({ episodes }: PodcastListProps) {
 									<div className="font-semibold truncate text-sm mb-1">{episode.title}</div>
 									{episode.profile_id && <div className="text-xs text-primary">Profile ID: {episode.profile_id}</div>}
 									{/* <div className="text-xs text-muted-foreground">
-									{episode.publishedAt ? new Date(episode.publishedAt).toLocaleDateString() : ""}
+									{episode.published_at ? new Date(episode.published_at).toLocaleDateString() : ""}
 								</div> */}
 								</div>
 

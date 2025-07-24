@@ -225,15 +225,15 @@ export const generatePodcast = inngest.createFunction(
 				data: {
 					title: `AI Podcast for ${userCurationProfile.name}`,
 					description: script,
-					audioUrl: publicUrl ? publicUrl : "",
-					imageUrl: mainPodcast?.imageUrl || null,
-					publishedAt: new Date(),
-					podcastId: mainPodcast?.id || userCurationProfile.podcastSelections[0].podcast.id,
-					userProfileId: userCurationProfile.id,
+					audio_url: publicUrl ? publicUrl : "",
+					image_url: mainPodcast?.image_url || null,
+					published_at: new Date(),
+					podcast_id: mainPodcast?.podcast_id || userCurationProfile.podcastSelections[0].podcast.podcast_id,
+					profile_id: userCurationProfile.profile_id,
 				},
 			})
 			await prisma.userCurationProfile.update({
-				where: { id: collectionId },
+				where: { profile_id: collectionId },
 				data: { status: "Generated" },
 			})
 			return episode
@@ -242,12 +242,12 @@ export const generatePodcast = inngest.createFunction(
 		// Send notifications (in-app and email)
 		await step.run("send-notifications", async () => {
 			const userWithProfile = await prisma.user.findUnique({
-				where: { id: userCurationProfile.userId },
+				where: { user_id: userCurationProfile.user_id },
 				select: {
-					id: true,
+					user_id: true,
 					name: true,
 					email: true,
-					emailNotifications: true,
+					email_notifications: true,
 				},
 			})
 
@@ -259,19 +259,19 @@ export const generatePodcast = inngest.createFunction(
 			// Create in-app notification
 			await prisma.notification.create({
 				data: {
-					userId: userWithProfile.id,
+					user_id: userWithProfile.user_id,
 					type: "episode_ready",
 					message: `🎧 Your episode "${episode.title}" is ready to listen!`,
-					isRead: false,
+					is_read: false,
 				},
 			})
 
 			// Send email notification if user has email notifications enabled
-			if (userWithProfile.emailNotifications) {
+			if (userWithProfile.email_notifications) {
 				const firstName = userWithProfile.name?.split(" ")[0] || "there"
-				const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.id}`
+				const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.episode_id}`
 
-				await emailService.sendEpisodeReadyEmail(userWithProfile.id, userWithProfile.email, {
+				await emailService.sendEpisodeReadyEmail(userWithProfile.user_id, userWithProfile.email, {
 					userFirstName: firstName,
 					episodeTitle: episode.title,
 					episodeUrl,
@@ -446,12 +446,12 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 				data: {
 					title: episodeTitle,
 					description: episodeDescription || script,
-					audioUrl: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
-					imageUrl: adminCurationProfile.imageUrl || bundleWithPodcasts.imageUrl || null,
-					publishedAt: new Date(),
-					weekNr: currentWeek,
-					bundleId: bundleId,
-					podcastId: firstPodcast.id, // Use actual podcast ID from bundle
+					audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+					image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
+					published_at: new Date(),
+					week_nr: currentWeek,
+					bundle_id: bundleId,
+					podcast_id: firstPodcast.podcast_id, // Use actual podcast ID from bundle
 				},
 			})
 			return episode

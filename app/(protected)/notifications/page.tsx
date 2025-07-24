@@ -50,7 +50,7 @@ export default function NotificationsPage() {
 			if (!response.ok) {
 				throw new Error("Failed to mark notification as read")
 			}
-			setNotifications(prev => prev.map(notif => (notif.id === notificationId ? { ...notif, isRead: true } : notif)))
+			setNotifications(prev => prev.map(notif => (notif.notification_id === notificationId ? { ...notif, is_read: true } : notif)))
 			toast.success("Notification marked as read")
 		} catch (error) {
 			console.error("Error marking notification as read:", error)
@@ -60,15 +60,15 @@ export default function NotificationsPage() {
 
 	const handleMarkAllAsRead = async () => {
 		try {
-			const unreadNotifications = notifications.filter(n => !n.isRead)
+			const unreadNotifications = notifications.filter(n => !n.is_read)
 			await Promise.all(
 				unreadNotifications.map(notif =>
-					fetch(`/api/notifications/${notif.id}/read`, {
+					fetch(`/api/notifications/${notif.notification_id}/read`, {
 						method: "PATCH",
 					})
 				)
 			)
-			setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })))
+			setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true })))
 			toast.success("All notifications marked as read")
 		} catch (error) {
 			console.error("Error marking all notifications as read:", error)
@@ -84,7 +84,7 @@ export default function NotificationsPage() {
 			if (!response.ok) {
 				throw new Error("Failed to delete notification")
 			}
-			setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
+			setNotifications(prev => prev.filter(notif => notif.notification_id !== notificationId))
 			toast.success("Notification deleted")
 		} catch (error) {
 			console.error("Error deleting notification:", error)
@@ -96,7 +96,7 @@ export default function NotificationsPage() {
 		try {
 			await Promise.all(
 				notifications.map(notif =>
-					fetch(`/api/notifications/${notif.id}`, {
+					fetch(`/api/notifications/${notif.notification_id}`, {
 						method: "DELETE",
 					})
 				)
@@ -154,7 +154,7 @@ export default function NotificationsPage() {
 		}
 	}
 
-	const unreadCount = notifications.filter(n => !n.isRead).length
+	const unreadCount = notifications.filter(n => !n.is_read).length
 
 	if (isLoading) {
 		return (
@@ -204,25 +204,25 @@ export default function NotificationsPage() {
 				) : (
 					<div className={styles.notificationsList}>
 						{notifications.map(notification => (
-							<Card key={notification.id} className={`${styles.notificationCard} ${!notification.isRead ? styles.unreadCard : ""}`}>
+							<Card key={notification.notification_id} className={`${styles.notificationCard} ${!notification.is_read ? styles.unreadCard : ""}`}>
 								<CardHeader className={styles.cardHeader}>
 									<div className={styles.notificationHeader}>
 										<div className={styles.notificationIconWrapper}>{getNotificationIcon(notification.type)}</div>
 										<div className={styles.notificationInfo}>
 											<div className={styles.notificationMeta}>
 												{getNotificationBadge(notification.type)}
-												<span className={styles.timestamp}>{formatTimeAgo(new Date(notification.createdAt))}</span>
+												<span className={styles.timestamp}>{formatTimeAgo(new Date(notification.created_at))}</span>
 											</div>
 											<CardTitle className={styles.notificationTitle}>{notification.message}</CardTitle>
 										</div>
 									</div>
 									<div className={styles.notificationActions}>
-										{!notification.isRead && (
-											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)} className={styles.markReadButton}>
+										{!notification.is_read && (
+											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} className={styles.markReadButton}>
 												<Check size={16} />
 											</Button>
 										)}
-										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.id)} className={styles.deleteButton}>
+										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} className={styles.deleteButton}>
 											<Trash2 size={16} />
 										</Button>
 									</div>

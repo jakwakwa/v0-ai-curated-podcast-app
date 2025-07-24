@@ -31,7 +31,7 @@ const EpisodeDetailPage = async ({ params }: EpisodePageProps) => {
 			<Card>
 				<CardHeader>
 					<CardTitle>{episode.title}</CardTitle>
-					{episode.publishedAt && <CardDescription>Published: {new Date(episode.publishedAt).toLocaleDateString()}</CardDescription>}
+					{episode.published_at && <CardDescription>Published: {new Date(episode.published_at).toLocaleDateString()}</CardDescription>}
 				</CardHeader>
 				<CardContent>
 					{episode.image_url && (

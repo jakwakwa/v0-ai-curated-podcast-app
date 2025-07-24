@@ -46,14 +46,14 @@ export const useNotificationStore = create<NotificationStore>()(
 
 			// Actions
 			setNotifications: notifications => {
-				const unreadCount = notifications.filter(n => !n.isRead).length
+				const unreadCount = notifications.filter(n => !n.is_read).length
 				set({ notifications, unreadCount }, false, "setNotifications")
 			},
 
 			addNotification: notification => {
 				const { notifications } = get()
 				const newNotifications = [notification, ...notifications]
-				const unreadCount = newNotifications.filter(n => !n.isRead).length
+				const unreadCount = newNotifications.filter(n => !n.is_read).length
 
 				set(
 					{
@@ -78,8 +78,8 @@ export const useNotificationStore = create<NotificationStore>()(
 					}
 
 					const { notifications } = get()
-					const updatedNotifications = notifications.map(n => (n.id === notificationId ? { ...n, isRead: true } : n))
-					const unreadCount = updatedNotifications.filter(n => !n.isRead).length
+					const updatedNotifications = notifications.map(n => (n.notification_id === notificationId ? { ...n, is_read: true } : n))
+					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
 
 					set(
 						{
@@ -151,7 +151,7 @@ export const useNotificationStore = create<NotificationStore>()(
 					}
 
 					const notifications = await response.json()
-					const unreadCount = notifications.filter((n: Notification) => !n.isRead).length
+					const unreadCount = notifications.filter((n: Notification) => !n.is_read).length
 
 					set(
 						{
@@ -188,8 +188,8 @@ export const useNotificationStore = create<NotificationStore>()(
 					}
 
 					const { notifications } = get()
-					const updatedNotifications = notifications.filter(n => n.id !== notificationId)
-					const unreadCount = updatedNotifications.filter(n => !n.isRead).length
+					const updatedNotifications = notifications.filter(n => n.notification_id !== notificationId)
+					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
 
 					set(
 						{
@@ -258,7 +258,7 @@ export const useNotificationStore = create<NotificationStore>()(
 
 			updateUnreadCount: () => {
 				const { notifications } = get()
-				const unreadCount = notifications.filter(n => !n.isRead).length
+				const unreadCount = notifications.filter(n => !n.is_read).length
 				set({ unreadCount }, false, "updateUnreadCount")
 			},
 		}),

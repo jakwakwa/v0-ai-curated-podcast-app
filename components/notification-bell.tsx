@@ -119,26 +119,26 @@ export function NotificationBell() {
 						</div>
 					) : (
 						notifications.slice(0, 10).map(notification => (
-							<Card key={notification.id} className={`${styles.notificationItem} ${!notification.isRead ? styles.unread : ""}`}>
+							<Card key={notification.notification_id} className={`${styles.notificationItem} ${!notification.is_read ? styles.unread : ""}`}>
 								<div className={styles.notificationContent}>
 									<div className={styles.notificationHeader}>
 										<span className={`${styles.notificationIcon} ${getNotificationColor(notification.type)}`}>{getNotificationIcon(notification.type)}</span>
 										<div className={styles.notificationMeta}>
-											<time className={styles.notificationTime}>{formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}</time>
-											{!notification.isRead && <div className={styles.unreadDot} />}
+											<time className={styles.notificationTime}>{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
+											{!notification.is_read && <div className={styles.unreadDot} />}
 										</div>
 									</div>
 
 									<p className={styles.notificationMessage}>{notification.message}</p>
 
 									<div className={styles.notificationActions}>
-										{!notification.isRead && (
-											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)} disabled={isLoading} className={styles.actionButton}>
+										{!notification.is_read && (
+											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className={styles.actionButton}>
 												<Check size={12} />
 												Mark read
 											</Button>
 										)}
-										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.id)} disabled={isLoading} className={styles.actionButton}>
+										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className={styles.actionButton}>
 											<X size={12} />
 											Delete
 										</Button>

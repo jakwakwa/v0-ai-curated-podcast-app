@@ -20,7 +20,7 @@ export function SiteHeader() {
 				const response = await fetch("/api/notifications")
 				if (response.ok) {
 					const notifications = await response.json()
-					const count = notifications.filter((n: { isRead: boolean }) => !n.isRead).length
+					const count = notifications.filter((n: { is_read: boolean }) => !n.is_read).length
 					setUnreadCount(count)
 				}
 			} catch (error) {
