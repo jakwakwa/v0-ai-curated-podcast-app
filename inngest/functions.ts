@@ -462,16 +462,16 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 			// Get all users who have selected this bundle in their active profiles
 			const usersWithBundle = await prisma.userCurationProfile.findMany({
 				where: {
-					selectedBundleId: bundleId,
-					isActive: true,
+					selected_bundle_id: bundleId,
+					is_active: true,
 				},
 				include: {
 					user: {
 						select: {
-							id: true,
+							user_id: true,
 							name: true,
 							email: true,
-							emailNotifications: true,
+							email_notifications: true,
 						},
 					},
 				},
@@ -482,19 +482,20 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 				// Create in-app notification
 				await prisma.notification.create({
 					data: {
-						userId: profile.user.id,
+						notification_id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+						user_id: profile.user.user_id,
 						type: "episode_ready",
 						message: `🎧 New episode "${episode.title}" is available in your bundle!`,
-						isRead: false,
+						is_read: false,
 					},
 				})
 
 				// Send email notification if enabled
-				if (profile.user.emailNotifications) {
+				if (profile.user.email_notifications) {
 					const firstName = profile.user.name?.split(" ")[0] || "there"
-					const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.id}`
+					const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.episode_id}`
 
-					await emailService.sendEpisodeReadyEmail(profile.user.id, profile.user.email, {
+					await emailService.sendEpisodeReadyEmail(profile.user.user_id, profile.user.email, {
 						userFirstName: firstName,
 						episodeTitle: episode.title,
 						episodeUrl,

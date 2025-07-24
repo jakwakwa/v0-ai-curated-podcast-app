@@ -23,9 +23,10 @@ export async function GET(
 			return NextResponse.json({ error: "User Curation Profile ID is required" }, { status: 400 })
 		}
 
-		const userCurationProfile = await prisma.userCurationProfile.findUnique({
-			where: { id: id, userId: userId },
-			include: { selectedBundle: true },
+		const prismaClient = prisma()
+		const userCurationProfile = await prismaClient.userCurationProfile.findUnique({
+			where: { profile_id: id, user_id: userId },
+			include: { bundle: true },
 		})
 
 		if (!userCurationProfile) {
@@ -63,15 +64,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		}
 
 		// Fetch the existing user curation profile to check ownership
-		const existingUserCurationProfile = await prisma.userCurationProfile.findUnique({
-			where: { id: id },
+		const prismaClient = prisma()
+		const existingUserCurationProfile = await prismaClient.userCurationProfile.findUnique({
+			where: { profile_id: id },
 		})
 
 		if (!existingUserCurationProfile) {
 			return NextResponse.json({ error: "User Curation Profile not found" }, { status: 404 })
 		}
 
-		if (existingUserCurationProfile.userId !== userId) {
+		if (existingUserCurationProfile.user_id !== userId) {
 			return NextResponse.json({ error: "Unauthorized - User ID mismatch" }, { status: 403 })
 		}
 		// TODO: Fix no explicit any
@@ -81,37 +83,37 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		if (isBundleSelection !== undefined) {
 			// If changing to bundle selection
 			if (isBundleSelection && selectedBundleId) {
-				updatedUserCurationProfile = await prisma.userCurationProfile.update({
-					where: { id: id },
+				updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+					where: { profile_id: id },
 					data: {
 						name: name || existingUserCurationProfile.name,
-						isBundleSelection: true,
-						selectedBundleId,
+						is_bundle_selection: true,
+						selected_bundle_id: selectedBundleId,
 					},
 				})
 			} else if (!isBundleSelection) {
 				// If changing to custom selection
-				updatedUserCurationProfile = await prisma.userCurationProfile.update({
-					where: { id: id },
+				updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+					where: { profile_id: id },
 					data: {
 						name: name || existingUserCurationProfile.name,
-						isBundleSelection: false,
-						selectedBundleId: null,
+						is_bundle_selection: false,
+						selected_bundle_id: null,
 					},
 				})
 			}
 		} else if (sourceUrls) {
 			// Update sources for a custom user curation profile
 			// Note: Sources functionality has been temporarily disabled during migration
-			updatedUserCurationProfile = await prisma.userCurationProfile.update({
-				where: { id: id },
+			updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+				where: { profile_id: id },
 				data: {
 					name: name || existingUserCurationProfile.name,
 				},
 			})
 		} else if (name) {
-			updatedUserCurationProfile = await prisma.userCurationProfile.update({
-				where: { id: id },
+			updatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+				where: { profile_id: id },
 				data: { name: name },
 			})
 		}
@@ -142,9 +144,10 @@ export async function DELETE(
 		}
 
 		// Deactivate the user curation profile instead of deleting it
-		const deactivatedUserCurationProfile = await prisma.userCurationProfile.update({
-			where: { id: id, userId: userId },
-			data: { isActive: false },
+		const prismaClient = prisma()
+		const deactivatedUserCurationProfile = await prismaClient.userCurationProfile.update({
+			where: { profile_id: id, user_id: userId },
+			data: { is_active: false },
 		})
 
 		if (!deactivatedUserCurationProfile) {

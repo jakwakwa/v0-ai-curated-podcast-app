@@ -20,21 +20,21 @@ export async function GET(_request: NextRequest) {
 
 		// Get all active bundles
 		const bundles = await prisma.bundle.findMany({
-			where: { isActive: true },
+			where: { is_active: true },
 			include: {
-				podcasts: {
+				bundle_podcast: {
 					include: {
 						podcast: true,
 					},
 				},
 			},
-			orderBy: { createdAt: "desc" },
+			orderBy: { created_at: "desc" },
 		})
 
 		// Transform data for response
 		const transformedBundles = bundles.map(bundle => ({
 			...bundle,
-			podcasts: bundle.podcasts.map(bp => bp.podcast),
+			podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
 		}))
 
 		// Add cache headers for better CDN caching
