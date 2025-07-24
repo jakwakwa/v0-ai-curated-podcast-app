@@ -12,14 +12,11 @@ function createPrismaClient() {
 				url: process.env.DATABASE_URL,
 			},
 		},
-	}).$extends(withAccelerate())
+	})
 
-	// Handle connection cleanup for serverless environments
-	if (process.env.NODE_ENV === "production") {
-		// Graceful shutdown for serverless
-		process.on("beforeExit", async () => {
-			await client.$disconnect()
-		})
+	// Only add Accelerate extension during runtime, not during build
+	if (process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production") {
+		return client.$extends(withAccelerate())
 	}
 
 	return client
@@ -29,20 +26,8 @@ const globalForPrisma = global as unknown as {
 	prisma: ExtendedPrismaClient
 }
 
-// Add debugging for Prisma Client initialization
-if (process.env.DEBUG?.includes("prisma")) {
-	console.log("🔍 Prisma Client initialization started")
-	console.log("🔍 Environment:", process.env.NODE_ENV)
-	console.log("🔍 DATABASE_URL available:", !!process.env.DATABASE_URL)
-}
-
 export const prisma = globalForPrisma.prisma || createPrismaClient()
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
-
-// Add debugging for successful initialization
-if (process.env.DEBUG?.includes("prisma")) {
-	console.log("✅ Prisma Client initialized successfully")
-}
 
 
