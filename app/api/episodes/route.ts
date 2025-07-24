@@ -1,60 +1,53 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { prismaEdge } from "@/lib/prisma-edge"
+
+export const runtime = "edge" // Use edge runtime for better performance
 
 export async function GET(_request: Request) {
 	try {
 		const { userId } = await auth()
-
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
-		// Unified query: get episodes from both user profiles and selected bundles
-		const episodes = await prisma.episode.findMany({
+		const episodes = await prismaEdge.episode.findMany({
 			where: {
 				OR: [
-					// Episodes from user's custom profile
 					{
-						userProfile: { userId },
+						userProfile: {
+							userId,
+						},
 					},
-					// Episodes from user's selected bundle
 					{
 						bundle: {
 							profiles: {
-								some: { userId },
+								some: {
+									userId,
+								},
 							},
 						},
 					},
 				],
 			},
 			include: {
-				podcast: true, // Unified podcast model
-				userProfile: {
-					include: {
-						selectedBundle: {
-							include: {
-								podcasts: {
-									include: { podcast: true },
-								},
-							},
-						},
-					},
-				},
-				bundle: {
-					include: {
-						podcasts: {
-							include: { podcast: true },
-						},
+				podcast: true,
+				userProfile: true,
+				bundle: true,
+				feedback: {
+					where: {
+						userId,
 					},
 				},
 			},
-			orderBy: { createdAt: "desc" },
+			orderBy: {
+				publishedAt: "desc",
+			},
 		})
 
 		return NextResponse.json(episodes)
 	} catch (error) {
-		console.error("[EPISODES_GET]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		console.error("Error fetching episodes:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }

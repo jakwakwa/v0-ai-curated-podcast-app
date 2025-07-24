@@ -30,32 +30,36 @@ export interface SubscriptionExpiringEmailData {
 
 class EmailService {
 	private transporter: Transporter | null = null
+	private initialized = false
 
-	constructor() {
-		this.initializeTransporter()
-	}
+	// Remove constructor - don't initialize on import
+	// constructor() {
+	// 	this.initializeTransporter()
+	// }
 
 	private initializeTransporter() {
+		// Skip if already initialized
+		if (this.initialized) return
+		this.initialized = true
+
 		// Check if email is configured
 		if (!process.env.EMAIL_HOST || !process.env.EMAIL_FROM) {
-			console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
-			console.warn("Current config:", {
-				hasHost: !!process.env.EMAIL_HOST,
-				hasFrom: !!process.env.EMAIL_FROM,
-				hasUser: !!process.env.EMAIL_USER,
-				hasPass: !!process.env.EMAIL_PASS,
-			})
+			if (process.env.NODE_ENV === "development") {
+				console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
+			}
 			return
 		}
 
 		try {
-			console.log("Initializing email transporter with config:", {
-				host: process.env.EMAIL_HOST,
-				port: process.env.EMAIL_PORT || "587",
-				secure: process.env.EMAIL_SECURE === "true",
-				user: process.env.EMAIL_USER,
-				// Don't log password
-			})
+			// Only log in development
+			if (process.env.NODE_ENV === "development") {
+				console.log("Initializing email transporter with config:", {
+					host: process.env.EMAIL_HOST,
+					port: process.env.EMAIL_PORT || "587",
+					secure: process.env.EMAIL_SECURE === "true",
+					user: process.env.EMAIL_USER,
+				})
+			}
 
 			this.transporter = nodemailer.createTransport({
 				host: process.env.EMAIL_HOST,
@@ -67,12 +71,12 @@ class EmailService {
 				},
 			})
 
-			// Verify connection
+			// Verify connection asynchronously
 			this.transporter.verify((error: Error | null) => {
 				if (error) {
 					console.error("Email service verification failed:", error)
 					this.transporter = null
-				} else {
+				} else if (process.env.NODE_ENV === "development") {
 					console.log("Email service ready and verified")
 				}
 			})
@@ -96,6 +100,9 @@ class EmailService {
 	}
 
 	async sendEmail(notification: EmailNotification): Promise<boolean> {
+		// Lazy initialize on first use
+		this.initializeTransporter()
+
 		if (!this.transporter) {
 			console.warn("Email transporter not available - check initialization")
 			return false
