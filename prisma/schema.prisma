@@ -38,6 +38,7 @@ model Bundle {
 
   @@index([owner_user_id], map: "bundle_owner_idx")
   @@index([is_static, is_active], map: "bundle_static_active_idx")
+  @@map("bundle")
 }
 
 model BundlePodcast {
@@ -47,6 +48,7 @@ model BundlePodcast {
   podcast    Podcast @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
 
   @@id([bundle_id, podcast_id])
+  @@map("bundle_podcast")
 }
 
 model Episode {
@@ -70,6 +72,7 @@ model Episode {
   @@index([podcast_id, week_nr], map: "episode_podcast_week_idx")
   @@index([profile_id], map: "episode_profile_idx")
   @@index([published_at])
+  @@map("episode")
 }
 
 model Notification {
@@ -80,6 +83,8 @@ model Notification {
   is_read         Boolean  @default(false)
   created_at      DateTime @default(now())
   user            User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("notification")
 }
 
 model Podcast {
@@ -99,6 +104,7 @@ model Podcast {
 
   @@index([is_active])
   @@index([owner_user_id])
+  @@map("podcast")
 }
 
 model ProfilePodcast {
@@ -108,6 +114,7 @@ model ProfilePodcast {
   user_curation_profile UserCurationProfile @relation(fields: [profile_id], references: [profile_id], onDelete: Cascade)
 
   @@id([profile_id, podcast_id])
+  @@map("profile_podcast")
 }
 
 model Subscription {
@@ -125,6 +132,8 @@ model Subscription {
   created_at           DateTime  @default(now())
   updated_at           DateTime
   user                 User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("subscription")
 }
 
 model User {
@@ -145,6 +154,8 @@ model User {
   podcast               Podcast[]
   subscription          Subscription[]
   user_curation_profile UserCurationProfile?
+
+  @@map("user")
 }
 
 model UserCurationProfile {
@@ -166,6 +177,8 @@ model UserCurationProfile {
   profile_podcast      ProfilePodcast[]
   bundle               Bundle?          @relation(fields: [selected_bundle_id], references: [bundle_id])
   user                 User             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("user_curation_profile")
 }
 
 enum FeedbackRating {
