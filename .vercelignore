@@ -12,3 +12,8 @@ __tests__/
 *.test.tsx
 *.spec.ts
 *.spec.tsx
+google-cloud-sdk/
+gcs/
+.cursor/
+.DS_Store
+*.md
