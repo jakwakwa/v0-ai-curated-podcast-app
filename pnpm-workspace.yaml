@@ -1,11 +1,14 @@
 onlyBuiltDependencies:
-    - "@biomejs/biome"
-    - "@clerk/shared"
-    - "@prisma/client"
-    - "@prisma/engines"
-    - "@tailwindcss/oxide"
-    - core-js
-    - esbuild
-    - prisma
-    - protobufjs
-    # Removed mdns2 and zmq as they're not needed for production builds
+  - "@biomejs/biome"
+  - "@clerk/shared"
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@tailwindcss/oxide"
+  - core-js
+  - esbuild
+  - prisma
+  - protobufjs
+  - sharp
+  - oxc-resolver
+
+  # Removed mdns2 and zmq as they're not needed for production builds
