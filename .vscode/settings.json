@@ -53,7 +53,7 @@
 	"editor.wordWrap": "bounded",
 	"cursor.general.enableShadowWorkspace": false,
 	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "One Dark Pro Mix",
+	"workbench.preferredDarkColorTheme": "One Dark Pro Monokai Darker",
 	"window.autoDetectColorScheme": true,
 	"workbench.preferredLightColorTheme": "One Dark Pro",
 	"workbench.colorTheme": "Night Wolf (gray)"
