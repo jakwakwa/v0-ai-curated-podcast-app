@@ -22,81 +22,91 @@ export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 
-	// Dummy notifications data
-	const dummyNotifications = useCallback(
-		(): Notification[] => [
-			{
-				id: "notif1",
-				userId: "user_123",
-				type: "episode_ready",
-				message: "Your weekly podcast episode 'The Future of AI: A Deep Dive' is ready to listen!",
-				isRead: false,
-				createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-			},
-			{
-				id: "notif2",
-				userId: "user_123",
-				type: "weekly_reminder",
-				message: "Don't forget! Your next podcast episode will be generated this Friday at midnight.",
-				isRead: false,
-				createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-			},
-			{
-				id: "notif3",
-				userId: "user_123",
-				type: "subscription_expiring",
-				message: "Your premium subscription will expire in 3 days. Renew now to continue enjoying unlimited profiles.",
-				isRead: true,
-				createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-			},
-			{
-				id: "notif4",
-				userId: "user_123",
-				type: "trial_ending",
-				message: "Your free trial ends tomorrow. Upgrade to premium to keep creating unlimited Personalized Feeds.",
-				isRead: true,
-				createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-			},
-			{
-				id: "notif5",
-				userId: "user_123",
-				type: "episode_ready",
-				message: "Your weekly podcast episode 'Space Exploration: Beyond Our Solar System' is ready to listen!",
-				isRead: true,
-				createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-			},
-		],
-		[]
-	)
+	const fetchNotifications = useCallback(async () => {
+		try {
+			const response = await fetch("/api/notifications")
+			if (!response.ok) {
+				throw new Error("Failed to fetch notifications")
+			}
+			const data = await response.json()
+			setNotifications(data)
+		} catch (error) {
+			console.error("Error fetching notifications:", error)
+			toast.error("Failed to load notifications")
+		} finally {
+			setIsLoading(false)
+		}
+	}, [])
 
 	useEffect(() => {
-		// Simulate loading
-		const timer = setTimeout(() => {
-			setNotifications(dummyNotifications())
-			setIsLoading(false)
-		}, 500)
+		fetchNotifications()
+	}, [fetchNotifications])
 
-		return () => clearTimeout(timer)
-	}, [dummyNotifications])
-
-	const handleMarkAsRead = (notificationId: string) => {
-		setNotifications(prev => prev.map(notif => (notif.id === notificationId ? { ...notif, isRead: true } : notif)))
-		toast.success("Notification marked as read")
+	const handleMarkAsRead = async (notificationId: string) => {
+		try {
+			const response = await fetch(`/api/notifications/${notificationId}/read`, {
+				method: "PATCH",
+			})
+			if (!response.ok) {
+				throw new Error("Failed to mark notification as read")
+			}
+			setNotifications(prev => prev.map(notif => (notif.id === notificationId ? { ...notif, isRead: true } : notif)))
+			toast.success("Notification marked as read")
+		} catch (error) {
+			console.error("Error marking notification as read:", error)
+			toast.error("Failed to mark notification as read")
+		}
 	}
 
-	const handleMarkAllAsRead = () => {
-		setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })))
-		toast.success("All notifications marked as read")
+	const handleMarkAllAsRead = async () => {
+		try {
+			const unreadNotifications = notifications.filter(n => !n.isRead)
+			await Promise.all(
+				unreadNotifications.map(notif =>
+					fetch(`/api/notifications/${notif.id}/read`, {
+						method: "PATCH",
+					})
+				)
+			)
+			setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })))
+			toast.success("All notifications marked as read")
+		} catch (error) {
+			console.error("Error marking all notifications as read:", error)
+			toast.error("Failed to mark all notifications as read")
+		}
 	}
 
-	const handleDeleteNotification = (notificationId: string) => {
-		setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
-		toast.success("Notification deleted")
+	const handleDeleteNotification = async (notificationId: string) => {
+		try {
+			const response = await fetch(`/api/notifications/${notificationId}`, {
+				method: "DELETE",
+			})
+			if (!response.ok) {
+				throw new Error("Failed to delete notification")
+			}
+			setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
+			toast.success("Notification deleted")
+		} catch (error) {
+			console.error("Error deleting notification:", error)
+			toast.error("Failed to delete notification")
+		}
 	}
 
-	const handleClearAll = () => {
-		setNotifications([])
-		toast.success("All notifications cleared")
+	const handleClearAll = async () => {
+		try {
+			await Promise.all(
+				notifications.map(notif =>
+					fetch(`/api/notifications/${notif.id}`, {
+						method: "DELETE",
+					})
+				)
+			)
+			setNotifications([])
+			toast.success("All notifications cleared")
+		} catch (error) {
+			console.error("Error clearing all notifications:", error)
+			toast.error("Failed to clear all notifications")
+		}
 	}
 
 	const getNotificationIcon = (type: Notification["type"]) => {
@@ -201,7 +211,7 @@ export default function NotificationsPage() {
 										<div className={styles.notificationInfo}>
 											<div className={styles.notificationMeta}>
 												{getNotificationBadge(notification.type)}
-												<span className={styles.timestamp}>{formatTimeAgo(notification.createdAt)}</span>
+												<span className={styles.timestamp}>{formatTimeAgo(new Date(notification.createdAt))}</span>
 											</div>
 											<CardTitle className={styles.notificationTitle}>{notification.message}</CardTitle>
 										</div>

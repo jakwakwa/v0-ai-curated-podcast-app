@@ -6,6 +6,7 @@ import type { Podcast as SourceModel } from "@prisma/client"
 import { generateText } from "ai"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
+import emailService from "../lib/email-service"
 import prisma from "../lib/prisma"
 import { inngest } from "./client"
 
@@ -217,10 +218,10 @@ export const generatePodcast = inngest.createFunction(
 		})
 
 		// Create a new Episode linked to the UserCurationProfile
-		await step.run("create-episode", async () => {
+		const episode = await step.run("create-episode", async () => {
 			// Use the first podcast as the main source for the episode (or adjust as needed)
 			const mainPodcast = userCurationProfile.podcastSelections[0]?.podcast
-			await prisma.episode.create({
+			const episode = await prisma.episode.create({
 				data: {
 					title: `AI Podcast for ${userCurationProfile.name}`,
 					description: script,
@@ -235,6 +236,48 @@ export const generatePodcast = inngest.createFunction(
 				where: { id: collectionId },
 				data: { status: "Generated" },
 			})
+			return episode
+		})
+
+		// Send notifications (in-app and email)
+		await step.run("send-notifications", async () => {
+			const userWithProfile = await prisma.user.findUnique({
+				where: { id: userCurationProfile.userId },
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					emailNotifications: true,
+				},
+			})
+
+			if (!userWithProfile) {
+				console.error("User not found for episode notification")
+				return
+			}
+
+			// Create in-app notification
+			await prisma.notification.create({
+				data: {
+					userId: userWithProfile.id,
+					type: "episode_ready",
+					message: `🎧 Your episode "${episode.title}" is ready to listen!`,
+					isRead: false,
+				},
+			})
+
+			// Send email notification if user has email notifications enabled
+			if (userWithProfile.emailNotifications) {
+				const firstName = userWithProfile.name?.split(" ")[0] || "there"
+				const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.id}`
+
+				await emailService.sendEpisodeReadyEmail(userWithProfile.id, userWithProfile.email, {
+					userFirstName: firstName,
+					episodeTitle: episode.title,
+					episodeUrl,
+					profileName: userCurationProfile.name,
+				})
+			}
 		})
 		if (aiConfig.simulateAudioSynthesis) {
 			// DO NOT CHANGE THIS RETURN STATEMENT
@@ -378,23 +421,89 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 		})
 
 		// Create a new CuratedBundleEpisode
-		await step.run("create-bundle-episode", async () => {
+		const episode = await step.run("create-bundle-episode", async () => {
 			const currentWeek = new Date()
 			currentWeek.setHours(0, 0, 0, 0) // Start of day
 
-			await prisma.episode.create({
+			// Get the bundle with its associated podcasts to use a valid podcast ID
+			const bundleWithPodcasts = await prisma.bundle.findUnique({
+				where: { id: bundleId },
+				include: {
+					podcasts: {
+						include: { podcast: true },
+					},
+				},
+			})
+
+			if (!bundleWithPodcasts || bundleWithPodcasts.podcasts.length === 0) {
+				throw new Error(`Bundle ${bundleId} not found or has no associated podcasts`)
+			}
+
+			// Use the first podcast from the bundle as the podcast reference
+			const firstPodcast = bundleWithPodcasts.podcasts[0].podcast
+
+			const episode = await prisma.episode.create({
 				data: {
 					title: episodeTitle,
 					description: episodeDescription || script,
 					audioUrl: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
-					imageUrl: null, // Could be set to bundle image or generated
+					imageUrl: adminCurationProfile.imageUrl || bundleWithPodcasts.imageUrl || null,
 					publishedAt: new Date(),
 					weekNr: currentWeek,
 					bundleId: bundleId,
-					// Use first source from admin curation profile as podcast
-					podcastId: adminCurationProfile.sources[0]?.id || "default-podcast-id",
+					podcastId: firstPodcast.id, // Use actual podcast ID from bundle
 				},
 			})
+			return episode
+		})
+
+		// Send notifications to users who have this bundle selected
+		await step.run("send-bundle-notifications", async () => {
+			// Get all users who have selected this bundle in their active profiles
+			const usersWithBundle = await prisma.userCurationProfile.findMany({
+				where: {
+					selectedBundleId: bundleId,
+					isActive: true,
+				},
+				include: {
+					user: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							emailNotifications: true,
+						},
+					},
+				},
+			})
+
+			// Create notifications for each user
+			for (const profile of usersWithBundle) {
+				// Create in-app notification
+				await prisma.notification.create({
+					data: {
+						userId: profile.user.id,
+						type: "episode_ready",
+						message: `🎧 New episode "${episode.title}" is available in your bundle!`,
+						isRead: false,
+					},
+				})
+
+				// Send email notification if enabled
+				if (profile.user.emailNotifications) {
+					const firstName = profile.user.name?.split(" ")[0] || "there"
+					const episodeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/episodes/${episode.id}`
+
+					await emailService.sendEpisodeReadyEmail(profile.user.id, profile.user.email, {
+						userFirstName: firstName,
+						episodeTitle: episode.title,
+						episodeUrl,
+						profileName: profile.name,
+					})
+				}
+			}
+
+			console.log(`Sent notifications to ${usersWithBundle.length} users for bundle episode: ${episode.title}`)
 		})
 
 		if (aiConfig.simulateAudioSynthesis) {

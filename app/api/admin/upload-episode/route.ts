@@ -41,6 +41,7 @@ export async function POST(request: Request) {
 		const bundleId = formData.get("bundleId") as string
 		const title = formData.get("title") as string
 		const description = formData.get("description") as string
+		const imageUrl = formData.get("imageUrl") as string | null
 		const file = formData.get("file") as File
 
 		if (!(bundleId && title && file)) {
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
 				title,
 				description: description || "",
 				audioUrl,
-				imageUrl: bundle.imageUrl || null,
+				imageUrl: imageUrl || bundle.imageUrl || null,
 				publishedAt: new Date(),
 				weekNr: currentWeek,
 				bundleId: bundleId,

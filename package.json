@@ -95,6 +95,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@types/node": "22.15.32",
+		"@types/nodemailer": "^6.4.17",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"chalk": "^5.4.1",

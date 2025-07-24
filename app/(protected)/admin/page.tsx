@@ -28,6 +28,7 @@ interface AdminGenerationRequest {
 	bundleId: string
 	title: string
 	description?: string
+	imageUrl?: string
 	sources: EpisodeSource[]
 }
 
@@ -40,6 +41,7 @@ export default function AdminPage() {
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
 	const [episodeTitle, setEpisodeTitle] = useState<string>("")
 	const [episodeDescription, setEpisodeDescription] = useState<string>("")
+	const [episodeImageUrl, setEpisodeImageUrl] = useState<string>("")
 	const [sources, setSources] = useState<EpisodeSource[]>([])
 	const [newSourceName, setNewSourceName] = useState<string>("")
 	const [newSourceUrl, setNewSourceUrl] = useState<string>("")
@@ -200,6 +202,7 @@ export default function AdminPage() {
 				bundleId: selectedBundleId,
 				title: episodeTitle.trim(),
 				description: episodeDescription.trim() || undefined,
+				imageUrl: episodeImageUrl.trim() || undefined,
 				sources,
 			}
 
@@ -221,6 +224,7 @@ export default function AdminPage() {
 			setSelectedBundleId("")
 			setEpisodeTitle("")
 			setEpisodeDescription("")
+			setEpisodeImageUrl("")
 			setSources([])
 		} catch (error) {
 			console.error("Error generating episode:", error)
@@ -240,6 +244,9 @@ export default function AdminPage() {
 		formData.append("bundleId", selectedBundleId)
 		formData.append("title", episodeTitle)
 		formData.append("description", episodeDescription)
+		if (episodeImageUrl.trim()) {
+			formData.append("imageUrl", episodeImageUrl.trim())
+		}
 		formData.append("file", mp3File)
 
 		setIsLoading(true)
@@ -256,6 +263,7 @@ export default function AdminPage() {
 			setSelectedBundleId("")
 			setEpisodeTitle("")
 			setEpisodeDescription("")
+			setEpisodeImageUrl("")
 			setMp3File(null)
 			if (fileInputRef.current) fileInputRef.current.value = ""
 		} catch (error) {
@@ -595,10 +603,11 @@ export default function AdminPage() {
 			</div>
 
 			<Tabs defaultValue="episode-generation" className="space-y-6">
-				<TabsList className="grid w-full grid-cols-3">
+				<TabsList className="grid w-full grid-cols-4">
 					<TabsTrigger value="episode-generation">Episode Generation</TabsTrigger>
 					<TabsTrigger value="bundle-management">Bundle Management</TabsTrigger>
 					<TabsTrigger value="podcast-management">Podcast Management</TabsTrigger>
+					<TabsTrigger value="testing">Testing</TabsTrigger>
 				</TabsList>
 
 				{/* Episode Generation Tab */}
@@ -676,6 +685,11 @@ export default function AdminPage() {
 											placeholder="Brief description of this week's episode content..."
 											rows={3}
 										/>
+									</div>
+									<div>
+										<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
+										<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
+										<p className="text-xs text-muted-foreground mt-1">If not provided, the bundle's image will be used. Use direct image URLs for best results.</p>
 									</div>
 								</CardContent>
 							</Card>
@@ -809,6 +823,11 @@ export default function AdminPage() {
 											placeholder="Brief description of this week's episode content..."
 											rows={3}
 										/>
+									</div>
+									<div>
+										<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
+										<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
+										<p className="text-xs text-muted-foreground mt-1">If not provided, the bundle's image will be used. Use direct image URLs for best results.</p>
 									</div>
 								</CardContent>
 							</Card>
@@ -1116,6 +1135,92 @@ export default function AdminPage() {
 							</CardContent>
 						</Card>
 					))}
+				</TabsContent>
+
+				{/* Testing Tab */}
+				<TabsContent value="testing" className="space-y-6">
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Sparkles className="w-5 h-5" />
+								Notification Testing
+							</CardTitle>
+							<CardDescription>Test the notification system by creating sample notifications</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="p-4 bg-muted rounded-lg">
+								<h4 className="font-semibold mb-2">Test Notification System</h4>
+								<p className="text-sm text-muted-foreground mb-4">This will create a test notification that you can see in the notification bell and notifications page.</p>
+								<Button
+									onClick={async () => {
+										try {
+											const response = await fetch("/api/notifications/test", {
+												method: "POST",
+											})
+											if (!response.ok) {
+												throw new Error("Failed to create test notification")
+											}
+											toast.success("Test notification created! Check your notification bell.")
+										} catch (error) {
+											console.error("Error creating test notification:", error)
+											toast.error("Failed to create test notification")
+										}
+									}}
+									variant="outline"
+									className="w-full mb-2"
+								>
+									<Sparkles className="w-4 h-4 mr-2" />
+									Create Test Notification
+								</Button>
+								<Button
+									onClick={async () => {
+										try {
+											const response = await fetch("/api/notifications/verify-email-config")
+											if (!response.ok) {
+												throw new Error("Failed to verify email config")
+											}
+											const result = await response.json()
+											if (result.success) {
+												toast.success("✅ Email configuration verified successfully!")
+											} else {
+												toast.error(`❌ Email config error: ${result.error}`)
+												console.error("Email config details:", result)
+											}
+										} catch (error) {
+											console.error("Error verifying email config:", error)
+											toast.error("Failed to verify email configuration")
+										}
+									}}
+									variant="outline"
+									className="w-full mb-2"
+								>
+									<Sparkles className="w-4 h-4 mr-2" />
+									Verify Email Config
+								</Button>
+								<Button
+									onClick={async () => {
+										try {
+											const response = await fetch("/api/notifications/test-email", {
+												method: "POST",
+											})
+											if (!response.ok) {
+												throw new Error("Failed to send test email")
+											}
+											toast.success("Test email sent! Check your email inbox.")
+										} catch (error) {
+											console.error("Error sending test email:", error)
+											toast.error("Failed to send test email")
+										}
+									}}
+									variant="outline"
+									className="w-full"
+								>
+									<Sparkles className="w-4 h-4 mr-2" />
+									Send Test Email
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
 				</TabsContent>
 			</Tabs>
 		</div>

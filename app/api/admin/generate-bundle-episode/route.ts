@@ -15,6 +15,7 @@ interface AdminGenerationRequest {
 	bundleId: string
 	title: string
 	description?: string
+	imageUrl?: string
 	sources: EpisodeSource[]
 }
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
 		await requireOrgAdmin()
 
 		const body: AdminGenerationRequest = await request.json()
-		const { bundleId, title, description, sources } = body
+		const { bundleId, title, description, imageUrl, sources } = body
 
 		// Validate input
 		if (!(bundleId && title && sources) || sources.length === 0) {
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
 			id: `admin-${bundleId}-${Date.now()}`,
 			name: title,
 			description,
+			imageUrl,
 			sources: sources.map(source => ({
 				id: source.id,
 				name: source.name,

@@ -269,7 +269,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 					kind="captions"
 					src={
 						episode.description
-							? `data:text/vtt;base64,${btoa(`WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${episode.description}`)}`
+							? `data:text/vtt;base64,${btoa(unescape(encodeURIComponent(`WEBVTT\n\n00:00:00.000 --> 99:59:59.999\n${episode.description}`)))}`
 							: "data:text/vtt;base64,V0VCVlRUCgowMDowMDowMC4wMDAgLS0+IDAwOjAwOjAwLjAwMAo="
 					}
 					srcLang="en"
