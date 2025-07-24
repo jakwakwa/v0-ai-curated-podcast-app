@@ -7,8 +7,6 @@ settings:
 overrides:
   mdns2: npm:@empty-npm-package/empty-npm-package@1.0.0
 
-pnpmfileChecksum: sha256-KWnuymM80IiR+eKKHYubrOM/PKTSSBHZzQKGPI6KHFk=
-
 importers:
 
   .:
