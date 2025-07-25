@@ -1,10 +1,9 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"buildCommand": "npx prisma generate && next build",
 	"build": {
 		"env": {
 			"NEXT_PUBLIC_VERCEL_ENV": "production"
-		},
-		"postinstall": "npx prisma generate",
-		"buildCommand": "next build"
+		}
 	}
 }
