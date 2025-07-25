@@ -11,11 +11,8 @@ function createPrismaClient() {
 		},
 	})
 
-	if (process.env.NODE_ENV !== "production") {
-		return client
-	} else {
-		return client.$extends(withAccelerate())
-	}
+	// Always return the plain client for this test, bypassing Accelerate.
+	return client
 }
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }

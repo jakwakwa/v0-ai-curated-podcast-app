@@ -13,7 +13,7 @@
 		"dev": "next dev",
 		"dev:debug": "NODE_OPTIONS='--inspect' next dev",
 		"dev:debug-fast": "NODE_OPTIONS='--inspect --max-old-space-size=6144' next dev --turbo",
-		"build": "prisma generate --no-engine && next build",
+		"build": "pnpm run build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"prisma:generate": "prisma generate",
 		"prisma:push": "npx prisma db push",
@@ -24,7 +24,8 @@
 		"inngest": "inngest dev",
 		"format": "npx @biomejs/biome format --write .",
 		"caching": "ts-node ./src/caching.ts",
-		"knip": "knip"
+		"knip": "knip",
+		"postinstall": "npx prisma generate"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "latest",
