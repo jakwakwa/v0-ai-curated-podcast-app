@@ -24,3 +24,25 @@ This file tracks the steps taken to diagnose and resolve the Vercel build failur
     1. Prisma Accelerate is disabled in the code.
     2. The `DATABASE_URL` environment variable in Vercel is set to the **direct `postgresql://`** connection string.
 - [ ] **Re-enable Prisma Accelerate**: Once the direct connection build is successful, revert the changes in `lib/prisma.ts` and ensure the Vercel `DATABASE_URL` is set to the `prisma://` Accelerate connection string.
+
+## 5. Overriding Vercel's Prisma Optimization
+
+- [x] **Disabled Automatic Data Proxy**: Add the environment variable `PRISMA_GENERATE_DATAPROXY` with a value of `false` in the Vercel project settings to prevent Vercel from overriding the Prisma client configuration.
+
+## 6. Component/Service Level Isolation (If Direct Connection Fails)
+
+- [ ] **Create a Diagnostic Branch**: Create a new git branch to systematically disable parts of the application for testing.
+- [ ] **Identify and Disable External Services**: Sequentially comment out or disable major external services to isolate the build failure. Good candidates to start with include:
+  - Clerk auth components and middleware
+  - Google Cloud Storage upload logic
+  - Inngest server functions
+  - ElevenLabs API calls
+  - Stripe integration points
+- [ ] **Deploy and Test**: After disabling each service, trigger a new Vercel deployment and observe the result.
+- [ ] **Record Findings**: Note which service, when disabled, allows the build to succeed.
+
+## 7. Final Test Configuration
+
+- [x] **Fully Removed Prisma Accelerate**: The `@prisma/extension-accelerate` package has been removed from `package.json` to prevent Vercel from automatically activating the Data Proxy.
+- [x] **Restored Prisma Client Logic**: Reverted `lib/prisma.ts` back to its original state.
+- [ ] **Run Definitive Test**: Deploy with a direct `postgresql://` connection string to confirm if the build succeeds without Accelerate. This will isolate the problem to either the Accelerate connection or the application code.

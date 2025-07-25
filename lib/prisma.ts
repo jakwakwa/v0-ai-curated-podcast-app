@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
-import { withAccelerate } from "@prisma/extension-accelerate"
+
+// import { withAccelerate } from "@prisma/extension-accelerate"
 
 function createPrismaClient() {
 	const client = new PrismaClient({
@@ -11,11 +12,12 @@ function createPrismaClient() {
 		},
 	})
 
-	if (process.env.NODE_ENV !== "production") {
-		return client
-	} else {
-		return client.$extends(withAccelerate())
-	}
+	return client
+	// if (process.env.NODE_ENV !== "production") {
+	// 	return client
+	// } else {
+	// 	return client.$extends(withAccelerate())
+	// }
 }
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
