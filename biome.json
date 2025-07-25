@@ -1,6 +1,10 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": false },
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
 	"files": {
 		"ignoreUnknown": false,
 		"includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.md", "**/*.tsx", "!**/.cursor/**", "!**/.next/**", "!**/node_modules/**", "!**/google-cloud-sdk/**", "!**/gcs/**", "!**/globals.d.ts", "!**/prisma/app/generated/**"]
@@ -93,7 +97,11 @@
 				"noSparseArray": "error",
 				"noConsole": {
 					"options": {
-						"allow": ["assert", "error", "warn"]
+						"allow": [
+							"assert",
+							"error",
+							"warn"
+						]
 					},
 					"fix": "unsafe"
 				}

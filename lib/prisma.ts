@@ -1,29 +1,15 @@
 import { PrismaClient } from "@prisma/client"
 
-// import { withAccelerate } from "@prisma/extension-accelerate"
-
-function createPrismaClient() {
-	const client = new PrismaClient({
-		log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-		datasources: {
-			db: {
-				url: process.env.DATABASE_URL,
-			},
-		},
-	})
-
-	return client
-	// if (process.env.NODE_ENV !== "production") {
-	// 	return client
-	// } else {
-	// 	return client.$extends(withAccelerate())
-	// }
+const prismaClientSingleton = () => {
+	return new PrismaClient()
 }
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
+declare global {
+	var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
+}
 
-export const prisma = globalForPrisma.prisma || createPrismaClient()
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+export default prisma
 
-
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma

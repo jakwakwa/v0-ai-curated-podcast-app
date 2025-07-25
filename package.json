@@ -10,22 +10,18 @@
 		"deps:cleanup": "node install-fix.mjs cleanup",
 		"deps:analyze": "node analyze.mjs",
 		"switch:pnpm": "rm -rf package-lock.json && pnpm install --no-frozen-lockfile",
-		"dev": "next dev",
-		"dev:debug": "NODE_OPTIONS='--inspect' next dev",
-		"dev:debug-fast": "NODE_OPTIONS='--inspect --max-old-space-size=6144' next dev --turbo",
-		"build": "next build",
+		"dev": "next dev --turbo",
+		"dev:fast": "NODE_OPTIONS='--max-old-space-size=6144' next dev --turbo",
+		"build": "NODE_OPTIONS='--max-old-space-size=8192' next build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"prisma:generate": "prisma generate",
 		"prisma:push": "npx prisma db push",
-		"reset-db": "rm -rf prisma/migrations && npx prisma migrate dev --name init && npx prisma migrate reset --force",
-		"lint": "npx @biomejs/biome lint .",
+		"lint": "biome lint .",
 		"start": "next start",
 		"seed": "tsx scripts/seed.mjs",
 		"inngest": "inngest dev",
-		"format": "npx @biomejs/biome format --write .",
-		"caching": "ts-node ./src/caching.ts",
-		"knip": "knip",
-		"postinstall": "npx prisma generate"
+		"format": "biome format --write .",
+		"caching": "ts-node ./src/caching.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "latest",
@@ -35,7 +31,7 @@
 		"@elevenlabs/elevenlabs-js": "latest",
 		"@google-cloud/storage": "^7.16.0",
 		"@iconscout/react-unicons": "^2.2.5",
-		"@prisma/client": "^6.12.0",
+		"@prisma/client": "^6.11.1",
 		"@radix-ui/react-avatar": "^1.1.10",
 		"@radix-ui/react-checkbox": "^1.3.2",
 		"@radix-ui/react-collapsible": "^1.1.11",
@@ -49,7 +45,6 @@
 		"@radix-ui/react-tooltip": "^1.2.7",
 		"@stripe/stripe-js": "^7.5.0",
 		"@tabler/icons-react": "^3.34.1",
-		"@tailwindcss/postcss": "^4.1.11",
 		"ai": "latest",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -80,8 +75,9 @@
 		"inngest": "^3.40.1",
 		"knip": "^5.62.0",
 		"postcss": "^8.5.6",
-		"prisma": "6.12.0",
+		"prisma": "6.11.1",
 		"tailwindcss": "^3.4.17",
+		"@tailwindcss/postcss": "^4.1.11",
 		"ts-node": "10.9.2",
 		"tsx": "^4.20.3",
 		"typescript": "5.8.2"
@@ -92,19 +88,6 @@
 	"pnpm": {
 		"overrides": {
 			"mdns2": "npm:@empty-npm-package/empty-npm-package@1.0.0"
-		},
-		"onlyBuiltDependencies": [
-			"@biomejs/biome",
-			"@clerk/shared",
-			"@prisma/client",
-			"@prisma/engines",
-			"@tailwindcss/oxide",
-			"core-js",
-			"esbuild",
-			"oxc-resolver",
-			"prisma",
-			"protobufjs",
-			"sharp"
-		]
+		}
 	}
 }

@@ -24,7 +24,7 @@ type AdminSourceData = {
 }
 
 const elevenlabs = new ElevenLabsClient({
-	apiKey: process.env.XAI_API_KEY || "",
+	apiKey: process.env.NODE_ENV === "production" ? process.env.ELEVEN_LABS_PROD : process.env.ELEVEN_LABS_DEV,
 })
 const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
 const readerKeyPath = process.env.GCS_READER_KEY_PATH

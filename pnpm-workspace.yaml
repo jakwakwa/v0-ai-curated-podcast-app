@@ -8,7 +8,4 @@ onlyBuiltDependencies:
   - esbuild
   - prisma
   - protobufjs
-  - sharp
-  - oxc-resolver
-
   # Removed mdns2 and zmq as they're not needed for production builds

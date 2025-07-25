@@ -16,4 +16,3 @@ google-cloud-sdk/
 gcs/
 .cursor/
 .DS_Store
-*.md

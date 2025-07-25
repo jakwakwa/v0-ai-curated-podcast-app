@@ -2,6 +2,8 @@
 interface IProcessEnv {
 	NODE_ENV: "development" | "production" | "staging"
 	XAI_API_KEY: string
+	ELEVEN_LABS_PROD: string
+	ELEVEN_LABS_DEV: string
 	NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
 	CLERK_SECRET_KEY: string
 	NEXT_GOOGLE_GENERATIVE_AI_API_KEY: string
@@ -16,6 +18,6 @@ interface IProcessEnv {
 }
 
 declare global {
-	interface IProcessEnv extends globalThis.IProcessEnv {}
+	interface IProcessEnv extends globalThis.IProcessEnv { }
 }
 declare module "*.module.css"

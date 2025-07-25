@@ -53,8 +53,10 @@
 	"editor.wordWrap": "bounded",
 	"cursor.general.enableShadowWorkspace": false,
 	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "One Dark Pro Monokai Darker",
+	"workbench.preferredDarkColorTheme": "Material Theme Darker High Contrast",
 	"window.autoDetectColorScheme": true,
 	"workbench.preferredLightColorTheme": "One Dark Pro",
-	"workbench.colorTheme": "Night Wolf (gray)"
+	"workbench.colorTheme": "Night Wolf (gray)",
+	"editor.defaultFormatter": "biomejs.biome",
+	"json.format.enable": false
 }
