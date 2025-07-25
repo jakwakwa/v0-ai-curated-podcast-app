@@ -75,6 +75,7 @@
     "/styles/globals.css",
     "/styles/globals.css.map",
     "/styles/globals.css.map",
+    "**/*.disabled",
     ".yml",
     ".yaml",
     ".json",
