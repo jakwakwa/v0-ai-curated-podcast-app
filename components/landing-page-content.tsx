@@ -175,7 +175,7 @@ export default function LandingPageContent() {
 	]
 
 	return (
-		<div className={styles.container}>
+		<div className=".container">
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<motion.div

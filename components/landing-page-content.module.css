@@ -1,9 +1,5 @@
 /* Landing Page Content Styles */
 
-.container {
-  min-height: 100vh;
-  background: hsl(var(--background));
-}
 
 /* Hero Section */
 .heroSection {

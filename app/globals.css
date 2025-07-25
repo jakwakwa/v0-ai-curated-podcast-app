@@ -109,33 +109,59 @@
 	.episodeCard {
 		/* background: #18181b; */
 		/* background: #18181b; */
-		background-image:  linear-gradient(
-			45deg,
-			hsl(60deg 3% 7%) 0%,
-			hsl(60deg 2% 9%) 16%,
-			hsl(60deg 2% 10%) 29%,
-			hsl(60deg 2% 12%) 41%,
-			hsl(0deg 0% 14%) 51%,
-			hsl(0deg 0% 15%) 59%,
-			hsl(0deg 0% 16%) 66%,
-			hsl(0deg 0% 17%) 72%,
-			hsl(0deg 0% 18%) 76%,
-			hsl(30deg 2% 20%) 80%,
-			hsl(48deg 4% 23%) 84%,
-			hsl(43deg 6% 25%) 87%,
-			hsl(48deg 7% 27%) 89%,
-			hsl(46deg 22% 28%) 92%,
-			hsl(43deg 36% 29%) 95%,
-			hsl(42deg 52% 30%) 97%,
-			hsl(39deg 66% 31%) 100%
-		) !important;
+
 		border: 1px solid hsl(var(--border));
 		border-radius: .5rem;
 		padding:1.2rem 2rem !important;
 		width: 100%;
 		margin: 0 auto;
-		max-width: 90vw!important;
-		box-shadow: 2px 9px 17px 0px #0000004a, inset -20px -9px 84px 5px #1c010f2b !important;
+		/* max-width: 90vw!important; */
+		/* box-shadow: 2px 9px 17px 0px #0000004a, inset -20px -9px 84px 5px #1c010f2b !important; */
+	}
+	.episodeDate {
+		font-size: 0.5rem;
+		color: hsl(var(--muted-foreground));
+	}
+
+	.episodeCard {
+		border-radius: 1.2rem;
+		background: linear-gradient(349deg, #1d1f25f8 30%, #44b2b257 170%, hsl(291, 4%, 37%) 200%) !important;
+		border: 1px solid hsl(var(--border));
+		color: hsl(var(--card-foreground));
+		box-shadow: 0 1px 3px #0000001a, 0 1px 2px -1px #0000001a;
+		width: 100%;
+		background: #18191b;
+		box-shadow: inset 0px 1px 1px #fbdb4c61, 3px 20px 17px #00000036;
+		transition: all 0.2s ease-in-out;
+		cursor: pointer;
+	}
+	/* .episodeCard:hover {
+		background: linear-gradient(349deg, #1d1f25f8 30%, #44b2b257 170%, hsl(291, 4%, 37%) 200%) !important;
+		border: 1px solid hsl(var(--border));
+		color: hsl(var(--card-foreground));
+		box-shadow: 0 1px 3px #0000001a, 0 1px 2px -1px #0000001a;
+		transform: translateY(-2px);
+	} */
+	.episodeDescription {
+		color: hsl(var(--card-foreground));
+		font-size: 0.6rem;
+		font-weight: 400;
+		line-height: 1.4;
+		letter-spacing: 0.025em;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+		text-align: left;
+	}
+	.episodePlayButton {
+		background: linear-gradient(349deg, #1d1f25f8 30%, #44b2b257 170%, hsl(291, 4%, 37%) 200%) !important;
+		border: 1px solid #151716;
+		background: #22101038;
+	}
+
+	.episodePlayButton:hover {
+		background: linear-gradient(349deg, #2a2d35f8 30%, #44b2b257 170%, hsl(291, 4%, 37%) 200%) !important;
+		border: 1px solid #515d57;
+		background: #22101038;
 	}
 
 
@@ -147,11 +173,51 @@
 		line-height: 1.6;
 	}
 
+	.container {
+		width: 100%;
+	}
+
+	.container {
+		width: 100%;
+		background-image: linear-gradient(
+			105deg,
+			hsl(216deg 11% 9%) 0%,
+			hsl(217deg 13% 10%) 8%,
+			hsl(217deg 14% 12%) 14%,
+			hsl(217deg 16% 13%) 21%,
+			hsl(217deg 17% 14%) 26%,
+			hsl(217deg 18% 15%) 32%,
+			hsl(217deg 19% 16%) 36%,
+			hsl(217deg 20% 18%) 41%,
+			hsl(217deg 21% 19%) 45%,
+			hsl(220deg 19% 20%) 49%,
+			hsl(226deg 14% 22%) 54%,
+			hsl(236deg 10% 24%) 59%,
+			hsl(250deg 8% 25%) 64%,
+			hsl(266deg 8% 27%) 70%,
+			hsl(283deg 7% 28%) 76%,
+			hsl(303deg 6% 30%) 84%,
+			hsl(318deg 8% 32%) 91%,
+			hsl(328deg 9% 34%) 100%
+					);
+			display: flex;
+			flex-direction: column;
+			margin-top: 3rem; /* Account for fixed header height */
+		}
+
+	.title {
+		font-size: 1.9rem;
+		font-weight: 700;
+		margin-top: 2rem;
+		margin-bottom: 1.5rem;
+	}
+
 @media (min-width: 768px) {
   .episodeCard {
 		margin: 0;
-		width: 90%;
-		max-width: 50vw !important;
+		width: 100%;
+		/* width: 90%; */
+		/* max-width: 50vw !important; */
   }
 }
 
@@ -166,7 +232,7 @@
   body {
 		overflow-x: hidden;
 		width: 100%;
-		max-width: 100vw;
+		/* max-width: 100vw; */
     @apply bg-background text-foreground;
   }
 }

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import styles from "./page.module.css"
+import Image from "next/image"
 
 export default function AboutPage() {
 	// Check current subscription level
@@ -104,17 +105,17 @@ export default function AboutPage() {
 	}
 
 	return (
-		<div className={styles.container}>
+		<div className="container">
 			{/* Short Intro */}
 			<section className={styles.hero}>
 				<div className={styles.heroContent}>
-					<h1 className={styles.heroTitle}>PodSlice</h1>
+					<Image src={"/logo.png"} alt="PodSlice Logo" width={200} height={200} />
+
 					<p className={styles.heroDescription}>
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>
 				</div>
 			</section>
-
 			{/* How It Works */}
 			<section className={styles.section}>
 				<div className={styles.sectionHeader}>
@@ -136,7 +137,6 @@ export default function AboutPage() {
 					))}
 				</div>
 			</section>
-
 			{/* Pricing */}
 			<section className={styles.section}>
 				<div className={styles.sectionHeader}>

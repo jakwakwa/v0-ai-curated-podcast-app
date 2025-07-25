@@ -160,7 +160,7 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<div className={styles.container}>
+		<div className=".container">
 			<div className={styles.header}>
 				<div className={styles.headerContent}>
 					<div className={styles.titleSection}>

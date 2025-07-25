@@ -4,7 +4,7 @@ import { Storage } from "@google-cloud/storage"
 
 import type { Podcast as SourceModel } from "@prisma/client"
 import { generateText } from "ai"
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
 import emailService from "../lib/email-service"

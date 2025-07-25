@@ -45,7 +45,7 @@ export default function CuratedBundlesPage() {
 	}, [fetchCuratedBundles])
 
 	return (
-		<div className={styles.container}>
+		<div className=".container">
 			<div className="header">
 				<h1>PodSlice Bundles</h1>
 				<p>Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected.</p>
@@ -88,10 +88,13 @@ export default function CuratedBundlesPage() {
 					{curatedBundles.map(bundle => (
 						<Card key={bundle.bundle_id} className={styles.bundleCard}>
 							<CardHeader className={styles.cardHeader}>
-								{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImage} width={200} height={200} />}
-								<div className={styles.bundleInfo}>
-									<CardTitle className={styles.bundleTitle}>{bundle.name}</CardTitle>
-									<CardDescription className={styles.bundleDescription}>{bundle.description}</CardDescription>
+								<div className={styles.wrapper}>
+									<div className={styles.bundleInfo}>
+										<CardTitle className={styles.bundleTitle}>{bundle.name}</CardTitle>
+										<CardDescription className={styles.bundleDescription}>{bundle.description}</CardDescription>
+									</div>
+									<div className={styles.imgWrapper}>{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImg} fill />}</div>
+
 									<div className={styles.bundleMeta}>
 										<Badge variant="outline" className={styles.podcastCount}>
 											{bundle.podcasts.length} Podcasts

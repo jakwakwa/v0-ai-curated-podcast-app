@@ -57,7 +57,7 @@ import styles from './layout.module.css'
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <div className={styles.container}>
+      <div className=".container" >
         {/* ... layout content */}
       </div>
     </SidebarProvider>

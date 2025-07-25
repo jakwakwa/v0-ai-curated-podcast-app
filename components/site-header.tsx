@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarContext, SidebarTrigger } from "@/components/ui/sidebar-ui"
 import styles from "./site-header.module.css"
+import Image from "next/image"
 
 export function SiteHeader() {
 	// Check if we're in a sidebar context to avoid errors
@@ -46,7 +47,9 @@ export function SiteHeader() {
 						</>
 					)}
 					<Button asChild variant="link" className={styles["title-text"]}>
-						<Link href="/dashboard">PodSlice</Link>
+						<Link href="/dashboard">
+							<Image src={"/logo.png"} alt="Logo" width={100} height={60} />
+						</Link>
 					</Button>
 				</div>
 

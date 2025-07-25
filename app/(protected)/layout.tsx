@@ -83,11 +83,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	return (
 		<SidebarProvider>
 			<StoreInitializer />
-			<SiteHeader />
 			<AppSidebar />
-			<div className={styles.container}>
+			<div className="container">
+				<SiteHeader />
 				<div className={styles.content}>{children}</div>
 			</div>
+			{/* <DummyDataTogglePanel /> */}
 		</SidebarProvider>
 	)
 }

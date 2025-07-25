@@ -145,45 +145,47 @@ export default function Page() {
 									<div className={styles.episodesSection}>
 										<Card className="mb-4">
 											<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-												<div className="w-full flex flex-row gap-1">
-													<CardTitle className="mb-0 w-2/3">Current Personalized Feed</CardTitle>
+												<div className={styles.profileHeaderWrapper}>
+													<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
 													<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
 														Edit
 													</Button>
 												</div>
 											</CardHeader>
 											<CardContent>
-												<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
-												<p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p>
+												<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>
+												<p className={styles.profileSectionDescription}>Status: {userCurationProfile?.status}</p>
 											</CardContent>
 										</Card>
 
 										{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 											<Card>
 												<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-													<CardTitle className="text-sm font-medium">Selected Bundle</CardTitle>
+													<CardTitle className={styles.profileSectionHeader}>Selected Bundle</CardTitle>
 												</CardHeader>
 												<CardContent>
-													<div className="text-xl font-bold">{userCurationProfile.selectedBundle.name}</div>
-													<p className="text-sm text-muted-foreground mb-4">{userCurationProfile.selectedBundle.description}</p>
+													<div className={styles.profileSectionTitle}>{userCurationProfile.selectedBundle.name}</div>
+													<p className={styles.profileSectionDescription}>{userCurationProfile.selectedBundle.description}</p>
 
 													{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
-														<div className="mb-4">
-															<p className="font-medium">Podcasts:</p>
+														<div>
+															<p className={styles.profileSectionHeader}>Podcasts:</p>
 															<ul className="list-disc pl-5 text-muted-foreground">
-																{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => <li key={podcast.podcast_id}>{podcast.name}</li>) || (
-																	<li className="text-muted-foreground">No podcasts loaded</li>
-																)}
+																{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
+																	<li className={styles.profileSectionDescription} key={podcast.podcast_id}>
+																		{podcast.name}
+																	</li>
+																)) || <li className={styles.profileSectionDescription}>No podcasts loaded</li>}
 															</ul>
 														</div>
 													)}
 
 													{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
 														<div>
-															<p className="font-medium">Bundle Episodes:</p>
+															<p className={styles.profileSectionHeader}>Bundle Episodes:</p>
 															<ul className="list-disc pl-5 text-muted-foreground">
 																{userCurationProfile.selectedBundle.episodes.map(episode => (
-																	<li key={episode.episode_id}>
+																	<li className={styles.profileSectionDescription} key={episode.episode_id}>
 																		{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
 																	</li>
 																))}
@@ -200,18 +202,16 @@ export default function Page() {
 									<div className="max-w-2xl md:max-w-full mt-0 w-full">
 										<Card>
 											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-												<CardTitle className="mb-4">Current Personalized Feed</CardTitle>
+												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
 												{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
 													Edit
 												</Button> */}
 											</CardHeader>
 											<CardContent>
-												{/* <div className="text-2xl font-bold">{userCurationProfile?.name}</div> */}
-												{/* <p className="text-xs text-muted-foreground">Status: {userCurationProfile?.status}</p> */}
 												<Alert>
 													<AlertCircle className="h-4 w-4" />
 													<AlertTitle>No Personalized Feed Found</AlertTitle>
-													<AlertDescription className="mt-2">It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
+													<AlertDescription className={styles.profileSectionDescription}>It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
 												</Alert>
 												<div className="mt-6 text-center">
 													<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
@@ -239,7 +239,7 @@ export default function Page() {
 										<Alert>
 											<AlertCircle className="h-4 w-4" />
 											<AlertTitle>No Episodes Available</AlertTitle>
-											<AlertDescription className="mt-2">
+											<AlertDescription className={styles.profileSectionDescription}>
 												{userCurationProfile
 													? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
 													: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
@@ -262,7 +262,7 @@ export default function Page() {
 									<div className={styles.episodesList}>
 										{combinedEpisodes.map(episode => (
 											<Card key={episode.episode_id} className="episodeCard">
-												<CardContent className="p-4">
+												<CardContent>
 													<div className={styles.episodeContent}>
 														<div className={styles.episodeInfo}>
 															<div className={styles.episodeHeader}>
@@ -272,13 +272,13 @@ export default function Page() {
 																</span>
 															</div>
 															<div className={styles.playButtonContainer}>
-																<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className={styles.playButton}>
+																<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className="episodePlayButton">
 																	<Play className={styles.playIcon} />
 																	Play Episode
 																</Button>
 															</div>
-															{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
-															<p className={styles.episodeDate}>Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
+															{episode.description && <p className="episodeDescription">{episode.description}</p>}
+															<p className="episodeDate">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
 														</div>
 														{episode.audio_url && playingEpisodeId === episode.episode_id && (
 															<div className={styles.episodeAudio}>

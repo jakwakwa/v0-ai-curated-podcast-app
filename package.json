@@ -11,7 +11,7 @@
 		"deps:analyze": "node analyze.mjs",
 		"switch:pnpm": "rm -rf package-lock.json && pnpm install --no-frozen-lockfile",
 		"dev": "next dev --turbo",
-		"dev:fast": "NODE_OPTIONS='--max-old-space-size=6144' next dev --turbo",
+		"dev:fast": "NODE_OPTIONS='--max-old-space-size=6144' next dev --turbopack",
 		"build": "next build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"prisma:generate": "prisma generate",

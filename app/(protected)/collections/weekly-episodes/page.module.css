@@ -1,10 +1,11 @@
 .container {
-  /* width: 100%; */
+  width: 100%;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1.9rem;
   font-weight: 700;
+	margin-top: 2rem;
   margin-bottom: 1.5rem;
 }
 
@@ -58,7 +59,15 @@
 .summary {
   display: flex;
   gap: 1rem;
-  font-size: 0.875rem;
+	justify-content: space-evenly;
+	background: #141617a5;
+	padding: 0.5rem;
+	border: 1px solid #dd040412;
+	border-radius: 8px;
+	width: 20%;
+	flex-direction: row-reverse;
+	margin: 0;
+  font-size: 0.675rem;
   color: hsl(var(--muted-foreground));
   margin-bottom: 1.5rem;
 }

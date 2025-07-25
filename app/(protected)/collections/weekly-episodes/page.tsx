@@ -130,7 +130,7 @@ export default function WeeklyEpisodesPage() {
 	}
 
 	return (
-		<div className={styles.container}>
+		<div className="container">
 			<div className="header">
 				<h1 className={styles.title}>All Episodes</h1>
 				<p>Your Personalized feed's episodes.</p>
@@ -141,21 +141,21 @@ export default function WeeklyEpisodesPage() {
 						<AppSpinner size="lg" label="Loading..." />
 					</div>
 				</div>
-			) : combinedEpisodes.length === 0 ? (
+			) : isCheckingProfile ? (
 				<div className="max-w-2xl mx-auto mt-8">
-					<Alert>
-						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>No Episodes Available</AlertTitle>
-						<AlertDescription className="mt-2">
-							{userProfile
-								? "Your personalized episodes are on their way! New episodes are generated weekly."
-								: existingProfile
-									? "Your personalized episodes are on their way! New episodes are generated weekly."
-									: "Start your journey by creating a Personalized Feed or selecting a bundle to discover episodes."}
-						</AlertDescription>
-					</Alert>
 					{!(userProfile || existingProfile) && (
 						<div className="mt-6 text-center">
+							<Alert>
+								<AlertCircle className="h-4 w-4" />
+								<AlertTitle>No Episodes Available</AlertTitle>
+								<AlertDescription className="mt-2">
+									{userProfile
+										? "Your personalized episodes are on their way! New episodes are generated weekly."
+										: existingProfile
+											? "Your personalized episodes are on their way! New episodes are generated weekly."
+											: "Start your journey by creating a Personalized Feed or selecting a bundle to discover episodes."}
+								</AlertDescription>
+							</Alert>
 							<Link href="/build">
 								<Button>
 									<Plus className="h-4 w-4 mr-2" />
@@ -170,9 +170,9 @@ export default function WeeklyEpisodesPage() {
 					{/* Summary */}
 					<div className={styles.summary}>
 						<span>Total Episodes: {combinedEpisodes.length}</span>
-						<span>User Episodes: {combinedEpisodes.filter(ep => ep.type === "user").length}</span>
-						<span>Bundle Episodes: {combinedEpisodes.filter(ep => ep.type === "bundle").length}</span>
-						{userProfile && <span>Profile Type: {userProfile.is_bundle_selection ? "Bundle Selection" : "Custom Profile"}</span>}
+						{/* <span>User Episodes: {combinedEpisodes.filter(ep => ep.type === "user").length}</span> */}
+						{/* <span>Bundle Episodes: {combinedEpisodes.filter(ep => ep.type === "bundle").length}</span> */}
+						{userProfile && <span>{userProfile.is_bundle_selection ? "Bundle Selection" : "Custom Profile"}</span>}
 					</div>
 
 					{/* Episodes List */}
@@ -193,7 +193,7 @@ export default function WeeklyEpisodesPage() {
 												Play Episode
 											</Button>
 										</div>
-										{episode.description && <p className={styles.episodeDescription}>{episode.description}</p>}
+										{episode.description && <p className="episodeDescription">{episode.description}</p>}
 										<p className={styles.episodeDate}>Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
 									</div>
 									{episode.audio_url && playingEpisodeId === episode.episode_id && (

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import type { Bundle, Podcast } from "@/lib/types"
+import styles from "@/components/curated-bundle-list.module.css"
 
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
@@ -84,11 +85,23 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{curatedBundles.map(bundle => (
 				<Card key={bundle.bundle_id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onBundleSelect(bundle)}>
-					{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="w-full h-48 object-cover rounded-t-lg" width={200} height={200} />}
+					<div className="wrapper">
+						<div className="title">
+							<h2>{bundle.name}</h2>
+						</div>
+						<div className="bundleDescription">
+							<p>{bundle.description}</p>
+						</div>
+						<div className="bundleImage">
+							{/*  */}
+							{bundle.image_url ? <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImg} width={200} height={100} /> : null}
+						</div>{" "}
+					</div>
+
 					<CardContent className="p-4">
 						<CardTitle className="text-lg font-semibold mb-2">{bundle.name}</CardTitle>
 						<div className="mb-4">
-							<h5 className="font-medium mb-2">Included Podcasts:</h5>
+							<h5 className="font-medium mb-2">Included Podcastss s s:</h5>
 							<ul className="space-y-1">
 								{bundle.podcasts?.slice(0, 3).map(podcast => (
 									<li key={podcast.podcast_id} className="text-sm text-muted-foreground">
