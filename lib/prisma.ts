@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
-import { withAccelerate } from "@prisma/extension-accelerate"
+
+// import { withAccelerate } from "@prisma/extension-accelerate"
 
 function createPrismaClient() {
 	const client = new PrismaClient({
