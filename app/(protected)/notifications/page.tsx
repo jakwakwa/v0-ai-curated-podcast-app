@@ -9,14 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import styles from "./page.module.css"
 
-interface Notification {
-	id: string
-	userId: string
-	type: "episode_ready" | "weekly_reminder" | "subscription_expiring" | "trial_ending"
-	message: string
-	isRead: boolean
-	createdAt: Date
-}
+import type { Notification } from "@/lib/types"
 
 export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([])

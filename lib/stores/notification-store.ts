@@ -1,14 +1,6 @@
 import { create } from "zustand"
 import { devtools } from "zustand/middleware"
-
-export interface Notification {
-	id: string
-	userId: string
-	type: string // "episode_ready", "weekly_reminder"
-	message: string
-	isRead: boolean
-	createdAt: Date
-}
+import type { Notification } from "@/lib/types"
 
 export interface NotificationStore {
 	// State
@@ -116,7 +108,7 @@ export const useNotificationStore = create<NotificationStore>()(
 					}
 
 					const { notifications } = get()
-					const updatedNotifications = notifications.map(n => ({ ...n, isRead: true }))
+					const updatedNotifications = notifications.map(n => ({ ...n, is_read: true }))
 
 					set(
 						{
