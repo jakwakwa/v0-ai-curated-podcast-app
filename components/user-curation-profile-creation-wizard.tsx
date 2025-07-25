@@ -174,7 +174,7 @@ export function UserCurationProfileCreationWizard() {
 				<div>
 					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}</h2>
 					{isBundleSelection ? (
-						<CuratedBundleList onSelectBundle={setSelectedBundleId} />
+						<CuratedBundleList onBundleSelect={(bundle) => setSelectedBundleId(bundle.bundle_id)} />
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {

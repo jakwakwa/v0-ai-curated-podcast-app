@@ -9,16 +9,10 @@ import { SourceList } from "@/components/source-list"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
+import type { Episode, UserCurationProfileWithRelations } from "@/lib/types"
 
 interface UserCurationProfileProps {
 	params: Promise<{ id: string }>
-}
-
-// Type for UserCurationProfile with relations
-type UserCurationProfileWithRelations = UserCurationProfile & {
-	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
-	episode: Episode[]
 }
 
 // Helper function to fetch user curation profile

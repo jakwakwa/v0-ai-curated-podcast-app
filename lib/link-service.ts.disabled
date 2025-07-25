@@ -1,9 +1,4 @@
-// @ts-nocheck
-// Temporarily disabled type checking for this file as it's not needed yet but code should be preserved
-
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 export interface SubscriptionTier {
 	id: string
@@ -80,7 +75,7 @@ export class LinkService {
 		const now = new Date()
 
 		// Check if trial is still active
-		if (subscription.status === "trialing" && subscription.trialEnd && subscription.trialEnd > now) {
+		if (subscription.status === "trialing" && subscription.trail_end && subscription.trialEnd > now) {
 			return true
 		}
 
@@ -185,8 +180,8 @@ export class LinkService {
 				console.error("PayMongo Link creation failed:", data)
 				throw new Error(
 					`Failed to create PayMongo Link: ${
-						// biome-ignore lint/suspicious/noExplicitAny: PayMongo error structure is not typed
-						data.errors ? data.errors.map((e: any) => e.detail).join(", ") : "Unknown error"
+					// biome-ignore lint/suspicious/noExplicitAny: PayMongo error structure is not typed
+					data.errors ? data.errors.map((e: any) => e.detail).join(", ") : "Unknown error"
 					}`
 				)
 			}

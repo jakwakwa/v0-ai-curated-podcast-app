@@ -4,6 +4,7 @@ import { Storage } from "@google-cloud/storage"
 
 import type { Podcast as SourceModel } from "@prisma/client"
 import { generateText } from "ai"
+import { randomUUID } from "crypto"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
 import emailService from "../lib/email-service"
@@ -21,6 +22,10 @@ type AdminSourceData = {
 	url: string
 	imageUrl: string | null
 	createdAt: string
+}
+
+type AdminSourceWithTranscript = AdminSourceData & {
+	transcript: string
 }
 
 const elevenlabs = new ElevenLabsClient({
@@ -97,9 +102,9 @@ export const generatePodcast = inngest.createFunction(
 		// Stage 1: Content Aggregation
 		const userCurationProfile = await step.run("fetch-collection-data", async () => {
 			const fetchedUserCurationProfile = await prisma.userCurationProfile.findUnique({
-				where: { id: collectionId },
+				where: { profile_id: collectionId },
 				include: {
-					podcastSelections: {
+					profile_podcast: {
 						include: { podcast: true },
 					},
 				},
@@ -111,7 +116,7 @@ export const generatePodcast = inngest.createFunction(
 		})
 
 		const sourcesWithTranscripts: SourceWithTranscript[] = await Promise.all(
-			userCurationProfile.podcastSelections.map(async selection => {
+			userCurationProfile.profile_podcast.map(async (selection) => {
 				const s = selection.podcast
 				// Extract video ID from YouTube URL
 				const videoIdMatch = s.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/)
@@ -130,10 +135,10 @@ export const generatePodcast = inngest.createFunction(
 					console.error(`Could not extract youtube video ID from URL: ${s.url}`)
 				}
 
-				const { createdAt, ...rest } = s
+				const { created_at, ...rest } = s
 				return {
 					...rest,
-					createdAt: createdAt.toString(), // Convert to string to match SourceWithTranscript type
+					createdAt: created_at.toString(),
 					transcript: transcriptContent,
 				} as SourceWithTranscript
 			})
@@ -220,15 +225,16 @@ export const generatePodcast = inngest.createFunction(
 		// Create a new Episode linked to the UserCurationProfile
 		const episode = await step.run("create-episode", async () => {
 			// Use the first podcast as the main source for the episode (or adjust as needed)
-			const mainPodcast = userCurationProfile.podcastSelections[0]?.podcast
+			const mainPodcast = userCurationProfile.profile_podcast[0]?.podcast
 			const episode = await prisma.episode.create({
 				data: {
+					episode_id: randomUUID(),
 					title: `AI Podcast for ${userCurationProfile.name}`,
 					description: script,
 					audio_url: publicUrl ? publicUrl : "",
 					image_url: mainPodcast?.image_url || null,
 					published_at: new Date(),
-					podcast_id: mainPodcast?.podcast_id || userCurationProfile.podcastSelections[0].podcast.podcast_id,
+					podcast_id: mainPodcast?.podcast_id || userCurationProfile.profile_podcast[0].podcast.podcast_id,
 					profile_id: userCurationProfile.profile_id,
 				},
 			})
@@ -259,6 +265,7 @@ export const generatePodcast = inngest.createFunction(
 			// Create in-app notification
 			await prisma.notification.create({
 				data: {
+					notification_id: randomUUID(),
 					user_id: userWithProfile.user_id,
 					type: "episode_ready",
 					message: `🎧 Your episode "${episode.title}" is ready to listen!`,
@@ -311,7 +318,7 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 		const { adminCurationProfile, bundleId, episodeTitle, episodeDescription } = event.data
 
 		// Stage 1: Content Aggregation
-		const sourcesWithTranscripts: SourceWithTranscript[] = await Promise.all(
+		const sourcesWithTranscripts: AdminSourceWithTranscript[] = await Promise.all(
 			adminCurationProfile.sources.map(async (s: AdminSourceData) => {
 				// Extract video ID from YouTube URL
 				const videoIdMatch = s.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/)
@@ -337,11 +344,11 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 					imageUrl: s.imageUrl,
 					createdAt: s.createdAt,
 					transcript: transcriptContent,
-				} as SourceWithTranscript
+				}
 			})
 		)
 
-		const aggregatedContent = sourcesWithTranscripts.map((s: SourceWithTranscript) => `Source: ${s.name} (${s.url})\nTranscript: ${s.transcript}`).join("\n\n")
+		const aggregatedContent = sourcesWithTranscripts.map((s: AdminSourceWithTranscript) => `Source: ${s.name} (${s.url})\nTranscript: ${s.transcript}`).join("\n\n")
 
 		// Stage 2: Summarization
 		const summary = await step.run("summarize-content", async () => {
@@ -427,23 +434,24 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 
 			// Get the bundle with its associated podcasts to use a valid podcast ID
 			const bundleWithPodcasts = await prisma.bundle.findUnique({
-				where: { id: bundleId },
+				where: { bundle_id: bundleId },
 				include: {
-					podcasts: {
+					bundle_podcast: {
 						include: { podcast: true },
 					},
 				},
 			})
 
-			if (!bundleWithPodcasts || bundleWithPodcasts.podcasts.length === 0) {
+			if (!bundleWithPodcasts || bundleWithPodcasts.bundle_podcast.length === 0) {
 				throw new Error(`Bundle ${bundleId} not found or has no associated podcasts`)
 			}
 
 			// Use the first podcast from the bundle as the podcast reference
-			const firstPodcast = bundleWithPodcasts.podcasts[0].podcast
+			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
 
 			const episode = await prisma.episode.create({
 				data: {
+					episode_id: randomUUID(),
 					title: episodeTitle,
 					description: episodeDescription || script,
 					audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,

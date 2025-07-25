@@ -7,8 +7,7 @@ export { useUserCurationProfileStore } from "./user-curation-profile-store"
 export { createDevtoolsConfig, devtoolsConfigs } from "./devtools-config"
 export { initializeStoresForDevTools, verifyDevToolsSetup } from "./devtools-init"
 
-import type { UserCurationProfile } from "@/lib/types"
-import type { Notification } from "./notification-store"
+import type { UserCurationProfile, Notification } from "@/lib/types"
 import type { Subscription } from "./subscription-store"
 
 export type { UserCurationProfile, Notification, Subscription }

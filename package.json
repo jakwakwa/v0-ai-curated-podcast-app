@@ -12,7 +12,7 @@
 		"switch:pnpm": "rm -rf package-lock.json && pnpm install --no-frozen-lockfile",
 		"dev": "next dev --turbo",
 		"dev:fast": "NODE_OPTIONS='--max-old-space-size=6144' next dev --turbo",
-		"build": "NODE_OPTIONS='--max-old-space-size=8192' next build",
+		"build": "next build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"prisma:generate": "prisma generate",
 		"prisma:push": "npx prisma db push",
@@ -68,6 +68,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
+		"@tailwindcss/postcss": "^4.1.11",
 		"@types/node": "22.15.32",
 		"@types/nodemailer": "^6.4.17",
 		"@types/react": "^19.1.8",
@@ -77,7 +78,6 @@
 		"postcss": "^8.5.6",
 		"prisma": "6.11.1",
 		"tailwindcss": "^3.4.17",
-		"@tailwindcss/postcss": "^4.1.11",
 		"ts-node": "10.9.2",
 		"tsx": "^4.20.3",
 		"typescript": "5.8.2"

@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import type { FormState, UserCurationProfile } from "@/lib/types"
 import { inngest } from "../inngest/client"
 

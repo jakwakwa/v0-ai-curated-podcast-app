@@ -3,15 +3,9 @@
 // import { X } from "lucide-react"
 import Image from "next/image"
 import { removePodcastSource } from "@/app/actions"
+import type { Source } from "@/lib/types"
 import styles from "./source-list-item.module.css"
 import { Card } from "./ui/card"
-
-interface Source {
-	id: string
-	name: string
-	url: string
-	image_url?: string
-}
 
 export function SourceListItem({ source }: { source: Source }) {
 	return (
