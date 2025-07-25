@@ -166,7 +166,7 @@ class EmailService {
 
 		const notification: EmailNotification = {
 			to: userEmail,
-			subject: `⏰ Your PodSlice trial ends in ${data.daysRemaining} day${data.daysRemaining !== 1 ? "s" : ""}`,
+			subject: `⏰ Your ZIST trial ends in ${data.daysRemaining} day${data.daysRemaining !== 1 ? "s" : ""}`,
 			text: this.createTrialEndingTextTemplate(data),
 			html: this.createTrialEndingHtmlTemplate(data),
 		}
@@ -183,7 +183,7 @@ class EmailService {
 
 		const notification: EmailNotification = {
 			to: userEmail,
-			subject: `🔔 Your PodSlice subscription expires soon`,
+			subject: `🔔 Your ZIST subscription expires soon`,
 			text: this.createSubscriptionExpiringTextTemplate(data),
 			html: this.createSubscriptionExpiringHtmlTemplate(data),
 		}
@@ -200,7 +200,7 @@ class EmailService {
 
 		const notification: EmailNotification = {
 			to: userEmail,
-			subject: `📅 Your weekly PodSlice episode will be generated soon`,
+			subject: `📅 Your weekly ZIST episode will be generated soon`,
 			text: this.createWeeklyReminderTextTemplate(userName),
 			html: this.createWeeklyReminderHtmlTemplate(userName),
 		}
@@ -220,7 +220,7 @@ Personalized Feed: ${data.profileName}
 Listen now: ${data.episodeUrl}
 
 Happy listening!
-The PodSlice Team`
+The ZIST Team`
 	}
 
 	private createEpisodeReadyHtmlTemplate(data: EpisodeReadyEmailData): string {
@@ -258,7 +258,7 @@ The PodSlice Team`
         <div style="text-align: center;">
             <p style="color: #94a3b8; font-size: 12px; margin: 0;">
                 Happy listening!<br>
-                The PodSlice Team
+                The ZIST Team
             </p>
         </div>
     </div>
@@ -269,13 +269,13 @@ The PodSlice Team`
 	private createTrialEndingTextTemplate(data: TrialEndingEmailData): string {
 		return `Hi ${data.userFirstName},
 
-Your PodSlice trial ends in ${data.daysRemaining} day${data.daysRemaining !== 1 ? "s" : ""}!
+Your ZIST trial ends in ${data.daysRemaining} day${data.daysRemaining !== 1 ? "s" : ""}!
 
 Don't lose access to your personalized podcast feeds. Upgrade now to continue creating unlimited personalized feeds and enjoying weekly AI-generated episodes.
 
 Upgrade your account: ${data.upgradeUrl}
 
-The PodSlice Team`
+The ZIST Team`
 	}
 
 	private createTrialEndingHtmlTemplate(data: TrialEndingEmailData): string {
@@ -301,7 +301,7 @@ The PodSlice Team`
 
         <p style="color: #374151; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
             Hi ${data.userFirstName},<br><br>
-            Don't lose access to your personalized podcast feeds! Your PodSlice trial is ending soon.
+            Don't lose access to your personalized podcast feeds! Your ZIST trial is ending soon.
         </p>
 
         <div style="text-align: center; margin-bottom: 32px;">
@@ -323,7 +323,7 @@ The PodSlice Team`
         <div style="text-align: center;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
                 Questions? Reply to this email or contact our support team.<br>
-                The PodSlice Team
+                The ZIST Team
             </p>
         </div>
     </div>
@@ -334,13 +334,13 @@ The PodSlice Team`
 	private createSubscriptionExpiringTextTemplate(data: SubscriptionExpiringEmailData): string {
 		return `Hi ${data.userFirstName},
 
-Your PodSlice subscription expires on ${data.expirationDate}.
+Your ZIST subscription expires on ${data.expirationDate}.
 
 To continue enjoying your personalized podcast feeds and weekly episodes, please renew your subscription.
 
 Renew now: ${data.renewUrl}
 
-The PodSlice Team`
+The ZIST Team`
 	}
 
 	private createSubscriptionExpiringHtmlTemplate(data: SubscriptionExpiringEmailData): string {
@@ -366,7 +366,7 @@ The PodSlice Team`
 
         <p style="color: #374151; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
             Hi ${data.userFirstName},<br><br>
-            Your PodSlice subscription is set to expire soon. Don't miss out on your personalized podcast content!
+            Your ZIST subscription is set to expire soon. Don't miss out on your personalized podcast content!
         </p>
 
         <div style="text-align: center; margin-bottom: 32px;">
@@ -378,7 +378,7 @@ The PodSlice Team`
         <div style="text-align: center;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
                 Need help? Contact our support team.<br>
-                The PodSlice Team
+                The ZIST Team
             </p>
         </div>
     </div>
@@ -395,7 +395,7 @@ Make sure your personalized feed is set up with the content you want to hear abo
 
 Visit your dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard
 
-The PodSlice Team`
+The ZIST Team`
 	}
 
 	private createWeeklyReminderHtmlTemplate(userName: string): string {
@@ -433,7 +433,7 @@ The PodSlice Team`
         <div style="text-align: center;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
                 Happy listening!<br>
-                The PodSlice Team
+                The ZIST Team
             </p>
         </div>
     </div>
@@ -445,8 +445,8 @@ The PodSlice Team`
 	async sendTestEmail(to: string): Promise<boolean> {
 		const notification: EmailNotification = {
 			to,
-			subject: "🧪 PodSlice Email Test",
-			text: "This is a test email from PodSlice. If you received this, email notifications are working correctly!",
+			subject: "🧪 ZIST Email Test",
+			text: "This is a test email from ZIST. If you received this, email notifications are working correctly!",
 			html: `
 <!DOCTYPE html>
 <html>
@@ -460,11 +460,11 @@ The PodSlice Team`
         <div style="text-align: center;">
             <h1 style="color: #10b981; font-size: 28px; margin: 0 0 20px 0;">🧪 Email Test Successful!</h1>
             <p style="color: #374151; font-size: 16px; line-height: 1.5;">
-                This is a test email from PodSlice. If you received this, email notifications are working correctly!
+                This is a test email from ZIST. If you received this, email notifications are working correctly!
             </p>
             <div style="margin-top: 32px;">
                 <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                    The PodSlice Team
+                    The ZIST Team
                 </p>
             </div>
         </div>

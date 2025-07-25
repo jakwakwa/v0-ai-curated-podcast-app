@@ -967,7 +967,7 @@ export default function AdminPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Existing Bundles ({bundles.length})</CardTitle>
-							<CardDescription>Manage your PodSlice Bundles</CardDescription>
+							<CardDescription>Manage your ZIST Bundles</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<div className="space-y-4">

@@ -150,16 +150,14 @@ export function UserCurationProfileCreationWizard() {
 							}}
 							variant="outline"
 						>
-							<h3>PODSLICE Bundles</h3>
+							<h3>ZIST Bundles</h3>
 							<p>Choose from pre-selected bundles (uneditable).</p>
 						</Button>
-						{/* TODO: THIS SHOULD BE PROTECTED */}
 						<Button
 							onClick={() => {
 								setIsBundleSelection(false)
 								setStep(2)
 							}}
-							disabled
 							variant="outline"
 						>
 							<h3>Custom Personalized Feed</h3>
@@ -174,7 +172,7 @@ export function UserCurationProfileCreationWizard() {
 				<div>
 					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}</h2>
 					{isBundleSelection ? (
-						<CuratedBundleList onBundleSelect={(bundle) => setSelectedBundleId(bundle.bundle_id)} />
+						<CuratedBundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} />
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {

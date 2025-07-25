@@ -27,14 +27,14 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 
 			const response = await fetch("/api/curated-bundles")
 			if (!response.ok) {
-				throw new Error(`Failed to load PodSlice Bundles. Server responded with status ${response.status}.`)
+				throw new Error(`Failed to load ZIST Bundles. Server responded with status ${response.status}.`)
 			}
 
 			const data = await response.json()
 			setCuratedBundles(data)
 		} catch (error) {
-			console.error("Error fetching PodSlice Bundles:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading PodSlice Bundles.")
+			console.error("Error fetching ZIST Bundles:", error)
+			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading ZIST Bundles.")
 		} finally {
 			setIsLoading(false)
 		}
@@ -48,7 +48,7 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 		return (
 			<div className="flex items-center justify-center min-h-[200px]">
 				{/* AppSpinner component was removed, so this will be a placeholder or removed if not needed */}
-				<p>Loading PodSlice Bundles...</p>
+				<p>Loading ZIST Bundles...</p>
 			</div>
 		)
 	}
@@ -57,7 +57,7 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 		return (
 			<div className="max-w-2xl mx-auto">
 				{/* Alert component was removed, so this will be a placeholder or removed if not needed */}
-				<p>Unable to Load PodSlice Bundles: {error}</p>
+				<p>Unable to Load ZIST Bundles: {error}</p>
 				<div className="mt-6 text-center">
 					<Button onClick={fetchCuratedBundles} variant="outline">
 						Try Again
@@ -71,7 +71,7 @@ export function CuratedBundleList({ onBundleSelect }: CuratedBundleListProps) {
 		return (
 			<div className="max-w-2xl mx-auto">
 				{/* Alert component was removed, so this will be a placeholder or removed if not needed */}
-				<p>No PodSlice Bundles Available. Please check back later or contact support if this problem persists.</p>
+				<p>No ZIST Bundles Available. Please check back later or contact support if this problem persists.</p>
 				<div className="mt-6 text-center">
 					<Button onClick={fetchCuratedBundles} variant="outline">
 						Refresh

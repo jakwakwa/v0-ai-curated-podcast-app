@@ -145,12 +145,7 @@ export default function Page() {
 									<div className={styles.episodesSection}>
 										<Card className="mb-4">
 											<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-												<div className={styles.profileHeaderWrapper}>
-													<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-													<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-														Edit
-													</Button>
-												</div>
+												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
 											</CardHeader>
 											<CardContent>
 												<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>

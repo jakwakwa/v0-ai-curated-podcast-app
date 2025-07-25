@@ -25,7 +25,7 @@
   z-index: 50;
   display: grid;
   width: 100%;
-  max-width: 64rem; /* Doubled from 32rem */
+  max-width: 42rem; /* Doubled from 32rem */
   transform: translateX(-50%) translateY(-50%);
   gap: 1rem;
   border: 1px solid hsl(var(--border));

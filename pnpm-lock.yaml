@@ -30,8 +30,8 @@ importers:
         specifier: ^7.16.0
         version: 7.16.0
       '@iconscout/react-unicons':
-        specifier: ^2.2.5
-        version: 2.2.5(react@19.1.0)
+        specifier: 2.2.3-rc.6ef815a5
+        version: 2.2.3-rc.6ef815a5(react@19.1.0)
       '@prisma/client':
         specifier: ^6.11.1
         version: 6.12.0(prisma@6.11.1(typescript@5.8.2))(typescript@5.8.2)
@@ -528,10 +528,10 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  '@iconscout/react-unicons@2.2.5':
-    resolution: {integrity: sha512-Qn1YqlQPKUjgeGvtbsOWFlnmYBJL5iYpK+B+/nsUDz0tm8BmHQeGn9MsfSBB0WVYtLWiChhz5AQHbvXKqtWDmw==}
+  '@iconscout/react-unicons@2.2.3-rc.6ef815a5':
+    resolution: {integrity: sha512-AGSlVg5n+sNKMKZvmqQ9gDpIAIQbEL31JlScoY6eAVLuSlg5WOECkcD1DkjDIqhDb2dT+QxQX++39o9nhMuAmQ==}
     peerDependencies:
-      react: '>=15.0.0 <20.0.0'
+      react: '>=16.0.0'
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2513,9 +2513,6 @@ packages:
     resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
     engines: {node: '>=14'}
 
-  js-tokens@4.0.0:
-    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
-
   js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
@@ -2624,10 +2621,6 @@ packages:
 
   long@5.3.2:
     resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
-
-  loose-envify@1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -2901,9 +2894,6 @@ packages:
       typescript:
         optional: true
 
-  prop-types@15.8.1:
-    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
-
   protobufjs@7.5.3:
     resolution: {integrity: sha512-sildjKwVqOI2kmFDiXQ6aEB0fjYTafpEvIBs8tOR8qI4spuL9OPROLVu2qZqi/xgCfsHIwVqlaF8JBjWFHnKbw==}
     engines: {node: '>=12.0.0'}
@@ -2925,9 +2915,6 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
-
-  react-is@16.13.1:
-    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -3698,9 +3685,8 @@ snapshots:
       protobufjs: 7.5.3
       yargs: 17.7.2
 
-  '@iconscout/react-unicons@2.2.5(react@19.1.0)':
+  '@iconscout/react-unicons@2.2.3-rc.6ef815a5(react@19.1.0)':
     dependencies:
-      prop-types: 15.8.1
       react: 19.1.0
 
   '@img/sharp-darwin-arm64@0.33.5':
@@ -5807,8 +5793,6 @@ snapshots:
 
   js-cookie@3.0.5: {}
 
-  js-tokens@4.0.0: {}
-
   js-yaml@4.1.0:
     dependencies:
       argparse: 2.0.1
@@ -5908,10 +5892,6 @@ snapshots:
   lodash.camelcase@4.3.0: {}
 
   long@5.3.2: {}
-
-  loose-envify@1.4.0:
-    dependencies:
-      js-tokens: 4.0.0
 
   lru-cache@10.4.3: {}
 
@@ -6151,12 +6131,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.8.2
 
-  prop-types@15.8.1:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
-
   protobufjs@7.5.3:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
@@ -6186,8 +6160,6 @@ snapshots:
   react-hook-form@7.61.1(react@19.1.0):
     dependencies:
       react: 19.1.0
-
-  react-is@16.13.1: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@19.1.8)(react@19.1.0):
     dependencies:

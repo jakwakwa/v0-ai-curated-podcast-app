@@ -30,7 +30,7 @@
 		"@clerk/types": "^4.68.0",
 		"@elevenlabs/elevenlabs-js": "latest",
 		"@google-cloud/storage": "^7.16.0",
-		"@iconscout/react-unicons": "^2.2.5",
+		"@iconscout/react-unicons": "2.2.3-rc.6ef815a5",
 		"@prisma/client": "^6.11.1",
 		"@radix-ui/react-avatar": "^1.1.10",
 		"@radix-ui/react-checkbox": "^1.3.2",

@@ -53,7 +53,7 @@
 	"editor.wordWrap": "bounded",
 	"cursor.general.enableShadowWorkspace": false,
 	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "Material Theme Darker High Contrast",
+	"workbench.preferredDarkColorTheme": "Material Theme Ocean",
 	"window.autoDetectColorScheme": true,
 	"workbench.preferredLightColorTheme": "One Dark Pro",
 	"workbench.colorTheme": "Night Wolf (gray)",

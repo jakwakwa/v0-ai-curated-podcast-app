@@ -14,7 +14,7 @@ import styles from "./page.module.css"
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
-// AKA PODSLICE BUNDLES
+// AKA ZIST BUNDLES
 export default function CuratedBundlesPage() {
 	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([])
 	const [isLoading, setIsLoading] = useState(true)
@@ -27,14 +27,14 @@ export default function CuratedBundlesPage() {
 
 			const response = await fetch("/api/curated-bundles")
 			if (!response.ok) {
-				throw new Error(`Failed to load PodSlice Bundles. Server responded with status ${response.status}.`)
+				throw new Error(`Failed to load ZIST Bundles. Server responded with status ${response.status}.`)
 			}
 
 			const data = await response.json()
 			setCuratedBundles(data)
 		} catch (error) {
-			console.error("Error fetching PodSlice Bundles:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading PodSlice Bundles.")
+			console.error("Error fetching ZIST Bundles:", error)
+			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading ZIST Bundles.")
 		} finally {
 			setIsLoading(false)
 		}
@@ -47,19 +47,19 @@ export default function CuratedBundlesPage() {
 	return (
 		<div className=".container">
 			<div className="header">
-				<h1>PodSlice Bundles</h1>
+				<h1>ZIST Bundles</h1>
 				<p>Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected.</p>
 			</div>
 
 			{isLoading ? (
 				<div className={styles.loadingWrapper}>
-					<AppSpinner size="lg" label="Loading PodSlice Bundles..." />
+					<AppSpinner size="lg" label="Loading ZIST Bundles..." />
 				</div>
 			) : error ? (
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Unable to Load PodSlice Bundles</AlertTitle>
+						<AlertTitle>Unable to Load ZIST Bundles</AlertTitle>
 						<AlertDescription className="mt-2">{error}</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
@@ -73,8 +73,8 @@ export default function CuratedBundlesPage() {
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>No PodSlice Bundles Available</AlertTitle>
-						<AlertDescription className="mt-2">There are no PodSlice Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
+						<AlertTitle>No ZIST Bundles Available</AlertTitle>
+						<AlertDescription className="mt-2">There are no ZIST Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
 						<Button onClick={fetchCuratedBundles} variant="outline">

@@ -17,12 +17,12 @@ export default function AboutPage() {
 		{
 			step: 1,
 			title: "Create Your Profile",
-			description: "Start by building a custom Personalized Feed or choose from our pre-PodSlice Bundles.",
+			description: "Start by building a custom Personalized Feed or choose from our pre-ZIST Bundles.",
 		},
 		{
 			step: 2,
 			title: "Select Your Content",
-			description: "Choose up to 5 individual podcasts or pick one of our 3 PodSlice Bundles.",
+			description: "Choose up to 5 individual podcasts or pick one of our 3 ZIST Bundles.",
 		},
 		{
 			step: 3,
@@ -38,7 +38,7 @@ export default function AboutPage() {
 			duration: "forever",
 			description: "Perfect for podcast discovery and light listening",
 			features: [
-				"Access to 3 pre-selected PodSlice Bundles (Tech, Business, Culture)",
+				"Access to 3 pre-selected ZIST Bundles (Tech, Business, Culture)",
 				"1 weekly combo episode (20-30 minutes)",
 				"Standard audio quality",
 				"Basic podcast player with essential controls",
@@ -53,7 +53,7 @@ export default function AboutPage() {
 			duration: "per month",
 			description: "Enhanced experience with premium features and priority access",
 			features: [
-				"Access to ALL available PodSlice Bundles (10+ categories)",
+				"Access to ALL available ZIST Bundles (10+ categories)",
 				"Up to 3 weekly episodes (30-45 minutes each)",
 				"Premium audio quality with enhanced voice synthesis",
 				"Priority processing - episodes ready by Friday morning",
@@ -109,7 +109,7 @@ export default function AboutPage() {
 			{/* Short Intro */}
 			<section className={styles.hero}>
 				<div className={styles.heroContent}>
-					<Image src={"/logo.png"} alt="PodSlice Logo" width={200} height={200} />
+					<Image src={"/logo.png"} alt="ZIST Logo" width={200} height={200} />
 
 					<p className={styles.heroDescription}>
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
@@ -120,7 +120,7 @@ export default function AboutPage() {
 			<section className={styles.section}>
 				<div className={styles.sectionHeader}>
 					<h2 className={styles.sectionTitle}>How It Works</h2>
-					<p className={styles.sectionDescription}>Getting started with PodSlice is simple. Follow these three easy steps to create your personalized podcast experience.</p>
+					<p className={styles.sectionDescription}>Getting started with ZIST is simple. Follow these three easy steps to create your personalized podcast experience.</p>
 				</div>
 
 				<div className={styles.stepsGrid}>

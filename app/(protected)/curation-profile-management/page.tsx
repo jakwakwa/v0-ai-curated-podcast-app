@@ -142,12 +142,7 @@ export default function CurationProfileManagementPage() {
 
 						<Card>
 							<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-								<div className="w-full flex flex-row gap-1">
-									<CardTitle className="mb-0 w-full">Personalized Activity</CardTitle>
-									<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-										Edit
-									</Button>
-								</div>
+								<CardTitle className="mb-0 w-full">Personalized Activity</CardTitle>
 							</CardHeader>
 							<CardContent>
 								<div className="text-sm">

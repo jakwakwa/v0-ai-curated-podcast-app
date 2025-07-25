@@ -43,7 +43,11 @@ const data = {
 			icon: <BookOpen className="h-4 w-4 mr-1" />,
 			items: [
 				{
-					title: "About PodSlice",
+					title: "Dashboard",
+					url: "/dashboard",
+				},
+				{
+					title: "About ZIST",
 					url: "/about",
 				},
 			],
@@ -62,7 +66,7 @@ const data = {
 					url: "/curation-profile-management",
 				},
 				{
-					title: "Active PodSlice Bundles",
+					title: "Active ZIST Bundles",
 					url: "/curated-bundles",
 				},
 			],
