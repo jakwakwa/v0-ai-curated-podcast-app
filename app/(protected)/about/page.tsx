@@ -149,12 +149,14 @@ export default function AboutPage() {
 						<Card key={tier.name} className={`${styles.pricingCard} ${tier.popular ? styles.popularCard : ""}`}>
 							{tier.popular && <Badge className={styles.popularBadge}>Most Popular</Badge>}
 							<CardHeader>
-								<CardTitle className={styles.pricingTitle}>{tier.name}</CardTitle>
-								<div className={styles.pricingAmount}>
-									<span className={styles.price}>{tier.price}</span>
-									{tier.price !== "Free" && <span className={styles.duration}>/{tier.duration}</span>}
+								<div className="flex flex-col mt-4">
+									<CardTitle className={styles.pricingTitle}>{tier.name}</CardTitle>
+									<div className={styles.pricingAmount}>
+										<span className={styles.price}>{tier.price}</span>
+										{tier.price !== "Free" && <span className={styles.duration}>/{tier.duration}</span>}
+									</div>
+									<p className={styles.pricingDescription}>{tier.description}</p>
 								</div>
-								<p className={styles.pricingDescription}>{tier.description}</p>
 							</CardHeader>
 							<CardContent className={styles.pricingCardContent}>
 								<ul className={styles.featuresList}>

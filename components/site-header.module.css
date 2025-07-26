@@ -11,12 +11,14 @@
   gap: 0.5rem; /* gap-2 */
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--card));
+	border-bottom: 1px solid hsl(0deg 0% 17.49%);
+  background: #1b1b21f0;
   transition-property: width, height; /* transition-[width,height] */
   transition-timing-function: linear; /* ease-linear */
 }
 
 .header-container-collapsed {
-  height: 3.5rem; /* group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 */
+  height: 4.5rem; /* group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 */
 }
 
 .content-wrapper {

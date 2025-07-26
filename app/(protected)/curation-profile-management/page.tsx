@@ -91,7 +91,7 @@ export default function CurationProfileManagementPage() {
 
 	return (
 		<>
-			<div className="flex flex-col w-full gap-6 p-4">
+			<div className="flex flex-col w-full gap-8 p-4">
 				<div className="flex items-center justify-between mb-4">
 					<h1 className="text-2xl font-bold">Personalized Feed Management</h1>
 				</div>
@@ -103,84 +103,85 @@ export default function CurationProfileManagementPage() {
 						</div>
 					</div>
 				) : userCurationProfile ? (
-					<div className="grid gap-4 md:grid-cols-2">
+					<div className="flex flex-col w-full gap-5">
 						<Card>
-							<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-								<div className="w-full flex flex-row gap-1">
-									<CardTitle className="mb-0 w-full">Current Personalized Feed</CardTitle>
-									<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-										Edit
-									</Button>
-								</div>
-							</CardHeader>
-							<CardContent>
-								<div className="text-2xl font-bold">{userCurationProfile?.name}</div>
+							<div className="flex flex-row">
+								<CardHeader className="w-full flex flex-row justify-between pb-6">
+									<CardTitle className="w-full mb-8 mt-2">Current Personalized Feed</CardTitle>
+								</CardHeader>
+							</div>
+							<CardContent className="w-full mb-0 flex justify-between">
+								<div className="text-2xl w-full p-0 m-0 font-bold">{userCurationProfile?.name}</div>
+								<Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+									Edit
+								</Button>
 							</CardContent>
 						</Card>
+						<div className="flex flex-col md:flex-row gap-4">
+							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
+								<Card>
+									<CardHeader>
+										<div className="w-full flex flex-row gap-1">
+											<CardTitle className="mb-1 w-full">Selected Bundle</CardTitle>
+										</div>
+									</CardHeader>
+									<CardContent>
+										<div className="text-2xl mb-1.5 font-bold">{userCurationProfile.selectedBundle.name}</div>
+										<p className="text-xs mb-4 text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
+										<div className="mt-2 text-sm">
+											<p className="font-medium text-right">Podcasts:</p>
+											<div className="list-disc pl-5 py-2 text-right text-xs text-muted-foreground">
+												{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => <p key={podcast.podcast_id}>{podcast.name}</p>) || (
+													<li className="text-muted-foreground">No podcasts loaded</li>
+												)}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)}
 
-						{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 							<Card>
 								<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-									<div className="w-full flex flex-row gap-1">
-										<CardTitle className="mb-0 w-full">Selected Bundle</CardTitle>
-									</div>
+									<CardTitle className="mb-0 mb-4 w-full">Personalized Activity</CardTitle>
 								</CardHeader>
 								<CardContent>
-									<div className="text-2xl font-bold">{userCurationProfile.selectedBundle.name}</div>
-									<p className="text-xs text-muted-foreground">{userCurationProfile.selectedBundle.description}</p>
-									<div className="mt-2 text-sm">
-										<p className="font-medium">Podcasts:</p>
-										<ul className="list-disc pl-5 py-2 text-muted-foreground">
-											{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => <li key={podcast.podcast_id}>{podcast.name}</li>) || (
-												<li className="text-muted-foreground">No podcasts loaded</li>
-											)}
-										</ul>
+									<div className="text-xs flex justify-between">
+										<p>
+											Created: <span className="text-xs opacity-[0.5]">{formatDate(userCurationProfile?.created_at)}</span>
+										</p>
+										{/* <p>
+										Updated: <span className="text-xs opacity-[0.5]"> {formatDate(userCurationProfile?.updated_at)}</span>
+									</p> */}
 									</div>
 								</CardContent>
 							</Card>
-						)}
 
-						<Card>
-							<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-								<CardTitle className="mb-0 w-full">Personalized Activity</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="text-sm">
-									<p>
-										Created: <span className="text-xs opacity-[0.5]">{formatDate(userCurationProfile?.created_at)}</span>
-									</p>
-									<p>
-										Updated: <span className="text-xs opacity-[0.5]"> {formatDate(userCurationProfile?.updated_at)}</span>
-									</p>
-								</div>
-							</CardContent>
-						</Card>
-
-						<Card>
-							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">Weekly Episodes Summary</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="flex flex-col gap-2 text-sm">
-									{/* <div className="flex justify-between">
+							<Card>
+								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+									<CardTitle className="text-sm font-medium pb-2 mb-1">Weekly Episodes Summary</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="flex flex-col gap-2 text-sm">
+										{/* <div className="flex justify-between">
 										<span className="text-muted-foreground">Total Episodes:</span>
 										<span className="font-medium">{episodes.length + bundleEpisodes.length}</span>
 									</div> */}
-									{/* <div className="flex justify-between">
+										{/* <div className="flex justify-between">
 										<span className="text-muted-foreground">User Episodes:</span>
 										<span className="font-medium">{episodes.length}</span>
 									</div> */}
-									<div className="flex justify-between">
-										<span className="text-muted-foreground">Bundle Episodes:</span>
-										<span className="font-medium">{bundleEpisodes.length}</span>
-									</div>
-									<div className="flex justify-between">
+										<div className="flex justify-start gap-2 items-center h-4">
+											<span className="text-muted-foreground text-xs">Bundle Episode/s:</span>
+											<span className="font-medium">{bundleEpisodes.length}</span>
+										</div>
+										{/* <div className="flex justify-between">
 										<span className="text-muted-foreground">Profile Type:</span>
 										<span className="font-medium">{userCurationProfile.is_bundle_selection ? "Bundle Selection" : "Custom Profile"}</span>
+									</div> */}
 									</div>
-								</div>
-							</CardContent>
-						</Card>
+								</CardContent>
+							</Card>
+						</div>
 					</div>
 				) : (
 					<div className="max-w-2xl mx-auto mt-8">

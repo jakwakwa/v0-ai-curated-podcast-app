@@ -3,6 +3,7 @@
 import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { useFeatureAccess } from "@/components/access-control"
 import { Button } from "@/components/ui/button"
 import styles from "./landing-page-content.module.css"
@@ -16,7 +17,7 @@ export default function LandingPageContent() {
 			icon: <UilStar className="w-6 h-6" />,
 			title: "Instantly grasp key takeaways in minutes, not hours",
 			description:
-				"Transform your overwhelm into clarity. No more struggling through lengthy episodes hoping to catch that one crucial insight. Our AI cuts straight to what matters, saving you 3-5 hours per week while ensuring you never miss the breakthrough moments that could change your perspective.",
+				"Transform your overwhelm into clarity. No more struggling through lengthy episodes hoping to catch that one crucial insight. Our AI cuts straight to what matters, saving you 3-5 hours per week while ensuring you never miss the breakthrough moments that could change your perspective",
 		},
 		{
 			icon: <UilPlay className="w-6 h-6" />,
@@ -187,7 +188,7 @@ export default function LandingPageContent() {
 				<div className={styles.heroContainer}>
 					<div className={styles.heroContent}>
 						<motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
-							ZIST
+							<Image className="mx-auto" src={"/logo.png"} width={400} height={200} alt="logo" />
 						</motion.h1>
 						<motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
 							Cut the chatter. Keep the insight.
