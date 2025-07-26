@@ -8,7 +8,6 @@ import { dark } from "@clerk/themes"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
 
-import { fontSans } from "@/lib/utils"
 import { ClientProviders } from "./client-providers"
 import "./globals.css"
 import { StoreInitializer } from "./store-initializer"
@@ -44,7 +43,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={fontSans.variable}>
+			<body className={inter.className}>
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
