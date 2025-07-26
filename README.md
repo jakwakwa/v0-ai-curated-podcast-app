@@ -18,7 +18,7 @@ Be among the first to experience the future of podcast consumption.
 ## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Authentication**: [Clerk](https://clerk.com/))
+- **Authentication**: [Clerk](https://clerk.com/)
 - **ORM**: [Prisma](https://www.prisma.io/)
 - **Database**: [Prisma PostgreSQL](https://www.postgresql.org/](https://www.prisma.io/))
 - **Styling**: CSS Modules & [shadcn/ui](https://ui.shadcn.com/) with [radix ui](https://www.radix-ui.com/) UI primitives
