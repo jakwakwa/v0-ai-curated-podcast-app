@@ -12,11 +12,16 @@ import {
 
 	Brain,
 	// CheckCircle,
-	Clock, Headphones,
+	Clock,
+	Headphones,
 	// Mail,
-	 Pause, Play,
-	  // Star,
-	   Volume2, Zap } from "lucide-react"
+	Pause,
+	Play,
+	// Star,
+	Volume2,
+	Zap,
+} from "lucide-react"
+import { motion } from "framer-motion"
 import styles from "./new-landing-page.module.css"
 
 function LandingPage() {
@@ -70,7 +75,12 @@ function LandingPage() {
 	return (
 		<div className={styles.container}>
 			{/* Header */}
-			<header className={styles.header}>
+			<motion.header
+				initial={{ y: -100, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ duration: 0.5 }}
+				className={styles.header}
+			>
 				<div className={styles.headerContainer}>
 					<div className={styles.logoContainer}>
 						<div className={styles.logoIconContainer}>
@@ -80,31 +90,29 @@ function LandingPage() {
 					</div>
 					{/* <Button variant="outline">Get Early Access</Button> */}
 				</div>
-			</header>
+			</motion.header>
 
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<div className={styles.heroContainer}>
-					<div className={styles.heroBadge}>
+					<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={styles.heroBadge}>
 						<Zap className={styles.heroBadgeIcon} />
 						Coming Soon - Revolutionary AI Audio Processing
-					</div>
+					</motion.div>
 
-					<h1 className={styles.heroTitle}>
+					<motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className={styles.heroTitle}>
 						Cut the chatter.
 						<br />
-						<span className={styles.heroTitleGradient}>
-							Keep the insight.
-						</span>
-					</h1>
+						<span className={styles.heroTitleGradient}>Keep the insight.</span>
+					</motion.h1>
 
-					<p className={styles.heroSubtitle}>
+					<motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className={styles.heroSubtitle}>
 						Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. PODSLICE.ai transforms chaotic audio into crystal-clear,
 						actionable knowledge with remarkably human AI voices.
-					</p>
+					</motion.p>
 
 					{/* Audio Player Demo */}
-					<div className={styles.audioPlayerDemo}>
+					<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className={styles.audioPlayerDemo}>
 						<audio ref={audioRef} src="/podslice-sample.mp3" preload="metadata">
 							<track kind="captions" />
 						</audio>
@@ -135,7 +143,7 @@ function LandingPage() {
 									/>
 								))}
 						</div>
-					</div>
+					</motion.div>
 
 					{/* <form onSubmit={handleSubmit} className={styles.waitlistForm}>
 						<div className={styles.waitlistInputContainer}>
@@ -159,10 +167,18 @@ function LandingPage() {
 			{/* Features Section */}
 			<section className={styles.featuresSection}>
 				<div className={styles.featuresContainer}>
-					<h2 className={styles.featuresTitle}>Reclaim hours each week</h2>
+					<motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} className={styles.featuresTitle}>
+						Reclaim hours each week
+					</motion.h2>
 
 					<div className={styles.featuresGrid}>
-						<div className={styles.featureCard}>
+						<motion.div
+							initial={{ opacity: 0, y: 50 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true, amount: 0.3 }}
+							transition={{ duration: 0.5 }}
+							className={styles.featureCard}
+						>
 							<div className={styles.featureIconContainer}>
 								<Brain className={styles.featureIcon} />
 							</div>
@@ -170,9 +186,15 @@ function LandingPage() {
 							<p className={styles.featureCardDescription}>
 								Our advanced AI identifies and extracts the most valuable insights from hours of podcast content, eliminating the noise and focusing on what matters.
 							</p>
-						</div>
+						</motion.div>
 
-						<div className={styles.featureCard}>
+						<motion.div
+							initial={{ opacity: 0, y: 50 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true, amount: 0.3 }}
+							transition={{ duration: 0.5, delay: 0.2 }}
+							className={styles.featureCard}
+						>
 							<div className={styles.featureIconContainer} style={{ backgroundImage: "linear-gradient(to right, hsl(var(--primary-gradient-end)), #f97316)" }}>
 								<Volume2 className={styles.featureIcon} />
 							</div>
@@ -180,15 +202,21 @@ function LandingPage() {
 							<p className={styles.featureCardDescription}>
 								Experience remarkably natural AI voices that deliver insights with the clarity and nuance of human speech, making complex ideas easy to understand.
 							</p>
-						</div>
+						</motion.div>
 
-						<div className={styles.featureCard}>
+						<motion.div
+							initial={{ opacity: 0, y: 50 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true, amount: 0.3 }}
+							transition={{ duration: 0.5, delay: 0.4 }}
+							className={styles.featureCard}
+						>
 							<div className={styles.featureIconContainer} style={{ backgroundImage: "linear-gradient(to right, #f97316, hsl(var(--primary)))" }}>
 								<Clock className={styles.featureIcon} />
 							</div>
 							<h3 className={styles.featureCardTitle}>Instant Access</h3>
 							<p className={styles.featureCardDescription}>Get immediate access to key takeaways without hunting through rambling conversations. Transform 3-hour podcasts into 5-minute insights.</p>
-						</div>
+						</motion.div>
 					</div>
 				</div>
 			</section>
@@ -262,7 +290,7 @@ function LandingPage() {
 			</section> */}
 
 			{/* Footer */}
-			<footer className={styles.footer}>
+			<motion.footer initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: 0.5 }} className={styles.footer}>
 				<div className={styles.footerContainer}>
 					<div className={styles.footerLogoContainer}>
 						<div className={styles.footerLogoIconContainer}>
@@ -287,7 +315,7 @@ function LandingPage() {
 				<div className={styles.footerCopyrightContainer}>
 					<p className={styles.footerCopyright}>© 2025 PODSLICE.ai. All rights reserved. Transform your podcast experience.</p>
 				</div>
-			</footer>
+			</motion.footer>
 		</div>
 	)
 }
