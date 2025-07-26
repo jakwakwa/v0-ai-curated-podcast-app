@@ -1,4 +1,6 @@
-# PODSLICE.ai AI-Curated Podcast Application
+# PODSLICE.ai 
+
+## AI Powered Automated Podcast Summary Application
 
 Our advanced AI identifies and extracts the most valuable insights from hours of podcast content, eliminating the noise and focusing on what matters.
 Experience remarkably natural AI voices that deliver insights with the clarity and nuance of human speech, making complex ideas easy to understand.
@@ -32,8 +34,10 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 
 - Node.js (v18 or later)
-- pnpm
-- A PostgreSQL database
+- A PostgreSQL database and connection string key
+- Clerk Account and api keys
+- Inngest Account and api keys
+- Eleven Labs account and api keys
 
 ### Installation
 
@@ -46,7 +50,7 @@ Follow these instructions to get a copy of the project up and running on your lo
    npm install prisma --save-dev
    ```
 
-2. **Set up environment variables:**
+2. Set up environment variables:
 
    Create a file named `.env.local` in the root of your project.
    - Get your PostgreSQL database **Connection String**.
@@ -61,30 +65,27 @@ Follow these instructions to get a copy of the project up and running on your lo
    XAI_API_KEY: string
    ELEVEN_LABS_PROD: string
    ELEVEN_LABS_DEV: string
-	NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
-	CLERK_SECRET_KEY: string
-	NEXT_GOOGLE_GENERATIVE_AI_API_KEY: string
-	GOOGLE_GENERATIVE_AI_API_KEY: string
-	GOOGLE_CLOUD_PROJECT_ID: string
-	GOOGLE_CLOUD_STORAGE_BUCKET_NAME: string
-	WF__INNGEST_EVENT_KEY: string
-	WF__INNGEST_SIGNING_KEY: string
-	DATABASE_URL: string
-	GCS_UPLOADER_KEY_PATH: Blob
-	GCS_READER_KEY_PATH: Blob
+	 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
+	 CLERK_SECRET_KEY: string
+	 NEXT_GOOGLE_GENERATIVE_AI_API_KEY: string
+ 	 GOOGLE_GENERATIVE_AI_API_KEY: string
+	 GOOGLE_CLOUD_PROJECT_ID: string
+	 GOOGLE_CLOUD_STORAGE_BUCKET_NAME: string
+	 WF__INNGEST_EVENT_KEY: string
+	 WF__INNGEST_SIGNING_KEY: string
+ 	 DATABASE_URL: string
+	 GCS_UPLOADER_KEY_PATH: Blob
+	 GCS_READER_KEY_PATH: Blob
  ```
 
-4. **Push the database schema:**
+4. Push the database schema:
 
-   This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
+	This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
 
-`pnpm prisma:push`
+	`pnpm prisma:push`
 
 
+5. Run the development server:
+   `pnpm dev`
 
-6. **Run the development server:**
-   \`\`\`bash
-   pnpm dev
-   \`\`\`
-
-   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+	Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
