@@ -150,7 +150,7 @@ export function UserCurationProfileCreationWizard() {
 							}}
 							variant="outline"
 						>
-							<h3>ZIST Bundles</h3>
+							<h3>PODSLICE Bundles</h3>
 							<p>Choose from pre-selected bundles (uneditable).</p>
 						</Button>
 						<Button

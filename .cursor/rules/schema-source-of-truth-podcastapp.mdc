@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 # Schema source of truth if youre working with a branch out of sync with the main branch
 
-## For "ZIST" aka `v0-ai-curated-podcast-app`
+## For "PODSLICE" aka `v0-ai-curated-podcast-app`
 
 generator client {
   provider      = "prisma-client-js"

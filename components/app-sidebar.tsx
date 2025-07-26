@@ -47,7 +47,7 @@ const data = {
 					url: "/dashboard",
 				},
 				{
-					title: "About ZIST",
+					title: "About PODSLICE",
 					url: "/about",
 				},
 			],
@@ -66,7 +66,7 @@ const data = {
 					url: "/curation-profile-management",
 				},
 				{
-					title: "Active ZIST Bundles",
+					title: "Active PODSLICE Bundles",
 					url: "/curated-bundles",
 				},
 			],

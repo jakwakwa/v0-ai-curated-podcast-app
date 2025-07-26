@@ -55,7 +55,7 @@ export default function LandingPageContent() {
 		{
 			step: 1,
 			title: "Choose Your Focus",
-			description: "Select from expertly ZIST Bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
+			description: "Select from expertly PODSLICE Bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
 			action: "Start your profile",
 		},
 		{
@@ -85,7 +85,7 @@ export default function LandingPageContent() {
 			duration: "forever",
 			description: "Perfect for podcast discovery and light listening",
 			features: [
-				"Access to 3 pre-selected ZIST Bundles (Tech, Business, Culture)",
+				"Access to 3 pre-selected PODSLICE Bundles (Tech, Business, Culture)",
 				"1 weekly combo episode (20-30 minutes)",
 				"Standard audio quality",
 				"Basic podcast player with essential controls",
@@ -100,7 +100,7 @@ export default function LandingPageContent() {
 			duration: "per month",
 			description: "Enhanced experience with premium features and priority access",
 			features: [
-				"Access to ALL available ZIST Bundles (10+ categories)",
+				"Access to ALL available PODSLICE Bundles (10+ categories)",
 				"Up to 3 weekly episodes (30-45 minutes each)",
 				"Premium audio quality with enhanced voice synthesis",
 				"Priority processing - episodes ready by Friday morning",
@@ -156,7 +156,7 @@ export default function LandingPageContent() {
 			name: "Sarah Chen",
 			role: "Product Manager",
 			content:
-				"ZIST saved me 6 hours last week alone. I was drowning in my podcast backlog, but now I get all the key insights in just 20 minutes. The AI voice is so natural, it's like listening to a human expert who actually knows how to get to the point.",
+				"PODSLICE saved me 6 hours last week alone. I was drowning in my podcast backlog, but now I get all the key insights in just 20 minutes. The AI voice is so natural, it's like listening to a human expert who actually knows how to get to the point.",
 			rating: 5,
 		},
 		{
@@ -194,7 +194,7 @@ export default function LandingPageContent() {
 							Cut the chatter. Keep the insight.
 						</motion.p>
 						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
-							Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. ZIST transforms chaotic audio into crystal-clear,
+							Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. PODSLICE transforms chaotic audio into crystal-clear,
 							actionable knowledge with remarkably human AI voices. Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights
 							that actually matter.
 						</motion.p>
@@ -236,7 +236,7 @@ export default function LandingPageContent() {
 			<section className={styles.featuresSection}>
 				<div className={styles.featuresContainer}>
 					<motion.div className={styles.featuresHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className={styles.featuresTitle}>Why Choose ZIST?</h2>
+						<h2 className={styles.featuresTitle}>Why Choose PODSLICE?</h2>
 						<p className={styles.featuresDescription}>We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.</p>
 					</motion.div>
 					<div className={styles.featuresGrid}>
@@ -279,8 +279,8 @@ export default function LandingPageContent() {
 			<section className={styles.howItWorksSection}>
 				<div className={styles.howItWorksContainer}>
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className={styles.howItWorksTitle}>How ZIST Works</h2>
-						<p className={styles.howItWorksDescription}>Getting started with ZIST is straightforward. Follow these four simple steps to create your focused content experience.</p>
+						<h2 className={styles.howItWorksTitle}>How PODSLICE Works</h2>
+						<p className={styles.howItWorksDescription}>Getting started with PODSLICE is straightforward. Follow these four simple steps to create your focused content experience.</p>
 					</motion.div>
 					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
@@ -493,7 +493,7 @@ export default function LandingPageContent() {
 						<motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
 							<UilStar className="w-8 h-8 text-primary mr-2" />
 						</motion.div>
-						<span className="text-2xl font-bold">ZIST</span>
+						<span className="text-2xl font-bold">PODSLICE</span>
 					</div>
 					<p className="text-muted-foreground mb-4">Cut the chatter. Keep the insight.</p>
 					<div className="flex justify-center items-center space-x-6 text-sm text-muted-foreground">

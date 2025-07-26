@@ -15,11 +15,11 @@ if (!clerkPublishableKey) {
 }
 
 export const metadata: Metadata = {
-	title: "ZIST | AI Podcast Summaries | Cut the Chatter, Keep the Insight.",
-	description: "Experience the future of listening. ZIST crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
+	title: "PODSLICE | AI Podcast Summaries | Cut the Chatter, Keep the Insight.",
+	description: "Experience the future of listening. PODSLICE crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
 	openGraph: {
-		title: "ZIST: Cut the Chatter, Keep the Insight.",
-		description: "Experience the future of listening. ZIST crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
+		title: "PODSLICE: Cut the Chatter, Keep the Insight.",
+		description: "Experience the future of listening. PODSLICE crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
 	},
 	twitter: {
 		card: "summary_large_image",

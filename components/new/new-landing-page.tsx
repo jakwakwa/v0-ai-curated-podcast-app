@@ -4,7 +4,7 @@
 
 // biome-ignore lint/correctness/noUnusedImports: <suppressing unused imports>
 import { type ChangeEvent, type FormEvent, useState, useEffect, useRef } from "react"
-import Link from "next/link"
+// import Link from "next/link"
 import { Button } from "@/components/new/button-new"
 // import { Input } from "@/components/new/input-new"
 import {
@@ -299,7 +299,7 @@ function LandingPage() {
 						<span className={styles.footerLogoText}>PODSLICE.ai</span>
 					</div>
 
-					<div className={styles.footerLinks}>
+					{/* <div className={styles.footerLinks}>
 						<Link href="#" className={styles.footerLink}>
 							Privacy
 						</Link>
@@ -309,7 +309,7 @@ function LandingPage() {
 						<Link href="#" className={styles.footerLink}>
 							Contact
 						</Link>
-					</div>
+					</div> */}
 				</div>
 
 				<div className={styles.footerCopyrightContainer}>
