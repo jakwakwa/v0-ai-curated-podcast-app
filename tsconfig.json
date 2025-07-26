@@ -35,7 +35,8 @@
         "./scripts/*"
       ],
       "components/ui/*": [
-        "./components/ui/*"
+        "./components/ui/*",
+				"./components/new/*"
       ]
     }
   },
