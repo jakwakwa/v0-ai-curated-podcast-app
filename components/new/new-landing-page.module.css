@@ -125,6 +125,8 @@
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	text-align: left;
+	padding-right: 1rem;
 }
 
 .audioPlayerTitle {
@@ -153,7 +155,7 @@
 /* Waveform */
 .waveformContainer {
 	display: flex;
-	align-items: end;
+	align-items: flex-end;
 	justify-content: center;
 	gap: 2px;
 	height: 80px;
