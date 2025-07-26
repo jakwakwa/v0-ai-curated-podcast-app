@@ -23,7 +23,7 @@ Be among the first to experience the future of podcast consumption.
 - <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/typescript.svg" width="20" height="20" alt="TypeScript" /> **Language**: [TypeScript](https://www.typescriptlang.org/)
 - <img src="https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/a2ea339b-8b5e-41bb-b706-24eda8a4c9e3/elevenlabs-symbol.svg" width="20" height="20" alt="ElevenLabs" /> **Text-to-Speech**: [ElevenLabs](https://elevenlabs.io/)
 - <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vercel/vercel-original.svg" width="20" height="20" alt="Vercel AI SDK" /> **AI SDK**: [Vercel AI SDK](https://v5.ai-sdk.dev/)
-- <img src="https://raw.githubusercontent.com/jakwakwa/v0-ai-curated-podcast-app/main/public/clerk-logo.svg" width="20" height="20" alt="Clerk" /> **Authentication**: [Clerk](https://clerk.com/)
+- **Authentication**: [Clerk](https://clerk.com/)
 - <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/prisma/prisma-original.svg" width="20" height="20" alt="Prisma" /> **ORM**: [Prisma](https://www.prisma.io/)
 - <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" width="20" height="20" alt="PostgreSQL" /> **Database**: [PostgreSQL](https://www.postgresql.org/)
 - <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" width="20" height="20" alt="CSS3" /> <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/shadcnui.svg" width="20" height="20" alt="shadcn/ui" /> <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/radixui-dark.svg" width="20" height="20" alt="Radix UI" /> **Styling**: CSS Modules & [shadcn/ui](https://ui.shadcn.com/) with [radix ui](https://www.radix-ui.com/) UI primitives
@@ -33,16 +33,16 @@ Be among the first to experience the future of podcast consumption.
 ### Languages and Tools
 
 <p align="left">
-  <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/typescript.svg" alt="TypeScript" width="40" height="40"/> </a>
-  <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg" alt="Next.js" width="40" height="40"/> </a>
-  <a href="https://elevenlabs.io/" target="_blank" rel="noreferrer"> <img src="https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/a2ea339b-8b5e-41bb-b706-24eda8a4c9e3/elevenlabs-symbol.svg" alt="ElevenLabs" width="40" height="40"/> </a>
-  <a href="https://vercel.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vercel/vercel-original.svg" alt="Vercel" width="40" height="40"/> </a>
-  <a href="https://clerk.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/jakwakwa/v0-ai-curated-podcast-app/main/public/clerk-logo.svg" alt="Clerk" width="40" height="40"/> </a>
-  <a href="https://www.prisma.io/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/prisma/prisma-original.svg" alt="Prisma" width="40" height="40"/> </a>
-  <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" alt="PostgreSQL" width="40" height="40"/> </a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" alt="CSS3" width="40" height="40"/> </a>
-  <a href="https://ui.shadcn.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/shadcnui.svg" alt="shadcn/ui" width="40" height="40"/> </a>
-  <a href="https://www.radix-ui.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/radixui-dark.svg" alt="Radix UI" width="40" height="40"/> </a>
+  <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/typescript.svg" alt="TypeScript" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg" alt="Next.js" width="40" height="40"/>
+  <img src="https://11labs-nonprd-15f22c1d.s3.eu-west-3.amazonaws.com/a2ea339b-8b5e-41bb-b706-24eda8a4c9e3/elevenlabs-symbol.svg" alt="ElevenLabs" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vercel/vercel-original.svg" alt="Vercel" width="40" height="40"/>
+  <img src="public/clerk-logo.svg" alt="Clerk" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/prisma/prisma-original.svg" alt="Prisma" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original.svg" alt="PostgreSQL" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original.svg" alt="CSS3" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/shadcnui.svg" alt="shadcn/ui" width="40" height="40"/>
+  <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/radixui-dark.svg" alt="Radix UI" width="40" height="40"/>
 </p>
 
 ## Getting Started
