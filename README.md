@@ -1,4 +1,4 @@
-# PODSLICE.ai 
+# PODSLICE.ai
 
 ## AI Powered Automated Podcast Summary Application
 
@@ -41,14 +41,14 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ### Installation
 
-1. Clone the repository and install dependencies:**
-  
-	```bash
+1. Clone the repository and install dependencies:
+
+```bash
    git clone <your-repository-url>
    cd ai-curated-podcast-app
    npm install
    npm install prisma --save-dev
-   ```
+  ```
 
 2. Set up environment variables:
 
@@ -65,27 +65,26 @@ Follow these instructions to get a copy of the project up and running on your lo
    XAI_API_KEY: string
    ELEVEN_LABS_PROD: string
    ELEVEN_LABS_DEV: string
-	 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
-	 CLERK_SECRET_KEY: string
-	 NEXT_GOOGLE_GENERATIVE_AI_API_KEY: string
- 	 GOOGLE_GENERATIVE_AI_API_KEY: string
-	 GOOGLE_CLOUD_PROJECT_ID: string
-	 GOOGLE_CLOUD_STORAGE_BUCKET_NAME: string
-	 WF__INNGEST_EVENT_KEY: string
-	 WF__INNGEST_SIGNING_KEY: string
- 	 DATABASE_URL: string
-	 GCS_UPLOADER_KEY_PATH: Blob
-	 GCS_READER_KEY_PATH: Blob
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
+  CLERK_SECRET_KEY: string
+  NEXT_GOOGLE_GENERATIVE_AI_API_KEY: string
+   GOOGLE_GENERATIVE_AI_API_KEY: string
+  GOOGLE_CLOUD_PROJECT_ID: string
+  GOOGLE_CLOUD_STORAGE_BUCKET_NAME: string
+  WF__INNGEST_EVENT_KEY: string
+  WF__INNGEST_SIGNING_KEY: string
+   DATABASE_URL: string
+  GCS_UPLOADER_KEY_PATH: Blob
+  GCS_READER_KEY_PATH: Blob
  ```
 
-4. Push the database schema:
+3. Push the database schema:
 
-	This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
+ This command will read your `prisma/schema.prisma` file and create the corresponding tables in your database.
 
-	`pnpm prisma:push`
+ `pnpm prisma:push`
 
-
-5. Run the development server:
+4. Run the development server:
    `pnpm dev`
 
-	Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
