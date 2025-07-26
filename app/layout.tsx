@@ -1,18 +1,13 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import type React from "react"
+import "./globals.css"
 
-import { Analytics } from "@vercel/analytics/react"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "sonner"
-
 import { ClientProviders } from "./client-providers"
-import "./globals.css"
 import { StoreInitializer } from "./store-initializer"
-import { SiteHeader } from "@/components/site-header"
-import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -50,18 +45,11 @@ export default function RootLayout({
 						baseTheme: dark,
 					}}
 				>
-					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-						<ClientProviders>
-							<StoreInitializer />
-							<div className="relative flex min-h-screen flex-col">
-								<SiteHeader />
-								<div className="flex-1">{children}</div>
-							</div>
-							<Toaster />
-							<Analytics />
-							<SpeedInsights />
-						</ClientProviders>
-					</ThemeProvider>
+					<ClientProviders>
+						<StoreInitializer />
+						{children}
+						<Toaster />
+					</ClientProviders>
 				</ClerkProvider>
 			</body>
 		</html>
