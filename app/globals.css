@@ -179,6 +179,7 @@
 		font-weight: 700;
 		margin-bottom: 1rem;
 		color: hsla(var(--foreground));
+		text-shadow: 0px 4px 2px rgb(3 3 5 / 57%), 3px 8px 7px rgb(13 13 13 / 8%);
 	}
 
 	.episodeCard {
@@ -266,31 +267,13 @@
 
 	.container {
 		width: 100%;
-		background-image: linear-gradient(
-			105deg,
-			hsla(216deg 11% 9%) 0%,
-			hsla(217deg 13% 10%) 8%,
-			hsla(217deg 14% 12%) 14%,
-			hsla(217deg 16% 13%) 21%,
-			hsla(217deg 17% 14%) 26%,
-			hsla(217deg 18% 15%) 32%,
-			hsla(217deg 19% 16%) 36%,
-			hsla(217deg 20% 18%) 41%,
-			hsla(217deg 21% 19%) 45%,
-			hsla(220deg 19% 20%) 49%,
-			hsla(226deg 14% 22%) 54%,
-			hsla(236deg 10% 24%) 59%,
-			hsla(250deg 8% 25%) 64%,
-			hsla(266deg 8% 27%) 70%,
-			hsla(283deg 7% 28%) 76%,
-			hsla(303deg 6% 30%) 84%,
-			hsla(318deg 8% 32%) 91%,
-			hsla(328deg 9% 34%) 100%
-					);
-			display: flex;
-			flex-direction: column;
-			margin-top: 3rem; /* Account for fixed header height */
-		}
+		background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)),
+			var(--primary-gradient);
+		display: flex;
+		flex-direction: column;
+		margin-top: 3rem; /* Account for fixed header height */
+		box-shadow: inset 0 8px 10px -60px rgba(0, 0, 0, 0.5);
+	}
 
 	.title {
 		font-size: 1.9rem;

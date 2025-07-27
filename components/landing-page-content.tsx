@@ -2,11 +2,12 @@
 
 import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import { motion, useScroll, useTransform } from "framer-motion"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 import { useFeatureAccess } from "@/components/access-control"
+// import styles from "./landing-page-content.module.css"
+import styles from "@/components/new/new-landing-page.module.css"
 import { Button } from "@/components/ui/button"
-import styles from "./landing-page-content.module.css"
 
 export default function LandingPageContent() {
 	// Check current subscription level
@@ -176,7 +177,7 @@ export default function LandingPageContent() {
 	]
 
 	return (
-		<div className=".container">
+		<div className={styles.container}>
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<motion.div

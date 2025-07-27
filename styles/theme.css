@@ -110,6 +110,7 @@
 		font-weight: 700;
 		margin-bottom: 1rem;
 		color: hsla(var(--foreground-hsl));
+		0px 4px 2px rgb(3 3 5 / 57%), 3px 8px 7px rgb(13 13 13 / 8%)
 	}
 	.episodeCard {
 		border: 1px solid hsla(var(--border-hsl));
