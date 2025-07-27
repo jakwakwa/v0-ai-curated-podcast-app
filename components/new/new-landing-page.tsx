@@ -10,10 +10,10 @@ import { Button } from "@/components/new/button-new"
 // import { Input } from "@/components/new/input-new"
 import {
 	// ArrowRight,
-
 	Brain,
 	// CheckCircle,
 	Clock,
+	// biome-ignore lint/correctness/noUnusedImports: <icon exists>
 	Headphones,
 	// Mail,
 	Pause,
@@ -34,9 +34,19 @@ function LandingPage() {
 
 	// Generate waveform heights on client side only
 	useEffect(() => {
-		const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20)
-		setWaveformHeights(heights)
-	}, [])
+		let interval: NodeJS.Timeout;
+		if (isPlaying) {
+			interval = setInterval(() => {
+				const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20);
+				setWaveformHeights(heights);
+			}, 100);
+		} else {
+			const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20);
+			setWaveformHeights(heights);
+		}
+
+		return () => clearInterval(interval);
+	}, [isPlaying]);
 
 	// const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 	// 	e.preventDefault()
@@ -99,7 +109,10 @@ function LandingPage() {
 					</motion.div>
 					<div className={styles.logoContainer}>
 
-<Image src="/logo.png" alt="logo" width={600} height={100} />
+<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.2 }}>
+	<Image src="/logo.png" alt="logo" width={600} height={100} />
+</motion.div>
+
 {/* <span className={styles.logoText}>PODSLICE.ai</span> */}
 </div>
 					<motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className={styles.heroTitle}>
@@ -181,7 +194,7 @@ function LandingPage() {
 							transition={{ duration: 0.5 }}
 							className={styles.featureCard}
 						>
-							<div className={styles.featureIconContainer}>
+							<div className={styles.featureIconContainer} style={{ background: "var(--primary-gradient)" }}>
 								<Brain className={styles.featureIcon} />
 							</div>
 							<h3 className={styles.featureCardTitle}>AI-Powered Extraction</h3>
@@ -197,7 +210,7 @@ function LandingPage() {
 							transition={{ duration: 0.5, delay: 0.2 }}
 							className={styles.featureCard}
 						>
-							<div className={styles.featureIconContainer} style={{ backgroundImage: "linear-gradient(to right, hsl(var(--primary-gradient-end)), #f97316)" }}>
+							<div className={styles.featureIconContainer} style={{ background: "var(--accent-gradient)" }}>
 								<Volume2 className={styles.featureIcon} />
 							</div>
 							<h3 className={styles.featureCardTitle}>Human-Like Voices</h3>
@@ -213,7 +226,7 @@ function LandingPage() {
 							transition={{ duration: 0.5, delay: 0.4 }}
 							className={styles.featureCard}
 						>
-							<div className={styles.featureIconContainer} style={{ backgroundImage: "linear-gradient(to right, #f97316, hsl(var(--primary)))" }}>
+							<div className={styles.featureIconContainer} style={{ background: "var(--tertiary-gradient)" }}>
 								<Clock className={styles.featureIcon} />
 							</div>
 							<h3 className={styles.featureCardTitle}>Instant Access</h3>
@@ -294,11 +307,9 @@ function LandingPage() {
 			{/* Footer */}
 			<motion.footer initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: 0.5 }} className={styles.footer}>
 				<div className={styles.footerContainer}>
-					<div className={styles.footerLogoContainer}>
-						<div className={styles.footerLogoIconContainer}>
-							<Headphones className={styles.footerLogoIcon} />
-						</div>
-						<span className={styles.footerLogoText}>PODSLICE.ai</span>
+					<div className={styles.logoContainer}>
+						<Image src="/logo.png" alt="logo" width={200} height={50} />
+						{/* <span className={styles.footerLogoText}>PODSLICE.ai</span> */}
 					</div>
 
 					{/* <div className={styles.footerLinks}>

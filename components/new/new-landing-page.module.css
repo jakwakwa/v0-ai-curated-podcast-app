@@ -2,7 +2,7 @@
 .container {
 	/* max-width: 1200px; */
 	/* margin: 0 auto; */
-	padding: 0 1rem;
+	padding: 0;
 	min-height: 100vh;
 	background: var(--page-background);
 }
@@ -52,7 +52,7 @@
 /* Hero Section */
 .heroSection {
 	padding: 0;
-	padding-bottom: 0rem;
+	padding-bottom: 6rem;
 	padding-top: 4rem;
 	text-align: center;
 }
@@ -90,7 +90,7 @@
 }
 
 .heroTitleGradient {
-	background: var(--accent-gradient);
+	background: var(--primary-gradient);
 	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
@@ -108,7 +108,7 @@
 
 /* Audio Player Demo */
 .audioPlayerDemo {
-	background: var(--card-background-glass);
+	background: var(--secondary-page-background);
 	border: 1px solid var(--card-border-glass);
 	border-radius: 1rem;
 	padding: 1.5rem;
@@ -161,23 +161,28 @@
 	justify-content: center;
 	gap: 2px;
 	padding-top: 1rem;
-	height: 80px;
+	height: 70px;
+	width: 100%;
 }
+
 
 .waveformBar {
 	width: 7px;
 	border-radius: 2px;
 	transition: all 0.3s ease;
-	background: var(--accent-gradient);
+	height: 0px;
+	background: var(--tertiary-gradient);
 }
 
 .waveformBar.pulse {
+	height: 100%;
+	background: var(--primary-gradient);
 	animation: pulse 1s ease-in-out infinite;
 }
 
 @keyframes pulse {
 	0%, 100% {
-		opacity: 0.6;
+		opacity: 0.3;
 	}
 	50% {
 		opacity: 1;
@@ -223,6 +228,7 @@
 /* Features Section */
 .featuresSection {
 	padding: 4rem 0;
+	background: var(--background-glass);
 }
 
 .featuresContainer {
@@ -246,11 +252,13 @@
 
 .featureCard {
 	padding: 2rem;
-	background: var(--card-background-glass);
-	border: 1px solid var(--card-border-glass);
+	background: var(--background-glass);
+	background-image: var(--glass-gradient);
+	border: 1px solid var(--border-glass);
+	outline: 1px solid var(--outline-glass);
 	border-radius: 1rem;
 	text-align: center;
-	backdrop-filter: blur(10px);
+	backdrop-filter: blur(80px);
 }
 
 .featureIconContainer {
@@ -261,6 +269,7 @@
 	align-items: center;
 	justify-content: center;
 	margin: 0 auto 1.5rem;
+	background: var(--primary-gradient);
 }
 
 .featureIcon {
@@ -428,12 +437,13 @@
 .footer {
 	padding: 3rem 0 2rem;
 	border-top: 1px solid rgba(255, 255, 255, 0.1);
-	margin-top: 4rem;
+	background: var(--background);
+	margin-top: 0rem;
 }
 
 .footerContainer {
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
 	margin-bottom: 2rem;
 }
