@@ -34,19 +34,19 @@ function LandingPage() {
 
 	// Generate waveform heights on client side only
 	useEffect(() => {
-		let interval: NodeJS.Timeout;
+		let interval: NodeJS.Timeout
 		if (isPlaying) {
 			interval = setInterval(() => {
-				const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20);
-				setWaveformHeights(heights);
-			}, 100);
+				const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20)
+				setWaveformHeights(heights)
+			}, 100)
 		} else {
-			const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20);
-			setWaveformHeights(heights);
+			const heights = Array.from({ length: 40 }, () => Math.random() * 100 + 20)
+			setWaveformHeights(heights)
 		}
 
-		return () => clearInterval(interval);
-	}, [isPlaying]);
+		return () => clearInterval(interval)
+	}, [isPlaying])
 
 	// const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 	// 	e.preventDefault()
@@ -86,35 +86,28 @@ function LandingPage() {
 	return (
 		<div className={styles.container}>
 			{/* Header */}
-			<motion.header
-				initial={{ y: -100, opacity: 0 }}
-				animate={{ y: 0, opacity: 1 }}
-				transition={{ duration: 0.5 }}
-				className={styles.header}
-			>
-				<div className={styles.headerContainer}>
-
-					{/* <Button variant="outline">Get Early Access</Button> */}
-				</div>
+			<motion.header initial={{ y: -100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={styles.header}>
+				<div className={styles.headerContainer}>{/* <Button variant="outline">Get Early Access</Button> */}</div>
 			</motion.header>
 
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<div className={styles.heroContainer}>
 
-					<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={styles.heroBadge}>
+
+					{/* Logo */}
+					<div className={styles.logoContainer}>
+						<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.2 }}>
+							<Image src="/logo.png" alt="logo" width={600} height={100} />
+						</motion.div>
+
+						<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={styles.heroBadge}>
 						<Zap className={styles.heroBadgeIcon} />
 						Coming Soon!
-
 					</motion.div>
-					<div className={styles.logoContainer}>
+					</div>
 
-<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.2 }}>
-	<Image src="/logo.png" alt="logo" width={600} height={100} />
-</motion.div>
-
-{/* <span className={styles.logoText}>PODSLICE.ai</span> */}
-</div>
+					{/* Title */}
 					<motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className={styles.heroTitle}>
 						Cut the chatter.
 						<br />
@@ -187,13 +180,7 @@ function LandingPage() {
 					</motion.h2>
 
 					<div className={styles.featuresGrid}>
-						<motion.div
-							initial={{ opacity: 0, y: 50 }}
-							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true, amount: 0.3 }}
-							transition={{ duration: 0.5 }}
-							className={styles.featureCard}
-						>
+						<motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.5 }} className={styles.featureCard}>
 							<div className={styles.featureIconContainer} style={{ background: "var(--primary-gradient)" }}>
 								<Brain className={styles.featureIcon} />
 							</div>

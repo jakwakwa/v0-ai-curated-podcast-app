@@ -2,6 +2,7 @@
 .container {
 	/* max-width: 1200px; */
 	/* margin: 0 auto; */
+	width: 100vw;
 	padding: 0;
 	min-height: 100vh;
 	background: var(--page-background);
@@ -24,7 +25,12 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
+	max-width: 30%;
 	gap: 0rem;
+	flex-direction: column-reverse;
+	margin: 0 auto;
+	padding: 0;
+	margin-bottom: 2rem;
 }
 
 .logoIconContainer {
@@ -34,7 +40,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--primary-gradient);
+	background: var	(--primary-gradient);
+	padding: 0;
 }
 
 .logoIcon {
@@ -47,19 +54,24 @@
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: white;
+	padding: 0;
 }
 
 /* Hero Section */
 .heroSection {
 	padding: 0;
-	padding-bottom: 6rem;
+	padding-bottom: 2rem;
 	padding-top: 4rem;
 	text-align: center;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
 }
 
 .heroContainer {
-	max-width: 800px;
+	max-width: 80%;
 	margin: 0 auto;
+	width: 100%;
 }
 
 .heroBadge {
@@ -82,7 +94,7 @@
 }
 
 .heroTitle {
-	font-size: 3.5rem;
+	font-size: 4.25rem;
 	font-weight: 800;
 	line-height: 1.1;
 	margin-bottom: 1.5rem;
@@ -97,12 +109,13 @@
 }
 
 .heroSubtitle {
-	font-size: 1.25rem;
-	line-height: 1.6;
+	font-size: 1.35rem;
+	line-height: 1.8;
 	color: rgba(255, 255, 255, 0.8);
-	margin-bottom: 3rem;
-	max-width: 600px;
+	margin-bottom: 3em;
+	max-width:890px;
 	margin-left: auto;
+	margin-top: 2.5rem;
 	margin-right: auto;
 }
 
@@ -112,6 +125,9 @@
 	border: 1px solid var(--card-border-glass);
 	border-radius: 1rem;
 	padding: 1.5rem;
+	width: 100%;
+	max-width: 700px;
+	margin: 0 auto;
 	margin-bottom: 3rem;
 	backdrop-filter: blur(10px);
 }
@@ -229,11 +245,14 @@
 .featuresSection {
 	padding: 4rem 0;
 	padding-bottom: 8rem;
+	width: 100%;
+
 	background: var(--background-glass);
 }
 
 .featuresContainer {
-	max-width: 1000px;
+	width: 100%;
+	max-width: 80%;
 	margin: 0 auto;
 }
 
@@ -504,12 +523,57 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+	.container {
+		padding: 0rem;
+	}
+
+	.logoContainer {
+		width: 100%;
+		width: 70%;
+		margin: 0 auto;
+	}
+
+	.heroSection {
+		padding:0;
+		padding-top: 2.5rem;
+		width: 100%;
+		max-width: 100%;
+	}
 	.heroTitle {
-		font-size: 2.5rem;
+		font-size: 3.25rem;
+		padding: 0rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.heroSubtitle {
-		font-size: 1.125rem;
+		margin-top: 1.5rem;
+		max-width: 100%;
+		width: 100%;
+
+	}
+
+	.heroContainer {
+		width: 100%;
+		max-width: 97%;
+		padding: 1.6rem;
+	}
+
+	.featuresContainer {
+		width: 100%;
+		padding: 0;
+	}
+
+
+
+	.heroTitle {
+		font-size: 3rem;
+		padding: 0;
+		width: 100%;
+	}
+
+	.heroSubtitle {
+		font-size: 1.1rem;
+		padding: 0 0.8rem;
 	}
 
 	.waitlistForm {
@@ -523,6 +587,7 @@
 	.footerContainer {
 		flex-direction: column;
 		gap: 1rem;
+		padding: 0 2.5rem;
 	}
 
 	.footerLinks {

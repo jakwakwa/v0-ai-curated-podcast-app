@@ -133,17 +133,17 @@
 
 		--tertiary-gradient-accent: linear-gradient(to bottom left, hsla(var(--tertiary-gradient-end-hsl)), hsla(var(--tertiary-gradient-start-hsl)));
 
-		--tertiary-gradient-end: hsla(160, 80%, 68%);
-		--tertiary-gradient-end-hsl: 160, 80%, 68%;
-		--tertiary-gradient-start: hsla(217, 94%, 60%, 0.896);
-		--tertiary-gradient-start-hsl: 217, 94%, 60%, 0.896;
+		--tertiary-gradient-end: rgb(165, 229, 228);
+		--tertiary-gradient-end-hsl: 170, 80%, 68%;
+		--tertiary-gradient-start: hsla(242, 94%, 60%, 0.896);
+		--tertiary-gradient-start-hsl: 242, 94%, 60%, 0.896;
 
 
     --accent-gradient: linear-gradient(to bottom left, hsla(var(--accent-gradient-start-hsl)), hsla(var(--accent-gradient-end-hsl)));
-		--accent-gradient-end: hsla(234, 72%, 67%);
-		--accent-gradient-end-hsl: 234, 72%, 67%;
-		--accent-gradient-start: hsla(69, 85%, 69%, 0.896);
-		--accent-gradient-start-hsl: 69, 85%, 69%, 0.896;
+		--accent-gradient-end: hsla(264, 63%, 48%);
+		--accent-gradient-end-hsl: 264, 63%, 48%;
+		--accent-gradient-start: hsla(120, 87%, 81%, 0.896);
+		--accent-gradient-start-hsl: 120, 87%, 81%, 0.896;
 
     --sidebar-background: #10101a54;
     --sidebar-foreground: hsla(240 4.8% 95.9%);
