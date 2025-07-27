@@ -125,7 +125,7 @@ function LandingPage() {
 								</Button>
 								<div>
 									<p className={styles.audioPlayerTitle}>Sample Insight Extract</p>
-									<p className={styles.audioPlayerSubtitle}>From "The Pomp Podcast" - 3 min summary</p>
+									<p className={styles.audioPlayerSubtitle}>From "The Stuff You Should Know Podcast" - 3 min summary</p>
 								</div>
 							</div>
 							<Volume2 className={styles.volumeIcon} />

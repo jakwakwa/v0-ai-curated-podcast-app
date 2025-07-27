@@ -160,11 +160,12 @@
 	align-items: flex-end;
 	justify-content: center;
 	gap: 2px;
+	padding-top: 1rem;
 	height: 80px;
 }
 
 .waveformBar {
-	width: 4px;
+	width: 7px;
 	border-radius: 2px;
 	transition: all 0.3s ease;
 	background: var(--accent-gradient);
