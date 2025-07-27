@@ -7,7 +7,20 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.md", "**/*.tsx", "!**/.cursor/**", "!**/.next/**", "!**/node_modules/**", "!**/google-cloud-sdk/**", "!**/gcs/**", "!**/globals.d.ts", "!**/prisma/app/generated/**"]
+		"includes": [
+			"**/*.js",
+			"**/*.jsx",
+			"**/*.ts",
+			"**/*.md",
+			"**/*.tsx",
+			"!**/.cursor/**",
+			"!**/.next/**",
+			"!**/node_modules/**",
+			"!**/google-cloud-sdk/**",
+			"!**/gcs/**",
+			"!**/globals.d.ts",
+			"!**/prisma/app/generated/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -97,11 +110,7 @@
 				"noSparseArray": "error",
 				"noConsole": {
 					"options": {
-						"allow": [
-							"assert",
-							"error",
-							"warn"
-						]
+						"allow": ["assert", "error", "warn"]
 					},
 					"fix": "unsafe"
 				}
