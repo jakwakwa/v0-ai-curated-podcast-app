@@ -228,6 +228,7 @@
 /* Features Section */
 .featuresSection {
 	padding: 4rem 0;
+	padding-bottom: 8rem;
 	background: var(--background-glass);
 }
 

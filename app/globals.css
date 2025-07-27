@@ -72,8 +72,8 @@
 		/* -secondary-page-background: linear-gradient(to right bottom, hsla(131, 35%, 84%, 0.064), rgba(49, 40, 76, 0.268), hsla(0, 0%, 62%, 0.772)); */
 		--secondary-page-background: linear-gradient(to right bottom, hsla(57, 87%, 81%, 0.283), #5432bad9, hsla(249, 82%, 48%, 0.214));
 		/* Secondary page background */
-		--glass-gradient: linear-gradient(to top left, hsla(251, 77%, 50%, 0.242), rgba(43, 78, 174, 0.086), hsla(162, 75%, 43%, 0.188));
-		--background-glass: rgba(19, 7, 48, 0.146);
+		--glass-gradient: linear-gradient(to top left, hsla(206, 84%, 37%, 0.242), rgba(43, 78, 174, 0.086), hsla(162, 69%, 85%, 0.197));
+		--background-glass: hsla(256, 56%, 18%, 0.227);
 		/* --secondary-page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
 		/*  */
 		/* --background: 222 47% 11%; slate-900, #0f172a */
