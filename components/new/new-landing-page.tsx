@@ -93,8 +93,6 @@ function LandingPage() {
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<div className={styles.heroContainer}>
-
-
 					{/* Logo */}
 					<div className={styles.logoContainer}>
 						<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.2 }}>
@@ -102,9 +100,9 @@ function LandingPage() {
 						</motion.div>
 
 						<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={styles.heroBadge}>
-						<Zap className={styles.heroBadgeIcon} />
-						Coming Soon!
-					</motion.div>
+							<Zap className={styles.heroBadgeIcon} />
+							Coming Soon!
+						</motion.div>
 					</div>
 
 					{/* Title */}
@@ -121,7 +119,7 @@ function LandingPage() {
 
 					{/* Audio Player Demo */}
 					<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }} className={styles.audioPlayerDemo}>
-						<audio ref={audioRef} src="/podslice-sample.mp3" preload="metadata">
+						<audio ref={audioRef} src="/gemini-sample.mp3" preload="metadata">
 							<track kind="captions" />
 						</audio>
 						<div className={styles.audioPlayerHeader}>
