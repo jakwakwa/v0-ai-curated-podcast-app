@@ -2,6 +2,7 @@
 /** biome-ignore-all assist/source/organizeImports: <sorted> */
 "use client"
 
+import Image from "next/image"
 // biome-ignore lint/correctness/noUnusedImports: <suppressing unused imports>
 import { type ChangeEvent, type FormEvent, useState, useEffect, useRef } from "react"
 // import Link from "next/link"
@@ -83,10 +84,9 @@ function LandingPage() {
 			>
 				<div className={styles.headerContainer}>
 					<div className={styles.logoContainer}>
-						<div className={styles.logoIconContainer}>
-							<Headphones className={styles.logoIcon} />
-						</div>
-						<span className={styles.logoText}>PODSLICE.ai</span>
+
+						<Image src="/logo.png" alt="logo" width={200} height={45} />
+						{/* <span className={styles.logoText}>PODSLICE.ai</span> */}
 					</div>
 					{/* <Button variant="outline">Get Early Access</Button> */}
 				</div>
@@ -97,7 +97,7 @@ function LandingPage() {
 				<div className={styles.heroContainer}>
 					<motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={styles.heroBadge}>
 						<Zap className={styles.heroBadgeIcon} />
-						Coming Soon - Revolutionary AI Audio Processing
+						Coming Soon!
 					</motion.div>
 
 					<motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className={styles.heroTitle}>
