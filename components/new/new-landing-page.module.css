@@ -113,7 +113,7 @@
 	line-height: 1.8;
 	color: rgba(255, 255, 255, 0.8);
 	margin-bottom: 3em;
-	max-width:890px;
+	max-width: 600px;
 	margin-left: auto;
 	margin-top: 2.5rem;
 	margin-right: auto;
@@ -529,18 +529,33 @@
 
 	.logoContainer {
 		width: 100%;
-		width: 70%;
+		max-width: 73%;
 		margin: 0 auto;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+		padding: 0;
+	}
+
+	.logoContainer img {
+		width: 100%;
+		max-width: 80%;
+		margin: 0 auto;
+		/* background-color: rgb(35, 24, 72);
+
+		border-radius: 0.5rem; */
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+		padding: 0;
 	}
 
 	.heroSection {
 		padding:0;
-		padding-top: 2.5rem;
+		padding-top: 0rem;
 		width: 100%;
 		max-width: 100%;
 	}
 	.heroTitle {
-		font-size: 3.25rem;
+		font-size: 2.25rem;
 		padding: 0rem;
 		margin-bottom: 0.5rem;
 	}
@@ -565,15 +580,12 @@
 
 
 
-	.heroTitle {
-		font-size: 3rem;
-		padding: 0;
-		width: 100%;
-	}
+
 
 	.heroSubtitle {
-		font-size: 1.1rem;
-		padding: 0 0.8rem;
+		font-size: 1.05rem;
+		padding: 0;
+		text-align: justify;
 	}
 
 	.waitlistForm {
