@@ -1,64 +1,36 @@
 "use client"
 
-import { Protect, useAuth } from "@clerk/nextjs"
-import { Lock, Zap } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 
-interface AccessControlProps {
-	feature: string
-	fallback?: React.ReactNode
-	children: React.ReactNode
-}
+export type Feature = "custom_curation_profiles" | "weekly_combo" | "free_bundle"
 
-export function AccessControl({ feature, fallback, children }: AccessControlProps) {
-	const defaultFallback = (
-		<Card className="border-amber-200 bg-amber-50">
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2 text-amber-800">
-					<Lock className="h-5 w-5" />
-					Premium Feature
-				</CardTitle>
-				<CardDescription className="text-amber-700">This feature requires a subscription to access.</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<p className="text-sm text-amber-700">Upgrade your plan to unlock access to "{feature}" and many more premium features.</p>
-				<div className="flex gap-2">
-					<Button asChild>
-						<Link href="/pricing">
-							<Zap className="mr-2 h-4 w-4" />
-							Upgrade Plan
-						</Link>
-					</Button>
-				</div>
-			</CardContent>
-		</Card>
-	)
+export const useAccessControl = () => {
+	const { subscription } = useSubscriptionStore()
 
-	return (
-		<Protect feature={feature} fallback={fallback || defaultFallback}>
-			{children}
-		</Protect>
-	)
-}
+	const checkAccess = (feature: Feature): boolean => {
+		if (!subscription) {
+			return feature === "free_bundle"
+		}
 
-// Higher-order component for protecting entire pages
-export function withAccessControl<TProps extends Record<string, unknown>>(WrappedComponent: React.ComponentType<TProps>, feature: string, fallback?: React.ReactNode) {
-	return function AccessControlledComponent(props: TProps) {
-		return (
-			<AccessControl feature={feature} fallback={fallback}>
-				<WrappedComponent {...props} />
-			</AccessControl>
-		)
+		switch (subscription.status) {
+			case "active":
+			case "trialing":
+				const plan = useSubscriptionStore.getState().tiers.find(t => t.paystackPlanCode === subscription.paystackPlanCode)
+				if (plan) {
+					if (plan.name === "Curate & Control") {
+						return true // Access to all features
+					}
+					if (plan.name === "Casual Listener") {
+						return feature === "weekly_combo" || feature === "free_bundle"
+					}
+				}
+				return feature === "free_bundle"
+			default:
+				return feature === "free_bundle"
+		}
 	}
-}
 
-// Hook for checking access programmatically using Clerk's has() method
-export function useFeatureAccess(feature: string) {
-	const { has, isLoaded } = useAuth()
-
-	const hasAccess = has?.({ feature }) ?? false
-
-	return { hasAccess, loading: !isLoaded, isLoaded }
+	return {
+		hasAccess: checkAccess,
+	}
 }

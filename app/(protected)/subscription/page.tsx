@@ -1,10 +1,13 @@
 "use client"
 
-import { UserProfile, useAuth, useUser } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function SubscriptionPage() {
 	const { user, isLoaded } = useUser()
-	const { has } = useAuth()
+	const { subscription, tiers } = useSubscriptionStore()
 
 	if (!isLoaded) {
 		return (
@@ -29,17 +32,13 @@ export default function SubscriptionPage() {
 	}
 
 	// Get current plan information
-	const getCurrentPlan = () => {
-		if (has?.({ feature: "custom_curation_profiles" })) {
-			return "Curate & Control"
-		}
-		if (has?.({ feature: "weekly_combo" })) {
-			return "Casual Listener"
-		}
-		return "FreeSlice"
+	const getCurrentPlanName = () => {
+		if (!subscription) return "FreeSlice"
+		const currentPlan = tiers.find(tier => tier.paystackPlanCode === subscription.paystackPlanCode)
+		return currentPlan?.name || "FreeSlice"
 	}
 
-	const currentPlan = getCurrentPlan()
+	const currentPlan = getCurrentPlanName()
 
 	return (
 		<div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -53,20 +52,11 @@ export default function SubscriptionPage() {
 				</div>
 			</div>
 
-			{/* Clerk's UserProfile component with billing management */}
-			<div className="mx-auto">
-				<UserProfile
-					routing="hash"
-					appearance={{
-						elements: {
-							rootBox: "w-full",
-							card: "shadow-none border",
-							// Hide the features list in billing section
-							planFeaturesList: "display: none",
-							planFeaturesItem: "display: none",
-						},
-					}}
-				/>
+			<div className="mt-8">
+				<p className="mb-4">To change your subscription plan, please visit our pricing page.</p>
+				<Button asChild>
+					<Link href="/about">Change Plan</Link>
+				</Button>
 			</div>
 		</div>
 	)

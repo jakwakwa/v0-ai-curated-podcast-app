@@ -5,15 +5,14 @@ import { useUserCurationProfileStore } from "./user-curation-profile-store"
 export interface Subscription {
 	id: string
 	userId: string
-	linkCustomerId?: string
-	linkSubscriptionId?: string
-	linkPriceId?: string
-	status: "trialing" | "active" | "canceled" | "past_due" | "incomplete"
-	currentPeriodStart?: Date
-	currentPeriodEnd?: Date
-	trialStart?: Date
-	trialEnd?: Date
-	canceledAt?: Date
+	paystackSubscriptionCode?: string | null
+	paystackPlanCode?: string | null
+	status: "trialing" | "active" | "canceled" | "past_due" | "incomplete" | "non-renewing" | "attention" | "complete"
+	currentPeriodStart?: Date | null
+	currentPeriodEnd?: Date | null
+	trialStart?: Date | null
+	trialEnd?: Date | null
+	canceledAt?: Date | null
 	createdAt: Date
 	updatedAt: Date
 }
@@ -22,8 +21,10 @@ export interface SubscriptionTier {
 	id: string
 	name: string
 	price: number
-	linkPriceId?: string
+	paystackPlanCode?: string;
 	features: string[]
+	popular?: boolean;
+	description?: string;
 }
 
 export interface SubscriptionStore {
@@ -43,11 +44,7 @@ export interface SubscriptionStore {
 	// Actions
 	setSubscription: (subscription: Subscription | null) => void
 	loadSubscription: () => Promise<void>
-	createTrialSubscription: () => Promise<void>
-	upgradeTopremium: () => Promise<{ checkoutUrl: string }>
-	cancelSubscription: () => Promise<void>
-	resumeSubscription: () => Promise<void>
-	updatePaymentMethod: () => Promise<{ portalUrl: string }>
+	initializeTransaction: (planCode: string) => Promise<{ checkoutUrl: string } | { error: string }>
 
 	// Utility actions
 	setLoading: (loading: boolean) => void
@@ -65,21 +62,27 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 		id: "freeslice",
 		name: "FreeSlice",
 		price: 0,
+		description: "Perfect for podcast discovery and light listening",
 		features: ["Always free", "Free member", "Free Bundle"],
+		popular: false,
 	},
 	{
 		id: "casual_listener",
 		name: "Casual Listener",
 		price: 5, // $5/month in USD
-		linkPriceId: process.env.NEXT_PUBLIC_LINK_CASUAL_PRICE_ID,
+		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_CASUAL_PLAN_CODE,
+		description: "Enhanced experience with premium features and priority access",
 		features: ["Only billed monthly", "Free member", "Free Bundle"],
+		popular: false,
 	},
 	{
 		id: "curate_control",
 		name: "Curate & Control",
 		price: 10, // $10/month in USD
-		linkPriceId: process.env.NEXT_PUBLIC_LINK_PREMIUM_PRICE_ID,
+		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_PREMIUM_PLAN_CODE,
+		description: "Ultimate control with unlimited custom curation profiles",
 		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
+		popular: true,
 	},
 ]
 
@@ -95,7 +98,7 @@ const initialState = {
 	daysUntilPeriodEnd: null,
 }
 
-const calculateDaysUntil = (targetDate: Date | undefined): number | null => {
+const calculateDaysUntil = (targetDate: Date | null | undefined): number | null => {
 	if (!targetDate) return null
 
 	const now = new Date()
@@ -161,150 +164,40 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 						false,
 						"loadSubscription:error"
 					)
-					throw error
 				}
 			},
 
-			createTrialSubscription: async () => {
-				set({ isLoading: true, error: null }, false, "createTrialSubscription:start")
+			initializeTransaction: async (planCode: string) => {
+				set({ isLoading: true, error: null }, false, "initializeTransaction:start")
 
 				try {
-					const response = await fetch("/api/subscription/trial", {
+					const response = await fetch("/api/paystack/initialize-transaction", {
 						method: "POST",
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ planCode })
 					})
 
 					if (!response.ok) {
-						throw new Error("Failed to create trial subscription")
+						const errorData = await response.json();
+						throw new Error(errorData.message || "Failed to initialize transaction")
 					}
 
-					const subscription = await response.json()
-					const { setSubscription } = get()
-					setSubscription(subscription)
-					set({ isLoading: false }, false, "createTrialSubscription:success")
+					const { authorization_url } = await response.json()
+					set({ isLoading: false }, false, "initializeTransaction:success")
+					return { checkoutUrl: authorization_url }
 				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : "Unknown error"
 					set(
 						{
-							error: error instanceof Error ? error.message : "Unknown error",
+							error: errorMessage,
 							isLoading: false,
 						},
 						false,
-						"createTrialSubscription:error"
+						"initializeTransaction:error"
 					)
-					throw error
-				}
-			},
-
-			upgradeTopremium: async () => {
-				set({ isLoading: true, error: null }, false, "upgradeTopremium:start")
-
-				try {
-					const response = await fetch("/api/subscription/upgrade", {
-						method: "POST",
-					})
-
-					if (!response.ok) {
-						throw new Error("Failed to create upgrade checkout")
-					}
-
-					const { checkoutUrl } = await response.json()
-					set({ isLoading: false }, false, "upgradeToPremium:success")
-					return { checkoutUrl }
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"upgradeTopremium:error"
-					)
-					throw error
-				}
-			},
-
-			cancelSubscription: async () => {
-				set({ isLoading: true, error: null }, false, "cancelSubscription:start")
-
-				try {
-					const response = await fetch("/api/subscription/cancel", {
-						method: "POST",
-					})
-
-					if (!response.ok) {
-						throw new Error("Failed to cancel subscription")
-					}
-
-					const subscription = await response.json()
-					const { setSubscription } = get()
-					setSubscription(subscription)
-					set({ isLoading: false }, false, "cancelSubscription:success")
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"cancelSubscription:error"
-					)
-					throw error
-				}
-			},
-
-			resumeSubscription: async () => {
-				set({ isLoading: true, error: null }, false, "resumeSubscription:start")
-
-				try {
-					const response = await fetch("/api/subscription/resume", {
-						method: "POST",
-					})
-
-					if (!response.ok) {
-						throw new Error("Failed to resume subscription")
-					}
-
-					const subscription = await response.json()
-					const { setSubscription } = get()
-					setSubscription(subscription)
-					set({ isLoading: false }, false, "resumeSubscription:success")
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"resumeSubscription:error"
-					)
-					throw error
-				}
-			},
-
-			updatePaymentMethod: async () => {
-				set({ isLoading: true, error: null }, false, "updatePaymentMethod:start")
-
-				try {
-					const response = await fetch("/api/subscription/billing-portal", {
-						method: "POST",
-					})
-
-					if (!response.ok) {
-						throw new Error("Failed to access billing portal")
-					}
-
-					const { portalUrl } = await response.json()
-					set({ isLoading: false }, false, "updatePaymentMethod:success")
-					return { portalUrl }
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"updatePaymentMethod:error"
-					)
-					throw error
+					return { error: errorMessage }
 				}
 			},
 

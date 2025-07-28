@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
 export const dynamic = 'force-dynamic'
@@ -14,18 +15,14 @@ export async function GET() {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		// For now, return a simple response since Clerk handles subscriptions
-		// This can be extended later when you implement a proper payment system
-		return NextResponse.json({
-			subscription: null,
-			plan: {
-				id: "free",
-				name: "Free",
-				price: 0,
-				features: ["Basic podcast curation", "Limited episodes per week"],
+		const subscription = await prisma.subscription.findFirst({
+			where: { userId: userId },
+			orderBy: {
+				createdAt: 'desc',
 			},
-			hasActiveSubscription: false,
 		})
+
+		return NextResponse.json(subscription)
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error)
 		console.error("[SUBSCRIPTION_GET]", message)

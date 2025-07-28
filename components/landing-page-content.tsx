@@ -4,14 +4,15 @@ import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, 
 import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { useFeatureAccess } from "@/components/access-control"
 import { Button } from "@/components/ui/button"
 import styles from "./landing-page-content.module.css"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import { useRouter } from "next/navigation"
 
 export default function LandingPageContent() {
-	// Check current subscription level
-	const { hasAccess: hasCustomProfiles } = useFeatureAccess("custom_curation_profiles")
-	const { hasAccess: hasWeeklyCombo } = useFeatureAccess("weekly_combo")
+	const router = useRouter()
+	const { subscription, tiers, initializeTransaction, isLoading } = useSubscriptionStore()
+
 	const features = [
 		{
 			icon: <UilStar className="w-6 h-6" />,
@@ -78,76 +79,42 @@ export default function LandingPageContent() {
 		},
 	]
 
-	const pricingTiers = [
-		{
-			name: "FreeSlice",
-			price: "Free",
-			duration: "forever",
-			description: "Perfect for podcast discovery and light listening",
-			features: [
-				"Access to 3 pre-selected PODSLICE Bundles (Tech, Business, Culture)",
-				"1 weekly combo episode (20-30 minutes)",
-				"Standard audio quality",
-				"Basic podcast player with essential controls",
-				"Community forums access",
-			],
-			popular: false,
-			cta: "Get Started Free",
-		},
-		{
-			name: "Casual Listener",
-			price: "$5",
-			duration: "per month",
-			description: "Enhanced experience with premium features and priority access",
-			features: [
-				"Access to ALL available PODSLICE Bundles (10+ categories)",
-				"Up to 3 weekly episodes (30-45 minutes each)",
-				"Premium audio quality with enhanced voice synthesis",
-				"Priority processing - episodes ready by Friday morning",
-				"Advanced player with speed controls, bookmarks, and offline download",
-				"Email notifications when episodes are ready",
-			],
-			popular: false,
-			cta: "Upgrade to Casual",
-		},
-		{
-			name: "Curate & Control",
-			price: "$10",
-			duration: "per month",
-			description: "Ultimate control with unlimited custom curation profiles",
-			features: [
-				"Everything in Casual Listener, plus:",
-				"Create unlimited custom Personalized Feeds from 25+ hand-picked podcasts",
-				"Advanced AI curation that learns your preferences and adapts over time",
-				"Custom episode themes and topics - guide the AI to focus on specific subjects",
-			],
-			popular: true,
-			cta: "Go Pro",
-		},
-	]
-
-	// Determine current plan and button states
-	const getCurrentPlan = () => {
-		if (hasCustomProfiles) return "Curate & Control"
-		if (hasWeeklyCombo) return "Casual Listener"
-		return "FreeSlice"
+	const handleUpgrade = async (planCode: string | undefined) => {
+		if (!planCode) {
+			console.error("No plan code provided for upgrade.")
+			return
+		}
+		const result = await initializeTransaction(planCode)
+		if ("checkoutUrl" in result && result.checkoutUrl) {
+			router.push(result.checkoutUrl)
+		} else if ("error" in result) {
+			console.error("Failed to initialize transaction:", result.error)
+		}
 	}
 
-	const getButtonProps = (tierName: string) => {
-		const currentPlan = getCurrentPlan()
-		if (currentPlan === tierName) {
+	// Determine current plan and button states
+	const getCurrentPlanName = () => {
+		if (!subscription) return "FreeSlice"
+		const currentPlan = tiers.find(tier => tier.paystackPlanCode === subscription.paystackPlanCode)
+		return currentPlan?.name || "FreeSlice"
+	}
+
+	const getButtonProps = (tier: (typeof tiers)[0]) => {
+		const currentPlanName = getCurrentPlanName()
+		if (currentPlanName === tier.name) {
 			return {
 				children: "Active",
 				disabled: true,
 				variant: "secondary" as const,
+				onClick: () => {},
 			}
 		}
 
-		const tier = pricingTiers.find(t => t.name === tierName)
 		return {
-			children: tierName === "FreeSlice" ? "Downgrade" : tier?.cta,
-			disabled: false,
-			variant: tier?.popular ? ("default" as const) : ("outline" as const),
+			children: tier.name === "FreeSlice" ? "Downgrade" : `Upgrade to ${tier.name}`,
+			disabled: isLoading,
+			variant: tier.popular ? ("default" as const) : ("outline" as const),
+			onClick: () => handleUpgrade(tier.paystackPlanCode),
 		}
 	}
 
@@ -381,70 +348,58 @@ export default function LandingPageContent() {
 						<p className={styles.pricingDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
 					</motion.div>
 					<div className={styles.pricingGrid}>
-						{pricingTiers.map((tier, index) => (
-							<motion.div
-								key={tier.name}
-								className={`${styles.pricingCard} ${tier.popular ? styles.popular : ""}`}
-								initial={{ opacity: 0, y: 30, scale: 0.9 }}
-								whileInView={{ opacity: 1, y: 0, scale: tier.popular ? 1.05 : 1 }}
-								viewport={{ once: true, margin: "-100px" }}
-								transition={{
-									duration: 0.6,
-									ease: "easeOut",
-									delay: index * 0.1,
-								}}
-								whileHover={{
-									scale: tier.popular ? 1.08 : 1.03,
-									transition: { duration: 0.2 },
-								}}
-							>
-								{tier.popular && (
-									<motion.div className={styles.popularBadge} initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-										Most Popular
-									</motion.div>
-								)}
-								<div className={styles.pricingCardContent}>
-									<h3 className={styles.pricingCardTitle}>{tier.name}</h3>
-									<div className={styles.pricingCardPrice}>
-										<span className={styles.price}>{tier.price}</span>
-										{tier.price !== "Free" && <span className={styles.duration}>/{tier.duration}</span>}
-									</div>
-									<p className={styles.pricingCardDescription}>{tier.description}</p>
-									<ul className={styles.pricingFeatures}>
-										{tier.features.map((feature, featureIndex) => (
-											<motion.li
-												key={featureIndex}
-												className={styles.pricingFeature}
-												initial={{ opacity: 0, x: -10 }}
-												whileInView={{ opacity: 1, x: 0 }}
-												transition={{ delay: 0.3 + featureIndex * 0.1 }}
-											>
-												<UilCheckCircle className={styles.pricingFeatureIcon} />
-												<span className={styles.pricingFeatureText}>{feature}</span>
-											</motion.li>
-										))}
-									</ul>
-								</div>
-								{(() => {
-									const buttonProps = getButtonProps(tier.name)
-									return buttonProps.disabled ? (
-										<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-											<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg" disabled>
-												{buttonProps.children}
-											</Button>
+						{tiers.map((tier, index) => {
+							const buttonProps = getButtonProps(tier)
+							return (
+								<motion.div
+									key={tier.name}
+									className={`${styles.pricingCard} ${tier.popular ? styles.popular : ""}`}
+									initial={{ opacity: 0, y: 30, scale: 0.9 }}
+									whileInView={{ opacity: 1, y: 0, scale: tier.popular ? 1.05 : 1 }}
+									viewport={{ once: true, margin: "-100px" }}
+									transition={{
+										duration: 0.6,
+										ease: "easeOut",
+										delay: index * 0.1,
+									}}
+									whileHover={{
+										scale: tier.popular ? 1.08 : 1.03,
+										transition: { duration: 0.2 },
+									}}
+								>
+									{tier.popular && (
+										<motion.div className={styles.popularBadge} initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+											Most Popular
 										</motion.div>
-									) : (
-										<Link href="/sign-up">
-											<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-												<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg">
-													{buttonProps.children}
-												</Button>
-											</motion.div>
-										</Link>
-									)
-								})()}
-							</motion.div>
-						))}
+									)}
+									<div className={styles.pricingCardContent}>
+										<h3 className={styles.pricingCardTitle}>{tier.name}</h3>
+										<div className={styles.pricingCardPrice}>
+											<span className={styles.price}>${tier.price}</span>
+											{tier.price !== 0 && <span className={styles.duration}>/month</span>}
+										</div>
+										<p className={styles.pricingCardDescription}>{tier.description}</p>
+										<ul className={styles.pricingFeatures}>
+											{tier.features.map((feature, featureIndex) => (
+												<motion.li
+													key={featureIndex}
+													className={styles.pricingFeature}
+													initial={{ opacity: 0, x: -10 }}
+													whileInView={{ opacity: 1, x: 0 }}
+													transition={{ delay: 0.3 + featureIndex * 0.1 }}
+												>
+													<UilCheckCircle className={styles.pricingFeatureIcon} />
+													<span className={styles.pricingFeatureText}>{feature}</span>
+												</motion.li>
+											))}
+										</ul>
+									</div>
+									<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg" disabled={buttonProps.disabled} onClick={buttonProps.onClick}>
+										{buttonProps.children}
+									</Button>
+								</motion.div>
+							)
+						})}
 					</div>
 				</div>
 			</section>
