@@ -32,9 +32,9 @@ export async function GET(_request: NextRequest) {
 		})
 
 		// Transform data for response
-		const transformedBundles = bundles.map((bundle) => ({
+		const transformedBundles = bundles.map(bundle => ({
 			...bundle,
-			podcasts: bundle.bundle_podcast.map((bp) => bp.podcast),
+			podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
 		}))
 
 		// Add cache headers for better CDN caching

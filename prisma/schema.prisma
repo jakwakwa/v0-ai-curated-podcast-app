@@ -9,24 +9,24 @@ datasource db {
 }
 
 model User {
-  id                   String               @id @default(cuid()) @map("user_id")
-  name                 String?              @map("name")
-  email                String               @unique @map("email")
-  password             String               @map("password")
-  image                String?              @map("image")
-  emailVerified        DateTime?            @map("email_verified")
-  isAdmin              Boolean              @default(false) @map("is_admin")
-  emailNotifications   Boolean              @default(true) @map("email_notifications")
-  inAppNotifications   Boolean              @default(true) @map("in_app_notifications")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
-  paystackCustomerId   String?              @unique @map("paystack_customer_id")
-  ownedBundles         Bundle[]
-  feedback             EpisodeFeedback[]
-  notifications        Notification[]
-  ownedPodcasts        Podcast[]
-  subscriptions        Subscription[]
-  userCurationProfile UserCurationProfile?
+  user_id                String               @id @default(cuid()) @map("user_id")
+  name                   String?              @map("name")
+  email                  String               @unique @map("email")
+  password               String               @map("password")
+  image                  String?              @map("image")
+  email_verified         DateTime?            @map("email_verified")
+  is_admin               Boolean              @default(false) @map("is_admin")
+  email_notifications    Boolean              @default(true) @map("email_notifications")
+  in_app_notifications   Boolean              @default(true) @map("in_app_notifications")
+  created_at             DateTime             @default(now()) @map("created_at")
+  updated_at             DateTime             @updatedAt @map("updated_at")
+  paystack_customer_id   String?              @unique @map("paystack_customer_id")
+  ownedBundles           Bundle[]
+  feedback               EpisodeFeedback[]
+  notifications          Notification[]
+  ownedPodcasts          Podcast[]
+  subscriptions          Subscription[]
+  userCurationProfile    UserCurationProfile?
 
   @@map("user")
 }
@@ -35,22 +35,22 @@ model User {
 /// UNIFIED PODCAST CATALOG
 /// ───────────────────────────────────
 model Podcast {
-  id           String           @id @default(uuid()) @map("podcast_id")
-  name         String           @map("name")
-  description  String?          @map("description")
-  url          String           @unique @map("url")
-  imageUrl     String?          @map("image_url")
-  category     String?          @map("category")
-  isActive     Boolean          @default(true) @map("is_active")
-  ownerUserId  String?          @map("owner_user_id")
-  createdAt    DateTime         @default(now()) @map("created_at")
-  bundleLinks  BundlePodcast[]
-  episodes     Episode[]
-  ownerUser    User?            @relation(fields: [ownerUserId], references: [id])
-  profileLinks ProfilePodcast[]
+  podcast_id    String           @id @default(uuid()) @map("podcast_id")
+  name          String           @map("name")
+  description   String?          @map("description")
+  url           String           @unique @map("url")
+  image_url     String?          @map("image_url")
+  category      String?          @map("category")
+  is_active     Boolean          @default(true) @map("is_active")
+  owner_user_id String?          @map("owner_user_id")
+  created_at    DateTime         @default(now()) @map("created_at")
+  bundle_podcast BundlePodcast[]
+  episodes      Episode[]
+  ownerUser     User?            @relation(fields: [owner_user_id], references: [user_id])
+  profile_podcast ProfilePodcast[]
 
-  @@index([ownerUserId])
-  @@index([isActive])
+  @@index([owner_user_id])
+  @@index([is_active])
   @@map("podcast")
 }
 
@@ -58,26 +58,26 @@ model Podcast {
 /// UNIFIED EPISODE TABLE
 /// ───────────────────────────────────
 model Episode {
-  id            String               @id @default(uuid()) @map("episode_id")
-  podcastId     String               @map("podcast_id")
-  userProfileId String?              @map("profile_id")
-  bundleId      String?              @map("bundle_id")
+  episode_id    String               @id @default(uuid()) @map("episode_id")
+  podcast_id    String               @map("podcast_id")
+  profile_id    String?              @map("profile_id")
+  bundle_id     String?              @map("bundle_id")
   title         String               @map("title")
   description   String?              @map("description")
-  audioUrl      String               @map("audio_url")
-  imageUrl      String?              @map("image_url")
-  publishedAt   DateTime?            @map("published_at")
-  weekNr        DateTime?            @map("week_nr")
-  createdAt     DateTime             @default(now()) @map("created_at")
-  bundle        Bundle?              @relation(fields: [bundleId], references: [id])
-  podcast       Podcast              @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  userProfile   UserCurationProfile? @relation(fields: [userProfileId], references: [id])
+  audio_url     String               @map("audio_url")
+  image_url     String?              @map("image_url")
+  published_at  DateTime?            @map("published_at")
+  week_nr       DateTime?            @map("week_nr")
+  created_at    DateTime             @default(now()) @map("created_at")
+  bundle        Bundle?              @relation(fields: [bundle_id], references: [bundle_id])
+  podcast       Podcast              @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
+  userProfile   UserCurationProfile? @relation(fields: [profile_id], references: [profile_id])
   feedback      EpisodeFeedback[]
 
-  @@index([podcastId, weekNr], map: "episode_podcast_week_idx")
-  @@index([publishedAt])
-  @@index([userProfileId], map: "episode_profile_idx")
-  @@index([bundleId], map: "episode_bundle_idx")
+  @@index([podcast_id, week_nr], map: "episode_podcast_week_idx")
+  @@index([published_at])
+  @@index([profile_id], map: "episode_profile_idx")
+  @@index([bundle_id], map: "episode_bundle_idx")
   @@map("episode")
 }
 
@@ -85,32 +85,32 @@ model Episode {
 /// BUNDLES (static or user-custom)
 /// ───────────────────────────────────
 model Bundle {
-  id          String                @id @default(uuid()) @map("bundle_id")
-  name        String                @map("name")
-  description String?               @map("description")
-  imageUrl    String?               @map("image_url")
-  isStatic    Boolean               @default(true) @map("is_static")
-  isActive    Boolean               @default(true) @map("is_active")
-  ownerUserId String?               @map("owner_user_id")
-  createdAt   DateTime              @default(now()) @map("created_at")
-  ownerUser   User?                 @relation(fields: [ownerUserId], references: [id])
-  podcasts    BundlePodcast[]
-  episodes    Episode[]
-  profiles    UserCurationProfile[]
+  bundle_id     String                @id @default(uuid()) @map("bundle_id")
+  name          String                @map("name")
+  description   String?               @map("description")
+  image_url     String?               @map("image_url")
+  is_static     Boolean               @default(true) @map("is_static")
+  is_active     Boolean               @default(true) @map("is_active")
+  owner_user_id String?               @map("owner_user_id")
+  created_at    DateTime              @default(now()) @map("created_at")
+  ownerUser     User?                 @relation(fields: [owner_user_id], references: [user_id])
+  bundle_podcast BundlePodcast[]
+  episodes      Episode[]
+  user_curation_profile UserCurationProfile[]
 
-  @@index([isStatic, isActive], map: "bundle_static_active_idx")
-  @@index([ownerUserId], map: "bundle_owner_idx")
+  @@index([is_static, is_active], map: "bundle_static_active_idx")
+  @@index([owner_user_id], map: "bundle_owner_idx")
   @@map("bundle")
 }
 
 /// Junction table: Bundle ↔ Podcast
 model BundlePodcast {
-  bundleId  String  @map("bundle_id")
-  podcastId String  @map("podcast_id")
-  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  bundle_id  String  @map("bundle_id")
+  podcast_id String  @map("podcast_id")
+  bundle     Bundle  @relation(fields: [bundle_id], references: [bundle_id], onDelete: Cascade)
+  podcast    Podcast @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
 
-  @@id([bundleId, podcastId])
+  @@id([bundle_id, podcast_id])
   @@map("bundle_podcast")
 }
 
@@ -118,36 +118,36 @@ model BundlePodcast {
 /// USER CURATION PROFILES
 /// ───────────────────────────────────
 model UserCurationProfile {
-  id                 String           @id @default(uuid()) @map("profile_id")
-  userId             String           @unique @map("user_id")
-  name               String           @map("name")
-  status             String           @default("Draft") @map("status")
-  audioUrl           String?          @map("audio_url")
-  imageUrl           String?          @map("image_url")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
-  generatedAt        DateTime?        @map("generated_at")
-  lastGenerationDate DateTime?        @map("last_generation_date")
-  nextGenerationDate DateTime?        @map("next_generation_date")
-  isActive           Boolean          @default(true) @map("is_active")
-  isBundleSelection  Boolean          @default(false) @map("is_bundle_selection")
-  selectedBundleId   String?          @map("selected_bundle_id")
-  episodes           Episode[]
-  podcastSelections  ProfilePodcast[]
-  selectedBundle     Bundle?          @relation(fields: [selectedBundleId], references: [id])
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile_id            String           @id @default(uuid()) @map("profile_id")
+  user_id               String           @unique @map("user_id")
+  name                  String           @map("name")
+  status                String           @default("Draft") @map("status")
+  audio_url             String?          @map("audio_url")
+  image_url             String?          @map("image_url")
+  created_at            DateTime         @default(now()) @map("created_at")
+  updated_at            DateTime         @updatedAt @map("updated_at")
+  generated_at          DateTime?        @map("generated_at")
+  last_generation_date  DateTime?        @map("last_generation_date")
+  next_generation_date  DateTime?        @map("next_generation_date")
+  is_active             Boolean          @default(true) @map("is_active")
+  is_bundle_selection   Boolean          @default(false) @map("is_bundle_selection")
+  selected_bundle_id    String?          @map("selected_bundle_id")
+  episodes              Episode[]
+  profile_podcast       ProfilePodcast[]
+  selectedBundle        Bundle?          @relation(fields: [selected_bundle_id], references: [bundle_id])
+  user                  User             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("user_curation_profile")
 }
 
 /// Junction table: UserCurationProfile ↔ Podcast
 model ProfilePodcast {
-  profileId String              @map("profile_id")
-  podcastId String              @map("podcast_id")
-  podcast   Podcast             @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  profile   UserCurationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile_id String              @map("profile_id")
+  podcast_id String              @map("podcast_id")
+  podcast    Podcast             @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
+  profile    UserCurationProfile @relation(fields: [profile_id], references: [profile_id], onDelete: Cascade)
 
-  @@id([profileId, podcastId])
+  @@id([profile_id, podcast_id])
   @@map("profile_podcast")
 }
 
@@ -155,46 +155,46 @@ model ProfilePodcast {
 /// SUPPORTING MODELS (unchanged logic)
 /// ───────────────────────────────────
 model Notification {
-  id        String   @id @default(uuid()) @map("notification_id")
-  userId    String   @map("user_id")
-  type      String   @map("type")
-  message   String   @map("message")
-  isRead    Boolean  @default(false) @map("is_read")
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification_id String   @id @default(uuid()) @map("notification_id")
+  user_id         String   @map("user_id")
+  type            String   @map("type")
+  message         String   @map("message")
+  is_read         Boolean  @default(false) @map("is_read")
+  created_at      DateTime @default(now()) @map("created_at")
+  user            User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("notification")
 }
 
 model Subscription {
-  id                 String    @id @default(uuid()) @map("subscription_id")
-  userId             String    @map("user_id")
-  paystackSubscriptionCode String? @unique @map("paystack_subscription_code")
-  paystackPlanCode       String?   @map("paystack_plan_code")
-  status             String    @default("trialing") @map("status")
-  currentPeriodStart DateTime? @map("current_period_start")
-  currentPeriodEnd   DateTime? @map("current_period_end")
-  trialStart         DateTime? @map("trial_start")
-  trialEnd           DateTime? @map("trial_end")
-  canceledAt         DateTime? @map("canceled_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription_id            String    @id @default(uuid()) @map("subscription_id")
+  user_id                    String    @map("user_id")
+  paystack_subscription_code String?   @unique @map("paystack_subscription_code")
+  paystack_plan_code         String?   @map("paystack_plan_code")
+  status                     String    @default("trialing") @map("status")
+  current_period_start       DateTime? @map("current_period_start")
+  current_period_end         DateTime? @map("current_period_end")
+  trial_start                DateTime? @map("trial_start")
+  trial_end                  DateTime? @map("trial_end")
+  canceled_at                DateTime? @map("canceled_at")
+  created_at                 DateTime  @default(now()) @map("created_at")
+  updated_at                 DateTime  @updatedAt @map("updated_at")
+  user                       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("subscription")
 }
 
 model EpisodeFeedback {
-  id        String         @id @default(uuid()) @map("feedback_id")
-  userId    String         @map("user_id")
-  episodeId String         @map("episode_id")
-  rating    FeedbackRating @map("rating")
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
-  episode   Episode        @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedback_id String         @id @default(uuid()) @map("feedback_id")
+  user_id     String         @map("user_id")
+  episode_id  String         @map("episode_id")
+  rating      FeedbackRating @map("rating")
+  created_at  DateTime       @default(now()) @map("created_at")
+  updated_at  DateTime       @updatedAt @map("updated_at")
+  episode     Episode        @relation(fields: [episode_id], references: [episode_id], onDelete: Cascade)
+  user        User           @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
-  @@unique([userId, episodeId])
+  @@unique([user_id, episode_id])
   @@map("episode_feedback")
 }
 

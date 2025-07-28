@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET(_request: Request) {
 	try {
@@ -39,10 +39,10 @@ export async function GET(_request: Request) {
 			...userCurationProfile,
 			selectedBundle: userCurationProfile.bundle
 				? {
-					...userCurationProfile.bundle,
-					podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-					episodes: userCurationProfile.bundle.episode || [],
-				}
+						...userCurationProfile.bundle,
+						podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+						episodes: userCurationProfile.bundle.episode || [],
+					}
 				: null,
 		}
 

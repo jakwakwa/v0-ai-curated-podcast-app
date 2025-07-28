@@ -21,10 +21,10 @@ export interface SubscriptionTier {
 	id: string
 	name: string
 	price: number
-	paystackPlanCode?: string;
+	paystackPlanCode?: string
 	features: string[]
-	popular?: boolean;
-	description?: string;
+	popular?: boolean
+	description?: string
 }
 
 export interface SubscriptionStore {
@@ -174,13 +174,13 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 					const response = await fetch("/api/paystack/initialize-transaction", {
 						method: "POST",
 						headers: {
-							'Content-Type': 'application/json'
+							"Content-Type": "application/json",
 						},
-						body: JSON.stringify({ planCode })
+						body: JSON.stringify({ planCode }),
 					})
 
 					if (!response.ok) {
-						const errorData = await response.json();
+						const errorData = await response.json()
 						throw new Error(errorData.message || "Failed to initialize transaction")
 					}
 

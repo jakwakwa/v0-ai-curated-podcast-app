@@ -14,7 +14,7 @@ export const useAccessControl = () => {
 
 		switch (subscription.status) {
 			case "active":
-			case "trialing":
+			case "trialing": {
 				const plan = useSubscriptionStore.getState().tiers.find(t => t.paystackPlanCode === subscription.paystackPlanCode)
 				if (plan) {
 					if (plan.name === "Curate & Control") {
@@ -25,6 +25,7 @@ export const useAccessControl = () => {
 					}
 				}
 				return feature === "free_bundle"
+			}
 			default:
 				return feature === "free_bundle"
 		}

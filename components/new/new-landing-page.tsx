@@ -1,12 +1,6 @@
-//@ts-nocheck
-/** biome-ignore-all assist/source/organizeImports: <sorted> */
 "use client"
 
-import Image from "next/image"
-// biome-ignore lint/correctness/noUnusedImports: <suppressing unused imports>
-import { type ChangeEvent, type FormEvent, useState, useEffect, useRef } from "react"
-// import Link from "next/link"
-import { Button } from "@/components/new/button-new"
+import { motion } from "framer-motion"
 // import { Input } from "@/components/new/input-new"
 import {
 	// ArrowRight,
@@ -22,7 +16,11 @@ import {
 	Volume2,
 	Zap,
 } from "lucide-react"
-import { motion } from "framer-motion"
+import Image from "next/image"
+// biome-ignore lint/correctness/noUnusedImports: <suppressing unused imports>
+import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from "react"
+// import Link from "next/link"
+import { Button } from "@/components/new/button-new"
 import styles from "./new-landing-page.module.css"
 
 function LandingPage() {

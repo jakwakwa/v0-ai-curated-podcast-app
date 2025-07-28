@@ -3,7 +3,7 @@ import nodemailer from "nodemailer"
 import { requireOrgAdmin } from "@/lib/organization-roles"
 
 // Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET() {
 	try {

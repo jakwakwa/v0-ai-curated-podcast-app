@@ -1,11 +1,10 @@
-
 // @ts-nocheck
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET() {
 	try {
@@ -18,7 +17,7 @@ export async function GET() {
 		const subscription = await prisma.subscription.findFirst({
 			where: { userId: userId },
 			orderBy: {
-				createdAt: 'desc',
+				createdAt: "desc",
 			},
 		})
 

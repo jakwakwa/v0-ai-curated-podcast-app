@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function GET(_request: Request) {
 	try {

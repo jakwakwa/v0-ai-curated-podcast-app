@@ -78,7 +78,6 @@ export async function addPodcastSource(_prevState: FormState, formData: FormData
 				url: url,
 				image_url: videoDetails.thumbnail,
 				description: null,
-
 			},
 		})
 
