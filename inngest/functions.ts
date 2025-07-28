@@ -27,9 +27,19 @@ type AdminSourceWithTranscript = AdminSourceData & {
 	transcript: string
 }
 
-const elevenlabs = new ElevenLabsClient({
-	apiKey: process.env.NODE_ENV === "production" ? process.env.ELEVEN_LABS_PROD : process.env.ELEVEN_LABS_DEV,
-})
+// Lazy initialization of ElevenLabs client to avoid build-time errors
+let elevenlabs: ElevenLabsClient | null = null
+
+const getElevenLabsClient = () => {
+	if (!elevenlabs) {
+		const apiKey = process.env.NODE_ENV === "production" ? process.env.ELEVEN_LABS_PROD : process.env.ELEVEN_LABS_DEV
+		if (!apiKey) {
+			throw new Error("Please pass in your ElevenLabs API Key or export ELEVENLABS_API_KEY in your environment.")
+		}
+		elevenlabs = new ElevenLabsClient({ apiKey })
+	}
+	return elevenlabs
+}
 const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
 const readerKeyPath = process.env.GCS_READER_KEY_PATH
 
@@ -192,7 +202,8 @@ export const generatePodcast = inngest.createFunction(
 			}
 
 			try {
-				const audio = await elevenlabs.textToSpeech.convert(aiConfig.synthVoice, {
+				const elevenLabsClient = getElevenLabsClient()
+				const audio = await elevenLabsClient.textToSpeech.convert(aiConfig.synthVoice, {
 					text: script,
 					modelId: "eleven_flash_v2",
 				})
@@ -396,7 +407,8 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 			}
 
 			try {
-				const audio = await elevenlabs.textToSpeech.convert(aiConfig.synthVoice, {
+				const elevenLabsClient = getElevenLabsClient()
+				const audio = await elevenLabsClient.textToSpeech.convert(aiConfig.synthVoice, {
 					text: script,
 					modelId: "eleven_flash_v2",
 				})
