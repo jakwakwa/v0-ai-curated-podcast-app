@@ -25,7 +25,7 @@ export async function GET(
 
 		const userCurationProfile = await prisma.userCurationProfile.findUnique({
 			where: { profile_id: id, user_id: userId },
-			include: { bundle: true },
+			include: { selectedBundle: true },
 		})
 
 		if (!userCurationProfile) {

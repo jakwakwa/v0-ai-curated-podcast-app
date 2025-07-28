@@ -16,13 +16,13 @@ export async function GET(_request: Request) {
 		const userCurationProfile = await prisma.userCurationProfile.findFirst({
 			where: { user_id: userId, is_active: true },
 			include: {
-				episode: true,
-				bundle: {
+				episodes: true,
+				selectedBundle: {
 					include: {
 						bundle_podcast: {
 							include: { podcast: true },
 						},
-						episode: {
+						episodes: {
 							orderBy: { published_at: "desc" },
 						},
 					},
@@ -37,12 +37,12 @@ export async function GET(_request: Request) {
 		// Transform the data to match the expected structure
 		const transformedProfile = {
 			...userCurationProfile,
-			selectedBundle: userCurationProfile.bundle
+			selectedBundle: userCurationProfile.selectedBundle
 				? {
-						...userCurationProfile.bundle,
-						podcasts: userCurationProfile.bundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-						episodes: userCurationProfile.bundle.episode || [],
-					}
+					...userCurationProfile.selectedBundle,
+					podcasts: userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+					episodes: userCurationProfile.selectedBundle.episodes || [],
+				}
 				: null,
 		}
 
