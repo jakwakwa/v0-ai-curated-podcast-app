@@ -58,5 +58,8 @@
 	"workbench.preferredLightColorTheme": "One Dark Pro",
 	"workbench.colorTheme": "Night Wolf (gray)",
 	"editor.defaultFormatter": "biomejs.biome",
-	"json.format.enable": false
+	"json.format.enable": false,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit"
+	}
 }
