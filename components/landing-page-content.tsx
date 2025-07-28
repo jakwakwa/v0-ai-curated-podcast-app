@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import styles from "./landing-page-content.module.css"
+import styles from "./../styles/new-landing-page.module.css"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 import { useRouter } from "next/navigation"
 

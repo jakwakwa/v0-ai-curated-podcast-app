@@ -1,6 +1,7 @@
 "use client"
 
 import { Bell } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useContext, useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarContext, SidebarTrigger } from "@/components/ui/sidebar-ui"
 import styles from "./site-header.module.css"
-import Image from "next/image"
 
 export function SiteHeader() {
 	// Check if we're in a sidebar context to avoid errors
@@ -48,7 +48,7 @@ export function SiteHeader() {
 					)}
 					<Button asChild variant="link" className={styles["title-text"]}>
 						<Link href="/dashboard">
-							<Image src={"/logo.png"} alt="Logo" width={100} height={60} />
+							<Image src={"/logo.png"} alt="Logo" width={120} height={80} />
 						</Link>
 					</Button>
 				</div>

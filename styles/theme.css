@@ -1,67 +1,99 @@
 /* Note: You may need to change the path to fit your project structure */
+
 @layer base {
   :root {
     /* --background: 0 0% 100%; */
-    --page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1));
-    --foreground: 222 47% 11%; /* slate-900 */
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 253 90% 66%; /* purple-500 */
-    --primary-foreground: 0 0% 100%; /* white */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 258 92% 76%; /* purple-400 */
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 253 90% 66%; /* purple-500 */
+		--background-glass: rgba(19, 7, 48, 0.146);
+		--secondary-page-background: linear-gradient(to right bottom, hsla(185, 78%, 76%, 0.956), rgba(8, 241, 183, 0.424), hsla(158, 80%, 40%, 0.1));
+    /* --page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
+		--background: hsla(251, 67%, 24%, 0.99);
+    --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
+    --foreground: hsla(222 47% 11%);
+    --card: hsla(0 0% 100%);
+    --card-foreground: hsla(222 47% 11%);
+    --popover: hsla(0 0% 100%);
+    --popover-foreground: hsla(222 47% 11%);
+		--popover-foreground-hsl: 222 47% 11%;
+    --primary: hsla(253 90% 66%);
+		--primary-hsl: 253 90% 66%;
+    --primary-foreground: hsla(0 0% 100%);
+		--primary-foreground-hsl: 0 0% 100%;
+    --secondary: hsla(220 14% 96%);
+		--secondary-hsl: 220 14% 96%;
+    --secondary-foreground: hsla(222 47% 11%);
+		--secondary-foreground-hsl: 222 47% 11%;
+    --muted: hsla(220 14% 96%);
+		--muted-hsl: 220 14% 96%;
+    --muted-foreground: hsla(220 9% 46%);
+		--muted-foreground-hsl: 220 9% 46%;
+    --accent: hsla(258 92% 76%);
+		--accent-hsl: 258 92% 76%;
+    --accent-foreground: hsla(222 47% 11%);
+		--accent-foreground-hsl: 222 47% 11%;
+    --destructive: hsla(0 84% 60%);
+		--destructive-hsl: 0 84% 60%;
+    --destructive-foreground: hsla(0 0% 100%);
+		--destructive-foreground-hsl: 0 0% 100%;
+    --border: hsla(220 13% 91%);
+		--border-hsl: 220 13% 91%;
+    --input: hsla(220 13% 91%);
+		--input-hsl: 220 13% 91%;
+    --ring: hsla(253 90% 66%); /* purple-500 */
+		--ring-hsl: 253 90% 66%;
     --radius: 0.75rem;
 
     /* Custom variables from podslice */
-    --primary-gradient: linear-gradient(to right, hsla(var(--primary)), hsla(var(--primary-gradient-end)));
-    --primary-gradient-end: 158 80% 40%; /* emerald-500 */
-    --accent-gradient: linear-gradient(to right, hsla(var(--accent)), hsla(var(--accent-gradient-end)));
-    --accent-gradient-end: 159 55% 51%; /* emerald-400 */
+    --primary-gradient: linear-gradient(to right, hsla(var(--primary-hsl)), hsla(var(--primary-gradient-end-hsl)));
+    --primary-gradient-end: hsla(158 80% 40%); /* emerald-500 */
+		--primary-gradient-end-hsl: 158 80% 40%;
+    --accent-gradient: linear-gradient(to right, hsla(var(--accent-hsl)), hsla(var(--accent-gradient-end-hsl)));
+    --accent-gradient-end: hsla(159 55% 51%); /* emerald-400 */
+		--accent-gradient-end-hsl: 159 55% 51%;
+
+
+		--border-glass: #9dc8d93d;
   }
 
   .dark {
-    /* --background: 222 47% 11%; */
+    /* --background: 222 47% 11%;  */
+		/* -secondary-page-background: linear-gradient(to right bottom, hsla(131, 35%, 84%, 0.064), rgba(49, 40, 76, 0.268), hsla(0, 0%, 62%, 0.772)); */
+		--secondary-page-background: linear-gradient(to right bottom, hsla(57, 87%, 81%, 0.283), #5432bad9, hsla(249, 82%, 48%, 0.214));
+		/* Secondary page background */
+		--glass-gradient: linear-gradient(to top left, hsla(206, 84%, 37%, 0.242), rgba(43, 78, 174, 0.086), hsla(162, 69%, 85%, 0.197));
+		--background-glass: hsla(256, 56%, 18%, 0.227);
+		/* --secondary-page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
+		/*  */
+		/* --background: 222 47% 11%; slate-900, #0f172a */
     --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
+		--page-background-hsl: 222 47% 11%;
     --foreground: hsla(0 0% 100%); /* white */
 		--foreground-hsl: 0 0% 100%;
     --card: hsla(222 47% 11%); /* same as background */
 		--card-hsl: 222 47% 11%;
     --card-foreground: hsla(0 0% 100%);
 		--card-foreground-hsl: 0 0% 100%;
-    --popover: 222 47% 11%;
+    --popover: hsla(222 47% 11%);
+		--popover-hsl: 222 47% 11%;
     --popover-foreground: hsla(0 0% 100%);
 		--popover-foreground-hsl: 0 0% 100%;
-    --primary: hsla(253 90% 66%); /* purple-500, #8b5cf6 */
-		--primary-hsl: 253 90% 66%;
+    --primary: hsla(253 90% 66%)
+		--primary-hsl:253 90% 66%;
     --primary-foreground: hsla(0 0% 100%);
-		--primary-foreground-hsl: 0 0% 100%;
-    --secondary: 215 28% 17%; /* A bit lighter than background */
-		--secondary-hsl: 215 28% 17%;
+		--primary-foreground-hsl: 253 90% 66%;
+    --secondary: hsla(215 28% 17%);
     --secondary-foreground: hsla(0 0% 100%);
-		--secondary-foreground-hsl: 0 0% 100%;
     --muted: hsla(215 28% 17%);
 		--muted-hsl: 215 28% 17%;
-    --muted-foreground: hsla(215 14% 65%); /* slate-400, #9ca3af */
+    --muted-foreground: hsla(215 14% 65%);
 		--muted-foreground-hsl: 215 14% 65%;
     --accent: hsla(258 92% 76%);
 		--accent-hsl: 258 92% 76%;
     --accent-foreground: hsla(0 0% 100%);
-		--accent-foreground-hsl: 0 0% 100%;
+		--accent-foreground-hsl: 258 92% 76%;
     --destructive: hsla(0 63% 31%);
 		--destructive-hsl: 0 63% 31%;
     --destructive-foreground: hsla(0 0% 100%);
-		--destructive-foreground-hsl: 0 0% 100%;
+		--destructive-foreground-hsl: 0 63% 31%;
     --border: hsla(215 14% 34%); /* slate-600, #475569 */
 		--border-hsl: 215 14% 34%;
     --input: hsla(215 28% 17%);
@@ -74,12 +106,31 @@
     --card-background-glass: rgba(255, 255, 255, 0.1);
     --card-border-glass: rgba(255, 255, 255, 0.2);
     --section-background-glass: rgba(255, 255, 255, 0.05);
-
+		--border-glass: hsla(255, 100%, 100%, 0.2);
+		--border-glass-hsl: 255, 100%, 100%, 0.2;
+		--outline-glass: hsla(255, 100%, 100%, 0.2);
+		--outline-glass-hsl: 255, 100%, 100%, 0.2;
     /* Custom variables from podslice */
-    --primary-gradient: linear-gradient(to right, hsla(var(--primary)), hsla(var(--primary-gradient-end)));
-    --primary-gradient-end: 158 80% 40%; /* emerald-500, #10b981 */
-    --accent-gradient: linear-gradient(to right, hsla(var(--accent)), hsla(var(--accent-gradient-end)));
-    --accent-gradient-end: 159 55% 51%; /* emerald-400, #34d399 */
+    --primary-gradient: linear-gradient(to bottom left, hsla(var(--primary-gradient-start-hsl)), hsla(var(--primary-gradient-end-hsl	)));
+		--tertiary-gradient: linear-gradient(to top right, hsla(var(--tertiary-gradient-start-hsl)), hsla(var(--tertiary-gradient-end-hsl)));
+    --primary-gradient-end: hsla(277, 89%, 59%, 0.96);
+		--primary-gradient-end-hsl: 277, 89%, 59%, 0.96;
+		--primary-gradient-start: hsla(27, 99%, 73%, 0.896);
+		--primary-gradient-start-hsl: 27, 99%, 73%, 0.896;
+
+		--tertiary-gradient-accent: linear-gradient(to bottom left, hsla(var(--tertiary-gradient-end-hsl)), hsla(var(--tertiary-gradient-start-hsl)));
+
+		--tertiary-gradient-end: rgb(165, 229, 228);
+		--tertiary-gradient-end-hsl: 170, 80%, 68%;
+		--tertiary-gradient-start: hsla(242, 94%, 60%, 0.896);
+		--tertiary-gradient-start-hsl: 242, 94%, 60%, 0.896;
+
+
+    --accent-gradient: linear-gradient(to bottom left, hsla(var(--accent-gradient-start-hsl)), hsla(var(--accent-gradient-end-hsl)));
+		--accent-gradient-end: hsla(264, 63%, 48%);
+		--accent-gradient-end-hsl: 264, 63%, 48%;
+		--accent-gradient-start: hsla(120, 87%, 81%, 0.896);
+		--accent-gradient-start-hsl: 120, 87%, 81%, 0.896;
 
     --sidebar-background: #10101a54;
     --sidebar-foreground: hsla(240 4.8% 95.9%);
@@ -98,7 +149,9 @@
 		--sidebar-ring-hsl: 217.2 91.2% 59.8%;
   }
 }
-  div {
+
+
+div {
 	border-color: hsla(var(--border-hsl)) !important;
   }
 	.header {
@@ -110,6 +163,7 @@
 		font-weight: 700;
 		margin-bottom: 1rem;
 		color: hsla(var(--foreground-hsl));
+		0px 4px 2px rgb(3 3 5 / 57%), 3px 8px 7px rgb(13 13 13 / 8%)
 	}
 	.episodeCard {
 		border: 1px solid hsla(var(--border-hsl));

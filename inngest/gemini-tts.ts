@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js"
+import { GoogleGenAI } from "@google/genai"
 import { Storage } from "@google-cloud/storage"
+
 import type { Podcast as SourceModel } from "@prisma/client"
 import { generateText } from "ai"
+import mime from "mime"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
 import emailService from "../lib/email-service"
@@ -27,19 +29,6 @@ type AdminSourceWithTranscript = AdminSourceData & {
 	transcript: string
 }
 
-// Lazy initialization of ElevenLabs client to avoid build-time errors
-let elevenlabs: ElevenLabsClient | null = null
-
-const getElevenLabsClient = () => {
-	if (!elevenlabs) {
-		const apiKey = process.env.NODE_ENV === "production" ? process.env.ELEVEN_LABS_PROD : process.env.ELEVEN_LABS_DEV
-		if (!apiKey) {
-			throw new Error("Please pass in your ElevenLabs API Key or export ELEVENLABS_API_KEY in your environment.")
-		}
-		elevenlabs = new ElevenLabsClient({ apiKey })
-	}
-	return elevenlabs
-}
 const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
 const readerKeyPath = process.env.GCS_READER_KEY_PATH
 
@@ -55,11 +44,6 @@ if (!readerKeyPath) {
 // Initialize a Storage client Service with Key for uploading operations
 const storageUploader = new Storage({
 	keyFilename: uploaderKeyPath,
-})
-
-// Initialize a separate Storage client Service with Key for reading operations
-const _storageReader = new Storage({
-	keyFilename: readerKeyPath,
 })
 
 // Initialize a separate Storage client for reading operations
@@ -96,14 +80,164 @@ async function _readContentFromBucket(bucketName: string, fileName: string): Pro
 
 const googleAI = createGoogleGenerativeAI({ fetch: global.fetch })
 
-export const generatePodcast = inngest.createFunction(
+// Gemini TTS configuration
+const geminiTTSConfig = {
+	temperature: 1,
+	responseModalities: ["audio"],
+	speechConfig: {
+		multiSpeakerVoiceConfig: {
+			speakerVoiceConfigs: [
+				{
+					speaker: "Speaker 1 (Host)",
+					voiceConfig: {
+						prebuiltVoiceConfig: {
+							voiceName: "Enceladus",
+						},
+					},
+				},
+				{
+					speaker: "Speaker 2 (PodSlice AI)",
+					voiceConfig: {
+						prebuiltVoiceConfig: {
+							voiceName: "Aoede",
+						},
+					},
+				},
+			],
+		},
+	},
+}
+
+interface WavConversionOptions {
+	numChannels: number
+	sampleRate: number
+	bitsPerSample: number
+}
+
+function convertToWav(rawData: string, mimeType: string) {
+	const options = parseMimeType(mimeType)
+	const wavHeader = createWavHeader(rawData.length, options)
+	const buffer = Buffer.from(rawData, "base64")
+
+	return Buffer.concat([wavHeader, buffer])
+}
+
+function parseMimeType(mimeType: string) {
+	const [fileType, ...params] = mimeType.split(";").map(s => s.trim())
+	const [_, format] = fileType.split("/")
+
+	const options: Partial<WavConversionOptions> = {
+		numChannels: 1,
+	}
+
+	if (format?.startsWith("L")) {
+		const bits = parseInt(format.slice(1), 10)
+		if (!Number.isNaN(bits)) {
+			options.bitsPerSample = bits
+		}
+	}
+
+	for (const param of params) {
+		const [key, value] = param.split("=").map(s => s.trim())
+		if (key === "rate") {
+			options.sampleRate = parseInt(value, 10)
+		}
+	}
+
+	return options as WavConversionOptions
+}
+
+function createWavHeader(dataLength: number, options: WavConversionOptions) {
+	const { numChannels, sampleRate, bitsPerSample } = options
+
+	// http://soundfile.sapp.org/doc/WaveFormat
+
+	const byteRate = (sampleRate * numChannels * bitsPerSample) / 8
+	const blockAlign = (numChannels * bitsPerSample) / 8
+	const buffer = Buffer.alloc(44)
+
+	buffer.write("RIFF", 0) // ChunkID
+	buffer.writeUInt32LE(36 + dataLength, 4) // ChunkSize
+	buffer.write("WAVE", 8) // Format
+	buffer.write("fmt ", 12) // Subchunk1ID
+	buffer.writeUInt32LE(16, 16) // Subchunk1Size (PCM)
+	buffer.writeUInt16LE(1, 20) // AudioFormat (1 = PCM)
+	buffer.writeUInt16LE(numChannels, 22) // NumChannels
+	buffer.writeUInt32LE(sampleRate, 24) // SampleRate
+	buffer.writeUInt32LE(byteRate, 28) // ByteRate
+	buffer.writeUInt16LE(blockAlign, 32) // BlockAlign
+	buffer.writeUInt16LE(bitsPerSample, 34) // BitsPerSample
+	buffer.write("data", 36) // Subchunk2ID
+	buffer.writeUInt32LE(dataLength, 40) // Subchunk2Size
+
+	return buffer
+}
+
+async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
+	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+
+	if (!geminiApiKey) {
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.")
+	}
+
+	const ai = new GoogleGenAI({
+		apiKey: geminiApiKey,
+	})
+
+	const model = "gemini-2.5-pro-preview-tts"
+	const contents = [
+		{
+			role: "user",
+			parts: [
+				{
+					text: `Please read aloud the following in a podcast interview style:\n\n${script}`,
+				},
+			],
+		},
+	]
+
+	const response = await ai.models.generateContentStream({
+		model,
+		config: geminiTTSConfig,
+		contents,
+	})
+
+	let audioBuffer: Buffer | null = null
+
+	for await (const chunk of response) {
+		if (!chunk.candidates?.[0]?.content?.parts?.[0]) {
+			continue
+		}
+		const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData
+		if (inlineData) {
+			let fileExtension = mime.getExtension(inlineData.mimeType || "")
+			let buffer = Buffer.from(inlineData.data || "", "base64")
+
+			if (!fileExtension) {
+				fileExtension = "wav"
+				buffer = convertToWav(inlineData.data || "", inlineData.mimeType || "")
+			}
+
+			audioBuffer = buffer
+			break // Take the first audio chunk
+		}
+	}
+
+	if (!audioBuffer) {
+		throw new Error("Failed to generate audio with Gemini TTS")
+	}
+
+	return audioBuffer
+}
+
+export const generatePodcastWithGeminiTTS = inngest.createFunction(
 	{
-		id: "generate-podcast-workflow",
-		name: "Generate Podcast Workflow",
+		id: "generate-podcast-gemini-tts-workflow",
+		name: "Generate Podcast with Gemini TTS Workflow",
 		retries: 1,
 	},
 	{
-		event: "podcast/generate.requested",
+		event: "podcast/generate-gemini-tts.requested",
 	},
 	async ({ event, step }) => {
 		const { collectionId } = event.data
@@ -195,32 +329,15 @@ export const generatePodcast = inngest.createFunction(
 			}
 		})
 
-		// Stage 4: Audio Synthesis and Upload to Google Cloud Storage
+		// Stage 4: Audio Synthesis with Gemini TTS and Upload to Google Cloud Storage
 		const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
 			if (aiConfig.simulateAudioSynthesis) {
 				return "sample-for-simulated-tests.mp3"
 			}
 
 			try {
-				const elevenLabsClient = getElevenLabsClient()
-				const audio = await elevenLabsClient.textToSpeech.convert(aiConfig.synthVoice, {
-					text: script,
-					modelId: "eleven_flash_v2",
-				})
-
-				const streamToBuffer = async (stream: ReadableStream<Uint8Array>) => {
-					const reader = stream.getReader()
-					const chunks: Uint8Array[] = []
-					while (true) {
-						const { done, value } = await reader.read()
-						if (done) break
-						if (value) chunks.push(value)
-					}
-					return Buffer.concat(chunks)
-				}
-
-				const audioBuffer = await streamToBuffer(audio)
-				const audioFileName = `podcasts/${collectionId}-${Date.now()}.mp3`
+				const audioBuffer = await generateAudioWithGeminiTTS(script)
+				const audioFileName = `podcasts/${collectionId}-${Date.now()}.wav`
 
 				const file = await uploadContentToBucket(process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!, audioBuffer, audioFileName)
 
@@ -296,6 +413,7 @@ export const generatePodcast = inngest.createFunction(
 				})
 			}
 		})
+
 		if (aiConfig.simulateAudioSynthesis) {
 			// DO NOT CHANGE THIS RETURN STATEMENT
 			return {
@@ -314,15 +432,15 @@ export const generatePodcast = inngest.createFunction(
 	}
 )
 
-// Admin Bundle Episode Generation Function
-export const generateAdminBundleEpisode = inngest.createFunction(
+// Admin Bundle Episode Generation Function with Gemini TTS
+export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 	{
-		id: "generate-admin-bundle-episode-workflow",
-		name: "Generate Admin Bundle Episode Workflow",
+		id: "generate-admin-bundle-episode-gemini-tts-workflow",
+		name: "Generate Admin Bundle Episode with Gemini TTS Workflow",
 		retries: 1,
 	},
 	{
-		event: "podcast/admin-generate.requested",
+		event: "podcast/admin-generate-gemini-tts.requested",
 	},
 	async ({ event, step }) => {
 		const { adminCurationProfile, bundleId, episodeTitle, episodeDescription } = event.data
@@ -400,32 +518,15 @@ export const generateAdminBundleEpisode = inngest.createFunction(
 			}
 		})
 
-		// Stage 4: Audio Synthesis and Upload to Google Cloud Storage
+		// Stage 4: Audio Synthesis with Gemini TTS and Upload to Google Cloud Storage
 		const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
 			if (aiConfig.simulateAudioSynthesis) {
 				return "admin-sample-for-simulated-tests.mp3"
 			}
 
 			try {
-				const elevenLabsClient = getElevenLabsClient()
-				const audio = await elevenLabsClient.textToSpeech.convert(aiConfig.synthVoice, {
-					text: script,
-					modelId: "eleven_flash_v2",
-				})
-
-				const streamToBuffer = async (stream: ReadableStream<Uint8Array>) => {
-					const reader = stream.getReader()
-					const chunks: Uint8Array[] = []
-					while (true) {
-						const { done, value } = await reader.read()
-						if (done) break
-						if (value) chunks.push(value)
-					}
-					return Buffer.concat(chunks)
-				}
-
-				const audioBuffer = await streamToBuffer(audio)
-				const audioFileName = `podcasts/${bundleId}-${Date.now()}.mp3`
+				const audioBuffer = await generateAudioWithGeminiTTS(script)
+				const audioFileName = `podcasts/${bundleId}-${Date.now()}.wav`
 
 				const file = await uploadContentToBucket(process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!, audioBuffer, audioFileName)
 
