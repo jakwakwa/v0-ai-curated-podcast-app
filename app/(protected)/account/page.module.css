@@ -1,0 +1,408 @@
+/* Account Settings Page Styles */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.description {
+  color: hsl(var(--muted-foreground));
+  font-size: 1rem;
+}
+
+/* Tabs Styling */
+.tabsContainer {
+  margin-top: 2rem;
+}
+
+.tabsList {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.tabTrigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tabTrigger:hover {
+  background-color: hsl(var(--muted));
+}
+
+.tabTrigger[data-state="active"] {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Card Styling */
+.card {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background: hsl(var(--card));
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.cardDescription {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+/* Section Styling */
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+}
+
+.sectionContent {
+  space-y: 1rem;
+}
+
+/* Current Plan Section */
+.currentPlanCard {
+  padding: 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background: hsl(var(--muted) / 0.5);
+}
+
+.planInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.planName {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.planStatus {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.planBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Plan Actions */
+.planActions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.actionButton {
+  height: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.actionTitle {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.actionDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Subscription Details */
+.subscriptionDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detailItem {
+  space-y: 0.5rem;
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.detailValue {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Profile Information */
+.profileInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profileItem {
+  space-y: 0.5rem;
+}
+
+.profileLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.profileValue {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Notification Settings */
+.notificationSettings {
+  space-y: 1rem;
+}
+
+.notificationItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationInfo {
+  flex: 1;
+}
+
+.notificationTitle {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.notificationDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Security Settings */
+.securitySettings {
+  space-y: 1rem;
+}
+
+.securityItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.securityItem:last-child {
+  border-bottom: none;
+}
+
+.securityInfo {
+  flex: 1;
+}
+
+.securityTitle {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.securityDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Danger Zone */
+.dangerZone {
+  margin-top: 2rem;
+}
+
+.dangerCard {
+  padding: 1rem;
+  border: 1px solid hsl(var(--destructive) / 0.2);
+  border-radius: 0.5rem;
+  background: hsl(var(--destructive) / 0.05);
+}
+
+.dangerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dangerInfo {
+  flex: 1;
+}
+
+.dangerTitle {
+  font-weight: 500;
+  color: hsl(var(--destructive));
+  margin-bottom: 0.25rem;
+}
+
+.dangerDescription {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Separator */
+.separator {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .tabsList {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .tabTrigger {
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .planActions {
+    grid-template-columns: 1fr;
+  }
+
+  .subscriptionDetails {
+    grid-template-columns: 1fr;
+  }
+
+  .profileInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .notificationItem,
+  .securityItem,
+  .dangerItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .cardHeader,
+  .cardContent {
+    padding: 1rem;
+  }
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.loadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid hsl(var(--border));
+  border-top: 2px solid hsl(var(--primary));
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.errorContainer {
+  text-align: center;
+  padding: 2rem;
+}
+
+.errorTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+.errorDescription {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1rem;
+}

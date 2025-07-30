@@ -53,9 +53,9 @@ export default function SubscriptionPage() {
 			</div>
 
 			<div className="mt-8">
-				<p className="mb-4">To change your subscription plan, please visit our pricing page.</p>
+				<p className="mb-4">To change your subscription plan, please visit your account settings.</p>
 				<Button asChild>
-					<Link href="/about">Change Plan</Link>
+					<Link href="/account">Manage Subscription</Link>
 				</Button>
 			</div>
 		</div>

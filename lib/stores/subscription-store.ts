@@ -27,10 +27,20 @@ export interface SubscriptionTier {
 	description?: string
 }
 
+export interface BillingHistoryItem {
+	id: string
+	date: Date
+	amount: number
+	status: string
+	description: string
+	plan_code?: string | null
+}
+
 export interface SubscriptionStore {
 	// State
 	subscription: Subscription | null
 	tiers: SubscriptionTier[]
+	billingHistory: BillingHistoryItem[]
 	isLoading: boolean
 	error: string | null
 
@@ -45,6 +55,10 @@ export interface SubscriptionStore {
 	setSubscription: (subscription: Subscription | null) => void
 	loadSubscription: () => Promise<void>
 	initializeTransaction: (planCode: string) => Promise<{ checkoutUrl: string } | { error: string }>
+	upgradeSubscription: (planCode: string) => Promise<{ checkoutUrl: string } | { error: string }>
+	downgradeSubscription: (planCode: string) => Promise<{ checkoutUrl: string } | { error: string }>
+	cancelSubscription: () => Promise<{ success: boolean } | { error: string }>
+	loadBillingHistory: () => Promise<void>
 
 	// Utility actions
 	setLoading: (loading: boolean) => void
@@ -70,7 +84,7 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 		id: "casual_listener",
 		name: "Casual Listener",
 		price: 5, // $5/month in USD
-		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_CASUAL_PLAN_CODE,
+		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_CASUAL_PLAN_CODE || "PLN_CASUAL_001",
 		description: "Enhanced experience with premium features and priority access",
 		features: ["Only billed monthly", "Free member", "Free Bundle"],
 		popular: false,
@@ -79,16 +93,61 @@ const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 		id: "curate_control",
 		name: "Curate & Control",
 		price: 10, // $10/month in USD
-		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_PREMIUM_PLAN_CODE,
+		paystackPlanCode: process.env.NEXT_PUBLIC_PAYSTACK_PREMIUM_PLAN_CODE || "PLN_PREMIUM_001",
 		description: "Ultimate control with unlimited custom curation profiles",
 		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
 		popular: true,
 	},
 ]
 
+// Mock subscription data for testing
+const MOCK_SUBSCRIPTION: Subscription = {
+	id: "sub_123456789",
+	userId: "user_123456789",
+	paystackSubscriptionCode: "SUB_CASUAL_001",
+	paystackPlanCode: "PLN_CASUAL_001",
+	status: "active",
+	currentPeriodStart: new Date("2024-01-01"),
+	currentPeriodEnd: new Date("2024-02-01"),
+	trialStart: new Date("2023-12-15"),
+	trialEnd: new Date("2024-01-01"),
+	canceledAt: null,
+	createdAt: new Date("2023-12-15"),
+	updatedAt: new Date("2024-01-01"),
+}
+
+// Mock billing history for testing
+const MOCK_BILLING_HISTORY: BillingHistoryItem[] = [
+	{
+		id: "bill_001",
+		date: new Date("2024-01-01"),
+		amount: 5.00,
+		status: "active",
+		description: "Casual Listener - Monthly Subscription",
+		plan_code: "PLN_CASUAL_001",
+	},
+	{
+		id: "bill_002",
+		date: new Date("2023-12-15"),
+		amount: 0.00,
+		status: "trial",
+		description: "Casual Listener - Trial Period",
+		plan_code: "PLN_CASUAL_001",
+	},
+	{
+		id: "bill_003",
+		date: new Date("2023-12-01"),
+		amount: 0.00,
+		status: "free",
+		description: "FreeSlice - Initial Signup",
+		plan_code: null,
+	},
+]
+
 const initialState = {
 	subscription: null,
 	tiers: SUBSCRIPTION_TIERS,
+	billingHistory: [],
 	isLoading: false,
 	error: null,
 	isTrialing: false,
@@ -140,18 +199,14 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 				set({ isLoading: true, error: null }, false, "loadSubscription:start")
 
 				try {
-					const response = await fetch("/api/subscription")
+					// For testing purposes, use mock data instead of API call
+					// In production, this would be: const response = await fetch("/api/subscription")
 
-					if (!response.ok) {
-						if (response.status === 404) {
-							// No subscription exists yet
-							set({ subscription: null, isLoading: false }, false, "loadSubscription:none")
-							return
-						}
-						throw new Error("Failed to load subscription")
-					}
+					// Simulate API delay
+					await new Promise(resolve => setTimeout(resolve, 1000))
 
-					const subscription = await response.json()
+					// Use mock data for testing
+					const subscription = MOCK_SUBSCRIPTION
 					const { setSubscription } = get()
 					setSubscription(subscription)
 					set({ isLoading: false }, false, "loadSubscription:success")
@@ -171,22 +226,13 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 				set({ isLoading: true, error: null }, false, "initializeTransaction:start")
 
 				try {
-					const response = await fetch("/api/paystack/initialize-transaction", {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({ planCode }),
-					})
+					// For testing purposes, simulate API call
+					await new Promise(resolve => setTimeout(resolve, 1000))
 
-					if (!response.ok) {
-						const errorData = await response.json()
-						throw new Error(errorData.message || "Failed to initialize transaction")
-					}
-
-					const { authorization_url } = await response.json()
+					// Mock successful response
+					const checkoutUrl = `https://checkout.paystack.com/mock-transaction-${Date.now()}`
 					set({ isLoading: false }, false, "initializeTransaction:success")
-					return { checkoutUrl: authorization_url }
+					return { checkoutUrl }
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : "Unknown error"
 					set(
@@ -198,6 +244,101 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 						"initializeTransaction:error"
 					)
 					return { error: errorMessage }
+				}
+			},
+
+			upgradeSubscription: async (planCode: string) => {
+				set({ isLoading: true, error: null }, false, "upgradeSubscription:start")
+
+				try {
+					// For testing purposes, simulate API call
+					await new Promise(resolve => setTimeout(resolve, 1000))
+
+					// Mock successful response
+					const checkoutUrl = `https://checkout.paystack.com/upgrade-${planCode}-${Date.now()}`
+					set({ isLoading: false }, false, "upgradeSubscription:success")
+					return { checkoutUrl }
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : "Unknown error"
+					set(
+						{
+							error: errorMessage,
+							isLoading: false,
+						},
+						false,
+						"upgradeSubscription:error"
+					)
+					return { error: errorMessage }
+				}
+			},
+
+			downgradeSubscription: async (planCode: string) => {
+				set({ isLoading: true, error: null }, false, "downgradeSubscription:start")
+
+				try {
+					// For testing purposes, simulate API call
+					await new Promise(resolve => setTimeout(resolve, 1000))
+
+					// Mock successful response
+					const checkoutUrl = `https://checkout.paystack.com/downgrade-${planCode}-${Date.now()}`
+					set({ isLoading: false }, false, "downgradeSubscription:success")
+					return { checkoutUrl }
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : "Unknown error"
+					set(
+						{
+							error: errorMessage,
+							isLoading: false,
+						},
+						false,
+						"downgradeSubscription:error"
+					)
+					return { error: errorMessage }
+				}
+			},
+
+			cancelSubscription: async () => {
+				set({ isLoading: true, error: null }, false, "cancelSubscription:start")
+
+				try {
+					// For testing purposes, simulate API call
+					await new Promise(resolve => setTimeout(resolve, 1000))
+
+					// Mock successful cancellation
+					set({ isLoading: false }, false, "cancelSubscription:success")
+					return { success: true }
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : "Unknown error"
+					set(
+						{
+							error: errorMessage,
+							isLoading: false,
+						},
+						false,
+						"cancelSubscription:error"
+					)
+					return { error: errorMessage }
+				}
+			},
+
+			loadBillingHistory: async () => {
+				set({ isLoading: true, error: null }, false, "loadBillingHistory:start")
+
+				try {
+					// For testing purposes, simulate API call
+					await new Promise(resolve => setTimeout(resolve, 1000))
+
+					// Use mock billing history
+					set({ billingHistory: MOCK_BILLING_HISTORY, isLoading: false }, false, "loadBillingHistory:success")
+				} catch (error) {
+					set(
+						{
+							error: error instanceof Error ? error.message : "Unknown error",
+							isLoading: false,
+						},
+						false,
+						"loadBillingHistory:error"
+					)
 				}
 			},
 

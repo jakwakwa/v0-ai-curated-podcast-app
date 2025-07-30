@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth, useClerk } from "@clerk/nextjs"
-import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
+import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon, Settings } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -33,47 +33,42 @@ export function NavUser({
 			.join("")
 	}
 
+	// Check if user is admin
 	useEffect(() => {
-		// Only check admin status once Clerk auth is loaded and user is signed in
-		if (!(isLoaded && isSignedIn)) {
-			setIsAdmin(false)
-			return
-		}
-
 		const checkAdminStatus = async () => {
 			try {
 				const response = await fetch("/api/admin/check")
-
-				// Check if response is ok and has content
-				if (!response.ok) {
-					// Don't log 401 errors as they're expected for non-authenticated users
-					if (response.status !== 401) {
-						console.error("Admin check API returned error:", response.status)
-					}
-					setIsAdmin(false)
-					return
+				if (response.ok) {
+					setIsAdmin(true)
 				}
-
-				// Check if response has content
-				const text = await response.text()
-				if (!text) {
-					console.error("Admin check API returned empty response")
-					setIsAdmin(false)
-					return
-				}
-
-				// Parse JSON
-				const data = JSON.parse(text)
-				const adminStatus = data.isAdmin
-				setIsAdmin(adminStatus)
 			} catch (error) {
-				console.error("Error checking admin status:", error)
-				setIsAdmin(false)
+				console.error("Failed to check admin status:", error)
 			}
 		}
 
-		checkAdminStatus()
+		if (isLoaded && isSignedIn) {
+			checkAdminStatus()
+		}
 	}, [isLoaded, isSignedIn])
+
+	if (!isLoaded) {
+		return (
+			<SidebarMenu>
+				<SidebarMenuItem>
+					<SidebarMenuButton size="lg" className={styles["sidebar-menu-button"]}>
+						<Avatar className={styles["avatar-image-grayscale"]}>
+							<AvatarFallback className={styles["avatar-fallback-rounded"]}>...</AvatarFallback>
+						</Avatar>
+						<div className={styles["text-grid-container"]}>
+							<span className={styles["truncate-font-medium"]}>Loading...</span>
+							<span className={styles["truncate-text-xs"]}>Loading...</span>
+						</div>
+						<MoreVerticalIcon className={styles["more-vertical-icon"]} />
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
+		)
+	}
 
 	return (
 		<SidebarMenu>
@@ -123,6 +118,12 @@ export function NavUser({
 								<Link href="/notifications">
 									<BellIcon />
 									Notifications
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link href="/account">
+									<Settings />
+									Account Settings
 								</Link>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
