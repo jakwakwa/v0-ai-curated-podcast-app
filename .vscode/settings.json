@@ -1,9 +1,5 @@
 {
-	"yaml.maxItemsComputed": 500,
-	"css.validate": false,
-	"less.validate": false,
-	"scss.validate": false,
-		"css.customData": [".vscode/css_custom_data.json"],
+	"yaml.maxItemsComputed": 1000,
 	"terminal.integrated.shellIntegration.decorationsEnabled": true,
 	"terminal.integrated.shellIntegration.enabled": true,
 	"terminal.integrated.defaultProfile.linux": "zsh",
@@ -19,47 +15,39 @@
 			"path": "/bin/zsh"
 		}
 	},
-	"editor.fontFamily": "Dank Mono",
-	"editor.fontSize": 12,
+	"editor.fontFamily": "Dank, Fira Code",
+	"editor.fontSize": 11,
+	"editor.lineHeight": 1.75,
+	"editor.fontWeight": "600",
 	"editor.fontLigatures": true,
-	"editor.lineHeight": 1.7,
-	"editor.fontWeight": "800",
-	"terminal.integrated.fontFamily": "Dank Mono",
-	"terminal.integrated.fontSize": 11,
-	"terminal.integrated.fontLigatures": true,
-	"terminal.integrated.lineHeight": 1.2,
+	"terminal.integrated.fontSize": 9.5,
+	"terminal.integrated.lineHeight": 1.3,
 	"terminal.integrated.fontWeight": "300",
 	"terminal.integrated.suggest.enabled": true,
 	"terminal.integrated.shellIntegration.environmentReporting": true,
 	"terminal.integrated.suggest.cdPath": "relative",
-	"terminal.integrated.suggest.inlineSuggestion": "off",
+	"terminal.integrated.suggest.inlineSuggestion": "alwaysOnTop",
 	"terminal.integrated.suggest.runOnEnter": "never",
 	"terminal.integrated.detectLocale": "auto",
 	"terminal.integrated.wordSeparators": " ()[]{}'\"`─",
 	"terminal.integrated.localEchoLatencyThreshold": 2,
 	"terminal.integrated.enableFileLinks": "on",
-
 	"terminal.integrated.allowChords": false,
-	"terminal.integrated.gpuAcceleration": "off",
+	"terminal.integrated.gpuAcceleration": "on",
 	"terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
 	"terminal.integrated.tabs.focusMode": "singleClick",
 	"terminal.integrated.tabs.hideCondition": "singleGroup",
 	"terminal.integrated.tabs.location": "left",
-	"workbench.editor.tabSizingFixedMaxWidth": 70,
+	"workbench.editor.tabSizingFixedMaxWidth": 50,
 	"workbench.editor.tabSizingFixedMinWidth": 40,
 	"editor.tabSize": 2,
-	"editor.renderWhitespace": "none",
-	"editor.insertSpaces": false,
+	"editor.renderWhitespace": "all",
+	"editor.insertSpaces": true,
 	"editor.wordWrap": "bounded",
 	"cursor.general.enableShadowWorkspace": false,
 	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "Best Themes - Github Dark",
-	"window.autoDetectColorScheme": true,
-	"workbench.preferredLightColorTheme": "One Dark Pro",
-	"workbench.colorTheme": "Night Wolf (gray)",
+	"workbench.preferredDarkColorTheme": "Vira Carbon High Contrast",
 	"editor.defaultFormatter": "biomejs.biome",
-
-
 	"editor.formatOnSave": true,
 	"json.format.enable": false,
 	"[typescript]": {
@@ -67,6 +55,8 @@
 	},
 	"editor.codeActionsOnSave": {
 		"source.organizeImports.biome": "explicit"
-
-	}
+	},
+	"editor.maxTokenizationLineLength": 15000,
+	"editor.renderLineHighlight": "line",
+	"editor.renderLineHighlightOnlyWhenFocus": true
 }
