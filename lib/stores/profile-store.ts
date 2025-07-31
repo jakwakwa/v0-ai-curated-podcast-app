@@ -104,7 +104,7 @@ export const useProfileStore = create<ProfileStore>()(
 				}
 			},
 
-			uploadAvatar: async (file: File) => {
+			uploadAvatar: async (_file: File) => {
 				set({ isLoading: true, error: null }, false, "uploadAvatar:start")
 
 				try {

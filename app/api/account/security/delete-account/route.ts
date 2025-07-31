@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 		}
 
 		const body = await request.json()
-		const { confirmation, reason } = body
+		const { confirmation } = body
 
 		// Validate confirmation
 		if (confirmation !== "DELETE_MY_ACCOUNT") {

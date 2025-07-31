@@ -51,7 +51,7 @@ export async function PATCH(request: Request) {
 		}
 
 		const body = await request.json()
-		const { action, data } = body
+		const { action } = body
 
 		switch (action) {
 			case "update_password":

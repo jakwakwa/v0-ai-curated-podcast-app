@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 @plugin './hero.ts';
-/* Note: You may need to change the path to fit your project structure */
 @source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
 
@@ -19,22 +18,16 @@
 		--background-glass: rgba(19, 7, 48, 0.146);
 		--secondary-page-background: linear-gradient(to right bottom, hsla(185, 78%, 76%, 0.956), rgba(8, 241, 183, 0.424), hsla(158, 80%, 40%, 0.1));
     /* --page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
-		--background: hsla(251, 67%, 24%, 0.99);
-    --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
-    --foreground: hsla(222 47% 11%);
-    --card: hsla(0 0% 100%);
-    --card-foreground: hsla(222 47% 11%);
-    --popover: hsla(0 0% 100%);
-    --popover-foreground: hsla(222 47% 11%);
-		--popover-foreground-hsl: 222 47% 11%;
-    --primary: hsla(253 90% 66%);
-		--primary-hsl: 253 90% 66%;
-    --primary-foreground: hsla(0 0% 100%);
-		--primary-foreground-hsl: 0 0% 100%;
-    --secondary: hsla(220 14% 96%);
-		--secondary-hsl: 220 14% 96%;
-    --secondary-foreground: hsla(222 47% 11%);
-		--secondary-foreground-hsl: 222 47% 11%;
+		--background: oklch(0.145 0 0);
+		--foreground: oklch(0.985 0 0);
+		--card: oklch(0.205 0 0);
+		--card-foreground: oklch(0.985 0 0);
+		--popover: oklch(0.269 0 0);
+		--popover-foreground: oklch(0.985 0 0);
+		--primary: oklch(0.922 0 0);
+		--primary-foreground: oklch(0.205 0 0);
+		--secondary: oklch(0.269 0 0);
+		--secondary-foreground: oklch(0.985 0 0);
     --muted: hsla(220 14% 96%);
 		--muted-hsl: 220 14% 96%;
     --muted-foreground: hsla(220 9% 46%);
@@ -78,23 +71,16 @@
 		/*  */
 		/* --background: 222 47% 11%; slate-900, #0f172a */
     --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
-		--page-background-hsl: 222 47% 11%;
-    --foreground: hsla(0 0% 100%); /* white */
-		--foreground-hsl: 0 0% 100%;
-    --card: hsla(222 47% 11%); /* same as background */
-		--card-hsl: 222 47% 11%;
-    --card-foreground: hsla(0 0% 100%);
-		--card-foreground-hsl: 0 0% 100%;
-    --popover: hsla(222 47% 11%);
-		--popover-hsl: 222 47% 11%;
-    --popover-foreground: hsla(0 0% 100%);
-		--popover-foreground-hsl: 0 0% 100%;
-    --primary: hsla(253 90% 66%)
-		--primary-hsl:253 90% 66%;
-    --primary-foreground: hsla(0 0% 100%);
-		--primary-foreground-hsl: 253 90% 66%;
-    --secondary: hsla(215 28% 17%);
-    --secondary-foreground: hsla(0 0% 100%);
+		--background: oklch(0.145 0 0);
+		--foreground: oklch(0.985 0 0);
+		--card: oklch(0.205 0 0);
+		--card-foreground: oklch(0.985 0 0);
+		--popover: oklch(0.269 0 0);
+		--popover-foreground: oklch(0.985 0 0);
+		--primary: oklch(0.922 0 0);
+		--primary-foreground: oklch(0.205 0 0);
+		--secondary: oklch(0.269 0 0);
+		--secondary-foreground: oklch(0.985 0 0);
     --muted: hsla(215 28% 17%);
 		--muted-hsl: 215 28% 17%;
     --muted-foreground: hsla(215 14% 65%);

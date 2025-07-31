@@ -1,14 +1,14 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { Camera, Edit3, Loader2, Save, Upload, User, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-import { User, Camera, Upload, X, Edit3, Save, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useProfileStore } from "@/lib/stores/profile-store"
 
@@ -44,7 +44,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 
 	// Handle profile update
 	const handleUpdateProfile = async () => {
-		if (!editForm.name.trim() || !editForm.email.trim()) {
+		if (!(editForm.name.trim() && editForm.email.trim())) {
 			toast.error("Name and email are required")
 			return
 		}
@@ -120,9 +120,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 						<User className="h-5 w-5" />
 						Profile Information
 					</CardTitle>
-					<CardDescription>
-						Manage your personal information and account details.
-					</CardDescription>
+					<CardDescription>Manage your personal information and account details.</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					{/* Avatar Section */}
@@ -130,52 +128,28 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 						<div className="relative">
 							<Avatar className="h-20 w-20">
 								<AvatarImage src={profile?.avatar || ""} alt={profile?.name} />
-								<AvatarFallback className="text-lg">
-									{profile?.name ? getUserInitials(profile.name) : "U"}
-								</AvatarFallback>
+								<AvatarFallback className="text-lg">{profile?.name ? getUserInitials(profile.name) : "U"}</AvatarFallback>
 							</Avatar>
 
 							{/* Avatar Upload Button */}
-							<Button
-								size="sm"
-								variant="outline"
-								className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
-								onClick={() => fileInputRef.current?.click()}
-								disabled={isLoading}
-							>
+							<Button size="sm" variant="outline" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
 								<Camera className="h-4 w-4" />
 							</Button>
 
 							{/* Hidden file input */}
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept="image/*"
-								className="hidden"
-								onChange={handleFileChange}
-							/>
+							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
 						</div>
 
 						<div className="flex-1">
 							<h3 className="font-medium">{profile?.name || "User"}</h3>
 							<p className="text-sm text-muted-foreground">{profile?.email}</p>
 							<div className="flex gap-2 mt-2">
-								<Button
-									size="sm"
-									variant="outline"
-									onClick={() => fileInputRef.current?.click()}
-									disabled={isLoading}
-								>
+								<Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
 									<Upload className="h-4 w-4 mr-1" />
 									Upload Photo
 								</Button>
 								{profile?.avatar && (
-									<Button
-										size="sm"
-										variant="outline"
-										onClick={handleRemoveAvatar}
-										disabled={isLoading}
-									>
+									<Button size="sm" variant="outline" onClick={handleRemoveAvatar} disabled={isLoading}>
 										<X className="h-4 w-4 mr-1" />
 										Remove
 									</Button>
@@ -190,12 +164,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<div className="space-y-4">
 						<div className="flex items-center justify-between">
 							<h3 className="text-lg font-semibold">Personal Information</h3>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setIsEditing(!isEditing)}
-								disabled={isLoading}
-							>
+							<Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)} disabled={isLoading}>
 								{isEditing ? (
 									<>
 										<X className="h-4 w-4 mr-1" />
@@ -215,42 +184,20 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 							<div className="space-y-4">
 								<div className="space-y-2">
 									<Label htmlFor="name">Full Name</Label>
-									<Input
-										id="name"
-										value={editForm.name}
-										onChange={(e) => handleInputChange("name", e.target.value)}
-										placeholder="Enter your full name"
-									/>
+									<Input id="name" value={editForm.name} onChange={e => handleInputChange("name", e.target.value)} placeholder="Enter your full name" />
 								</div>
 
 								<div className="space-y-2">
 									<Label htmlFor="email">Email Address</Label>
-									<Input
-										id="email"
-										type="email"
-										value={editForm.email}
-										onChange={(e) => handleInputChange("email", e.target.value)}
-										placeholder="Enter your email address"
-									/>
+									<Input id="email" type="email" value={editForm.email} onChange={e => handleInputChange("email", e.target.value)} placeholder="Enter your email address" />
 								</div>
 
 								<div className="flex gap-2">
-									<Button
-										onClick={handleUpdateProfile}
-										disabled={isLoading}
-									>
-										{isLoading ? (
-											<Loader2 className="h-4 w-4 mr-1 animate-spin" />
-										) : (
-											<Save className="h-4 w-4 mr-1" />
-										)}
+									<Button onClick={handleUpdateProfile} disabled={isLoading}>
+										{isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
 										Save Changes
 									</Button>
-									<Button
-										variant="outline"
-										onClick={() => setIsEditing(false)}
-										disabled={isLoading}
-									>
+									<Button variant="outline" onClick={() => setIsEditing(false)} disabled={isLoading}>
 										Cancel
 									</Button>
 								</div>
@@ -260,31 +207,19 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 							<div className="grid gap-4 md:grid-cols-2">
 								<div className="space-y-2">
 									<p className="text-sm font-medium">Full Name</p>
-									<p className="text-sm text-muted-foreground">
-										{profile?.name || "Not set"}
-									</p>
+									<p className="text-sm text-muted-foreground">{profile?.name || "Not set"}</p>
 								</div>
 								<div className="space-y-2">
 									<p className="text-sm font-medium">Email Address</p>
-									<p className="text-sm text-muted-foreground">
-										{profile?.email || "Not set"}
-									</p>
+									<p className="text-sm text-muted-foreground">{profile?.email || "Not set"}</p>
 								</div>
 								<div className="space-y-2">
 									<p className="text-sm font-medium">Member Since</p>
-									<p className="text-sm text-muted-foreground">
-										{profile?.createdAt
-											? new Date(profile.createdAt).toLocaleDateString()
-											: "Unknown"}
-									</p>
+									<p className="text-sm text-muted-foreground">{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
 								<div className="space-y-2">
 									<p className="text-sm font-medium">Last Updated</p>
-									<p className="text-sm text-muted-foreground">
-										{profile?.updatedAt
-											? new Date(profile.updatedAt).toLocaleDateString()
-											: "Unknown"}
-									</p>
+									<p className="text-sm text-muted-foreground">{profile?.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
 							</div>
 						)}
@@ -297,9 +232,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 						<h3 className="text-lg font-semibold">Account Status</h3>
 						<div className="flex items-center gap-2">
 							<Badge variant="default">Active</Badge>
-							<span className="text-sm text-muted-foreground">
-								Your account is active and in good standing
-							</span>
+							<span className="text-sm text-muted-foreground">Your account is active and in good standing</span>
 						</div>
 					</div>
 				</CardContent>

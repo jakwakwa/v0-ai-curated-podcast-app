@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
 	try {
 		const { userId } = await auth()
 
@@ -27,19 +27,16 @@ export async function POST(request: Request) {
 		}
 
 		// Cancel subscription with Paystack
-		const paystackResponse = await fetch(
-			`${process.env.PAYSTACK_API_URL}/subscription/disable`,
-			{
-				method: "POST",
-				headers: {
-					"Authorization": `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					code: currentSubscription.paystack_subscription_code,
-				}),
-			}
-		)
+		const paystackResponse = await fetch(`${process.env.PAYSTACK_API_URL}/subscription/disable`, {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				code: currentSubscription.paystack_subscription_code,
+			}),
+		})
 
 		if (!paystackResponse.ok) {
 			const errorData = await paystackResponse.json()

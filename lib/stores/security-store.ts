@@ -77,7 +77,7 @@ export const useSecurityStore = create<SecurityStore>()(
 				}
 			},
 
-			updatePassword: async (currentPassword: string, newPassword: string) => {
+			updatePassword: async (_currentPassword: string, _newPassword: string) => {
 				set({ isLoading: true, error: null }, false, "updatePassword:start")
 
 				try {
@@ -229,7 +229,7 @@ export const useSecurityStore = create<SecurityStore>()(
 				}
 			},
 
-			deleteAccount: async (confirmation: string, reason?: string) => {
+			deleteAccount: async (_confirmation: string, _reason?: string) => {
 				set({ isLoading: true, error: null }, false, "deleteAccount:start")
 
 				try {

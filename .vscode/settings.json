@@ -16,7 +16,7 @@
 		}
 	},
 	"editor.fontFamily": "Dank, Fira Code",
-	"editor.fontSize": 11,
+	"editor.fontSize": 10,
 	"editor.lineHeight": 1.75,
 	"editor.fontWeight": "600",
 	"editor.fontLigatures": true,

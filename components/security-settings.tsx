@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { AlertTriangle, Check, Eye, EyeOff, Loader2, Lock, Shield, Smartphone, Trash2, X } from "lucide-react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Shield, Lock, Smartphone, Trash2, AlertTriangle, Check, X, Loader2, Eye, EyeOff } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useSecurityStore } from "@/lib/stores/security-store"
 
 interface SecuritySettingsProps {
@@ -37,7 +37,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 
 	// Handle password update
 	const handlePasswordUpdate = async () => {
-		if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+		if (!(passwordForm.currentPassword && passwordForm.newPassword && passwordForm.confirmPassword)) {
 			toast.error("All password fields are required")
 			return
 		}
@@ -67,16 +67,10 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 	const handleTwoFactorToggle = async () => {
 		if (!securityInfo) return
 
-		const result = securityInfo.twoFactorEnabled
-			? await disableTwoFactor()
-			: await enableTwoFactor()
+		const result = securityInfo.twoFactorEnabled ? await disableTwoFactor() : await enableTwoFactor()
 
 		if ("success" in result) {
-			toast.success(
-				securityInfo.twoFactorEnabled
-					? "Two-factor authentication disabled"
-					: "Two-factor authentication enabled"
-			)
+			toast.success(securityInfo.twoFactorEnabled ? "Two-factor authentication disabled" : "Two-factor authentication enabled")
 		} else {
 			toast.error(`Failed to update two-factor authentication: ${result.error}`)
 		}
@@ -131,9 +125,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 						<Shield className="h-5 w-5" />
 						Security Settings
 					</CardTitle>
-					<CardDescription>
-						Manage your account security and privacy settings.
-					</CardDescription>
+					<CardDescription>Manage your account security and privacy settings.</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					{/* Account Security */}
@@ -146,11 +138,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 								<Lock className="h-5 w-5 text-muted-foreground" />
 								<div>
 									<p className="font-medium">Change Password</p>
-									<p className="text-sm text-muted-foreground">
-										Last changed: {securityInfo?.lastPasswordChange
-											? new Date(securityInfo.lastPasswordChange).toLocaleDateString()
-											: "Unknown"}
-									</p>
+									<p className="text-sm text-muted-foreground">Last changed: {securityInfo?.lastPasswordChange ? new Date(securityInfo.lastPasswordChange).toLocaleDateString() : "Unknown"}</p>
 								</div>
 							</div>
 							<Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
@@ -162,9 +150,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 								<DialogContent className="sm:max-w-md">
 									<DialogHeader>
 										<DialogTitle>Change Password</DialogTitle>
-										<DialogDescription>
-											Enter your current password and choose a new one.
-										</DialogDescription>
+										<DialogDescription>Enter your current password and choose a new one.</DialogDescription>
 									</DialogHeader>
 									<div className="space-y-4">
 										<div className="space-y-2">
@@ -174,7 +160,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 													id="current-password"
 													type={showPasswords.current ? "text" : "password"}
 													value={passwordForm.currentPassword}
-													onChange={(e) => handlePasswordChange("currentPassword", e.target.value)}
+													onChange={e => handlePasswordChange("currentPassword", e.target.value)}
 													placeholder="Enter current password"
 												/>
 												<Button
@@ -196,7 +182,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 													id="new-password"
 													type={showPasswords.new ? "text" : "password"}
 													value={passwordForm.newPassword}
-													onChange={(e) => handlePasswordChange("newPassword", e.target.value)}
+													onChange={e => handlePasswordChange("newPassword", e.target.value)}
 													placeholder="Enter new password"
 												/>
 												<Button
@@ -218,7 +204,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 													id="confirm-password"
 													type={showPasswords.confirm ? "text" : "password"}
 													value={passwordForm.confirmPassword}
-													onChange={(e) => handlePasswordChange("confirmPassword", e.target.value)}
+													onChange={e => handlePasswordChange("confirmPassword", e.target.value)}
 													placeholder="Confirm new password"
 												/>
 												<Button
@@ -237,9 +223,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 										<Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
 											Cancel
 										</Button>
-										<Button onClick={handlePasswordUpdate}>
-											Update Password
-										</Button>
+										<Button onClick={handlePasswordUpdate}>Update Password</Button>
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>
@@ -251,18 +235,11 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 								<Smartphone className="h-5 w-5 text-muted-foreground" />
 								<div>
 									<p className="font-medium">Two-Factor Authentication</p>
-									<p className="text-sm text-muted-foreground">
-										Add an extra layer of security to your account
-									</p>
+									<p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
 								</div>
 							</div>
 							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={handleTwoFactorToggle}
-									disabled={isLoading}
-								>
+								<Button variant="outline" size="sm" onClick={handleTwoFactorToggle} disabled={isLoading}>
 									{securityInfo?.twoFactorEnabled ? "Disable" : "Enable"}
 								</Button>
 								{securityInfo?.twoFactorEnabled ? (
@@ -285,17 +262,10 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 								<Shield className="h-5 w-5 text-muted-foreground" />
 								<div>
 									<p className="font-medium">Active Sessions</p>
-									<p className="text-sm text-muted-foreground">
-										{securityInfo?.activeSessions || 0} active session(s)
-									</p>
+									<p className="text-sm text-muted-foreground">{securityInfo?.activeSessions || 0} active session(s)</p>
 								</div>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={handleRevokeSessions}
-								disabled={isLoading || (securityInfo?.activeSessions || 0) <= 1}
-							>
+							<Button variant="outline" size="sm" onClick={handleRevokeSessions} disabled={isLoading || (securityInfo?.activeSessions || 0) <= 1}>
 								Revoke All
 							</Button>
 						</div>
@@ -325,11 +295,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 							</div>
 							<div className="space-y-2">
 								<p className="text-sm font-medium">Account Created</p>
-								<p className="text-sm text-muted-foreground">
-									{securityInfo?.createdAt
-										? new Date(securityInfo.createdAt).toLocaleDateString()
-										: "Unknown"}
-								</p>
+								<p className="text-sm text-muted-foreground">{securityInfo?.createdAt ? new Date(securityInfo.createdAt).toLocaleDateString() : "Unknown"}</p>
 							</div>
 						</div>
 					</div>
@@ -343,9 +309,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 							<div className="flex items-center justify-between">
 								<div>
 									<p className="font-medium text-destructive">Delete Account</p>
-									<p className="text-sm text-muted-foreground">
-										Permanently delete your account and all data. This action cannot be undone.
-									</p>
+									<p className="text-sm text-muted-foreground">Permanently delete your account and all data. This action cannot be undone.</p>
 								</div>
 								<Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 									<DialogTrigger asChild>
@@ -360,41 +324,25 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 												<AlertTriangle className="h-5 w-5 text-destructive" />
 												Delete Account
 											</DialogTitle>
-											<DialogDescription>
-												This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
-											</DialogDescription>
+											<DialogDescription>This action cannot be undone. This will permanently delete your account and remove all your data from our servers.</DialogDescription>
 										</DialogHeader>
 										<div className="space-y-4">
 											<div className="space-y-2">
 												<Label htmlFor="delete-reason">Reason for deletion (optional)</Label>
-												<Input
-													id="delete-reason"
-													value={deleteReason}
-													onChange={(e) => setDeleteReason(e.target.value)}
-													placeholder="Tell us why you're leaving..."
-												/>
+												<Input id="delete-reason" value={deleteReason} onChange={e => setDeleteReason(e.target.value)} placeholder="Tell us why you're leaving..." />
 											</div>
 											<div className="space-y-2">
 												<Label htmlFor="delete-confirmation">
 													Type <code className="bg-muted px-1 rounded">DELETE_MY_ACCOUNT</code> to confirm
 												</Label>
-												<Input
-													id="delete-confirmation"
-													value={deleteConfirmation}
-													onChange={(e) => setDeleteConfirmation(e.target.value)}
-													placeholder="DELETE_MY_ACCOUNT"
-													className="font-mono"
-												/>
+												<Input id="delete-confirmation" value={deleteConfirmation} onChange={e => setDeleteConfirmation(e.target.value)} placeholder="DELETE_MY_ACCOUNT" className="font-mono" />
 											</div>
 										</div>
 										<DialogFooter>
 											<Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
 												Cancel
 											</Button>
-											<Button
-												variant="destructive"
-												onClick={handleDeleteAccount}
-											>
+											<Button variant="destructive" onClick={handleDeleteAccount}>
 												<Trash2 className="h-4 w-4 mr-1" />
 												Delete Account
 											</Button>

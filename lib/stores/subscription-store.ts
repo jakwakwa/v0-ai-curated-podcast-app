@@ -121,7 +121,7 @@ const MOCK_BILLING_HISTORY: BillingHistoryItem[] = [
 	{
 		id: "bill_001",
 		date: new Date("2024-01-01"),
-		amount: 5.00,
+		amount: 5.0,
 		status: "active",
 		description: "Casual Listener - Monthly Subscription",
 		plan_code: "PLN_CASUAL_001",
@@ -129,7 +129,7 @@ const MOCK_BILLING_HISTORY: BillingHistoryItem[] = [
 	{
 		id: "bill_002",
 		date: new Date("2023-12-15"),
-		amount: 0.00,
+		amount: 0.0,
 		status: "trial",
 		description: "Casual Listener - Trial Period",
 		plan_code: "PLN_CASUAL_001",
@@ -137,7 +137,7 @@ const MOCK_BILLING_HISTORY: BillingHistoryItem[] = [
 	{
 		id: "bill_003",
 		date: new Date("2023-12-01"),
-		amount: 0.00,
+		amount: 0.0,
 		status: "free",
 		description: "FreeSlice - Initial Signup",
 		plan_code: null,
@@ -222,7 +222,7 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 				}
 			},
 
-			initializeTransaction: async (planCode: string) => {
+			initializeTransaction: async (_planCode: string) => {
 				set({ isLoading: true, error: null }, false, "initializeTransaction:start")
 
 				try {

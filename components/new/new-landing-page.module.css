@@ -18,6 +18,7 @@
 }
 
 .heroContainer {
+	background: hsl(var(--card));
   max-width: 80rem;
   margin: 0 auto;
   text-align: center;
