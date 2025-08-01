@@ -313,3 +313,75 @@ div {
         color: hsla(var(--foreground-hsl));
     }
 }
+
+/* Global Loading Styles */
+.progress-loader {
+    min-height: 100vh;
+    background: #141414;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-bar {
+    height: 1px;
+    background: #f7a95b;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 30%;
+    background-color: #3b82f6;
+    animation: loading-animation 2s infinite;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+.silent-loader {
+    min-height: 100vh;
+    background: oklch(var(--background));
+}
+
+@keyframes loading-animation {
+    0% {
+        transform: translateX(-100%) scaleX(0);
+    }
+
+    50% {
+        transform: translateX(0%) scaleX(1);
+    }
+
+    100% {
+        transform: translateX(100%) scaleX(0);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}

@@ -1,72 +1,19 @@
-"use client"
-
-import { Bell } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useContext, useEffect, useState } from "react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { SidebarContext, SidebarTrigger, useSidebar } from "@/components/ui/sidebar-ui"
-import styles from "./site-header.module.css"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function SiteHeader() {
-	const { state } = useSidebar()
-	// Check if we're in a sidebar context to avoid errors
-	const sidebarContext = useContext(SidebarContext)
-	const [unreadCount, setUnreadCount] = useState(0)
-
-	console.log("🔧 SiteHeader: rendering", { state, hasSidebarContext: !!sidebarContext })
-
-	useEffect(() => {
-		const fetchNotificationCount = async () => {
-			try {
-				const response = await fetch("/api/notifications")
-				if (response.ok) {
-					const notifications = await response.json()
-					const count = notifications.filter((n: { is_read: boolean }) => !n.is_read).length
-					setUnreadCount(count)
-				}
-			} catch (error) {
-				console.error("Error fetching notification count:", error)
-			}
-		}
-
-		fetchNotificationCount()
-
-		// Refresh count every 30 seconds
-		const interval = setInterval(fetchNotificationCount, 30000)
-		return () => clearInterval(interval)
-	}, [])
-
 	return (
-		<header className={`${styles["header-container"]} ${state === "expanded" ? styles["header-container-expanded"] : ""}`}>
-			<div className={styles["content-wrapper"]}>
-				<div className={styles["left-section"]}>
-					{sidebarContext && (
-						<>
-							<SidebarTrigger className={styles["sidebar-trigger-margin"]} />
-							<Separator orientation="vertical" className={styles["separator-vertical"]} />
-						</>
-					)}
-					<Button asChild variant="link" className={styles["title-text"]}>
-						<Link href="/dashboard">
-							<Image src={"/logo.png"} alt="Logo" width={120} height={80} />
-						</Link>
-					</Button>
-				</div>
-
-				<div className={styles["right-section"]}>
-					<Button asChild variant="ghost" size="icon" className={styles["notification-button"]}>
-						<Link href="/notifications" className={styles["notification-link"]}>
-							<Bell className={styles["bell-icon"]} />
-							{unreadCount > 0 && (
-								<Badge variant="destructive" className={styles["notification-badge"]}>
-									{unreadCount > 99 ? "99+" : unreadCount}
-								</Badge>
-							)}
-							<span className="sr-only">Notifications{unreadCount > 0 ? ` (${unreadCount} unread)` : ""}</span>
-						</Link>
+		<header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+			<div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+				<SidebarTrigger className="-ml-1" />
+				<Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
+				<h1 className="text-base font-medium">Documents</h1>
+				<div className="ml-auto flex items-center gap-2">
+					<Button variant="ghost" asChild size="sm" className="hidden sm:flex">
+						<a href="https://github.com/shadcn-ui/ui/tree/main/apps/v4/app/(examples)/dashboard" rel="noopener noreferrer" target="_blank" className="dark:text-foreground">
+							GitHub
+						</a>
 					</Button>
 				</div>
 			</div>

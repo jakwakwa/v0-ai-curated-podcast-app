@@ -107,7 +107,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 		return (
 			<Card className={className}>
 				<CardContent className={styles.loadingContent}>
-					<Loader2 className={styles.loadingSpinner} />
+					<Loader2 className="spinner" />
 				</CardContent>
 			</Card>
 		)

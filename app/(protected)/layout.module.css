@@ -128,7 +128,7 @@
 /* Minimal Loading Styles */
 .minimalLoader {
     min-height: 100vh;
-    background: oklch(var(--background));
+    /* background: oklch(var(--background)); */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -154,30 +154,7 @@
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Progress Bar Loading */
-.progressLoader {
-    min-height: 100vh;
-    background: #141414;
-}
 
-.progressBar {
-    height: 1px;
-    background: #f7a95b;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-}
-
-.progressFill {
-    height: 100%;
-    width: 30%;
-    /* Start with a bit of progress */
-    background-color: #3b82f6;
-    animation: loading-animation 2s infinite;
-}
 
 .mainContent {
     display: flex;
@@ -186,10 +163,7 @@
     transition: margin-left 0.3s ease-in-out;
 }
 
-.mainContentExpanded {
-    margin-left: 18rem;
-    /* Adjust this value to match your sidebar width */
-}
+
 
 .headerContainer {
     display: flex;
@@ -211,37 +185,5 @@
 @media (min-width: 1024px) {
     .content {
         flex-direction: row;
-    }
-}
-
-@keyframes progressSlide {
-    0% {
-        transform: translateX(-100%) scaleX(0);
-    }
-
-    50% {
-        transform: translateX(0%) scaleX(1);
-    }
-
-    100% {
-        transform: translateX(100%) scaleX(0);
-    }
-}
-
-/* Silent Loading */
-.silentLoader {
-    min-height: 100vh;
-    background: oklch(var(--background));
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
     }
 }

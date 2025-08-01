@@ -44,19 +44,11 @@
     border: 2px solid oklch(var(--border));
     border-top: 2px solid oklch(var(--primary));
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+
     margin-bottom: 1rem;
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
 
-    100% {
-        transform: rotate(360deg);
-    }
-}
 
 .bundleGrid {
     display: grid;

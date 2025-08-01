@@ -5,24 +5,44 @@ import { useRouter } from "next/navigation"
 import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarProvider, useSidebar } from "@/components/ui/sidebar-ui"
-import { SiteHeader } from "@/components/ui/site-header"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { StoreInitializer } from "../store-initializer"
-//
 import styles from "./layout.module.css"
 
-function MainLayout({ children }: { children: React.ReactNode }) {
+// Inner component that uses the sidebar context
+function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 	const { state } = useSidebar()
 
-	console.log("🔧 MainLayout: rendering", { state })
-
 	return (
-		<main className={`${styles.mainContent} ${state === "expanded" ? styles.mainContentExpanded : ""}`}>
-			<div className={styles.headerContainer}>
-				<SiteHeader />
-			</div>
-			<div className={styles.content}>{children}</div>
-		</main>
+		<>
+			<AppSidebar />
+			<SidebarInset>
+				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+					<div className="flex items-center gap-2 px-4">
+						<SidebarTrigger className="-ml-1" />
+						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+
+						<Breadcrumb>
+							<BreadcrumbList>
+								<BreadcrumbItem className="hidden md:block">
+									<BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
+								</BreadcrumbItem>
+								<BreadcrumbSeparator className="hidden md:block" />
+								<BreadcrumbItem>
+									<BreadcrumbPage>Data Fetching</BreadcrumbPage>
+								</BreadcrumbItem>
+							</BreadcrumbList>
+						</Breadcrumb>
+					</div>
+				</header>
+
+				<main className={`${styles.mainContent} ${state === "expanded" ? styles.mainContentExpanded : ""}`}>
+					<div className={styles.content}>{children}</div>
+				</main>
+			</SidebarInset>
+		</>
 	)
 }
 
@@ -71,10 +91,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	if (!isLoaded || (isSignedIn && !isUserSynced)) {
 		return (
 			<SidebarProvider>
-				<SiteHeader />
-				<div className={styles.progressLoader}>
-					<div className={styles.progressBar}>
-						<div className={styles.progressFill} />
+				{/* <SiteHeader /> */}
+				<div className="progress-loader">
+					<div className="progress-bar">
+						<div className="progress-fill" />
 					</div>
 				</div>
 			</SidebarProvider>
@@ -85,10 +105,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	if (!isSignedIn) {
 		return (
 			<SidebarProvider>
-				<SiteHeader />
-				<div className={styles.progressLoader}>
-					<div className={styles.progressBar}>
-						<div className={styles.progressFill} />
+				{/* <SiteHeader /> */}
+				<div className="progress-loader">
+					<div className="progress-bar">
+						<div className="progress-fill" />
 					</div>
 				</div>
 			</SidebarProvider>
@@ -99,8 +119,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	return (
 		<SidebarProvider>
 			<StoreInitializer />
-			<AppSidebar />
-			<MainLayout>{children}</MainLayout>
+			<ProtectedLayoutInner>{children}</ProtectedLayoutInner>
+			{/* <DummyDataTogglePanel /> */}
 		</SidebarProvider>
 	)
 }

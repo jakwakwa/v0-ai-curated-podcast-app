@@ -280,7 +280,7 @@
 }
 
 .loadingSpinner {
-    animation: spin 1s linear infinite;
+
     border-radius: 50%;
     height: 2rem;
     width: 2rem;
@@ -288,11 +288,7 @@
     margin: 0 auto 1rem;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+
 
 .summaryCard {
     display: flex;
