@@ -60,8 +60,8 @@ export async function GET() {
 
 function getPlanAmount(planCode: string): number {
 	const planAmounts: Record<string, number> = {
-		[process.env.NEXT_PUBLIC_PAYSTACK_CASUAL_PLAN_CODE || ""]: 5.00,
-		[process.env.NEXT_PUBLIC_PAYSTACK_PREMIUM_PLAN_CODE || ""]: 10.00,
+		[process.env.NEXT_PUBLIC_PAYSTACK_CASUAL_PLAN_CODE || ""]: 5.0,
+		[process.env.NEXT_PUBLIC_PAYSTACK_PREMIUM_PLAN_CODE || ""]: 10.0,
 	}
 
 	return planAmounts[planCode] || 0

@@ -173,10 +173,30 @@
 
 .progressFill {
     height: 100%;
-    background: rgb(44, 165, 184);
-    width: 100%;
-    animation: progressSlide 1.5s ease-in-out infinite;
-    transform-origin: left;
+    width: 30%;
+    /* Start with a bit of progress */
+    background-color: #3b82f6;
+    animation: loading-animation 2s infinite;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.mainContentExpanded {
+    margin-left: 18rem;
+    /* Adjust this value to match your sidebar width */
+}
+
+.headerContainer {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: white;
 }
 
 

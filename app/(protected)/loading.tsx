@@ -1,5 +1,5 @@
-import { SiteHeader } from "@/components/site-header"
 import { SidebarProvider } from "@/components/ui/sidebar-ui"
+import { SiteHeader } from "@/components/ui/site-header"
 import styles from "./layout.module.css"
 
 export default function Loading() {

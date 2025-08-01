@@ -3,11 +3,19 @@
 }
 
 .collapsible-label {
-    @mixin button-text;
+    font-size: 0.9375rem;
+    /* slightly larger than text-sm */
+    font-weight: 600;
+    /* semi-bold */
+    color: var(--color-sidebar-foreground);
+    /* text-sidebar-foreground */
 }
 
 .collapsible-label>a {
-    @mixin dropdown-button-text;
+    font-size: 0.675rem;
+    /* text-sm */
+    color: var(--color-sidebar-foreground);
+    /* text-sidebar-foreground */
 }
 
 .collapsible-label:hover {
@@ -30,25 +38,6 @@
 }
 
 .sidebar-menu-item {
-    margin-left: .75rem;
-    color: var(--link-color) !important;
+    margin-left: 0.75rem;
     /* ml-3 - slight indentation for child items */
-}
-
-.sidebar-menu-item>a {
-    color: var(--link-color) !important;
-    transition: all 0.75s ease;
-    margin-right: 1rem;
-    margin-right: -10px;
-    max-width: 240px;
-    padding-bottom: 2px;
-    padding: 5px 10px;
-
-}
-
-.sidebar-menu-item>a:hover {
-    /* background-color: var(--link-color-oklch)); */
-    color: var(--link-color-foreground);
-    background-color: #0a0f1245;
-    box-shadow: inset 4px 4px 8px #80b19c12;
 }

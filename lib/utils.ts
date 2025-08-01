@@ -1,10 +1,3 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs))
-}
-
 export function formatLogTimestamp(logString: string): string {
 	// Extract the first line which contains the full date and time string
 	const datePart = logString.split("\n")[0].trim()

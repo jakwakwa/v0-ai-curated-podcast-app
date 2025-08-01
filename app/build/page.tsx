@@ -1,11 +1,8 @@
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import UserFeedSelectorWizard from "@/components/features/user-feed-selector"
 import { Button } from "@/components/ui/button"
-import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
 import styles from "./page.module.css"
-
-// Remove force-dynamic - not recommended by Vercel
-// export const dynamic = "force-dynamic"
 
 export default async function BuildCurationPage() {
 	return (
@@ -19,8 +16,8 @@ export default async function BuildCurationPage() {
 								Back to Dashboard
 							</Button>
 						</Link>
+						<UserFeedSelectorWizard />
 					</div>
-					<UserCurationProfileCreationWizard />
 				</div>
 			</main>
 		</div>

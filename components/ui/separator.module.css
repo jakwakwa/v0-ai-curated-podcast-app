@@ -1,0 +1,14 @@
+.separatorRoot {
+    flex-shrink: 0;
+    background-color: oklch(var(--border));
+}
+
+.separatorRootHorizontal {
+    height: 1px;
+    width: 100%;
+}
+
+.separatorRootVertical {
+    height: 100%;
+    width: 1px;
+}

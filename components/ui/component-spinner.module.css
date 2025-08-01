@@ -1,0 +1,17 @@
+.spinnerWrapper {
+    height: 1rem;
+    width: 1rem;
+    animation: spin 1s linear infinite;
+}
+
+.spinnerWrapper+span {
+    margin-left: 0.5rem;
+}
+
+.spinnerWrapper+div:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: 2rem;
+    margin-left: 0.5rem;
+}

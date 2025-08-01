@@ -147,8 +147,10 @@ const config = {
                 },
             },
         },
-        'postcss-utilities': {},
-        'tailwindcss': {},
+        'postcss-utilities': {
+
+        },
+        '@csstools/postcss-cascade-layers': {},
     },
 };
 

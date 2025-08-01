@@ -3,10 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Mozilla+Headline:wght@200..700&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
-@tailwind base;
-@tailwind components;
-
-@layer components {
+@define-mixin text {
     .h1-text {
         font-family: 'Work Sans', sans-serif;
         font-size: var(--font-size-h1);
@@ -164,18 +161,14 @@
     }
 }
 
-@tailwind utilities;
-@plugin './hero.ts';
-@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
-@custom-variant dark (&:is(.dark *));
-
-@layer utilities {
+@define-mixin utilities {
     .text-balance {
         text-wrap: balance;
 
     }
 }
 
+/* @ts-ignore */
 @layer base {
     :root {
 
@@ -462,16 +455,11 @@ div {
 }
 
 .episodeCard {
-    /* background: #18181b; */
-    /* background: #18181b; */
-
     border: 1px solid hsla(var(--border));
     border-radius: .5rem;
     padding: 1.2rem 2rem !important;
     width: 100%;
     margin: 0 auto;
-    /* max-width: 90vw!important; */
-    /* box-shadow: 2px 9px 17px 0px #0000004a, inset -20px -9px 84px 5px #1c010f2b !important; */
 }
 
 .episodeCard.glass-card {
@@ -488,7 +476,6 @@ div {
         inset 0 -1px 0 rgba(255, 255, 255, 0.1),
         inset 0 0 20px 10px rgba(255, 255, 255, 1);
     position: relative;
-    /* overflow: hidden; */
 }
 
 .episodeCard.glass-card::before {
@@ -534,13 +521,6 @@ div {
     cursor: pointer;
 }
 
-/* .episodeCard:hover {
-		background: linear-gradient(349deg, #1d1f25f8 30%, #44b2b257 170%, hsla(291, 4%, 37%) 200%) !important;
-		border: 1px solid hsla(var(--border));
-		color: hsla(var(--card-d));
-		box-shadow: 0 1px 3px #0000001a, 0 1px 2px -1px #0000001a;
-		transform: translateY(-2px);
-	} */
 .episodeDescription {
     color: hsla(var(--card-d));
     @mixin body-text-sm;

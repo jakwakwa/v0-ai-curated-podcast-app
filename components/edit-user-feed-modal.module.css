@@ -1,0 +1,14 @@
+.formSpaceY4 {
+    margin-top: 1rem;
+}
+
+.formSpaceY2 {
+    margin-top: 0.5rem;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 0.5rem;
+    padding-top: 1rem;
+}

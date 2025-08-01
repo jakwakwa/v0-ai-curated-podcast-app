@@ -27,8 +27,12 @@
 .text-grid-container {
     display: grid;
     flex: 1;
+    /* flex-1 */
     text-align: left;
-    @mixin body-text-sm;
+    font-size: 0.875rem;
+    /* text-sm */
+    line-height: 1.25rem;
+    /* leading-tight */
 }
 
 .truncate-font-medium {
@@ -80,5 +84,6 @@
     padding: 0.25rem 0.25rem 0.25rem 0.25rem;
     /* px-1 py-1.5 */
     text-align: left;
-    @mixin button-text;
+    font-size: 0.875rem;
+    /* text-sm */
 }

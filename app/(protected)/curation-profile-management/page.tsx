@@ -3,7 +3,7 @@
 import { AlertCircle } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
+import EditUserFeedModal from "@/components/edit-user-feed-modal"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
@@ -194,7 +194,7 @@ export default function CurationProfileManagementPage() {
 				)}
 			</div>
 
-			{userCurationProfile && <EditUserCurationProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
+			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
 		</>
 	)
 }

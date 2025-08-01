@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth, useClerk } from "@clerk/nextjs"
-import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon, Settings } from "lucide-react"
+import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Settings, Shield, UserCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

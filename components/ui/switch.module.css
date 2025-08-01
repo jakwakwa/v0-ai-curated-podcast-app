@@ -1,0 +1,55 @@
+.switchRoot {
+    display: inline-flex;
+    height: 1.5rem;
+    width: 2.75rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    align-items: center;
+    border-radius: 9999px;
+    border-width: 2px;
+    border-color: transparent;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    outline: none;
+}
+
+.switchRoot:focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: 2px;
+}
+
+.switchRoot[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.switchRoot[data-state="checked"] {
+    background-color: oklch(var(--primary));
+}
+
+.switchRoot[data-state="unchecked"] {
+    background-color: oklch(var(--input));
+}
+
+.switchThumb {
+    pointer-events: none;
+    display: block;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 9999px;
+    background-color: oklch(var(--background));
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    ring: 0;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.switchThumb[data-state="checked"] {
+    transform: translateX(1.25rem);
+}
+
+.switchThumb[data-state="unchecked"] {
+    transform: translateX(0);
+}

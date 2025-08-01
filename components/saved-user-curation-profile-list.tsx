@@ -1,5 +1,6 @@
 import type { UserCurationProfile } from "@/lib/types"
 import { SavedCollectionCard } from "./saved-collection-card"
+import styles from "./saved-user-curation-profile-list.module.css"
 
 interface SavedUserCurationProfileListProps {
 	userCurationProfiles: UserCurationProfile[]
@@ -7,7 +8,7 @@ interface SavedUserCurationProfileListProps {
 
 export function SavedUserCurationProfileList({ userCurationProfiles }: Readonly<SavedUserCurationProfileListProps>) {
 	return (
-		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+		<div className={styles.gridContainer}>
 			{userCurationProfiles?.map(userCurationProfile => (
 				<SavedCollectionCard key={userCurationProfile.profile_id} userCurationProfile={userCurationProfile} />
 			))}

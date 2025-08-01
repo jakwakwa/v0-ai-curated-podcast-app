@@ -1,9 +1,9 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 
 export default function SubscriptionPage() {
 	const { user, isLoaded } = useUser()

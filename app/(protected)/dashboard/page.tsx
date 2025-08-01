@@ -3,16 +3,15 @@
 import { AlertCircle, Play } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
+import EditUserFeedModal from "@/components/edit-user-feed-modal"
+import UserFeedSelector from "@/components/features/user-feed-selector"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
 import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
-
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
 import styles from "./page.module.css"
 
@@ -294,12 +293,7 @@ export default function Page() {
 			</div>
 
 			{userCurationProfile && (
-				<EditUserCurationProfileModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-					collection={userCurationProfile as UserCurationProfileWithRelations}
-					onSave={handleSaveUserCurationProfile}
-				/>
+				<EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile as UserCurationProfileWithRelations} onSave={handleSaveUserCurationProfile} />
 			)}
 
 			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
@@ -307,7 +301,7 @@ export default function Page() {
 					<DialogHeader>
 						<DialogTitle>Personalized Feed Builder</DialogTitle>
 					</DialogHeader>
-					<UserCurationProfileCreationWizardWrapper
+					<UserFeedWizardWrapper
 						onSuccess={async () => {
 							setIsCreateWizardOpen(false)
 							await fetchAndUpdateData()
@@ -319,7 +313,7 @@ export default function Page() {
 	)
 }
 
-function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
+function UserFeedWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
 	// Use a local state to track if the profile was created
 	const { userCurationProfile } = useUserCurationProfileStore()
 	const [hasCreated, setHasCreated] = useState(false)
@@ -331,5 +325,5 @@ function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: ()
 		}
 	}, [userCurationProfile, hasCreated, onSuccess])
 
-	return <UserCurationProfileCreationWizard />
+	return <UserFeedSelector />
 }

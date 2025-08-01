@@ -1,0 +1,122 @@
+.cardTitle {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.cardContentSpaceY6 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1.5rem;
+}
+
+.planBox {
+    padding: 1rem;
+    border: 1px solid oklch(var(--muted) / 0.5);
+    border-radius: 0.5rem;
+    background-color: oklch(var(--muted) / 0.5);
+}
+
+.flexBetween {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fontMedium {
+    font-weight: 500;
+}
+
+.textSmMuted {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.mt1 {
+    margin-top: 0.25rem;
+}
+
+.sectionSpaceY4 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.textLgSemibold {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+}
+
+.sectionSpaceY3 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.75rem;
+}
+
+.textSmMediumMuted {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: oklch(var(--muted-foreground));
+}
+
+.gridGap3 {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.buttonUpgrade {
+    height: auto;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    display: flex;
+}
+
+.flexRow {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+    width: 100%;
+}
+
+.mlAuto {
+    margin-left: auto;
+    font-size: 0.875rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.textCenterPy8 {
+    text-align: center;
+    padding-block: 2rem;
+}
+
+.maxW2xl {
+    max-width: 42rem;
+}
+
+.maxH96 {
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.billingHistoryItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border: 1px solid oklch(var(--muted-foreground) / 0.2);
+    border-radius: 0.5rem;
+}
+
+.spaceY1 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.25rem;
+}
+
+.textRight {
+    text-align: right;
+}

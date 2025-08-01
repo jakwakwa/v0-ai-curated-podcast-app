@@ -1,0 +1,48 @@
+.cardFullWidth {
+    width: 100%;
+}
+
+.gridContainer {
+    display: grid;
+    gap: 0.25rem;
+}
+
+@media (min-width: 640px) {
+    .gridContainer {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .gridContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.episodeTitleFont {
+    font-weight: 600;
+}
+
+.episodeTitleTruncate {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.episodeTitleTextSm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.episodeTitleMb1 {
+    margin-bottom: 0.25rem;
+}
+
+.profileIdTextXs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+.profileIdTextPrimary {
+    color: oklch(var(--primary));
+}

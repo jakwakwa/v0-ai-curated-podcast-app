@@ -1,11 +1,11 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { NotificationPreferences } from "@/components/notification-preferences"
-import { ProfileManagement } from "@/components/profile-management"
-import { SecuritySettings } from "@/components/security-settings"
-import { SubscriptionTestControls } from "@/components/subscription-test-controls"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { NotificationPreferences } from "@/components/user-account/notification-preferences"
+import { ProfileManagement } from "@/components/user-account/profile-management"
+import { SecuritySettings } from "@/components/user-account/security-settings"
+import { SubscriptionTestControls } from "@/components/user-account/subscription-test-controls"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 
 export default function AccountSettingsPage() {

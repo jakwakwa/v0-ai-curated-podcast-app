@@ -1,0 +1,29 @@
+.transcriptContainer {
+    margin-top: 1rem;
+}
+
+.showTranscriptButton {
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: rgb(37 99 235);
+    color: rgb(255 255 255);
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.showTranscriptButton:hover {
+    background-color: rgb(29 78 216);
+}
+
+.transcriptContent {
+    max-height: 25rem;
+    overflow-y: auto;
+    border-width: 1px;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    background-color: oklch(var(--background));
+    margin-top: 0.5rem;
+    white-space: pre-line;
+}

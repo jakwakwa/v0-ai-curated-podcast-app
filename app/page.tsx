@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import LandingPageContent from "@/components/landing-page-content"
+import LandingPageContent from "@/components/containers/landing-page-content"
 
 // import NewLandingPage from "@/components/new/new-landing-page"
 

@@ -5,10 +5,26 @@ import { useRouter } from "next/navigation"
 import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarProvider } from "@/components/ui/sidebar-ui"
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar-ui"
+import { SiteHeader } from "@/components/ui/site-header"
 import { StoreInitializer } from "../store-initializer"
+//
 import styles from "./layout.module.css"
+
+function MainLayout({ children }: { children: React.ReactNode }) {
+	const { state } = useSidebar()
+
+	console.log("🔧 MainLayout: rendering", { state })
+
+	return (
+		<main className={`${styles.mainContent} ${state === "expanded" ? styles.mainContentExpanded : ""}`}>
+			<div className={styles.headerContainer}>
+				<SiteHeader />
+			</div>
+			<div className={styles.content}>{children}</div>
+		</main>
+	)
+}
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
 	const { isSignedIn, isLoaded } = useAuth()
@@ -84,11 +100,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 		<SidebarProvider>
 			<StoreInitializer />
 			<AppSidebar />
-			<div className="container">
-				<SiteHeader />
-				<div className={styles.content}>{children}</div>
-			</div>
-			{/* <DummyDataTogglePanel /> */}
+			<MainLayout>{children}</MainLayout>
 		</SidebarProvider>
 	)
 }

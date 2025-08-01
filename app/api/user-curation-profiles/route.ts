@@ -39,10 +39,10 @@ export async function GET(_request: Request) {
 			...userCurationProfile,
 			selectedBundle: userCurationProfile.selectedBundle
 				? {
-					...userCurationProfile.selectedBundle,
-					podcasts: userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-					episodes: userCurationProfile.selectedBundle.episodes || [],
-				}
+						...userCurationProfile.selectedBundle,
+						podcasts: userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+						episodes: userCurationProfile.selectedBundle.episodes || [],
+					}
 				: null,
 		}
 

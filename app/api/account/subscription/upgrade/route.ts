@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 		const paystackResponse = await fetch(`${process.env.PAYSTACK_API_URL}/transaction/initialize`, {
 			method: "POST",
 			headers: {
-				"Authorization": `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+				Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({

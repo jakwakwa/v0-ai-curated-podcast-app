@@ -1,0 +1,367 @@
+.loadingContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: 2rem;
+}
+
+.loadingSpinner {
+    height: 1.5rem;
+    width: 1.5rem;
+    animation: spin 1s linear infinite;
+}
+
+.cardTitle {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.cardTitleIcon {
+    height: 1.25rem;
+    width: 1.25rem;
+}
+
+.cardContentSpaceY6 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1.5rem;
+}
+
+.securitySection {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.securitySectionTitle {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+}
+
+.securityItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-width: 1px;
+    border-radius: 0.5rem;
+}
+
+.securityItemIcon {
+    height: 1.25rem;
+    width: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.securityItemDetails {
+    display: flex;
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.securityItemTitle {
+    font-weight: 500;
+}
+
+.securityItemDescription {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.securityItemActions {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.passwordInputContainer {
+    position: relative;
+}
+
+.passwordToggleButton {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding-inline: 0.75rem;
+    padding-block: 0.5rem;
+}
+
+.passwordToggleButton:hover {
+    background-color: transparent;
+}
+
+.passwordToggleIcon {
+    height: 1rem;
+    width: 1rem;
+}
+
+.badgeEnabled {
+    background-color: rgb(220 252 231);
+    color: rgb(22 163 74);
+}
+
+.badgeDisabled {
+    background-color: oklch(var(--secondary));
+    color: oklch(var(--secondary-foreground));
+}
+
+.badgeIcon {
+    height: 0.75rem;
+    width: 0.75rem;
+    margin-right: 0.25rem;
+}
+
+.accountStatusGrid {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .accountStatusGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.accountStatusGroup {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+}
+
+.accountStatusLabel {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+}
+
+.accountStatusValue {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.verificationStatus {
+    display: flex;
+    align-items: center;
+    column-gap: 0.25rem;
+}
+
+.verificationStatusVerified {
+    color: rgb(22 163 74);
+}
+
+.verificationStatusNotVerified {
+    color: rgb(220 38 38);
+}
+
+.verificationStatusIcon {
+    height: 0.75rem;
+    width: 0.75rem;
+}
+
+.dangerZoneSection {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.dangerZoneTitle {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+}
+
+.dangerZoneItem {
+    padding: 1rem;
+    border-width: 1px;
+    border-color: oklch(var(--destructive) / 0.2);
+    border-radius: 0.5rem;
+    background-color: oklch(var(--destructive) / 0.05);
+}
+
+.dangerZoneItemContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dangerZoneItemTitle {
+    font-weight: 500;
+    color: oklch(var(--destructive));
+}
+
+.dangerZoneItemDescription {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.dangerZoneButtonIcon {
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.25rem;
+}
+
+.dialogTitleIcon {
+    height: 1.25rem;
+    width: 1.25rem;
+    color: oklch(var(--destructive));
+}
+
+.dialogFormSpaceY4 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.dialogFormSpaceY2 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
+}
+
+.dialogFooter {
+    display: flex;
+    justify-content: flex-end;
+    column-gap: 0.5rem;
+}
+
+.deleteButtonIcon {
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.25rem;
+}
+
+.monoFont {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.mutedBackground {
+    background-color: oklch(var(--muted));
+    padding-inline: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.loadingContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: 2rem;
+}
+
+.cardTitle {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.cardContentSpaceY6 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1.5rem;
+}
+
+.sectionSpaceY4 {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+
+.flexBetween {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.flexRow {
+    display: flex;
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.iconMuted {
+    height: 1.25rem;
+    width: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.fontMedium {
+    font-weight: 500;
+}
+
+.textSmMuted {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(var(--muted-foreground));
+}
+
+.absoluteBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding-inline: 0.75rem;
+    padding-block: 0.5rem;
+}
+
+.iconSmall {
+    height: 1rem;
+    width: 1rem;
+}
+
+.mr1 {
+    margin-right: 0.25rem;
+}
+
+.badgeGreen {
+    background-color: #bbf7d0;
+    color: #166534;
+}
+
+.grid2 {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .grid2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.flexGap1Green {
+    display: flex;
+    align-items: center;
+    column-gap: 0.25rem;
+    color: #16a34a;
+}
+
+.flexGap1Red {
+    display: flex;
+    align-items: center;
+    column-gap: 0.25rem;
+    color: #dc2626;
+}
+
+.dangerZone {
+    padding: 1rem;
+    border: 1px solid oklch(var(--destructive) / 0.2);
+    border-radius: 0.5rem;
+    background-color: oklch(var(--destructive) / 0.05);
+}
+
+.fontMono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.maxWmd {
+    max-width: 28rem;
+}
+
+.textDestructive {
+    color: oklch(var(--destructive));
+}

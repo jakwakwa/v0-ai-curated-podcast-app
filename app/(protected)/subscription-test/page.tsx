@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect } from "react"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import { SubscriptionManagement } from "@/components/subscription-management"
-import { SubscriptionTestControls } from "@/components/subscription-test-controls"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { SubscriptionManagement } from "@/components/user-account/subscription-management"
+import { SubscriptionTestControls } from "@/components/user-account/subscription-test-controls"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 
 export default function SubscriptionTestPage() {
 	const { subscription, tiers, loadSubscription, billingHistory, loadBillingHistory } = useSubscriptionStore()
@@ -28,9 +28,7 @@ export default function SubscriptionTestPage() {
 			<div className="container mx-auto px-4 py-8 max-w-6xl">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">Subscription Test Page</h1>
-					<p className="text-muted-foreground">
-						Test all subscription management functionality with mock data
-					</p>
+					<p className="text-muted-foreground">Test all subscription management functionality with mock data</p>
 				</div>
 
 				<div className="grid gap-6 md:grid-cols-2">
@@ -38,9 +36,7 @@ export default function SubscriptionTestPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Current Subscription Status</CardTitle>
-							<CardDescription>
-								Real-time subscription information and computed properties
-							</CardDescription>
+							<CardDescription>Real-time subscription information and computed properties</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="grid gap-4">
@@ -50,44 +46,32 @@ export default function SubscriptionTestPage() {
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Status:</span>
-									<Badge variant={subscription?.status === "active" ? "default" : "secondary"}>
-										{subscription?.status || "Free"}
-									</Badge>
+									<Badge variant={subscription?.status === "active" ? "default" : "secondary"}>{subscription?.status || "Free"}</Badge>
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Subscription ID:</span>
-									<span className="text-sm text-muted-foreground">
-										{subscription?.id || "N/A"}
-									</span>
+									<span className="text-sm text-muted-foreground">{subscription?.id || "N/A"}</span>
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Paystack Code:</span>
-									<span className="text-sm text-muted-foreground">
-										{subscription?.paystackPlanCode || "N/A"}
-									</span>
+									<span className="text-sm text-muted-foreground">{subscription?.paystackPlanCode || "N/A"}</span>
 								</div>
 								{subscription?.currentPeriodEnd && (
 									<div className="flex items-center justify-between">
 										<span className="font-medium">Next Billing:</span>
-										<span className="text-sm text-muted-foreground">
-											{new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-										</span>
+										<span className="text-sm text-muted-foreground">{new Date(subscription.currentPeriodEnd).toLocaleDateString()}</span>
 									</div>
 								)}
 								{subscription?.trialEnd && (
 									<div className="flex items-center justify-between">
 										<span className="font-medium">Trial Ends:</span>
-										<span className="text-sm text-muted-foreground">
-											{new Date(subscription.trialEnd).toLocaleDateString()}
-										</span>
+										<span className="text-sm text-muted-foreground">{new Date(subscription.trialEnd).toLocaleDateString()}</span>
 									</div>
 								)}
 								{subscription?.canceledAt && (
 									<div className="flex items-center justify-between">
 										<span className="font-medium">Canceled On:</span>
-										<span className="text-sm text-muted-foreground">
-											{new Date(subscription.canceledAt).toLocaleDateString()}
-										</span>
+										<span className="text-sm text-muted-foreground">{new Date(subscription.canceledAt).toLocaleDateString()}</span>
 									</div>
 								)}
 							</div>
@@ -98,22 +82,16 @@ export default function SubscriptionTestPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Available Plans</CardTitle>
-							<CardDescription>
-								All subscription tiers and their features
-							</CardDescription>
+							<CardDescription>All subscription tiers and their features</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{tiers.map((tier) => (
+							{tiers.map(tier => (
 								<div key={tier.id} className="p-4 border rounded-lg">
 									<div className="flex items-center justify-between mb-2">
 										<h3 className="font-medium">{tier.name}</h3>
-										<Badge variant={tier.popular ? "default" : "secondary"}>
-											${tier.price}/month
-										</Badge>
+										<Badge variant={tier.popular ? "default" : "secondary"}>${tier.price}/month</Badge>
 									</div>
-									<p className="text-sm text-muted-foreground mb-2">
-										{tier.description}
-									</p>
+									<p className="text-sm text-muted-foreground mb-2">{tier.description}</p>
 									<div className="flex flex-wrap gap-1">
 										{tier.features.map((feature, index) => (
 											<Badge key={index} variant="outline" className="text-xs">
@@ -133,32 +111,22 @@ export default function SubscriptionTestPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Billing History</CardTitle>
-						<CardDescription>
-							Past payments and subscription changes
-						</CardDescription>
+						<CardDescription>Past payments and subscription changes</CardDescription>
 					</CardHeader>
 					<CardContent>
 						{billingHistory.length === 0 ? (
-							<p className="text-muted-foreground text-center py-8">
-								No billing history available
-							</p>
+							<p className="text-muted-foreground text-center py-8">No billing history available</p>
 						) : (
 							<div className="space-y-3">
-								{billingHistory.map((item) => (
+								{billingHistory.map(item => (
 									<div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
 										<div className="space-y-1">
 											<p className="font-medium">{item.description}</p>
-											<p className="text-sm text-muted-foreground">
-												{new Date(item.date).toLocaleDateString()}
-											</p>
+											<p className="text-sm text-muted-foreground">{new Date(item.date).toLocaleDateString()}</p>
 										</div>
 										<div className="text-right">
-											<p className="font-medium">
-												{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}
-											</p>
-											<Badge variant={item.status === "active" ? "default" : "secondary"}>
-												{item.status}
-											</Badge>
+											<p className="font-medium">{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}</p>
+											<Badge variant={item.status === "active" ? "default" : "secondary"}>{item.status}</Badge>
 										</div>
 									</div>
 								))}
@@ -173,9 +141,7 @@ export default function SubscriptionTestPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Subscription Management</CardTitle>
-						<CardDescription>
-							Full subscription management interface with all features
-						</CardDescription>
+						<CardDescription>Full subscription management interface with all features</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<SubscriptionManagement />
