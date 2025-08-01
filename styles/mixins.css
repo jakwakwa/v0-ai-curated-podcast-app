@@ -1,0 +1,114 @@
+/* Typography Mixins */
+@mixin h1-text {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+@mixin h2-text {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+@mixin h3-text {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+@mixin h4-text {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+@mixin h5-text {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+@mixin body-text {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+}
+
+@mixin body-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+}
+
+@mixin text-body {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+}
+
+@mixin text-h3 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+/* Button Mixins */
+@mixin button-text {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+@mixin button-primary {
+    background-color: hsla(var(--primary-hsl));
+    color: hsla(var(--primary-foreground-hsl));
+    border: 1px solid hsla(var(--primary-hsl));
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+@mixin button-primary-hover {
+    background-color: hsla(var(--primary-hsl) / 0.9);
+    border-color: hsla(var(--primary-hsl) / 0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsla(var(--primary-hsl) / 0.3);
+}
+
+@mixin dropdown-button-text {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Input Mixins */
+@mixin input-textarea {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsla(var(--border-hsl));
+    border-radius: 0.375rem;
+    background-color: hsla(var(--background-hsl));
+    color: hsla(var(--foreground-hsl));
+    transition: border-color 0.2s ease-in-out;
+}
+
+@mixin input-textarea:focus {
+    outline: none;
+    border-color: hsla(var(--ring-hsl));
+    box-shadow: 0 0 0 2px hsla(var(--ring-hsl) / 0.2);
+}

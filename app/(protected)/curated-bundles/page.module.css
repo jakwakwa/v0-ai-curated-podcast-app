@@ -134,13 +134,19 @@
 }
 
 .bundleTitle {
-    @mixin h3-text;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin: 0;
 }
 
 .bundleDescription {
     color: oklch(var(--muted-foreground));
-    @mixin body-text;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
     margin: 0;
 }
 
@@ -152,14 +158,20 @@
 }
 
 .podcastCount {
-    @mixin body-text-sm;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
 }
 
 .lockedIndicator {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    @mixin body-text-sm;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
 }
 
 .lockedIndicator svg {
@@ -171,7 +183,10 @@
 }
 
 .podcastListTitle {
-    @mixin h3-text;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin-bottom: 1rem;
 }
 

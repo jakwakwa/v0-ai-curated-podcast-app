@@ -2,155 +2,13 @@
 
 @layer base {
     :root {
-        /* --background: 0 0% 100%; */
-        --background-glass: rgba(19, 7, 48, 0.146);
-        --secondary-page-background: linear-gradient(to right bottom, hsla(185, 78%, 76%, 0.956), rgba(8, 241, 183, 0.424), hsla(158, 80%, 40%, 0.1));
-        /* --page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
-        --background: hsla(251, 67%, 24%, 0.99);
-        --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
-        --foreground: hsla(222 47% 11%);
-        --card: hsla(0 0% 100%);
-        --card-foreground: hsla(222 47% 11%);
-        --popover: hsla(0 0% 100%);
-        --popover-foreground: hsla(222 47% 11%);
-        --popover-foreground-hsl: 222 47% 11%;
-        --primary: hsla(253 90% 66%);
-        --primary-hsl: 253 90% 66%;
-        --primary-foreground: hsla(0 0% 100%);
-        --primary-foreground-hsl: 0 0% 100%;
-        --secondary: hsla(220 14% 96%);
-        --secondary-hsl: 220 14% 96%;
-        --secondary-foreground: hsla(222 47% 11%);
-        --secondary-foreground-hsl: 222 47% 11%;
-        --muted: hsla(220 14% 96%);
-        --muted-hsl: 220 14% 96%;
-        --muted-foreground: oklch(0.4956 0.0669 274.35);
-        --muted-foreground-hsl: 274.35 0.0669 0.4956;
-        --accent: hsla(258 92% 76%);
-        --accent-hsl: 258 92% 76%;
-        --accent-foreground: hsla(222 47% 11%);
-        --accent-foreground-hsl: 222 47% 11%;
-        --destructive: hsla(0 84% 60%);
-        --destructive-hsl: 0 84% 60%;
-        --destructive-foreground: hsla(0 0% 100%);
-        --destructive-foreground-hsl: 0 0% 100%;
-        --border: hsla(220 13% 91%);
-        --border-hsl: 220 13% 91%;
-        --input: hsla(220 13% 91%);
-        --input-hsl: 220 13% 91%;
-        --ring: hsla(253 90% 66%);
-        /* purple-500 */
-        --ring-hsl: 253 90% 66%;
-        --radius: 0.75rem;
-
-        /* Custom variables from podslice */
-        --primary-gradient: linear-gradient(to right, hsla(var(--primary-hsl)), hsla(var(--primary-gradient-end-hsl)));
-        --primary-gradient-end: hsla(158 80% 40%);
-        /* emerald-500 */
-        --primary-gradient-end-hsl: 158 80% 40%;
-        --accent-gradient: linear-gradient(to right, hsla(var(--accent-hsl)), hsla(var(--accent-gradient-end-hsl)));
-        --accent-gradient-end: hsla(159 55% 51%);
-        /* emerald-400 */
-        --accent-gradient-end-hsl: 159 55% 51%;
-
 
         --border-glass: #9dc8d93d;
     }
 
     .dark {
         /* --background: 222 47% 11%;  */
-        /* -secondary-page-background: linear-gradient(to right bottom, hsla(131, 35%, 84%, 0.064), rgba(49, 40, 76, 0.268), hsla(0, 0%, 62%, 0.772)); */
-        --secondary-page-background: linear-gradient(to right bottom, hsla(57, 87%, 81%, 0.283), #5432bad9, hsla(249, 82%, 48%, 0.214));
-        /* Secondary page background */
-        --glass-gradient: linear-gradient(to top left, hsla(206, 84%, 37%, 0.242), rgba(43, 78, 174, 0.086), hsla(162, 69%, 85%, 0.197));
-        --background-glass: hsla(256, 56%, 18%, 0.227);
-        /* --secondary-page-background: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1)); */
-        /*  */
-        /* --background: 222 47% 11%; slate-900, #0f172a */
-        --page-background: linear-gradient(to bottom right, hsla(222, 47%, 11%), hsla(256, 69%, 35%), hsla(222, 47%, 11%));
-        --page-background-hsl: 222 47% 11%;
-        --foreground: hsla(0 0% 100%);
-        /* white */
-        --foreground-hsl: 0 0% 100%;
-        --card: hsla(222 47% 11%);
-        /* same as background */
-        --card-hsl: 222 47% 11%;
-        --card-foreground: hsla(0 0% 100%);
-        --card-foreground-hsl: 0 0% 100%;
-        --popover: hsla(222 47% 11%);
-        --popover-hsl: 222 47% 11%;
-        --popover-foreground: hsla(0 0% 100%);
-        --popover-foreground-hsl: 0 0% 100%;
-        --primary: hsla(253 90% 66%) --primary-hsl:253 90% 66%;
-        --primary-foreground: hsla(0 0% 100%);
-        --primary-foreground-hsl: 253 90% 66%;
-        --secondary: hsla(215 28% 17%);
-        --secondary-foreground: hsla(0 0% 100%);
-        --muted: hsla(215 28% 17%);
-        --muted-hsl: 215 28% 17%;
-        --muted-foreground: oklch(0.4956 0.0669 274.35);
-        --muted-foreground-hsl: 274.35 0.0669 0.4956;
-        --accent: hsla(258 92% 76%);
-        --accent-hsl: 258 92% 76%;
-        --accent-foreground: hsla(0 0% 100%);
-        --accent-foreground-hsl: 258 92% 76%;
-        --destructive: hsla(0 63% 31%);
-        --destructive-hsl: 0 63% 31%;
-        --destructive-foreground: hsla(0 0% 100%);
-        --destructive-foreground-hsl: 0 63% 31%;
-        --border: hsla(215 14% 34%);
-        /* slate-600, #475569 */
-        --border-hsl: 215 14% 34%;
-        --input: hsla(215 28% 17%);
-        --input-hsl: 215 28% 17%;
-        --ring: hsla(253 90% 66%);
-        --ring-hsl: 253 90% 66%;
-        --radius: 0.75rem;
-
-        /* Podslice glassmorphism styles as variables */
-        --card-background-glass: rgba(255, 255, 255, 0.1);
-        --card-border-glass: rgba(255, 255, 255, 0.2);
-        --section-background-glass: rgba(255, 255, 255, 0.05);
-        --border-glass: hsla(255, 100%, 100%, 0.2);
-        --border-glass-hsl: 255, 100%, 100%, 0.2;
-        --outline-glass: hsla(255, 100%, 100%, 0.2);
-        --outline-glass-hsl: 255, 100%, 100%, 0.2;
-        /* Custom variables from podslice */
-        --primary-gradient: linear-gradient(to bottom left, hsla(var(--primary-gradient-start-hsl)), hsla(var(--primary-gradient-end-hsl)));
-        --tertiary-gradient: linear-gradient(to top right, hsla(var(--tertiary-gradient-start-hsl)), hsla(var(--tertiary-gradient-end-hsl)));
-        --primary-gradient-end: hsla(277, 89%, 59%, 0.96);
-        --primary-gradient-end-hsl: 277, 89%, 59%, 0.96;
-        --primary-gradient-start: hsla(27, 99%, 73%, 0.896);
-        --primary-gradient-start-hsl: 27, 99%, 73%, 0.896;
-
-        --tertiary-gradient-accent: linear-gradient(to bottom left, hsla(var(--tertiary-gradient-end-hsl)), hsla(var(--tertiary-gradient-start-hsl)));
-
-        --tertiary-gradient-end: rgb(165, 229, 228);
-        --tertiary-gradient-end-hsl: 170, 80%, 68%;
-        --tertiary-gradient-start: hsla(242, 94%, 60%, 0.896);
-        --tertiary-gradient-start-hsl: 242, 94%, 60%, 0.896;
-
-
-        --accent-gradient: linear-gradient(to bottom left, hsla(var(--accent-gradient-start-hsl)), hsla(var(--accent-gradient-end-hsl)));
-        --accent-gradient-end: hsla(264, 63%, 48%);
-        --accent-gradient-end-hsl: 264, 63%, 48%;
-        --accent-gradient-start: hsla(120, 87%, 81%, 0.896);
-        --accent-gradient-start-hsl: 120, 87%, 81%, 0.896;
-
-        --sidebar-background: #10101a54;
-        --sidebar-foreground: hsla(240 4.8% 95.9%);
-        --sidebar-foreground-hsl: 240 4.8% 95.9%;
-        --sidebar-primary: hsla(224.3 76.3% 48%);
-        --sidebar-primary-hsl: 224.3 76.3% 48%;
-        --sidebar-primary-foreground: hsla(0 0% 100%);
-        --sidebar-primary-foreground-hsl: 0 0% 100%;
-        --sidebar-accent: hsla(240 3.7% 15.9%);
-        --sidebar-accent-hsl: 240 3.7% 15.9%;
-        --sidebar-accent-foreground: hsla(240 4.8% 95.9%);
-        --sidebar-accent-foreground-hsl: 240 4.8% 95.9%;
-        --sidebar-border: hsla(240 3.7% 15.9%);
-        --sidebar-border-hsl: 240 3.7% 15.9%;
-        --sidebar-ring: hsla(217.2 91.2% 59.8%);
+        /* -secondary-page-background: linear-gradient(to right bottom, hsla(131, 35%, 84%, 0.064), rgba(49, 40, 76, 0.268), 
         --sidebar-ring-hsl: 217.2 91.2% 59.8%;
     }
 }
@@ -166,7 +24,7 @@ div {
 }
 
 .header h1 {
-    @mixin h4-text;
+    @apply h4-text;
     margin-bottom: 1rem;
 }
 
@@ -227,6 +85,7 @@ div {
     max-width: 600px;
     text-align: left !important;
     line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
 .cl-logoBox,
@@ -268,120 +127,120 @@ div {
     flex-direction: column;
     margin-top: 3rem;
     /* Account for fixed header height */
-}
+    }
 
-.title {
-    @mixin h3-text;
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.waitlistForm,
-.ctaForm {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 32rem;
-    margin: 0 auto;
-}
-
-.waitlistInputContainer {
-    flex: 1;
-}
-
-@media (min-width: 768px) {
-    .episodeCard {
-        margin: 0;
-        width: 100%;
+    .title {
+        margin: 2rem 0;
+        /* @apply h3-text; */
     }
 
     .waitlistForm,
     .ctaForm {
-        flex-direction: row;
-    }
-}
-
-@layer base {
-    * {
-        border-color: hsla(var(--border-hsl));
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 32rem;
+        margin: 0 auto;
     }
 
-    body {
-        overflow-x: hidden;
-        width: 100%;
-        background-color: hsla(var(--background-hsl));
-        color: hsla(var(--foreground-hsl));
-    }
-}
-
-/* Global Loading Styles */
-.progress-loader {
-    min-height: 100vh;
-    background: #141414;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.progress-bar {
-    height: 1px;
-    background: #f7a95b;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-}
-
-.progress-fill {
-    height: 100%;
-    width: 30%;
-    background-color: #3b82f6;
-    animation: loading-animation 2s infinite;
-}
-
-.spinner {
-    animation: spin 1s linear infinite;
-}
-
-.silent-loader {
-    min-height: 100vh;
-    background: oklch(var(--background));
-}
-
-@keyframes loading-animation {
-    0% {
-        transform: translateX(-100%) scaleX(0);
+    .waitlistInputContainer {
+        flex: 1;
     }
 
-    50% {
-        transform: translateX(0%) scaleX(1);
+    @media (min-width: 768px) {
+        .episodeCard {
+            margin: 0;
+            width: 100%;
+        }
+
+        .waitlistForm,
+        .ctaForm {
+            flex-direction: row;
+        }
     }
 
-    100% {
-        transform: translateX(100%) scaleX(0);
-    }
-}
+    @layer base {
+        * {
+            border-color: hsla(var(--border-hsl));
+        }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
+        body {
+            overflow-x: hidden;
+            width: 100%;
+            background-color: hsla(var(--background-hsl));
+            color: hsla(var(--foreground-hsl));
+        }
     }
 
-    50% {
-        opacity: 0.5;
+    /* Global Loading Styles */
+    .progress-loader {
+        min-height: 100vh;
+        background: #141414;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-bar {
+        height: 1px;
+        background: #f7a95b;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 30%;
+        background-color: #3b82f6;
+        animation: loading-animation 2s infinite;
+    }
+
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    .silent-loader {
+        min-height: 100vh;
+        background: oklch(var(--background));
+    }
+
+    @keyframes loading-animation {
+        0% {
+            transform: translateX(-100%) scaleX(0);
+        }
+
+        50% {
+            transform: translateX(0%) scaleX(1);
+        }
+
+        100% {
+            transform: translateX(100%) scaleX(0);
+        }
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
     }
 }

@@ -28,16 +28,20 @@
         letter-spacing: -0.02em;
         color: var(--color-h2);
         margin: 0 0 1.5rem;
+
     }
 
     .h3-text {
+
         font-family: 'Work Sans', sans-serif;
         font-size: var(--font-size-h3);
         font-weight: 700;
         line-height: 1.2;
+
         letter-spacing: -0.02em;
         color: var(--color-h3);
-        margin: 0 0 1.5rem;
+
+        margin-bottom: 3.5rem !important;
     }
 
     .h4-text {
@@ -165,6 +169,7 @@
     textarea:focus {
         outline: none;
     }
+
 }
 
 @define-mixin utilities {
@@ -278,7 +283,7 @@
         --background-oklch: 0.145 0 0;
         --card: 0.205 0 0;
         --card-oklch: 0.205 0 0;
-        --font-size-h1: 2.488rem;
+        --font-size-h1: 3.488rem;
         --font-size-h2: 2.074rem;
         --font-size-h3: 1.328rem;
         --font-size-h4: 1.24rem;
@@ -439,8 +444,8 @@ div {
     margin-bottom: 3rem;
 }
 
-.header h1 {
-    @mixin h1-text;
+.header>h1 {
+    font-size: (--font-size-h1);
     margin-bottom: 1rem;
 }
 
@@ -578,7 +583,7 @@ div {
 .title {
     @mixin h3-text;
     margin-top: 2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 3.5rem;
 }
 
 @media (min-width: 768px) {
@@ -712,10 +717,12 @@ div {
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+
+
+    body {
+        @apply bg-background text-foreground;
     }
 }

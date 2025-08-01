@@ -17,7 +17,10 @@
 }
 
 .heroTitle {
-    @mixin h1-text;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, oklch(var(--primary)) 0%, oklch(var(--primary-foreground)) 100%);
     -webkit-background-clip: text;
@@ -26,7 +29,10 @@
 }
 
 .heroDescription {
-    @mixin body-text;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
     margin-bottom: 2rem;
     max-width: 600px;
     margin-left: auto;
@@ -58,12 +64,18 @@
 }
 
 .sectionTitle {
-    @mixin h2-text;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin-bottom: 1rem;
 }
 
 .sectionDescription {
-    @mixin body-text;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -104,7 +116,10 @@
 }
 
 .featureTitle {
-    @mixin h4-text;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin-bottom: 0.5rem;
 }
 
@@ -147,7 +162,10 @@
 }
 
 .stepTitle {
-    @mixin h4-text;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin-bottom: 0.5rem;
 }
 
@@ -162,7 +180,10 @@
     align-items: center;
     gap: 0.5rem;
     color: oklch(var(--primary));
-    @mixin button-text;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
 }
 
 .actionText {
@@ -216,7 +237,10 @@
 }
 
 .pricingTitle {
-    @mixin h4-text;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
     margin-bottom: 0.5rem;
 }
 

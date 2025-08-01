@@ -81,16 +81,25 @@
     .profileSectionHeader {
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
-        @mixin h3-text;
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
     }
 
     .profileSectionTitle {
         margin-top: 1.5rem;
-        @mixin h3-text;
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
     }
 
     .profileSectionDescription {
-        @mixin body-text;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 400;
+        letter-spacing: 0.025em;
         margin-top: 0.5rem;
         margin-bottom: 1rem;
         color: oklch(var(--muted-foreground));
@@ -145,13 +154,19 @@
 }
 
 .episodesTitle {
-    @mixin h3-text;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
 }
 
 .episodesSummary {
     display: flex;
     gap: 1rem;
-    @mixin body-text;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
     color: oklch(var(--muted-foreground));
 }
 
