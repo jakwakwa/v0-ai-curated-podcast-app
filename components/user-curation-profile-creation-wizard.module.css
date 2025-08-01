@@ -1,114 +1,110 @@
 .wizardContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
 .title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: hsl(var(--foreground));
-  margin-bottom: 0.5rem;
-  text-align: center;
+    @mixin h3-text;
+    margin-bottom: 0.5rem;
 }
 
 .stepTitle {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin: 2rem 0 1.5rem;
-  text-align: center;
+    @mixin h4-text;
+    margin: 2rem 0 1.5rem;
 }
 
 .buttonGroup {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-  justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    justify-content: center;
 }
 
 .navigationButtons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
 }
 
 .formGroup {
-  margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .formGroup label {
-  display: block;
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
-  margin-bottom: 0.5rem;
+    display: block;
+    @mixin body-text-sm;
+    margin-bottom: 0.5rem;
 }
 
 .reviewSummary {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  background-color: hsl(var(--secondary) / 0.1);
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px solid oklch(var(--border));
+    border-radius: 8px;
+    background-color: oklch(var(--secondary) / 0.1);
 }
 
 .reviewSummary h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: hsl(var(--foreground));
+    @mixin h4-text;
+    margin-bottom: 1rem;
 }
 
 .createActions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
 }
 
 .createButton {
-  /* Inherit from shadcn Button, add specific sizing/color if needed */
+    /* Inherit from shadcn Button, add specific sizing/color if needed */
 }
 
 .spinner {
-  animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .error {
-  color: hsl(var(--destructive));
-  background-color: hsl(var(--destructive) / 0.1);
-  border: 1px solid hsl(var(--destructive));
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 1.5rem;
-  text-align: center;
+    color: oklch(var(--destructive));
+    background-color: oklch(var(--destructive) / 0.1);
+    border: 1px solid oklch(var(--destructive));
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    text-align: center;
 }
 
 @media (max-width: 768px) {
-  .wizardContainer {
-    padding: 1rem;
-  }
+    .wizardContainer {
+        padding: 1rem;
+    }
 
-  .title {
-    font-size: 1.75rem;
-  }
+    .title {
+        @mixin h3-text;
+    }
 
-  .stepTitle {
-    font-size: 1.5rem;
-    margin-top: 1.5rem;
-  }
+    .stepTitle {
+        @mixin h4-text;
+        margin-top: 1.5rem;
+    }
 
-  .buttonGroup {
-    grid-template-columns: 1fr;
-  }
+    .buttonGroup {
+        grid-template-columns: 1fr;
+    }
 
-  .navigationButtons {
-    flex-direction: column;
-  }
+    .navigationButtons {
+        flex-direction: column;
+    }
 }

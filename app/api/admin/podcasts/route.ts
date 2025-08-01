@@ -158,7 +158,7 @@ export async function DELETE(request: Request) {
 					include: {
 						bundle: {
 							include: {
-								user_curation_profile: {
+								userProfile: {
 									where: { is_active: true },
 								},
 							},
@@ -173,7 +173,7 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if podcast is being used in any active bundles with active user profiles
-		const activeUsage = podcast.bundle_podcast.some((bp: { bundle: { user_curation_profile: unknown[] } }) => bp.bundle.user_curation_profile.length > 0)
+		const activeUsage = podcast.bundle_podcast.some((bp: { bundle: { userProfile: unknown[] } }) => bp.bundle.userProfile.length > 0)
 
 		if (activeUsage) {
 			return new NextResponse("Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead.", { status: 400 })

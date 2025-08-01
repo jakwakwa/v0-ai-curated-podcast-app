@@ -7,17 +7,18 @@
     transition: all 0.2s;
     background-color: var(--card-background-glass);
     border: 1px solid var(--card-border-glass);
-    color: hsl(var(--foreground));
+    color: oklch(var(--foreground));
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
 
 .input::placeholder {
-  color: hsl(var(--muted-foreground));
+    color: oklch(0.38 0.0098 176.79);
 }
 
-.input:focus-visible, .input:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.5);
-} 
+.input:focus-visible,
+.input:focus {
+    outline: none;
+    border-color: oklch(var(--primary));
+    box-shadow: 0 0 0 2px oklch(var(--ring) / 0.5);
+}

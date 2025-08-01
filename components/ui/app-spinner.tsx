@@ -77,7 +77,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 
 	return (
 		<div className={cn(styles.base, classNames?.base, className)}>
-			<div className={cn(styles.wrapper, classNames?.wrapper)}>{renderSpinner()}</div>
+			<div className={cn(styles.container, classNames?.container)}>{renderSpinner()}</div>
 			{label && <span className={cn(styles.label, styles[`label${labelColor.charAt(0).toUpperCase() + labelColor.slice(1)}` as keyof typeof styles], classNames?.label)}>{label}</span>}
 		</div>
 	)

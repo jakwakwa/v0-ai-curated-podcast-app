@@ -7,9 +7,8 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import styles from "./page.module.css"
-
 import type { Notification } from "@/lib/types"
+import styles from "./page.module.css"
 
 export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([])
@@ -160,7 +159,7 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<div className=".container">
+		<div className="container">
 			<div className={styles.header}>
 				<div className={styles.headerContent}>
 					<div className={styles.titleSection}>

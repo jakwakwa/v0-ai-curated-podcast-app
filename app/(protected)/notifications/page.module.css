@@ -1,344 +1,342 @@
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
 /* Header */
 .header {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .headerContent {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .titleSection {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .headerIcon {
-  width: 24px;
-  height: 24px;
-  color: hsl(var(--primary));
+    width: 24px;
+    height: 24px;
+    color: oklch(var(--primary));
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: hsl(var(--foreground));
-  margin: 0;
+    @mixin h3-text;
+    margin: 0;
 }
 
 .unreadBadge {
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
-  font-weight: 600;
-  min-width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-size: 0.75rem;
+    background: oklch(var(--destructive));
+    color: oklch(var(--destructive-foreground));
+    font-weight: 600;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    @mixin body-text-sm;
 }
 
 .headerActions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .markAllButton,
 .clearAllButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    @mixin button-text;
 }
 
 /* Content */
 .content {
-  min-height: 400px;
+    min-height: 400px;
 }
 
 /* Loading */
 .loadingContainer {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
 .loadingWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
 }
 
 .loadingSpinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid hsl(var(--border));
-  border-top: 3px solid hsl(var(--primary));
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+    width: 32px;
+    height: 32px;
+    border: 3px solid oklch(var(--border));
+    border-top: 3px solid oklch(var(--primary));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Empty State */
 .emptyCard {
-  text-align: center;
-  padding: 3rem 2rem;
-  border: 2px dashed hsl(var(--border));
-  background: hsl(var(--card));
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 2px dashed oklch(var(--border));
+    background: oklch(var(--card));
 }
 
 .emptyContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .emptyIcon {
-  width: 48px;
-  height: 48px;
-  color: hsl(var(--muted-foreground));
-  opacity: 0.5;
+    width: 48px;
+    height: 48px;
+    color: oklch(var(--muted-foreground));
+    opacity: 0.5;
 }
 
 .emptyTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin: 0;
+    @mixin h3-text;
+    color: oklch(var(--foreground));
+    margin: 0;
 }
 
 .emptyDescription {
-  color: hsl(var(--muted-foreground));
-  max-width: 400px;
-  line-height: 1.5;
-  margin: 0;
+    color: oklch(var(--muted-foreground));
+    max-width: 400px;
+    @mixin body-text;
+    margin: 0;
 }
 
 /* Notifications List */
 .notificationsList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .notificationCard {
-  border: 1px solid hsl(var(--border));
-  transition: all 0.2s ease;
-  background: hsl(var(--card));
+    border: 1px solid oklch(var(--border));
+    transition: all 0.2s ease;
+    background: oklch(var(--card));
 }
 
 .notificationCard:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .unreadCard {
-  border-left: 4px solid hsl(var(--primary));
-  background: hsl(var(--card));
+    border-left: 4px solid oklch(var(--primary));
+    background: oklch(var(--card));
 }
 
 .cardHeader {
-  padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .notificationHeader {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
+    display: flex;
+    gap: 1rem;
+    flex: 1;
 }
 
 .notificationIconWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: oklch(var(--primary));
+    color: oklch(var(--primary-foreground));
+    flex-shrink: 0;
 }
 
 .notificationIcon {
-  width: 20px;
-  height: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 .notificationInfo {
-  flex: 1;
-  min-width: 0;
+    flex: 1;
+    min-width: 0;
 }
 
 .notificationMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .timestamp {
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
+    @mixin body-text-sm;
 }
 
 .notificationTitle {
-  font-size: 1rem;
-  font-weight: 500;
-  color: hsl(var(--foreground));
-  line-height: 1.4;
-  margin: 0;
+    @mixin body-text;
+    margin: 0;
 }
 
 .notificationActions {
-  display: flex;
-  gap: 0.25rem;
-  flex-shrink: 0;
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
 }
 
 .markReadButton,
 .deleteButton {
-  padding: 0.5rem;
-  min-width: auto;
+    padding: 0.5rem;
+    min-width: auto;
 }
 
 .markReadButton {
-  color: hsl(var(--primary));
+    color: oklch(var(--primary));
 }
 
 .markReadButton:hover {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+    background: oklch(var(--primary));
+    color: oklch(var(--primary-foreground));
 }
 
 .deleteButton {
-  color: hsl(var(--muted-foreground));
+    color: oklch(var(--muted-foreground));
 }
 
 .deleteButton:hover {
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
+    background: oklch(var(--destructive));
+    color: oklch(var(--destructive-foreground));
 }
 
 /* Notification Badges */
 .episodeBadge {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+    background: oklch(var(--primary));
+    color: oklch(var(--primary-foreground));
 }
 
 .reminderBadge {
-  background: hsl(var(--secondary));
-  color: hsl(var(--secondary-foreground));
+    background: oklch(var(--secondary));
+    color: oklch(var(--secondary-foreground));
 }
 
 .subscriptionBadge {
-  background: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
+    background: oklch(var(--accent));
+    color: oklch(var(--accent-foreground));
 }
 
 .trialBadge {
-  background: hsl(var(--destructive));
-  color: hsl(var(--destructive-foreground));
+    background: oklch(var(--destructive));
+    color: oklch(var(--destructive-foreground));
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
+    .container {
+        padding: 1rem;
+    }
 
-  .title {
-    font-size: 1.75rem;
-  }
+    .title {
+        @mixin h3-text;
+    }
 
-  .headerContent {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+    .headerContent {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 
-  .headerActions {
-    width: 100%;
-    justify-content: flex-start;
-  }
+    .headerActions {
+        width: 100%;
+        justify-content: flex-start;
+    }
 
-  .markAllButton,
-  .clearAllButton {
-    flex: 1;
-    justify-content: center;
-  }
+    .markAllButton,
+    .clearAllButton {
+        flex: 1;
+        justify-content: center;
+    }
 
-  .cardHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+    .cardHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
 
-  .notificationHeader {
-    width: 100%;
-  }
+    .notificationHeader {
+        width: 100%;
+    }
 
-  .notificationActions {
-    align-self: flex-end;
-  }
+    .notificationActions {
+        align-self: flex-end;
+    }
 
-  .notificationMeta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
+    .notificationMeta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 0.5rem;
-  }
+    .container {
+        padding: 0.5rem;
+    }
 
-  .title {
-    font-size: 1.5rem;
-  }
+    .title {
+        @mixin h3-text;
+    }
 
-  .cardHeader {
-    padding: 1rem;
-  }
+    .cardHeader {
+        padding: 1rem;
+    }
 
-  .notificationIconWrapper {
-    width: 32px;
-    height: 32px;
-  }
+    .notificationIconWrapper {
+        width: 32px;
+        height: 32px;
+    }
 
-  .notificationIcon {
-    width: 16px;
-    height: 16px;
-  }
+    .notificationIcon {
+        width: 16px;
+        height: 16px;
+    }
 
-  .notificationTitle {
-    font-size: 0.875rem;
-  }
+    .notificationTitle {
+        @mixin body-text-sm;
+    }
 
-  .timestamp {
-    font-size: 0.75rem;
-  }
+    .timestamp {
+        @mixin body-text-sm;
+    }
 }

@@ -1,0 +1,13 @@
+@import "../../app/globals.css";
+
+.input {
+    @mixin input-text;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.input::placeholder {
+    color: var(--input-placeholder) !important;
+}

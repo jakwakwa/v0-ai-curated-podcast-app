@@ -102,7 +102,7 @@ export async function DELETE(request: Request) {
 		const bundle = await prisma.bundle.findUnique({
 			where: { bundle_id: bundleId },
 			include: {
-				user_curation_profile: {
+				userProfile: {
 					where: { is_active: true },
 				},
 			},
@@ -112,7 +112,7 @@ export async function DELETE(request: Request) {
 			return new NextResponse("Bundle not found", { status: 404 })
 		}
 
-		if (bundle.user_curation_profile.length > 0) {
+		if (bundle.userProfile.length > 0) {
 			return new NextResponse("Cannot delete bundle - it is currently being used by active user profiles", { status: 400 })
 		}
 

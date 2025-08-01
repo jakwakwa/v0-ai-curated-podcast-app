@@ -35,7 +35,7 @@ const config: Config = {
 				},
 				muted: {
 					DEFAULT: "hsl(var(--muted))",
-					foreground: "hsl(var(--muted-foreground))",
+					foreground: "oklch(var(--muted-foreground-oklch))",
 				},
 				accent: {
 					DEFAULT: "hsl(var(--accent))",
@@ -100,6 +100,9 @@ const config: Config = {
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
+			},
+			fontFamily: {
+				"mozilla-headline": ["Mozilla Headline", "sans-serif"],
 			},
 		},
 	},

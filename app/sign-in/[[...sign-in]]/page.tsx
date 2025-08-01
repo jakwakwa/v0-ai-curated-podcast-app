@@ -8,7 +8,7 @@ export default function SignInPage() {
 				minHeight: "100vh",
 				alignItems: "center",
 				justifyContent: "center",
-				background: "hsl(var(--background))",
+				background: "oklch(var(--background))",
 			}}
 		>
 			<SignIn afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard" />

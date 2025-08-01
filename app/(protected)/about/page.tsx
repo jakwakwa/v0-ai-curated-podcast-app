@@ -1,13 +1,13 @@
 "use client"
 
 import { CheckCircle } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import styles from "./page.module.css"
-import Image from "next/image"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import { useRouter } from "next/navigation"
+import styles from "./page.module.css"
 
 export default function AboutPage() {
 	const router = useRouter()
@@ -85,7 +85,7 @@ export default function AboutPage() {
 			{/* How It Works */}
 			<section className={styles.section}>
 				<div className={styles.sectionHeader}>
-					<h2 className={styles.sectionTitle}>How It Works</h2>
+					<h2 className={styles.sectionTitle}>How It Works!</h2>
 					<p className={styles.sectionDescription}>Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.</p>
 				</div>
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Work_Sans } from "next/font/google"
 import type React from "react"
 import "./globals.css"
 
@@ -9,7 +9,7 @@ import { Toaster } from "sonner"
 import { ClientProviders } from "./client-providers"
 import { StoreInitializer } from "./store-initializer"
 
-const inter = Inter({ subsets: ["latin"] })
+const workSans = Work_Sans({ subsets: ["latin"] })
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 if (!clerkPublishableKey) {
@@ -39,7 +39,12 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={inter.className}>
+			<head>
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+				<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+			</head>
+			<body className={`${workSans.className}`}>
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{

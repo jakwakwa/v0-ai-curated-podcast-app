@@ -2,12 +2,12 @@
 
 import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import { motion, useScroll, useTransform } from "framer-motion"
-import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import styles from "./../styles/new-landing-page.module.css"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import styles from "./../styles/new-landing-page.module.css"
 
 export default function LandingPageContent() {
 	const router = useRouter()
@@ -143,7 +143,7 @@ export default function LandingPageContent() {
 	]
 
 	return (
-		<div className=".container">
+		<div className="container">
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<motion.div

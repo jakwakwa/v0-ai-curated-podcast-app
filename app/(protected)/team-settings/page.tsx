@@ -26,7 +26,7 @@ export default async function TeamSettingsPage() {
 	const isAdmin = await isOrgAdmin()
 
 	return (
-		<div className=".container">
+		<div className="container">
 			<h1 className={styles.title}>Team Settings</h1>
 
 			<div className={styles.card}>

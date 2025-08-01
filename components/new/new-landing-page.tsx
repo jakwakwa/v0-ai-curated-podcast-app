@@ -249,7 +249,7 @@ function LandingPage() {
 							</div>
 							<p className={styles.testimonialText}>"The AI voices are incredibly natural. It feels like having a personal assistant who's listened to every important podcast and can brief me instantly."</p>
 							<div className={styles.testimonialAuthor}>
-								<div className={styles.authorAvatar} style={{ backgroundImage: "linear-gradient(to right, hsl(var(--primary-gradient-end)), #f97316)" }}></div>
+								<div className={styles.authorAvatar} style={{ backgroundImage: "linear-gradient(to right, oklch(var(--primary-gradient-end)), #f97316)" }}></div>
 								<div>
 									<p className={styles.authorName}>Marcus Rodriguez</p>
 									<p className={styles.authorTitle}>Entrepreneur & Investor</p>

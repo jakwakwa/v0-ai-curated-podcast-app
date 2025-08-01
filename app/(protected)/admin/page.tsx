@@ -635,7 +635,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<CardContent className="p-4">
 									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
 										<SelectTrigger>
 											<SelectValue placeholder="Select a bundle..." />
@@ -674,7 +674,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
 								</CardHeader>
-								<CardContent className="space-y-4">
+								<CardContent className="space-y-4 p-4">
 									<div>
 										<Label htmlFor="title">Episode Title *</Label>
 										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
@@ -706,7 +706,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
 								</CardHeader>
-								<CardContent className="space-y-4">
+								<CardContent className="space-y-4 p-4	">
 									{/* Add new source form */}
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
@@ -745,21 +745,19 @@ export default function AdminPage() {
 
 							{/* Generate Button */}
 							<Card>
-								<CardContent className="pt-6">
-									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
-										{isLoading ? (
-											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
-												Generating Episode...
-											</>
-										) : (
-											<>
-												<Sparkles className="w-4 h-4 mr-2" />
-												Generate Episode
-											</>
-										)}
-									</Button>
-								</CardContent>
+								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
+									{isLoading ? (
+										<>
+											<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+											Generating Episode...
+										</>
+									) : (
+										<>
+											<Sparkles className="w-4 h-4 mr-2" />
+											Generate Episode
+										</>
+									)}
+								</Button>
 							</Card>
 						</div>
 					) : (
@@ -773,7 +771,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Choose which curated bundle to upload an episode for</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<CardContent className="p-4">
 									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
 										<SelectTrigger>
 											<SelectValue placeholder="Select a bundle..." />
@@ -812,7 +810,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
 								</CardHeader>
-								<CardContent className="space-y-4">
+								<CardContent className="space-y-4 p-4">
 									<div>
 										<Label htmlFor="title">Episode Title *</Label>
 										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
@@ -844,7 +842,7 @@ export default function AdminPage() {
 									</CardTitle>
 									<CardDescription>Upload your finalized episode audio file (MP3 only)</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<CardContent className="p-4">
 									<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
 									{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
 								</CardContent>
@@ -852,7 +850,7 @@ export default function AdminPage() {
 
 							{/* Upload Button */}
 							<Card>
-								<CardContent className="pt-6">
+								<CardContent className="pt-6 p-4">
 									<Button type="submit" disabled={!(mp3File && selectedBundleId && episodeTitle) || isLoading} className="w-full" size="lg">
 										{isLoading ? (
 											<>
@@ -882,7 +880,7 @@ export default function AdminPage() {
 							</CardTitle>
 							<CardDescription>Create new bundles or remove existing ones</CardDescription>
 						</CardHeader>
-						<CardContent className="space-y-4">
+						<CardContent className="space-y-4 p-4">
 							<Button onClick={() => setShowCreateBundle(!showCreateBundle)} variant="outline" className="w-full">
 								<Plus className="w-4 h-4 mr-2" />
 								{showCreateBundle ? "Cancel" : "Create New Bundle"}
@@ -969,7 +967,7 @@ export default function AdminPage() {
 							<CardTitle>Existing Bundles ({bundles.length})</CardTitle>
 							<CardDescription>Manage your PODSLICE Bundles</CardDescription>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="p-4">
 							<div className="space-y-4">
 								{bundles.map(bundle => (
 									<div key={bundle.bundle_id} className="p-4 border rounded-lg">
@@ -1013,7 +1011,11 @@ export default function AdminPage() {
 							</CardTitle>
 							<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
 						</CardHeader>
-						<CardContent className="space-y-4">
+						<CardContent className="space-y-4 p-4">
+							<div className="p-4 bg-muted rounded-lg">
+								<h4 className="font-semibold mb-2">Create New Bundle</h4>
+								<p className="text-sm text-muted-foreground mb-4">Create a new bundle to group related podcasts together.</p>
+							</div>
 							<Button
 								onClick={() => {
 									resetPodcastForm()
@@ -1103,7 +1105,7 @@ export default function AdminPage() {
 									<Badge variant="outline">{category}</Badge>
 								</CardTitle>
 							</CardHeader>
-							<CardContent>
+							<CardContent className="p-4">
 								<div className="space-y-3">
 									{podcastsByCategory[category].map(podcast => (
 										<div key={podcast.podcast_id} className="flex items-start justify-between p-3 border rounded-lg">
@@ -1154,7 +1156,7 @@ export default function AdminPage() {
 							</CardTitle>
 							<CardDescription>Test the notification system by creating sample notifications</CardDescription>
 						</CardHeader>
-						<CardContent className="space-y-4">
+						<CardContent className="space-y-4 p-4">
 							<div className="p-4 bg-muted rounded-lg">
 								<h4 className="font-semibold mb-2">Test Notification System</h4>
 								<p className="text-sm text-muted-foreground mb-4">This will create a test notification that you can see in the notification bell and notifications page.</p>

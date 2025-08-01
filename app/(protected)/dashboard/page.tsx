@@ -131,168 +131,168 @@ export default function Page() {
 	}
 
 	return (
-		<>
+		<div className="container">
 			<div className={styles.dashboardContainer}>
 				<div className="header">
 					<h1>Your Dashboard</h1>
 					<p>Overview of your episodes, selected bundles, feeds etc.</p>
 				</div>
-				<div className={styles.mainContainer}>
-					<div className={styles.contentWrapper}>
-						<div className={styles.profileSection}>
-							{userCurationProfile ? (
-								<div className={styles.gridContainer}>
-									<div className={styles.episodesSection}>
-										<Card className="mb-4">
-											<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>
-												<p className={styles.profileSectionDescription}>Status: {userCurationProfile?.status}</p>
-											</CardContent>
-										</Card>
+			</div>
 
-										{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-											<Card>
-												<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-													<CardTitle className={styles.profileSectionHeader}>Selected Bundle</CardTitle>
-												</CardHeader>
-												<CardContent>
-													<div className={styles.profileSectionTitle}>{userCurationProfile.selectedBundle.name}</div>
-													<p className={styles.profileSectionDescription}>{userCurationProfile.selectedBundle.description}</p>
+			<div className={styles.contentWrapper}>
+				<div className={styles.profileSection}>
+					{userCurationProfile ? (
+						<div className={styles.gridContainer}>
+							<div className={styles.episodesSection}>
+								<Card className="mb-4">
+									<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+										<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>
+										<p className={styles.profileSectionDescription}>Status: {userCurationProfile?.status}</p>
+									</CardContent>
+								</Card>
 
-													{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
-														<div>
-															<p className={styles.profileSectionHeader}>Podcasts:</p>
-															<ul className="list-disc pl-5 text-muted-foreground">
-																{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
-																	<li className={styles.profileSectionDescription} key={podcast.podcast_id}>
-																		{podcast.name}
-																	</li>
-																)) || <li className={styles.profileSectionDescription}>No podcasts loaded</li>}
-															</ul>
-														</div>
-													)}
+								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
+									<Card>
+										<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+											<CardTitle className={styles.profileSectionHeader}>Selected Bundle</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className={styles.profileSectionTitle}>{userCurationProfile.selectedBundle.name}</div>
+											<p className={styles.profileSectionDescription}>{userCurationProfile.selectedBundle.description}</p>
 
-													{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
-														<div>
-															<p className={styles.profileSectionHeader}>Bundle Episodes:</p>
-															<ul className="list-disc pl-5 text-muted-foreground">
-																{userCurationProfile.selectedBundle.episodes.map(episode => (
-																	<li className={styles.profileSectionDescription} key={episode.episode_id}>
-																		{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
-																	</li>
-																))}
-															</ul>
-														</div>
-													)}
-												</CardContent>
-											</Card>
-										)}
-									</div>
-								</div>
-							) : (
-								<div className="px-0 lg:px-0 w-full">
-									<div className="max-w-2xl md:max-w-full mt-0 w-full">
-										<Card>
-											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-												{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+											{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
+												<div>
+													<p className={styles.profileSectionHeader}>Podcasts:</p>
+													<ul className="list-disc pl-5 text-muted-foreground">
+														{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
+															<li className={styles.profileSectionDescription} key={podcast.podcast_id}>
+																{podcast.name}
+															</li>
+														)) || <li className={styles.profileSectionDescription}>No podcasts loaded</li>}
+													</ul>
+												</div>
+											)}
+
+											{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
+												<div>
+													<p className={styles.profileSectionHeader}>Bundle Episodes:</p>
+													<ul className="list-disc pl-5 text-muted-foreground">
+														{userCurationProfile.selectedBundle.episodes.map(episode => (
+															<li className={styles.profileSectionDescription} key={episode.episode_id}>
+																{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
+															</li>
+														))}
+													</ul>
+												</div>
+											)}
+										</CardContent>
+									</Card>
+								)}
+							</div>
+						</div>
+					) : (
+						<div className="px-0 lg:px-0 w-full">
+							<div className="max-w-2xl md:max-w-full mt-0 w-full">
+								<Card>
+									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+										<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
+										{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
 													Edit
 												</Button> */}
-											</CardHeader>
-											<CardContent>
-												<Alert>
-													<AlertCircle className="h-4 w-4" />
-													<AlertTitle>No Personalized Feed Found</AlertTitle>
-													<AlertDescription className={styles.profileSectionDescription}>It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
-												</Alert>
-												<div className="mt-6 text-center">
-													<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
-												</div>
-											</CardContent>
-										</Card>
-
-										{/*  */}
-
-										{/*  */}
-									</div>
-									{/*  */}
-								</div>
-							)}
-						</div>
-						{/* END PRFIE */}
-						<div className={styles.episodesSection}>
-							{/*  */}
-							{combinedEpisodes.length === 0 ? (
-								<Card>
-									<CardHeader>
-										<CardTitle>Weekly Episodes</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<Alert>
 											<AlertCircle className="h-4 w-4" />
-											<AlertTitle>No Episodes Available</AlertTitle>
-											<AlertDescription className={styles.profileSectionDescription}>
-												{userCurationProfile
-													? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-													: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
-											</AlertDescription>
+											<AlertTitle>No Personalized Feed Found</AlertTitle>
+											<AlertDescription className={styles.profileSectionDescription}>It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
 										</Alert>
+										<div className="mt-6 text-center">
+											<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
+										</div>
 									</CardContent>
 								</Card>
-								//
-							) : (
-								<div className="space-y-6">
-									<div className={styles.episodesHeader}>
-										<h2 className={styles.episodesTitle}>Weekly Episode</h2>
-										<div className={styles.episodesSummary}>
-											<span>Total: {combinedEpisodes.length}</span>
-											<span>Custom: {episodes.length}</span>
-											<span>Bundle: {bundleEpisodes.length}</span>
-										</div>
-									</div>
 
-									<div className={styles.episodesList}>
-										{combinedEpisodes.map(episode => (
-											<Card key={episode.episode_id} className="episodeCard">
-												<CardContent>
-													<div className={styles.episodeContent}>
-														<div className={styles.episodeInfo}>
-															<div className={styles.episodeHeader}>
-																<h3 className={styles.episodeTitle}>{episode.title}</h3>
-																<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
-																	{episode.type === "bundle" ? "Bundle" : "Custom"}
-																</span>
-															</div>
-															<div className={styles.playButtonContainer}>
-																<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className="episodePlayButton">
-																	<Play className={styles.playIcon} />
-																	Play Episode
-																</Button>
-															</div>
-															{episode.description && <p className="episodeDescription">{episode.description}</p>}
-															<p className="episodeDate">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
-														</div>
-														{episode.audio_url && playingEpisodeId === episode.episode_id && (
-															<div className={styles.episodeAudio}>
-																<AudioPlayer episode={episode} onClose={handleClosePlayer} />
-															</div>
-														)}
-													</div>
-												</CardContent>
-											</Card>
-										))}
-									</div>
-								</div>
-							)}
+								{/*  */}
+
+								{/*  */}
+							</div>
+							{/*  */}
 						</div>
-
-						{/* END EPISODE SECTION */}
-					</div>
+					)}
 				</div>
+				{/* END PRFIE */}
+				<div className={styles.episodesSection}>
+					{/*  */}
+					{combinedEpisodes.length === 0 ? (
+						<Card>
+							<CardHeader>
+								<CardTitle>Weekly Episodes</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<Alert>
+									<AlertCircle className="h-4 w-4" />
+									<AlertTitle>No Episodes Available</AlertTitle>
+									<AlertDescription className={styles.profileSectionDescription}>
+										{userCurationProfile
+											? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
+											: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
+									</AlertDescription>
+								</Alert>
+							</CardContent>
+						</Card>
+						//
+					) : (
+						<div className="space-y-6">
+							<div className={styles.episodesHeader}>
+								<h2 className={styles.episodesTitle}>Weekly Episode</h2>
+								<div className={styles.episodesSummary}>
+									<span>Total: {combinedEpisodes.length}</span>
+									<span>Custom: {episodes.length}</span>
+									<span>Bundle: {bundleEpisodes.length}</span>
+								</div>
+							</div>
+
+							<div className={styles.episodesList}>
+								{combinedEpisodes.map(episode => (
+									<Card key={episode.episode_id} className="episodeCard glassCard">
+										<CardContent>
+											<div className={styles.episodeContent}>
+												<div className={styles.episodeInfo}>
+													<div className={styles.episodeHeader}>
+														<h3 className={styles.episodeTitle}>{episode.title}</h3>
+														<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
+															{episode.type === "bundle" ? "Bundle" : "Custom"}
+														</span>
+													</div>
+													<div className={styles.playButtonContainer}>
+														<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className="episodePlayButton">
+															<Play className={styles.playIcon} />
+															Play Episode
+														</Button>
+													</div>
+													{episode.description && <p className="episodeDescription">{episode.description}</p>}
+													<p className="episodeDate">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
+												</div>
+												{episode.audio_url && playingEpisodeId === episode.episode_id && (
+													<div className={styles.episodeAudio}>
+														<AudioPlayer episode={episode} onClose={handleClosePlayer} />
+													</div>
+												)}
+											</div>
+										</CardContent>
+									</Card>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
+
+				{/* END EPISODE SECTION */}
 			</div>
+
 			{userCurationProfile && (
 				<EditUserCurationProfileModal
 					isOpen={isModalOpen}
@@ -315,7 +315,7 @@ export default function Page() {
 					/>
 				</DialogContent>
 			</Dialog>
-		</>
+		</div>
 	)
 }
 

@@ -9,7 +9,7 @@ import styles from "./page.module.css"
 
 export default async function BuildCurationPage() {
 	return (
-		<div className=".container">
+		<div className="container">
 			<main className={styles.main}>
 				<div className={styles.content}>
 					<div className={styles.header}>
