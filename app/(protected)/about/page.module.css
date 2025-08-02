@@ -357,6 +357,8 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    @import "../../../styles/mixins.css";
+
     .container {
         padding: 1rem;
     }

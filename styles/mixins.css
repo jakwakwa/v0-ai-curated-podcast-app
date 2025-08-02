@@ -48,14 +48,14 @@
     letter-spacing: 0.025em;
 }
 
-@mixin text-body {
+@define-mixin text-body {
     font-size: 1rem;
     line-height: 1.5rem;
     font-weight: 400;
     letter-spacing: 0.025em;
 }
 
-@mixin text-h3 {
+@define-mixin text-h3 {
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 600;
@@ -63,14 +63,14 @@
 }
 
 /* Button Mixins */
-@mixin button-text {
+@define-mixin button-text {
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
     letter-spacing: 0.025em;
 }
 
-@mixin button-primary {
+@define-mixin button-primary {
     background-color: hsla(var(--primary-hsl));
     color: hsla(var(--primary-foreground-hsl));
     border: 1px solid hsla(var(--primary-hsl));
@@ -79,14 +79,14 @@
     transition: all 0.2s ease-in-out;
 }
 
-@mixin button-primary-hover {
+@define-mixin button-primary-hover {
     background-color: hsla(var(--primary-hsl) / 0.9);
     border-color: hsla(var(--primary-hsl) / 0.9);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px hsla(var(--primary-hsl) / 0.3);
 }
 
-@mixin dropdown-button-text {
+@define-mixin dropdown-button-text {
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
@@ -94,7 +94,7 @@
 }
 
 /* Input Mixins */
-@mixin input-textarea {
+@define-mixin input-text {
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 400;
@@ -107,7 +107,20 @@
     transition: border-color 0.2s ease-in-out;
 }
 
-@mixin input-textarea:focus {
+@define-mixin input-textarea {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid hsla(var(--border-hsl));
+    border-radius: 0.375rem;
+    background-color: hsla(var(--background-hsl));
+    color: hsla(var(--foreground-hsl));
+    transition: border-color 0.2s ease-in-out;
+}
+
+@define-mixin input-textarea:focus {
     outline: none;
     border-color: hsla(var(--ring-hsl));
     box-shadow: 0 0 0 2px hsla(var(--ring-hsl) / 0.2);

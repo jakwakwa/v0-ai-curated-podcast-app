@@ -1,3 +1,5 @@
+@import "../../styles/mixins.css";
+
 .card {
     background-color: oklch(0.23 0.0315 195.17 / 0.25);
     border-radius: 15px;

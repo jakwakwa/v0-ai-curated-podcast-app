@@ -1,3 +1,5 @@
+@import "../../styles/mixins.css";
+
 .bellButton {
     position: relative;
 }
