@@ -33,13 +33,13 @@ export function ComponentShowcase() {
 				</div>
 
 				{/* Glass Card */}
-				<div className="rounded-2xl border border-white/10 bg-card/25 backdrop-blur-[40px] shadow-glass p-6">
+				<div className="rounded-2xl border border-white/10 bg-card/25 backdrop-blur-2xl shadow-glass p-6">
 					<H3 className="mb-2">Glass Card</H3>
 					<BodySmall>This uses the glass morphism effect</BodySmall>
 				</div>
 
 				{/* Episode Card */}
-				<div className="rounded-2xl border bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 p-6">
+				<div className="rounded-2xl border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 p-6">
 					<H3 className="mb-2">Episode Card</H3>
 					<BodySmall>This uses the episode-specific styling</BodySmall>
 				</div>

@@ -24,8 +24,8 @@ export const cardVariants = cva("rounded-2xl border transition-all duration-200"
 	variants: {
 		variant: {
 			default: "border bg-card text-card-foreground",
-			glass: "border-white/10 bg-card/25 backdrop-blur-[40px] shadow-glass",
-			episode: "border bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
+			glass: "border-white/10 bg-card/25 backdrop-blur-2xl shadow-glass",
+			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
 			bundle: "border bg-dialog-bg text-card-foreground hover:bg-card/25",
 		},
 	},

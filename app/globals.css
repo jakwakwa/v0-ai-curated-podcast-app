@@ -180,15 +180,11 @@
 
 /* Base Styles */
 @layer base {
-    * {
-        @apply border;
-    }
 
     body {
         overflow-x: hidden;
         width: 100%;
         background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 24, 51, .6), rgba(78, 38, 120, 0.3)) !important;
-        @apply bg-background;
     }
 
     .content {

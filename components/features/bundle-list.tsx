@@ -88,7 +88,7 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 							<div className="flex flex-col w-full min-w-0">
 								<div className="flex flex-row w-full min-w-0 rounded-lg gap-1">
 									{/* Image on the left - fixed square dimensions */}
-									<div className="flex-shrink-0 p-4">
+									<div className="shrink-0 p-4">
 										{bundle.image_url ? (
 											<Image src={bundle.image_url} alt={bundle.name} width={80} height={80} className="w-20 h-20 object-cover rounded-lg" />
 										) : (
