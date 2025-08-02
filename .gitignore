@@ -12,7 +12,6 @@
 /dist/
 # production
 /build/
-/docs/
 .vercel/.env.development.local
 # debug
 npm-debug.log*

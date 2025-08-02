@@ -132,12 +132,7 @@ export default function Page() {
 
 	return (
 		<div className="container mx-auto p-6 max-w-7xl">
-			<PageHeader 
-				title="Your Dashboard" 
-				description="Overview of your episodes, selected bundles, feeds etc."
-				level={1}
-				spacing="default"
-			/>
+			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
 			<div className="flex flex-col gap-4 md:gap-6 md:flex-row-reverse">
 				<div className="w-full md:w-2/5 md:min-w-[400px]">
@@ -203,7 +198,9 @@ export default function Page() {
 									<Alert>
 										<AlertCircle className="h-4 w-4" />
 										<AlertTitle>No Personalized Feed Found</AlertTitle>
-										<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
+										<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">
+											It looks like you haven't created a Personalized Feed yet. Start by creating one!
+										</AlertDescription>
 									</Alert>
 									<div className="mt-6 text-center">
 										<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
@@ -251,7 +248,9 @@ export default function Page() {
 												<div className="flex-1">
 													<div className="flex items-center gap-2 mb-2">
 														<H3>{episode.title}</H3>
-														<span className={`px-2 py-1 rounded text-sm font-medium ${episode.type === "bundle" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"}`}>
+														<span
+															className={`px-2 py-1 rounded text-sm font-medium ${episode.type === "bundle" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"}`}
+														>
 															{episode.type === "bundle" ? "Bundle" : "Custom"}
 														</span>
 													</div>
