@@ -20,26 +20,22 @@ export const typographyVariants = cva("", {
 })
 
 // Card variants - ONE unified card system to replace all your different card implementations
-export const cardVariants = cva("rounded-2xl border border-border bg-card text-card-foreground transition-all duration-200", {
-	variants: {
-		variant: {
-			default: "bg-card",
-			glass: "bg-card/25 backdrop-blur-glass border-white/10 shadow-glass",
-			episode: "bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
-			bundle: "bg-card/80 backdrop-blur-[70px] hover:transform hover:-translate-y-0.5 hover:shadow-2xl",
-		},
-		size: {
-			sm: "p-4",
-			default: "p-6",
-			lg: "p-8",
-			xl: "p-12",
-		},
-	},
-	defaultVariants: {
-		variant: "default",
-		size: "default",
-	},
-})
+export const cardVariants = cva(
+  "rounded-2xl border transition-all duration-200",
+  {
+    variants: {
+      variant: {
+        default: "border-border bg-card text-card-foreground",
+        glass: "border-white/10 bg-card/25 backdrop-blur-[40px] shadow-glass",
+        episode: "border-border bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
+        bundle: "border-border bg-card/90 text-card-foreground hover:bg-card/95",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
 // Header variants - ONE unified header system to replace all your repeated header styles
 export const headerVariants = cva("text-left", {
