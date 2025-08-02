@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Work_Sans } from "next/font/google"
 import type React from "react"
 import "./globals.css"
-import "../dist/styles.css"
 
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
