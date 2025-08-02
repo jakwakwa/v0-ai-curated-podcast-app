@@ -11,9 +11,10 @@ import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { PageHeader } from "@/components/ui/page-header"
+import { H2, H3, Body, BodySmall } from "@/components/ui/typography"
 import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
-import styles from "./page.module.css"
 
 // Type for UserCurationProfile with relations
 type UserCurationProfileWithRelations = UserCurationProfile & {
@@ -121,8 +122,8 @@ export default function Page() {
 
 	if (isLoading) {
 		return (
-			<div className={styles.loadingContainer}>
-				<div className={styles.loadingWrapper}>
+			<div className="min-h-screen flex items-center justify-center p-6">
+				<div className="flex flex-col items-center justify-center min-h-[400px]">
 					<AppSpinner size="lg" label="Loading dashboard..." />
 				</div>
 			</div>
@@ -130,57 +131,52 @@ export default function Page() {
 	}
 
 	return (
-		<div className="container">
-			<div className={styles.dashboardContainer}>
-				<div className="header">
-					<h1>Your Dashboard</h1>
-					<p>Overview of your episodes, selected bundles, feeds etc.</p>
-				</div>
-			</div>
+		<div className="container mx-auto p-6 max-w-7xl">
+			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-			<div className={styles.contentWrapper}>
-				<div className={styles.profileSection}>
+			<div className="flex flex-col gap-4 md:gap-6 md:flex-row-reverse">
+				<div className="w-full md:w-2/5 md:min-w-[400px]">
 					{userCurationProfile ? (
-						<div className={styles.gridContainer}>
-							<div className={styles.episodesSection}>
+						<div className="flex flex-col gap-8 p-0 md:w-[90%]">
+							<div className="space-y-8">
 								<Card className="mb-4">
 									<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-										<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
+										<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>
-										<p className={styles.profileSectionDescription}>Status: {userCurationProfile?.status}</p>
+										<H3 className="mt-6 text-xl font-semibold tracking-tight">{userCurationProfile?.name}</H3>
+										<BodySmall className="mt-2 mb-4">Status: {userCurationProfile?.status}</BodySmall>
 									</CardContent>
 								</Card>
 
 								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 									<Card>
 										<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-											<CardTitle className={styles.profileSectionHeader}>Selected Bundle</CardTitle>
+											<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Selected Bundle</CardTitle>
 										</CardHeader>
 										<CardContent>
-											<div className={styles.profileSectionTitle}>{userCurationProfile.selectedBundle.name}</div>
-											<p className={styles.profileSectionDescription}>{userCurationProfile.selectedBundle.description}</p>
+											<H3 className="mt-6 text-xl font-semibold tracking-tight">{userCurationProfile.selectedBundle.name}</H3>
+											<BodySmall className="mt-2 mb-4">{userCurationProfile.selectedBundle.description}</BodySmall>
 
 											{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
 												<div>
-													<p className={styles.profileSectionHeader}>Podcasts:</p>
+													<Body className="text-xl font-semibold tracking-tight mt-2 mb-2">Podcasts:</Body>
 													<ul className="list-disc pl-5 text-muted-foreground">
 														{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
-															<li className={styles.profileSectionDescription} key={podcast.podcast_id}>
+															<li className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground" key={podcast.podcast_id}>
 																{podcast.name}
 															</li>
-														)) || <li className={styles.profileSectionDescription}>No podcasts loaded</li>}
+														)) || <li className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">No podcasts loaded</li>}
 													</ul>
 												</div>
 											)}
 
 											{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
 												<div>
-													<p className={styles.profileSectionHeader}>Bundle Episodes:</p>
+													<Body className="text-xl font-semibold tracking-tight mt-2 mb-2">Bundle Episodes:</Body>
 													<ul className="list-disc pl-5 text-muted-foreground">
 														{userCurationProfile.selectedBundle.episodes.map(episode => (
-															<li className={styles.profileSectionDescription} key={episode.episode_id}>
+															<li className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground" key={episode.episode_id}>
 																{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
 															</li>
 														))}
@@ -193,38 +189,29 @@ export default function Page() {
 							</div>
 						</div>
 					) : (
-						<div className="px-0 lg:px-0 w-full">
-							<div className="max-w-2xl md:max-w-full mt-0 w-full">
-								<Card>
-									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-										<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-										{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-													Edit
-												</Button> */}
-									</CardHeader>
-									<CardContent>
-										<Alert>
-											<AlertCircle className="h-4 w-4" />
-											<AlertTitle>No Personalized Feed Found</AlertTitle>
-											<AlertDescription className={styles.profileSectionDescription}>It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
-										</Alert>
-										<div className="mt-6 text-center">
-											<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
-										</div>
-									</CardContent>
-								</Card>
-
-								{/*  */}
-
-								{/*  */}
-							</div>
-							{/*  */}
+						<div className="w-full max-w-2xl md:max-w-full">
+							<Card>
+								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+									<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<Alert>
+										<AlertCircle className="h-4 w-4" />
+										<AlertTitle>No Personalized Feed Found</AlertTitle>
+										<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">
+											It looks like you haven't created a Personalized Feed yet. Start by creating one!
+										</AlertDescription>
+									</Alert>
+									<div className="mt-6 text-center">
+										<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
+									</div>
+								</CardContent>
+							</Card>
 						</div>
 					)}
 				</div>
-				{/* END PRFIE */}
-				<div className={styles.episodesSection}>
-					{/*  */}
+
+				<div className="w-full">
 					{combinedEpisodes.length === 0 ? (
 						<Card>
 							<CardHeader>
@@ -234,7 +221,7 @@ export default function Page() {
 								<Alert>
 									<AlertCircle className="h-4 w-4" />
 									<AlertTitle>No Episodes Available</AlertTitle>
-									<AlertDescription className={styles.profileSectionDescription}>
+									<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">
 										{userCurationProfile
 											? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
 											: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
@@ -242,41 +229,42 @@ export default function Page() {
 								</Alert>
 							</CardContent>
 						</Card>
-						//
 					) : (
 						<div className="space-y-6">
-							<div className={styles.episodesHeader}>
-								<h2 className={styles.episodesTitle}>Weekly Episode</h2>
-								<div className={styles.episodesSummary}>
+							<div className="flex items-center justify-between mb-6">
+								<H2 className="text-2xl font-semibold tracking-tight">Weekly Episode</H2>
+								<div className="flex gap-4 text-base leading-6 font-normal tracking-[0.025em] text-muted-foreground">
 									<span>Total: {combinedEpisodes.length}</span>
 									<span>Custom: {episodes.length}</span>
 									<span>Bundle: {bundleEpisodes.length}</span>
 								</div>
 							</div>
 
-							<div className={styles.episodesList}>
+							<div className="flex flex-col gap-4">
 								{combinedEpisodes.map(episode => (
-									<Card key={episode.episode_id} className="episodeCard glassCard">
+									<Card key={episode.episode_id} variant="episode">
 										<CardContent>
-											<div className={styles.episodeContent}>
-												<div className={styles.episodeInfo}>
-													<div className={styles.episodeHeader}>
-														<h3 className={styles.episodeTitle}>{episode.title}</h3>
-														<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
+											<div className="flex flex-col gap-4">
+												<div className="flex-1">
+													<div className="flex items-center gap-2 mb-2">
+														<H3>{episode.title}</H3>
+														<span
+															className={`px-2 py-1 rounded text-sm font-medium ${episode.type === "bundle" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"}`}
+														>
 															{episode.type === "bundle" ? "Bundle" : "Custom"}
 														</span>
 													</div>
-													<div className={styles.playButtonContainer}>
-														<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className="episodePlayButton">
-															<Play className={styles.playIcon} />
+													<div className="mb-2">
+														<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm">
+															<Play className="w-4 h-4" />
 															Play Episode
 														</Button>
 													</div>
-													{episode.description && <p className="episodeDescription">{episode.description}</p>}
-													<p className="episodeDate">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
+													{episode.description && <Body>{episode.description}</Body>}
+													<BodySmall>Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</BodySmall>
 												</div>
 												{episode.audio_url && playingEpisodeId === episode.episode_id && (
-													<div className={styles.episodeAudio}>
+													<div className="w-full max-w-full">
 														<AudioPlayer episode={episode} onClose={handleClosePlayer} />
 													</div>
 												)}
@@ -288,8 +276,6 @@ export default function Page() {
 						</div>
 					)}
 				</div>
-
-				{/* END EPISODE SECTION */}
 			</div>
 
 			{userCurationProfile && (
