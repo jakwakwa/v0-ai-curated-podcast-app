@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
-import styles from "./edit-user-feed-modal.module.css"
 
 interface EditUserFeedModalProps {
 	isOpen: boolean
@@ -45,12 +44,12 @@ export function EditUserFeedModal({ isOpen, onClose, collection, onSave }: Reado
 					<DialogTitle>Edit Personalized Feed</DialogTitle>
 					<DialogDescription>Update your personalized feed settings</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit} className={styles.formSpaceY4}>
-					<div className={styles.formSpaceY2}>
+				<form onSubmit={handleSubmit} className="mt-4 space-y-4">
+					<div className="space-y-2">
 						<Label htmlFor="name">Feed Name</Label>
 						<Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter feed name" required />
 					</div>
-					<div className={styles.formSpaceY2}>
+					<div className="space-y-2">
 						<Label htmlFor="status">Status</Label>
 						<Select value={status} onValueChange={setStatus}>
 							<SelectTrigger>
@@ -63,7 +62,7 @@ export function EditUserFeedModal({ isOpen, onClose, collection, onSave }: Reado
 							</SelectContent>
 						</Select>
 					</div>
-					<div className={styles.formActions}>
+					<div className="flex justify-end gap-2 pt-4">
 						<Button type="button" variant="outline" onClick={onClose}>
 							Cancel
 						</Button>

@@ -1,6 +1,8 @@
 module.exports = {
     plugins: {
-        "postcss-mixins": {},
+        "postcss-mixins": {
+            mixinsFiles: "./styles/mixins.css"
+        },
         "@tailwindcss/postcss": {},
         autoprefixer: {},
     },

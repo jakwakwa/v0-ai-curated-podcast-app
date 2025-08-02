@@ -9,11 +9,11 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
 import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
 import { Typography } from "../ui/typography"
 import { BundleList } from "./bundle-list"
-import styles from "./user-feed-selector.module.css"
 
 function UserFeedSelectorWizard() {
 	const [step, setStep] = useState(1)
@@ -93,7 +93,7 @@ function UserFeedSelectorWizard() {
 	// Show loading state while checking for existing profile
 	if (isCheckingProfile) {
 		return (
-			<div className={styles.wizardContainer}>
+			<div className="max-w-[1200px] mx-auto p-8 md:p-4">
 				<div className="text-center py-12">
 					<AppSpinner size="lg" label="Checking your profile status..." />
 				</div>
@@ -104,7 +104,7 @@ function UserFeedSelectorWizard() {
 	// Show message if user already has an active profile
 	if (existingProfile) {
 		return (
-			<div className={styles.wizardContainer}>
+			<div className="max-w-[1200px] mx-auto p-8 md:p-4">
 				<Card className="w-full mx-auto">
 					<CardHeader className="text-center">
 						<div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -211,7 +211,7 @@ function UserFeedSelectorWizard() {
 							selectedPodcasts={selectedPodcasts}
 						/>
 					)}
-					<div className={styles.navigationButtons}>
+					<div className="flex justify-between mt-8 gap-4 flex-col md:flex-row">
 						<Button onClick={() => setStep(1)}>Back</Button>
 						<Button onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
 							Next
@@ -229,8 +229,10 @@ function UserFeedSelectorWizard() {
 					<Typography variant="h3" className="mb-2">
 						Personalized Feed Details
 					</Typography>
-					<div className={styles.formGroup}>
-						<label htmlFor="userCurationProfileName">Personalized Feed Name</label>
+					<div className="mb-6">
+						<Label htmlFor="userCurationProfileName" className="block text-sm font-medium mb-2">
+							Personalized Feed Name
+						</Label>
 						<Input
 							id="userCurationProfileName"
 							type="text"
@@ -239,21 +241,23 @@ function UserFeedSelectorWizard() {
 							placeholder="Enter your profile name (e.g., My Daily Tech News)"
 						/>
 					</div>
-					<div className={styles.reviewSummary}>
-						<Typography variant="h4" className="mb-2">
+					<div className="mt-8 p-6 border border-border rounded-lg bg-secondary/10">
+						<Typography variant="h4" className="mb-4">
 							Selected Content:
 						</Typography>
 						{isBundleSelection && selectedBundleId ? (
 							<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
 						) : (
-							<ul>
+							<ul className="space-y-2">
 								{selectedPodcasts.map(p => (
-									<li key={p.podcast_id}>{p.name}</li>
+									<li key={p.podcast_id} className="text-sm">
+										{p.name}
+									</li>
 								))}
 							</ul>
 						)}
 					</div>
-					<div className="flex flex-row gap-2">
+					<div className="flex flex-row gap-2 mt-8">
 						<Button onClick={() => setStep(2)}>Back</Button>
 						<Button onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
 							{isLoading ? <AppSpinner size="sm" label="Creating..." /> : "Create Personalized Feed"}
