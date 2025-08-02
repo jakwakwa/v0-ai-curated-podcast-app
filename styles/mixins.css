@@ -1,47 +1,47 @@
 /* Typography Mixins */
-@mixin h1-text {
+@define-mixin h1-text {
     font-size: 2.25rem;
     line-height: 2.5rem;
     font-weight: 700;
     letter-spacing: -0.025em;
 }
 
-@mixin h2-text {
+@define-mixin h2-text {
     font-size: 1.875rem;
     line-height: 2.25rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@mixin h3-text {
+@define-mixin h3-text {
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@mixin h4-text {
+@define-mixin h4-text {
     font-size: 1.25rem;
     line-height: 1.75rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@mixin h5-text {
+@define-mixin h5-text {
     font-size: 1.125rem;
     line-height: 1.75rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@mixin body-text {
+@define-mixin body-text {
     font-size: 1rem;
     line-height: 1.5rem;
     font-weight: 400;
     letter-spacing: 0.025em;
 }
 
-@mixin body-text-sm {
+@define-mixin body-text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 400;
