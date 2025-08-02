@@ -81,6 +81,7 @@
 .bundleImage {
     width: 100%;
     height: 200px;
+    max-width: 300px;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;
@@ -127,7 +128,8 @@
 
 .bundleInfo>img {
     width: 100%;
-    height: 200px;
+    height: 100%;
+    max-width: 200px;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;

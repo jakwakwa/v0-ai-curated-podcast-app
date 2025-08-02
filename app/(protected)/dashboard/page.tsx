@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { PageHeader } from "@/components/ui/page-header"
-import { H2, H3, Body, BodySmall } from "@/components/ui/typography"
+import { Body, BodySmall, H2, H3, Typography } from "@/components/ui/typography"
 import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
 
@@ -139,7 +139,8 @@ export default function Page() {
 					{userCurationProfile ? (
 						<div className="flex flex-col gap-8 p-0 md:w-[90%]">
 							<div className="space-y-8">
-								<Card className="mb-4">
+								{/* Profile Card - using default variant */}
+								<Card variant="default" className="mb-4">
 									<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
 										<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
 									</CardHeader>
@@ -149,13 +150,16 @@ export default function Page() {
 									</CardContent>
 								</Card>
 
+								{/* Bundle Card - using bundle variant for better visual distinction */}
 								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-									<Card>
-										<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-											<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Selected Bundle</CardTitle>
+									<Card variant="bundle">
+										<CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
+											<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">
+												<Typography variant="h3">Selected Bundle</Typography>
+											</CardTitle>
 										</CardHeader>
 										<CardContent>
-											<H3 className="mt-6 text-xl font-semibold tracking-tight">{userCurationProfile.selectedBundle.name}</H3>
+											<H3 className="w-full mt-6 text-xl font-semibold tracking-tight">{userCurationProfile.selectedBundle.name}</H3>
 											<BodySmall className="mt-2 mb-4">{userCurationProfile.selectedBundle.description}</BodySmall>
 
 											{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
@@ -190,7 +194,8 @@ export default function Page() {
 						</div>
 					) : (
 						<div className="w-full max-w-2xl md:max-w-full">
-							<Card>
+							{/* Empty State Card - using glass variant for better visual appeal */}
+							<Card variant="glass">
 								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 									<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
 								</CardHeader>
@@ -213,7 +218,7 @@ export default function Page() {
 
 				<div className="w-full">
 					{combinedEpisodes.length === 0 ? (
-						<Card>
+						<Card variant="glass">
 							<CardHeader>
 								<CardTitle>Weekly Episodes</CardTitle>
 							</CardHeader>
@@ -241,8 +246,9 @@ export default function Page() {
 							</div>
 
 							<div className="flex flex-col gap-4">
+								{/* Episode Cards - using episode variant with hover effects */}
 								{combinedEpisodes.map(episode => (
-									<Card key={episode.episode_id} variant="episode">
+									<Card key={episode.episode_id} variant="episode" className="transition-all duration-200 hover:shadow-lg">
 										<CardContent>
 											<div className="flex flex-col gap-4">
 												<div className="flex-1">
@@ -283,9 +289,11 @@ export default function Page() {
 			)}
 
 			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
-				<DialogContent>
+				<DialogContent className="w-full md:max-w-2/3 overflow-y-auto px-8">
 					<DialogHeader>
-						<DialogTitle>Personalized Feed Builder</DialogTitle>
+						<DialogTitle>
+							<Typography variant="h3">Personalized Feed Builder</Typography>
+						</DialogTitle>
 					</DialogHeader>
 					<UserFeedWizardWrapper
 						onSuccess={async () => {

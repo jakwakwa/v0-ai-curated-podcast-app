@@ -1,40 +1,6 @@
-/* Dialog Overlay */
-.overlay {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 50;
-    background-color: rgba(0, 0, 0, 0.8);
-}
+/* Dialog Overlay - Now handled by Tailwind classes in dialog.tsx */
 
-.overlay[data-state="open"] {
-    animation: fadeIn 200ms ease-out;
-}
-
-.overlay[data-state="closed"] {
-    animation: fadeOut 200ms ease-in;
-}
-
-/* Dialog Content */
-.content {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    z-index: 50;
-    display: grid;
-    width: 100%;
-    max-width: 42rem;
-    /* Doubled from 32rem */
-    transform: translateX(-50%) translateY(-50%);
-    gap: 1rem;
-    border: 1px solid oklch(var(--border));
-    background: oklch(var(--background));
-    padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    transition-duration: 200ms;
-}
+/* Dialog Content - Now handled by Tailwind classes in dialog.tsx */
 
 @media (min-width: 640px) {
     .content {
@@ -42,13 +8,7 @@
     }
 }
 
-.content[data-state="open"] {
-    animation: fadeIn 200ms ease-out, zoomIn 200ms ease-out;
-}
-
-.content[data-state="closed"] {
-    animation: fadeOut 200ms ease-in, zoomOut 200ms ease-in;
-}
+/* Content animations now handled by Tailwind classes */
 
 /* Close button */
 .close {

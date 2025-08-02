@@ -54,6 +54,8 @@ export default function AdminPage() {
 	// Episode mode and upload state
 	const [episodeMode, setEpisodeMode] = useState<"generate" | "upload">("generate")
 	const [mp3File, setMp3File] = useState<File | null>(null)
+	const [audioUrl, setAudioUrl] = useState<string>("")
+	const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file")
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 	// Bundle management state
@@ -239,10 +241,20 @@ export default function AdminPage() {
 
 	const uploadEpisode = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!(mp3File && selectedBundleId && episodeTitle)) {
-			toast.error("Please fill all required fields and select a file.")
-			return
+
+		// Validate based on upload method
+		if (uploadMethod === "file") {
+			if (!(mp3File && selectedBundleId && episodeTitle)) {
+				toast.error("Please fill all required fields and select a file.")
+				return
+			}
+		} else {
+			if (!(audioUrl && selectedBundleId && episodeTitle)) {
+				toast.error("Please fill all required fields and provide an audio URL.")
+				return
+			}
 		}
+
 		const formData = new FormData()
 		formData.append("bundleId", selectedBundleId)
 		formData.append("title", episodeTitle)
@@ -250,7 +262,13 @@ export default function AdminPage() {
 		if (episodeImageUrl.trim()) {
 			formData.append("image_url", episodeImageUrl.trim())
 		}
-		formData.append("file", mp3File)
+
+		// Add either file or audioUrl based on upload method
+		if (uploadMethod === "file") {
+			formData.append("file", mp3File!)
+		} else {
+			formData.append("audioUrl", audioUrl.trim())
+		}
 
 		setIsLoading(true)
 		try {
@@ -268,6 +286,7 @@ export default function AdminPage() {
 			setEpisodeDescription("")
 			setEpisodeImageUrl("")
 			setMp3File(null)
+			setAudioUrl("")
 			if (fileInputRef.current) fileInputRef.current.value = ""
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
@@ -833,25 +852,58 @@ export default function AdminPage() {
 								</CardContent>
 							</Card>
 
-							{/* Step 3: Upload MP3 */}
+							{/* Step 3: Upload Audio */}
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
 										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
-										Upload MP3 File
+										Upload Audio
 									</CardTitle>
-									<CardDescription>Upload your finalized episode audio file (MP3 only)</CardDescription>
+									<CardDescription>Choose how to provide the episode audio</CardDescription>
 								</CardHeader>
 								<CardContent className="p-4">
-									<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
-									{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
+									{/* Upload Method Toggle */}
+									<div className="mb-4">
+										<Label>Upload Method</Label>
+										<div className="flex gap-2 mt-2">
+											<Button type="button" variant={uploadMethod === "file" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("file")}>
+												Upload File
+											</Button>
+											<Button type="button" variant={uploadMethod === "url" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("url")}>
+												Direct URL
+											</Button>
+										</div>
+									</div>
+
+									{/* File Upload Option */}
+									{uploadMethod === "file" && (
+										<div>
+											<Label htmlFor="mp3File">Audio File (MP3)</Label>
+											<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
+											{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
+										</div>
+									)}
+
+									{/* URL Input Option */}
+									{uploadMethod === "url" && (
+										<div>
+											<Label htmlFor="audioUrl">Audio URL</Label>
+											<Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" />
+											<p className="text-xs text-muted-foreground mt-1">Provide a direct link to the audio file (MP3 recommended)</p>
+										</div>
+									)}
 								</CardContent>
 							</Card>
 
 							{/* Upload Button */}
 							<Card>
 								<CardContent className="pt-6 p-4">
-									<Button type="submit" disabled={!(mp3File && selectedBundleId && episodeTitle) || isLoading} className="w-full" size="lg">
+									<Button
+										type="submit"
+										disabled={!(selectedBundleId && episodeTitle && ((uploadMethod === "file" && mp3File) || (uploadMethod === "url" && audioUrl))) || isLoading}
+										className="w-full"
+										size="lg"
+									>
 										{isLoading ? (
 											<>
 												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />

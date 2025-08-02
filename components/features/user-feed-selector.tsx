@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
 import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
+import { Typography } from "../ui/typography"
 import { BundleList } from "./bundle-list"
 import styles from "./user-feed-selector.module.css"
 
@@ -115,7 +116,9 @@ function UserFeedSelectorWizard() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="text-center space-y-4">
-						<p className="text-muted-foreground max-w-md mx-auto">You can only have one active Personalized Feed at a time. You can edit your existing profile or deactivate it to create a new one.</p>
+						<Typography variant="body" className="text-muted-foreground max-w-md mx-auto">
+							You can only have one active Personalized Feed at a time. You can edit your existing profile or deactivate it to create a new one.
+						</Typography>
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
 							<Link href="/dashboard">
 								<Button className="w-full sm:w-auto">
@@ -136,40 +139,59 @@ function UserFeedSelectorWizard() {
 	}
 
 	return (
-		<div className={styles.wizardContainer}>
+		<div className="flex flex-col gap-0 justify-center items-center w-full px-0">
 			{/* Step 1: Choose User Curation Profile Type */}
 			{step === 1 && (
-				<div>
-					<h2 className={styles.stepTitle}>Select a Feed:</h2>
-					<div className={styles.buttonGroup}>
-						<Button
-							onClick={() => {
-								setIsBundleSelection(true)
-								setStep(2)
-							}}
-							variant="outline"
-						>
-							<h3>PODSLICE Bundles</h3>
-							<p>Choose from pre-selected bundles (uneditable).</p>
-						</Button>
-						<Button
-							onClick={() => {
-								setIsBundleSelection(false)
-								setStep(2)
-							}}
-							variant="outline"
-						>
-							<h3>Custom Personalized Feed</h3>
-							<p>Select up to 5 individual podcasts.</p>
-						</Button>
-					</div>
+				<div className="w-full">
+					<Card className="w-full" variant="bundle">
+						<CardHeader>
+							<CardTitle className="text-primary w-full inline-block">PODSLICE Bundles</CardTitle>
+							<CardDescription>
+								<Typography className="text-primary w-full" variant="body" as="span">
+									Choose from pre-selected bundles.
+								</Typography>
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="flex flex-col gap-2">
+							<Button
+								onClick={() => {
+									setIsBundleSelection(true)
+									setStep(2)
+								}}
+								variant={isBundleSelection ? "default" : "outline"}
+								size="bundles"
+								className="w-full min-h-12 h-auto"
+							>
+								Choose from pre-selected bundles.
+							</Button>
+							<Button
+								onClick={() => {
+									setIsBundleSelection(false)
+									setStep(2)
+								}}
+								variant="outline"
+								className="w-full h-auto"
+							>
+								<div className="flex flex-col gap-2 w-full items-start px-4 py-2">
+									<Typography className="text-primary w-full inline-block" variant="h4" as="h4">
+										Custom Personalized Feed
+									</Typography>
+									<Typography className="text-primary w-full" variant="body" as="span">
+										Select up to 5 individual podcasts.
+									</Typography>
+								</div>
+							</Button>
+						</CardContent>
+					</Card>
 				</div>
 			)}
 
 			{/* Step 2: Select Content */}
 			{step === 2 && (
 				<div>
-					<h2 className={styles.stepTitle}>{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}</h2>
+					<Typography variant="h2" className="mb-2">
+						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
+					</Typography>
 					{isBundleSelection ? (
 						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} />
 					) : (
@@ -201,8 +223,12 @@ function UserFeedSelectorWizard() {
 			{/* Step 3: Review and Create */}
 			{step === 3 && (
 				<div>
-					<h2 className={styles.stepTitle}>Review Your Personalized Feed</h2>
-					<h3>Personalized Feed Details</h3>
+					<Typography variant="h2" className="mb-2">
+						Review Your Personalized Feed
+					</Typography>
+					<Typography variant="h3" className="mb-2">
+						Personalized Feed Details
+					</Typography>
 					<div className={styles.formGroup}>
 						<label htmlFor="userCurationProfileName">Personalized Feed Name</label>
 						<Input
@@ -214,9 +240,11 @@ function UserFeedSelectorWizard() {
 						/>
 					</div>
 					<div className={styles.reviewSummary}>
-						<h4>Selected Content:</h4>
+						<Typography variant="h4" className="mb-2">
+							Selected Content:
+						</Typography>
 						{isBundleSelection && selectedBundleId ? (
-							<p>Bundle ID: {selectedBundleId}</p>
+							<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
 						) : (
 							<ul>
 								{selectedPodcasts.map(p => (
@@ -225,10 +253,10 @@ function UserFeedSelectorWizard() {
 							</ul>
 						)}
 					</div>
-					<div className={styles.navigationButtons}>
+					<div className="flex flex-row gap-2">
 						<Button onClick={() => setStep(2)}>Back</Button>
 						<Button onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
-							{isLoading ? "Creating..." : "Create Personalized Feed"}
+							{isLoading ? <AppSpinner size="sm" label="Creating..." /> : "Create Personalized Feed"}
 						</Button>
 					</div>
 				</div>

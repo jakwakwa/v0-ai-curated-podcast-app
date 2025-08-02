@@ -45,6 +45,7 @@ export async function POST(request: Request) {
 		const description = formData.get("description") as string
 		const image_url = formData.get("image_url") as string | null
 		const file = formData.get("file") as File
+		const audioUrl = formData.get("audioUrl") as string | null
 
 		console.log("Upload episode request:", {
 			bundleId,
@@ -52,12 +53,24 @@ export async function POST(request: Request) {
 			hasDescription: !!description,
 			hasImageUrl: !!image_url,
 			hasFile: !!file,
+			hasAudioUrl: !!audioUrl,
 			fileName: file?.name,
 		})
 
-		if (!(bundleId && title && file)) {
-			console.log("Validation failed:", { bundleId: !!bundleId, title: !!title, file: !!file })
-			return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
+		// Validate that either file or audioUrl is provided
+		if (!(bundleId && title && (file || audioUrl))) {
+			console.log("Validation failed:", {
+				bundleId: !!bundleId,
+				title: !!title,
+				file: !!file,
+				audioUrl: !!audioUrl,
+			})
+			return NextResponse.json(
+				{
+					message: "Missing required fields. Please provide either a file upload or an audio URL.",
+				},
+				{ status: 400 }
+			)
 		}
 
 		// Verify bundle exists
@@ -86,22 +99,30 @@ export async function POST(request: Request) {
 			podcastCount: bundle.bundle_podcast.length,
 		})
 
-		// Convert file to buffer
-		const buffer = Buffer.from(await file.arrayBuffer())
+		let finalAudioUrl: string
 
-		// Generate filename following the same pattern as functions.ts
-		const audioFileName = `podcasts/${bundleId}-${Date.now()}.mp3`
+		// Handle file upload to GCS
+		if (file) {
+			// Convert file to buffer
+			const buffer = Buffer.from(await file.arrayBuffer())
 
-		// Upload to the same Google Cloud Storage bucket
-		const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!
-		const uploadResult = await uploadContentToBucket(bucketName, buffer, audioFileName)
+			// Generate filename following the same pattern as functions.ts
+			const audioFileName = `podcasts/${bundleId}-${Date.now()}.mp3`
 
-		if (!uploadResult.success) {
-			return NextResponse.json({ message: "Failed to upload file to storage" }, { status: 500 })
+			// Upload to the same Google Cloud Storage bucket
+			const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!
+			const uploadResult = await uploadContentToBucket(bucketName, buffer, audioFileName)
+
+			if (!uploadResult.success) {
+				return NextResponse.json({ message: "Failed to upload file to storage" }, { status: 500 })
+			}
+
+			// Create the full URL following the same pattern as functions.ts
+			finalAudioUrl = `https://storage.cloud.google.com/${bucketName}/${audioFileName}`
+		} else {
+			// Use the provided audio URL directly
+			finalAudioUrl = audioUrl!
 		}
-
-		// Create the full URL following the same pattern as functions.ts
-		const audioUrl = `https://storage.cloud.google.com/${bucketName}/${audioFileName}`
 
 		// Create episode in DB following the same pattern as the admin generation function
 		const currentWeek = new Date()
@@ -112,7 +133,7 @@ export async function POST(request: Request) {
 
 		console.log("Creating episode with:", {
 			title,
-			audioUrl,
+			audioUrl: finalAudioUrl,
 			bundleId,
 			podcastId: firstPodcast?.podcast_id,
 			hasFirstPodcast: !!firstPodcast,
@@ -123,7 +144,7 @@ export async function POST(request: Request) {
 				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				title,
 				description: description || "",
-				audio_url: audioUrl,
+				audio_url: finalAudioUrl,
 				image_url: image_url || bundle.image_url || null,
 				published_at: new Date(),
 				week_nr: currentWeek,

@@ -5,8 +5,8 @@ import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Bundle, Podcast } from "@/lib/types"
-import styles from "./bundle-list.module.css"
 
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
@@ -47,7 +47,6 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center min-h-[200px]">
-				{/* AppSpinner component was removed, so this will be a placeholder or removed if not needed */}
 				<p>Loading PODSLICE Bundles...</p>
 			</div>
 		)
@@ -56,7 +55,6 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 	if (error) {
 		return (
 			<div className="max-w-2xl mx-auto">
-				{/* Alert component was removed, so this will be a placeholder or removed if not needed */}
 				<p>Unable to Load PODSLICE Bundles: {error}</p>
 				<div className="mt-6 text-center">
 					<Button onClick={fetchCuratedBundles} variant="outline">
@@ -70,7 +68,6 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 	if (curatedBundles.length === 0) {
 		return (
 			<div className="max-w-2xl mx-auto">
-				{/* Alert component was removed, so this will be a placeholder or removed if not needed */}
 				<p>No PODSLICE Bundles Available. Please check back later or contact support if this problem persists.</p>
 				<div className="mt-6 text-center">
 					<Button onClick={fetchCuratedBundles} variant="outline">
@@ -82,38 +79,65 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+		<div className="flex flex-col gap-4 justify-center items-center w-full max-w-md">
 			{curatedBundles.map(bundle => (
-				<Card key={bundle.bundle_id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onBundleSelect(bundle)}>
-					<div className="wrapper">
-						<div className="title">
-							<h2>{bundle.name}</h2>
-						</div>
-						<div className="bundleDescription">
-							<p>{bundle.description}</p>
-						</div>
-						<div className="bundleImage">
-							{/*  */}
-							{bundle.image_url ? <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImg} width={200} height={100} /> : null}
-						</div>{" "}
-					</div>
+				<Card key={bundle.bundle_id} className="cursor-pointer hover:shadow-lg transition-shadow w-full" onClick={() => onBundleSelect(bundle)}>
+					<CardContent className="p-2">
+						<div className="flex flex-col">
+							{/* Bundle info on the right */}
+							<div className="flex flex-col w-full min-w-0">
+								<div className="flex flex-row w-full min-w-0 rounded-lg gap-1">
+									{/* Image on the left - fixed square dimensions */}
+									<div className="flex-shrink-0 p-4">
+										{bundle.image_url ? (
+											<Image src={bundle.image_url} alt={bundle.name} width={80} height={80} className="w-20 h-20 object-cover rounded-lg" />
+										) : (
+											<div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
+												<span className="text-muted-foreground text-xs">No Image</span>
+											</div>
+										)}
+									</div>
 
-					<CardContent className="p-4">
-						<CardTitle className="text-lg font-semibold mb-2">{bundle.name}</CardTitle>
-						<div className="mb-4">
-							<h5 className="font-medium mb-2">Included Podcastss s s:</h5>
-							<ul className="space-y-1">
-								{bundle.podcasts?.slice(0, 3).map(podcast => (
-									<li key={podcast.podcast_id} className="text-sm text-muted-foreground">
-										{podcast.name}
-									</li>
-								))}
-								{bundle.podcasts && bundle.podcasts.length > 3 && <li className="text-sm text-muted-foreground">+{bundle.podcasts.length - 3} more</li>}
-							</ul>
-						</div>
-						<div className="flex items-center gap-2 text-sm text-muted-foreground">
-							<Lock size={12} />
-							Fixed Selection
+									<div className="flex flex-col w-full min-w-0 py-4 items-start">
+										{/* Bundle title - truncated */}
+										<CardTitle className="text-lg font-semibold mb-2 truncate">{bundle.name}</CardTitle>
+										{/* Bundle description - truncated with tooltip */}
+										<div className="mb-3">
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<p className="text-sm text-muted-foreground line-clamp-2 leading-tight">
+														{bundle.description}
+														{bundle.description && bundle.description.length > 100 && <span className="font-bold text-primary ml-1">read more</span>}
+													</p>
+												</TooltipTrigger>
+												<TooltipContent side="top" className="max-w-xs">
+													<p>{bundle.description}</p>
+												</TooltipContent>
+											</Tooltip>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border border-border">
+								{/* Podcasts list - truncated */}
+								<div className="mb-0 p-4">
+									<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
+									<ul className="space-y-1 pt-2">
+										{bundle.podcasts?.slice(0, 2).map(podcast => (
+											<li key={podcast.podcast_id} className="text-sm text-muted-foreground truncate">
+												{podcast.name}
+											</li>
+										))}
+										{bundle.podcasts && bundle.podcasts.length > 2 && <li className="text-sm text-muted-foreground">+{bundle.podcasts.length - 2} more</li>}
+									</ul>
+								</div>
+
+								{/* Fixed selection indicator */}
+								<div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
+									<Lock size={12} />
+									<span className="truncate">Fixed Selection</span>
+								</div>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
