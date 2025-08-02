@@ -27,7 +27,7 @@ export function ComponentShowcase() {
 			{/* Cards - replaces all your different card implementations */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 				{/* Default Card */}
-				<div className="rounded-2xl border border-border bg-card text-card-foreground transition-all duration-200 p-6">
+				<div className="rounded-2xl border bg-card text-card-foreground transition-all duration-200 p-6">
 					<H3 className="mb-2">Default Card</H3>
 					<BodySmall>This uses the default card styling</BodySmall>
 				</div>
@@ -39,7 +39,7 @@ export function ComponentShowcase() {
 				</div>
 
 				{/* Episode Card */}
-				<div className="rounded-2xl border border-border bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 p-6">
+				<div className="rounded-2xl border bg-gradient-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 p-6">
 					<H3 className="mb-2">Episode Card</H3>
 					<BodySmall>This uses the episode-specific styling</BodySmall>
 				</div>

@@ -241,7 +241,7 @@ function UserFeedSelectorWizard() {
 							placeholder="Enter your profile name (e.g., My Daily Tech News)"
 						/>
 					</div>
-					<div className="mt-8 p-6 border border-border rounded-lg bg-secondary/10">
+					<div className="mt-8 p-6 border rounded-lg bg-secondary/10">
 						<Typography variant="h4" className="mb-4">
 							Selected Content:
 						</Typography>

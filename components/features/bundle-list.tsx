@@ -118,7 +118,7 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 									</div>
 								</div>
 							</div>
-							<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border border-border">
+							<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border">
 								{/* Podcasts list - truncated */}
 								<div className="mb-0 p-4">
 									<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
