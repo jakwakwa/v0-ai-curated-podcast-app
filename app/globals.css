@@ -181,7 +181,7 @@
 /* Base Styles */
 @layer base {
     * {
-        @apply border outline-ring/50;
+        @apply border;
     }
 
     body {
