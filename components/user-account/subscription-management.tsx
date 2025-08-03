@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import styles from "./subscription-management.module.css"
 
 interface SubscriptionManagementProps {
 	className?: string
@@ -98,19 +97,19 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 			{/* Current Plan Section */}
 			<Card>
 				<CardHeader>
-					<CardTitle className={styles.cardTitle}>
-						<CreditCard className={styles.iconMuted} />
+					<CardTitle className="flex items-center gap-2">
+						<CreditCard className="w-5 h-5 text-muted-foreground" />
 						Current Plan
 					</CardTitle>
 					<CardDescription>Manage your subscription plan and billing information.</CardDescription>
 				</CardHeader>
-				<CardContent className={styles.cardContentSpaceY6}>
-					<div className={styles.planBox}>
-						<div className={styles.flexBetween}>
+				<CardContent className="space-y-6">
+					<div className="p-4 border border-muted/50 rounded-lg bg-muted/50">
+						<div className="flex items-center justify-between">
 							<div>
-								<p className={styles.fontMedium}>{currentPlan}</p>
-								<p className={styles.textSmMuted}>{subscription ? "Active subscription" : "Free plan"}</p>
-								{currentPlanTier?.description && <p className={`${styles.textSmMuted} ${styles.mt1}`}>{currentPlanTier.description}</p>}
+								<p className="font-medium">{currentPlan}</p>
+								<p className="text-sm text-muted-foreground">{subscription ? "Active subscription" : "Free plan"}</p>
+								{currentPlanTier?.description && <p className="text-sm text-muted-foreground mt-1">{currentPlanTier.description}</p>}
 							</div>
 							<Badge variant={subscription ? "default" : "secondary"}>{subscription ? "Active" : "Free"}</Badge>
 						</div>
@@ -119,22 +118,22 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 					<Separator />
 
 					{/* Plan Actions */}
-					<div className={styles.sectionSpaceY4}>
-						<h3 className={styles.textLgSemibold}>Plan Actions</h3>
+					<div className="space-y-4">
+						<h3 className="text-lg font-semibold">Plan Actions</h3>
 
 						{/* Upgrade Options */}
 						{getUpgradeOptions().length > 0 && (
-							<div className={styles.sectionSpaceY3}>
-								<h4 className={styles.textSmMediumMuted}>Upgrade Options</h4>
-								<div className={styles.gridGap3}>
+							<div className="space-y-3">
+								<h4 className="text-sm font-medium text-muted-foreground">Upgrade Options</h4>
+								<div className="grid gap-3">
 									{getUpgradeOptions().map(tier => (
-										<Button key={tier.id} variant="outline" className={styles.buttonUpgrade} onClick={() => handleUpgrade(tier.paystackPlanCode || "")} disabled={isLoading}>
-											<div className={styles.flexRow}>
-												<ArrowUp className={styles.iconSmall} />
-												<span className={styles.fontMedium}>Upgrade to {tier.name}</span>
-												<span className={styles.mlAuto}>${tier.price}/month</span>
+										<Button key={tier.id} variant="outline" className="h-auto p-4 flex-col items-start flex" onClick={() => handleUpgrade(tier.paystackPlanCode || "")} disabled={isLoading}>
+											<div className="flex items-center gap-2 w-full">
+												<ArrowUp className="h-4 w-4" />
+												<span className="font-medium">Upgrade to {tier.name}</span>
+												<span className="ml-auto text-sm text-muted-foreground">${tier.price}/month</span>
 											</div>
-											<span className={`${styles.textSmMuted} ${styles.mt1}`}>{tier.description}</span>
+											<span className="text-sm text-muted-foreground mt-1">{tier.description}</span>
 										</Button>
 									))}
 								</div>
@@ -143,17 +142,17 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 
 						{/* Downgrade Options */}
 						{getDowngradeOptions().length > 0 && (
-							<div className={styles.sectionSpaceY3}>
-								<h4 className={styles.textSmMediumMuted}>Downgrade Options</h4>
-								<div className={styles.gridGap3}>
+							<div className="space-y-3">
+								<h4 className="text-sm font-medium text-muted-foreground">Downgrade Options</h4>
+								<div className="grid gap-3">
 									{getDowngradeOptions().map(tier => (
-										<Button key={tier.id} variant="outline" className={styles.buttonUpgrade} onClick={() => handleDowngrade(tier.paystackPlanCode || "")} disabled={isLoading}>
-											<div className={styles.flexRow}>
-												<ArrowDown className={styles.iconSmall} />
-												<span className={styles.fontMedium}>Downgrade to {tier.name}</span>
-												<span className={styles.mlAuto}>${tier.price}/month</span>
+										<Button key={tier.id} variant="outline" className="h-auto p-4 flex-col items-start flex" onClick={() => handleDowngrade(tier.paystackPlanCode || "")} disabled={isLoading}>
+											<div className="flex items-center gap-2 w-full">
+												<ArrowDown className="h-4 w-4" />
+												<span className="font-medium">Downgrade to {tier.name}</span>
+												<span className="ml-auto text-sm text-muted-foreground">${tier.price}/month</span>
 											</div>
-											<span className={`${styles.textSmMuted} ${styles.mt1}`}>{tier.description}</span>
+											<span className="text-sm text-muted-foreground mt-1">{tier.description}</span>
 										</Button>
 									))}
 								</div>
@@ -161,30 +160,30 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 						)}
 
 						{/* Billing History */}
-						<Button variant="outline" className={styles.buttonUpgrade} onClick={handleLoadBillingHistory} disabled={isLoading}>
-							<div className={styles.flexRow}>
-								<History className={styles.iconSmall} />
-								<span className={styles.fontMedium}>Billing History</span>
+						<Button variant="outline" className="h-auto p-4 flex-col items-start flex" onClick={handleLoadBillingHistory} disabled={isLoading}>
+							<div className="flex items-center gap-2 w-full">
+								<History className="h-4 w-4" />
+								<span className="font-medium">Billing History</span>
 							</div>
-							<span className={`${styles.textSmMuted} ${styles.mt1}`}>View past payments and transactions</span>
+							<span className="text-sm text-muted-foreground mt-1">View past payments and transactions</span>
 						</Button>
 
 						{/* Cancel Subscription */}
 						{subscription && (
 							<Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
 								<DialogTrigger asChild>
-									<Button variant="outline" className={`${styles.buttonUpgrade} ${styles.textDestructive}`}>
-										<div className={styles.flexRow}>
-											<X className={styles.iconSmall} />
-											<span className={styles.fontMedium}>Cancel Subscription</span>
+									<Button variant="outline" className="h-auto p-4 flex-col items-start flex text-destructive">
+										<div className="flex items-center gap-2 w-full">
+											<X className="h-4 w-4" />
+											<span className="font-medium">Cancel Subscription</span>
 										</div>
-										<span className={`${styles.textSmMuted} ${styles.mt1}`}>Cancel your subscription (access until end of billing period)</span>
+										<span className="text-sm text-muted-foreground mt-1">Cancel your subscription (access until end of billing period)</span>
 									</Button>
 								</DialogTrigger>
 								<DialogContent>
 									<DialogHeader>
-										<DialogTitle className={styles.cardTitle}>
-											<AlertTriangle className={`${styles.iconMuted} ${styles.textDestructive}`} />
+										<DialogTitle className="flex items-center gap-2">
+											<AlertTriangle className="h-5 w-5 text-destructive" />
 											Cancel Subscription
 										</DialogTitle>
 										<DialogDescription>
@@ -207,27 +206,27 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 					<Separator />
 
 					{/* Subscription Details */}
-					<div className={styles.sectionSpaceY4}>
-						<h3 className={styles.textLgSemibold}>Subscription Details</h3>
-						<div className={styles.grid2}>
-							<div className={styles.sectionSpaceY2}>
-								<p className={styles.textSmMediumMuted}>Status</p>
-								<p className={styles.textSmMuted}>{subscription?.status || "Free"}</p>
+					<div className="space-y-4">
+						<h3 className="text-lg font-semibold">Subscription Details</h3>
+						<div className="grid gap-4 md:grid-cols-2">
+							<div className="space-y-2">
+								<p className="text-sm font-medium text-muted-foreground">Status</p>
+								<p className="text-sm text-muted-foreground">{subscription?.status || "Free"}</p>
 							</div>
-							<div className={styles.sectionSpaceY2}>
-								<p className={styles.textSmMediumMuted}>Next Billing Date</p>
-								<p className={styles.textSmMuted}>{subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString() : "N/A"}</p>
+							<div className="space-y-2">
+								<p className="text-sm font-medium text-muted-foreground">Next Billing Date</p>
+								<p className="text-sm text-muted-foreground">{subscription?.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString() : "N/A"}</p>
 							</div>
 							{subscription?.trialEnd && (
-								<div className={styles.sectionSpaceY2}>
-									<p className={styles.textSmMediumMuted}>Trial Ends</p>
-									<p className={styles.textSmMuted}>{new Date(subscription.trialEnd).toLocaleDateString()}</p>
+								<div className="space-y-2">
+									<p className="text-sm font-medium text-muted-foreground">Trial Ends</p>
+									<p className="text-sm text-muted-foreground">{new Date(subscription.trialEnd).toLocaleDateString()}</p>
 								</div>
 							)}
 							{subscription?.canceledAt && (
-								<div className={styles.sectionSpaceY2}>
-									<p className={styles.textSmMediumMuted}>Cancelled On</p>
-									<p className={styles.textSmMuted}>{new Date(subscription.canceledAt).toLocaleDateString()}</p>
+								<div className="space-y-2">
+									<p className="text-sm font-medium text-muted-foreground">Cancelled On</p>
+									<p className="text-sm text-muted-foreground">{new Date(subscription.canceledAt).toLocaleDateString()}</p>
 								</div>
 							)}
 						</div>
@@ -237,29 +236,29 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 
 			{/* Billing History Dialog */}
 			<Dialog open={showBillingHistory} onOpenChange={setShowBillingHistory}>
-				<DialogContent className={styles.maxW2xl}>
+				<DialogContent className="max-w-2xl">
 					<DialogHeader>
-						<DialogTitle className={styles.cardTitle}>
-							<History className={styles.iconMuted} />
+						<DialogTitle className="flex items-center gap-2">
+							<History className="h-5 w-5 text-muted-foreground" />
 							Billing History
 						</DialogTitle>
 						<DialogDescription>View your past payments and subscription changes.</DialogDescription>
 					</DialogHeader>
-					<div className={styles.maxH96}>
+					<div className="max-h-96 overflow-y-auto">
 						{billingHistory.length === 0 ? (
-							<div className={styles.textCenterPy8}>
-								<p className={styles.textSmMuted}>No billing history available.</p>
+							<div className="text-center py-8">
+								<p className="text-sm text-muted-foreground">No billing history available.</p>
 							</div>
 						) : (
-							<div className={styles.sectionSpaceY3}>
+							<div className="space-y-3">
 								{billingHistory.map(item => (
-									<div key={item.id} className={styles.billingHistoryItem}>
-										<div className={styles.spaceY1}>
-											<p className={styles.fontMedium}>{item.description}</p>
-											<p className={styles.textSmMuted}>{new Date(item.date).toLocaleDateString()}</p>
+									<div key={item.id} className="flex items-center justify-between p-3 border border-muted-foreground/20 rounded-lg">
+										<div className="space-y-1">
+											<p className="font-medium">{item.description}</p>
+											<p className="text-sm text-muted-foreground">{new Date(item.date).toLocaleDateString()}</p>
 										</div>
-										<div className={styles.textRight}>
-											<p className={styles.fontMedium}>{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}</p>
+										<div className="text-right">
+											<p className="font-medium">{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}</p>
 											<Badge variant={item.status === "active" ? "default" : "secondary"}>{item.status}</Badge>
 										</div>
 									</div>

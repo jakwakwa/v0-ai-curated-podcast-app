@@ -121,13 +121,13 @@ function UserFeedSelectorWizard() {
 						</Typography>
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
 							<Link href="/dashboard">
-								<Button className="w-full sm:w-auto">
+								<Button variant="default" className="w-full sm:w-auto">
 									<ArrowLeft className="w-4 h-4 mr-2" />
 									Go to Dashboard
 								</Button>
 							</Link>
 							<Link href="/curation-profile-management">
-								<Button variant="outline" className="w-full sm:w-auto">
+								<Button variant="default" className="w-full sm:w-auto">
 									Manage Profile
 								</Button>
 							</Link>
@@ -158,18 +158,18 @@ function UserFeedSelectorWizard() {
 									setIsBundleSelection(true)
 									setStep(2)
 								}}
-								variant={isBundleSelection ? "default" : "outline"}
+								variant="default"
 								size="bundles"
 								className="w-full min-h-12 h-auto"
 							>
-								Choose from pre-selected bundles.
+								Choose from pre-selected bundles
 							</Button>
 							<Button
 								onClick={() => {
 									setIsBundleSelection(false)
 									setStep(2)
 								}}
-								variant="outline"
+								variant="default"
 								className="w-full h-auto"
 							>
 								<div className="flex flex-col gap-2 w-full items-start px-4 py-2">
@@ -193,7 +193,7 @@ function UserFeedSelectorWizard() {
 						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
 					</Typography>
 					{isBundleSelection ? (
-						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} />
+						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} selectedBundleId={selectedBundleId} />
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {
@@ -212,8 +212,10 @@ function UserFeedSelectorWizard() {
 						/>
 					)}
 					<div className="flex justify-between mt-8 gap-4 flex-col md:flex-row">
-						<Button onClick={() => setStep(1)}>Back</Button>
-						<Button onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
+						<Button variant="default" onClick={() => setStep(1)}>
+							Back
+						</Button>
+						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
 							Next
 						</Button>
 					</div>
@@ -222,47 +224,55 @@ function UserFeedSelectorWizard() {
 
 			{/* Step 3: Review and Create */}
 			{step === 3 && (
-				<div>
-					<Typography variant="h2" className="mb-2">
-						Review Your Personalized Feed
-					</Typography>
-					<Typography variant="h3" className="mb-2">
-						Personalized Feed Details
-					</Typography>
-					<div className="mb-6">
-						<Label htmlFor="userCurationProfileName" className="block text-sm font-medium mb-2">
-							Personalized Feed Name
-						</Label>
-						<Input
-							id="userCurationProfileName"
-							type="text"
-							value={userCurationProfileName}
-							onChange={e => setUserCurationProfileName(e.target.value)}
-							placeholder="Enter your profile name (e.g., My Daily Tech News)"
-						/>
-					</div>
-					<div className="mt-8 p-6 border rounded-lg bg-secondary/10">
-						<Typography variant="h4" className="mb-4">
-							Selected Content:
-						</Typography>
-						{isBundleSelection && selectedBundleId ? (
-							<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
-						) : (
-							<ul className="space-y-2">
-								{selectedPodcasts.map(p => (
-									<li key={p.podcast_id} className="text-sm">
-										{p.name}
-									</li>
-								))}
-							</ul>
-						)}
-					</div>
-					<div className="flex flex-row gap-2 mt-8">
-						<Button onClick={() => setStep(2)}>Back</Button>
-						<Button onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
-							{isLoading ? <AppSpinner size="sm" label="Creating..." /> : "Create Personalized Feed"}
-						</Button>
-					</div>
+				<div className="w-full">
+					<Card className="w-full" variant="bundle">
+						<CardHeader>
+							<CardTitle className="text-primary w-full inline-block">Review Your Personalized Feed</CardTitle>
+							<CardDescription>
+								<Typography className="text-primary w-full" variant="body" as="span">
+									Personalized Feed Details
+								</Typography>
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="flex flex-col gap-6">
+							<div>
+								<Label htmlFor="userCurationProfileName" className="block text-sm font-medium mb-2">
+									Personalized Feed Name
+								</Label>
+								<Input
+									id="userCurationProfileName"
+									type="text"
+									value={userCurationProfileName}
+									onChange={e => setUserCurationProfileName(e.target.value)}
+									placeholder="Enter your profile name (e.g., My Daily Tech News)"
+								/>
+							</div>
+							<div className="p-6 border rounded-lg bg-secondary/10">
+								<Typography variant="h4" className="mb-4">
+									Selected Content:
+								</Typography>
+								{isBundleSelection && selectedBundleId ? (
+									<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
+								) : (
+									<ul className="space-y-2">
+										{selectedPodcasts.map(p => (
+											<li key={p.podcast_id} className="text-sm">
+												{p.name}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+							<div className="flex flex-row gap-2">
+								<Button variant="outline" onClick={() => setStep(2)}>
+									Back
+								</Button>
+								<Button variant="default" onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
+									{isLoading ? <AppSpinner size="sm" label="Creating..." /> : "Create Personalized Feed"}
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
 				</div>
 			)}
 		</div>

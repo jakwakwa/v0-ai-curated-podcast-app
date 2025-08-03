@@ -1,17 +1,6 @@
-.container {
-  display: flex;
-  flex-direction: column;
-}
-
-.main {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.content {
-  width: 100%;
-  max-width: 92rem;
-}
+/* This file has been migrated to use Tailwind classes directly in the component */
+/* Layout classes now use:
+   - Container: flex flex-col
+   - Main: flex flex-1 items-center justify-center p-4
+   - Content: w-full max-w-[92rem]
+*/

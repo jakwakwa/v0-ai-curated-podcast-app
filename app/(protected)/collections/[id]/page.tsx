@@ -129,7 +129,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 						<h3 className="text-lg font-semibold mb-2">No Episodes Generated Yet</h3>
 						<p className="text-muted-foreground mb-4">This profile hasn't generated any episodes yet. Episodes are created weekly.</p>
 						{userCurationProfile.status === "Saved" && (
-							<Button onClick={() => handlePlayEpisode(episodes[0])} disabled>
+							<Button variant="default" onClick={() => handlePlayEpisode(episodes[0])} disabled>
 								<Sparkles className="w-4 h-4 mr-2" />
 								Generate First Episode
 							</Button>

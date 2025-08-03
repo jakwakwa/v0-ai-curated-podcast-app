@@ -1,11 +1,10 @@
 import { Loader2 } from "lucide-react"
-import styles from "./component-spinner.module.css"
 
 function ComponentSpinner({ label, isLabel = false }: { label?: string; isLabel?: boolean }): React.ReactElement {
 	return (
-		<div className={styles.spinnerWrapper}>
-			<Loader2 aria-label={label} />
-			{isLabel && <span className={styles.spinnerWrapperText}>{label ? `Loading ${label}...` : isLabel ? "Loading..." : null}</span>}
+		<div className="flex items-center justify-center py-8">
+			<Loader2 className="w-4 h-4 animate-spin" aria-label={label} />
+			{isLabel && <span className="ml-2">{label ? `Loading ${label}...` : isLabel ? "Loading..." : null}</span>}
 		</div>
 	)
 }

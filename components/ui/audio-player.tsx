@@ -229,7 +229,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 			</div>
 
 			<div className={styles.controls}>
-				<Button onClick={togglePlayPause} className={styles.playPauseButton} size={"sm"}>
+				<Button onClick={togglePlayPause} className={styles.playPauseButton} size={"sm"} variant="default">
 					{isPlaying ? (
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
@@ -251,14 +251,14 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 			</div>
 
 			<div className={styles.volumeControl}>
-				<Button onClick={toggleMute} className={styles.volumeButton}>
+				<Button onClick={toggleMute} className={styles.volumeButton} variant="default">
 					{volumeIcon}
 				</Button>
 				<input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
 			</div>
 
 			{onClose && (
-				<Button variant="destructive" onClick={onClose} className={styles.closeButton}>
+				<Button variant="default" onClick={onClose} className={styles.closeButton}>
 					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
 					</svg>

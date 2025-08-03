@@ -1,14 +1,16 @@
 "use client"
 
+import type { VariantProps } from "class-variance-authority"
 import * as React from "react"
-import styles from "./switch.module.css"
+import { switchVariants } from "@/lib/component-variants"
+import { cn } from "@/lib/utils"
 
-interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SwitchProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof switchVariants> {
 	checked?: boolean
 	onCheckedChange?: (checked: boolean) => void
 }
 
-const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(({ className, checked = false, onCheckedChange, disabled, ...props }, ref) => {
+const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(({ className, variant, checked = false, onCheckedChange, disabled, ...props }, ref) => {
 	const handleClick = () => {
 		if (!disabled && onCheckedChange) {
 			onCheckedChange(!checked)
@@ -22,14 +24,18 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(({ className, ch
 			aria-checked={checked}
 			disabled={disabled}
 			onClick={handleClick}
-			className={`${styles.switchRoot} ${checked ? styles.switchRootChecked : styles.switchRootUnchecked} ${className}`}
+			data-state={checked ? "checked" : "unchecked"}
+			className={cn(switchVariants({ variant }), className)}
 			ref={ref}
 			{...props}
 		>
-			<span className={`${styles.switchThumb} ${checked ? styles.switchThumbChecked : styles.switchThumbUnchecked}`} />
+			<span
+				className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+				data-state={checked ? "checked" : "unchecked"}
+			/>
 		</button>
 	)
 })
 Switch.displayName = "Switch"
 
-export { Switch }
+export { Switch, type SwitchProps }

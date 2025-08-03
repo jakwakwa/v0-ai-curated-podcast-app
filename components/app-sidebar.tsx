@@ -2,24 +2,10 @@
 
 import { useUser } from "@clerk/nextjs"
 import {
-	IconCamera,
-	IconChartBar,
-	IconDashboard,
-	IconDatabase,
-	IconFileAi,
-	IconFileDescription,
-	IconFileWord,
-	IconFolder,
-	IconHelp,
 	IconInnerShadowTop,
-	IconListDetails,
-	IconReport,
-	IconSearch,
-	IconSettings,
-	IconUsers,
 } from "@tabler/icons-react"
 import Link from "next/link"
-import * as React from "react"
+import type * as React from "react"
 // import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"

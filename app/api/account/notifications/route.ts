@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-export const dynamic = "force-dynamic"
+// Cache notification preferences for 1 hour - preferences change infrequently
+export const revalidate = 3600 // 1 hour in seconds
 
 export async function GET() {
 	try {

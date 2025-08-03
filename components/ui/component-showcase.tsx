@@ -1,4 +1,4 @@
-import React from "react"
+
 import { Button } from "./button"
 import { PageHeader } from "./page-header"
 import { Body, BodySmall, H1, H2, H3, Muted } from "./typography"

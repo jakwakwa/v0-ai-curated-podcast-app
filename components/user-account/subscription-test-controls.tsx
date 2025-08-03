@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import styles from "./subscription-test-controls.module.css"
 
 export function SubscriptionTestControls() {
 	const { setSubscription, subscription } = useSubscriptionStore()
@@ -82,58 +81,58 @@ export function SubscriptionTestControls() {
 	}
 
 	return (
-		<div className={styles.fixedPanel}>
+		<div className="fixed bottom-4 right-4 z-50">
 			{/* Toggle Button */}
-			<Button onClick={() => setIsVisible(!isVisible)} variant="outline" size="sm" className={styles.toggleButton}>
+			<Button onClick={() => setIsVisible(!isVisible)} variant="outline" size="sm" className="bg-background/80 backdrop-blur-sm">
 				{isVisible ? "Hide" : "Show"} Test Controls
 			</Button>
 
 			{/* Test Controls Panel */}
 			{isVisible && (
-				<Card className={styles.panelCard}>
-					<CardHeader className={styles.headerPadding}>
-						<CardTitle className={styles.titleSm}>Subscription Test Controls</CardTitle>
-						<CardDescription className={styles.descXs}>Switch between different subscription states for testing</CardDescription>
+				<Card className="w-80 mt-2 bg-background/95 backdrop-blur-sm border-2">
+					<CardHeader className="pb-3">
+						<CardTitle className="text-sm">Subscription Test Controls</CardTitle>
+						<CardDescription className="text-xs">Switch between different subscription states for testing</CardDescription>
 					</CardHeader>
-					<CardContent className={styles.contentSpaceY3}>
+					<CardContent className="space-y-3">
 						{/* Current State Display */}
-						<div className={styles.stateBox}>
+						<div className="p-2 bg-muted rounded-md text-xs">
 							<strong>Current:</strong> {subscription ? getCurrentPlanName() : "FreeSlice"}
 							<br />
 							<strong>Status:</strong> {subscription?.status || "Free"}
 						</div>
 
 						{/* Test Buttons */}
-						<div className={styles.grid2}>
-							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.free)} className={styles.buttonXs}>
+						<div className="grid grid-cols-2 gap-2">
+							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.free)} className="text-xs">
 								FreeSlice
 							</Button>
-							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.trial)} className={styles.buttonXs}>
+							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.trial)} className="text-xs">
 								Trial
 							</Button>
-							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.casual)} className={styles.buttonXs}>
+							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.casual)} className="text-xs">
 								Casual
 							</Button>
-							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.premium)} className={styles.buttonXs}>
+							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.premium)} className="text-xs">
 								Premium
 							</Button>
-							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.canceled)} className={styles.buttonXs}>
+							<Button variant="outline" size="sm" onClick={() => setSubscription(mockSubscriptions.canceled)} className="text-xs">
 								Canceled
 							</Button>
 						</div>
 
 						{/* Status Badges */}
-						<div className={styles.flexWrapGap1}>
-							<Badge variant="secondary" className={styles.buttonXs}>
+						<div className="flex flex-wrap gap-1">
+							<Badge variant="secondary" className="text-xs">
 								{subscription?.status || "Free"}
 							</Badge>
 							{subscription?.trialEnd && (
-								<Badge variant="outline" className={styles.buttonXs}>
+								<Badge variant="outline" className="text-xs">
 									Trial
 								</Badge>
 							)}
 							{subscription?.canceledAt && (
-								<Badge variant="destructive" className={styles.buttonXs}>
+								<Badge variant="destructive" className="text-xs">
 									Canceled
 								</Badge>
 							)}

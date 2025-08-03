@@ -31,14 +31,14 @@ export function UserFeed({ userCurationProfiles }: UserFeedProps) {
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
 						<Link href="/build">
-							<Button className="w-full sm:w-auto">
+							<Button className="w-full sm:w-auto" variant="default">
 								<Plus className="w-4 h-4 mr-2" />
 								Create Your First Profile
 								<ArrowRight className="w-4 h-4 ml-2" />
 							</Button>
 						</Link>
 						<Link href="/curated-bundles">
-							<Button variant="outline" className="w-full sm:w-auto">
+							<Button variant="default" className="w-full sm:w-auto">
 								Browse PODSLICE Bundles
 							</Button>
 						</Link>
@@ -55,7 +55,7 @@ export function UserFeed({ userCurationProfiles }: UserFeedProps) {
 				{/* Only show "Create New Profile" if user doesn't have an active profile */}
 				{activeProfiles.length === 0 && (
 					<Link href="/build">
-						<Button size="sm">
+						<Button size="sm" variant="default">
 							<Plus className="w-4 h-4 mr-2" />
 							Create New Profile
 						</Button>

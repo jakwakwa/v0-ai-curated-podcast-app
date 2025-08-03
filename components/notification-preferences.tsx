@@ -10,7 +10,6 @@ import DateIndicator from "@/components/ui/date-indicator"
 import { Separator } from "@/components/ui/separator"
 import { SubmitBtn } from "@/components/ui/submit-btn"
 import { useNotificationStore } from "@/lib/stores/notification-store"
-import styles from "./notification-preferences.module.css"
 
 type NotificationSettingsProps = {
 	emailNotifications: boolean
@@ -73,33 +72,33 @@ export function NotificationPreferences() {
 
 	if (isLoading) {
 		return (
-			<div className={styles.loadingContent}>
-				<ComponentSpinner label="notification preferences" isLabel />
+			<div className="flex items-center justify-center min-h-[400px]">
+				<ComponentSpinner label="notification preferences" />
 			</div>
 		)
 	}
 
 	return (
-		<div className={styles.container}>
+		<div className="space-y-6">
 			<Card>
 				<CardHeader>
-					<CardTitle className={styles.cardTitle}>
-						<Bell className={styles.cardTitleIcon} />
+					<CardTitle className="flex items-center gap-2">
+						<Bell className="w-4 h-4" />
 						Notification Preferences
 					</CardTitle>
 					<CardDescription>Manage how you receive notifications about new episodes and updates.</CardDescription>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="space-y-6">
 					{/* Email Notifications */}
-					<div className={styles.notificationContainer}>
-						<div className={styles.flexRow}>
-							<div className={styles.title}>
-								<Mail className={styles.titleIcon} />
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-2">
+								<Mail className="w-4 h-4" />
 								<h3 className="font-medium">Email Notifications</h3>
 							</div>
-							<p className={styles.description}>Receive email notifications when new episodes are ready.</p>
+							<p className="text-sm text-muted-foreground">Receive email notifications when new episodes are ready.</p>
 						</div>
-						<div className={styles.actions}>
+						<div className="flex items-center gap-2">
 							{preferences && <SettingsToggle preferences={preferences} label="Email" toggleHandler={handleNotificationToggle} settingType="emailNotifications" isUpdating={isUpdating} />}
 						</div>
 					</div>
@@ -107,25 +106,21 @@ export function NotificationPreferences() {
 					<Separator />
 
 					{/* In-App Notifications */}
-					{preferences && <SettingsToggle preferences={preferences} label="In-App" toggleHandler={handleNotificationToggle} settingType="inAppNotifications" isUpdating={isUpdating} />}
-
-					<div className={styles.emailNotificationsContainer}>
-						<div className={styles.notificationRow}>
-							<div className={styles.notificationDetails}>
-								<div className={styles.notificationTitle}>
-									<Smartphone className={styles.notificationTitleIcon} />
-									<h3 className="font-medium">In-App Notifications</h3>
-								</div>
-								<p className={styles.notificationDescription}>Show notifications within the app when new episodes are ready.</p>
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-2">
+								<Smartphone className="w-4 h-4" />
+								<h3 className="font-medium">In-App Notifications</h3>
 							</div>
-							<div className={styles.notificationActions}>
-								{preferences && <SettingsToggle preferences={preferences} label="In-App" toggleHandler={handleNotificationToggle} settingType="inAppNotifications" isUpdating={isUpdating} />}
-							</div>
+							<p className="text-sm text-muted-foreground">Show notifications within the app when new episodes are ready.</p>
+						</div>
+						<div className="flex items-center gap-2">
+							{preferences && <SettingsToggle preferences={preferences} label="In-App" toggleHandler={handleNotificationToggle} settingType="inAppNotifications" isUpdating={isUpdating} />}
 						</div>
 					</div>
 
 					{/* Save Button */}
-					{<SubmitBtn isUpdating={isUpdating} handleSaveAll={handleSaveAll} />}
+					<SubmitBtn isUpdating={isUpdating} handleSaveAll={handleSaveAll} />
 				</CardContent>
 			</Card>
 
@@ -133,13 +128,13 @@ export function NotificationPreferences() {
 			{preferences && (
 				<Card>
 					<CardHeader>
-						<CardTitle className="cardTitle">Current Settings</CardTitle>
+						<CardTitle>Current Settings</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className={styles.currentSettingsContent}>
+						<div className="flex flex-col gap-2 text-sm">
 							<SettingsToggle preferences={preferences} label="Email" settingType="emailNotifications" toggleHandler={handleNotificationToggle} />
 							<SettingsToggle preferences={preferences} label="In-App" settingType="inAppNotifications" toggleHandler={handleNotificationToggle} />
-							{<DateIndicator indicator={preferences.updatedAt} label="Last updated" />}
+							<DateIndicator indicator={preferences.updatedAt} label="Last updated" />
 						</div>
 					</CardContent>
 				</Card>
@@ -162,14 +157,16 @@ function SettingsToggle({
 	isUpdating?: boolean
 }): React.ReactElement {
 	return (
-		<div className={styles.currentFlexRow}>
+		<div className="flex items-center justify-between">
 			<span>{label} Notifications</span>
-			<span className={styles.currentSettingStatus}>{preferences[settingType] ? <CheckIcon className={styles.currentSettingStatusIcon} /> : <X className={styles.currentSettingStatusIcon} />}</span>
-			{toggleHandler && (
-				<Button onClick={toggleHandler} disabled={isUpdating} className={styles.currentSettingButton}>
-					{isUpdating ? <Loader2 className={styles.currentSettingButtonIcon} /> : null}
-				</Button>
-			)}
+			<div className="flex items-center gap-1">
+				{preferences[settingType] ? <CheckIcon className="w-3 h-3 text-green-600" /> : <X className="w-3 h-3 text-red-600" />}
+				{toggleHandler && (
+					<Button variant="default" size="sm" onClick={toggleHandler} disabled={isUpdating} value={settingType}>
+						{isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "Toggle"}
+					</Button>
+				)}
+			</div>
 		</div>
 	)
 }

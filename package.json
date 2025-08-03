@@ -18,10 +18,12 @@
         "prisma:generate": "prisma generate --no-engine",
         "prisma:push": "npx prisma db push",
         "lint": "biome lint .",
+        "lint:fix": "biome lint --write .",
         "start": "next start",
         "seed": "tsx scripts/seed.mjs",
         "inngest": "inngest dev",
         "format": "biome format --write .",
+        "format:fix": "biome format --write . && biome lint --write .",
         "caching": "ts-node ./src/caching.ts"
     },
     "dependencies": {

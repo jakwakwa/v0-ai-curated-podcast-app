@@ -1,5 +1,3 @@
-import styles from "./date-indicator.module.css"
-
 interface DateIndicatorProps {
 	indicator: Date
 	label: string
@@ -7,7 +5,7 @@ interface DateIndicatorProps {
 
 function DateIndicator({ indicator, label }: DateIndicatorProps): React.ReactElement {
 	return (
-		<div className={styles.lastUpdatedText}>
+		<div className="mt-2 text-xs text-muted-foreground">
 			{label}: {indicator.toLocaleDateString()}
 		</div>
 	)

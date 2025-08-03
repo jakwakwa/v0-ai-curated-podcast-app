@@ -1,89 +1,27 @@
-.sidebar-menu-button {
-    /* data-[state=open]:bg-sidebar-accent */
-    /* data-[state=open]:text-sidebar-accent-foreground */
-}
+/* This file has been migrated to use the unified component system */
 
-.sidebar-menu-button[data-state="open"] {
-    background-color: var(--color-sidebar-accent);
-    color: var(--color-sidebar-accent-foreground);
-}
+/* Sidebar menu button now uses Button component with sidebar variant:
+   - Button variant="sidebar" with proper state handling
+   - States: data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground
+*/
 
-.avatar-image-grayscale {
-    height: 2rem;
-    /* h-8 */
-    width: 2rem;
-    /* w-8 */
-    border-radius: 0.5rem;
-    /* rounded-lg */
-    filter: grayscale(100%);
-    /* grayscale */
-}
+/* Avatar now uses Avatar component:
+   - Avatar size="sm" (h-8 w-8 rounded-lg)
+   - Grayscale: filter grayscale
+   - Fallback: rounded-lg
+*/
 
-.avatar-fallback-rounded {
-    border-radius: 0.5rem;
-    /* rounded-lg */
-}
+/* Text grid container now uses: grid flex-1 text-left text-sm leading-tight */
 
-.text-grid-container {
-    display: grid;
-    flex: 1;
-    /* flex-1 */
-    text-align: left;
-    font-size: 0.875rem;
-    /* text-sm */
-    line-height: 1.25rem;
-    /* leading-tight */
-}
+/* Truncate classes now use Tailwind utilities:
+   - truncate font-medium
+   - truncate text-xs text-muted-foreground
+*/
 
-.truncate-font-medium {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 500;
-    /* font-medium */
-}
+/* More vertical icon now uses: ml-auto h-4 w-4 */
 
-.truncate-text-xs {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.75rem;
-    /* text-xs */
-    color: var(--color-muted-foreground);
-    /* text-muted-foreground */
-}
-
-.more-vertical-icon {
-    margin-left: auto;
-    /* ml-auto */
-    height: 1rem;
-    /* size-4 */
-    width: 1rem;
-    /* size-4 */
-}
-
-.dropdown-menu-content {
-    width: var(--radix-dropdown-menu-trigger-width);
-    /* w-[--radix-dropdown-menu-trigger-width] */
-    min-width: 14rem;
-    /* min-w-56 */
-    border-radius: 0.5rem;
-    /* rounded-lg */
-}
-
-.dropdown-menu-label {
-    padding: 0;
-    font-weight: normal;
-}
-
-.dropdown-menu-label-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    /* gap-2 */
-    padding: 0.25rem 0.25rem 0.25rem 0.25rem;
-    /* px-1 py-1.5 */
-    text-align: left;
-    font-size: 0.875rem;
-    /* text-sm */
-}
+/* Dropdown menu now uses DropdownMenu component:
+   - Content: w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg
+   - Label: p-0 font-normal
+   - Label content: flex items-center gap-2 px-1 py-1.5 text-left text-sm
+*/

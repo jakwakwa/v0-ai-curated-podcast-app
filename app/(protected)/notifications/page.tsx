@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Notification } from "@/lib/types"
-import styles from "./page.module.css"
+import { cn } from "@/lib/utils"
 
 export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([])
@@ -104,28 +104,28 @@ export default function NotificationsPage() {
 	const getNotificationIcon = (type: Notification["type"]) => {
 		switch (type) {
 			case "episode_ready":
-				return <Play className={styles.notificationIcon} />
+				return <Play className="w-5 h-5" />
 			case "weekly_reminder":
-				return <Calendar className={styles.notificationIcon} />
+				return <Calendar className="w-5 h-5" />
 			case "subscription_expiring":
-				return <Clock className={styles.notificationIcon} />
+				return <Clock className="w-5 h-5" />
 			case "trial_ending":
-				return <Bell className={styles.notificationIcon} />
+				return <Bell className="w-5 h-5" />
 			default:
-				return <Bell className={styles.notificationIcon} />
+				return <Bell className="w-5 h-5" />
 		}
 	}
 
 	const getNotificationBadge = (type: Notification["type"]) => {
 		switch (type) {
 			case "episode_ready":
-				return <Badge className={styles.episodeBadge}>Episode Ready</Badge>
+				return <Badge className="bg-primary text-primary-foreground">Episode Ready</Badge>
 			case "weekly_reminder":
-				return <Badge className={styles.reminderBadge}>Reminder</Badge>
+				return <Badge className="bg-secondary text-secondary-foreground">Reminder</Badge>
 			case "subscription_expiring":
-				return <Badge className={styles.subscriptionBadge}>Subscription</Badge>
+				return <Badge className="bg-accent text-accent-foreground">Subscription</Badge>
 			case "trial_ending":
-				return <Badge className={styles.trialBadge}>Trial</Badge>
+				return <Badge className="bg-destructive text-destructive-foreground">Trial</Badge>
 			default:
 				return <Badge variant="outline">Notification</Badge>
 		}
@@ -150,8 +150,8 @@ export default function NotificationsPage() {
 
 	if (isLoading) {
 		return (
-			<div className={styles.loadingContainer}>
-				<div className={styles.loadingWrapper}>
+			<div className="max-w-4xl mx-auto p-8 min-h-screen">
+				<div className="flex items-center justify-center min-h-[400px]">
 					<AppSpinner size="lg" label="Loading notifications..." />
 				</div>
 			</div>
@@ -159,23 +159,25 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<div className="container">
-			<div className={styles.header}>
-				<div className={styles.headerContent}>
-					<div className={styles.titleSection}>
-						<Bell className={styles.headerIcon} />
-						<h1 className={styles.title}>Notifications</h1>
-						{unreadCount > 0 && <Badge className={styles.unreadBadge}>{unreadCount}</Badge>}
-					</div>
-					<div className={styles.headerActions}>
+		<div className="max-w-4xl mx-auto p-8">
+			<div className="mb-8">
+				<div className="flex justify-between items-center flex-wrap gap-4">
+					<div className="flex items-center gap-3">
+						<Bell className="w-6 h-6 text-primary" />
+						<h1 className="text-2xl font-semibold m-0">Notifications</h1>
 						{unreadCount > 0 && (
-							<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} className={styles.markAllButton}>
+							<Badge className="bg-destructive text-destructive-foreground font-semibold min-w-[20px] h-5 flex items-center justify-center rounded-full text-sm">{unreadCount}</Badge>
+						)}
+					</div>
+					<div className="flex gap-2 flex-wrap">
+						{unreadCount > 0 && (
+							<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
 								<Check size={16} />
 								Mark all as read
 							</Button>
 						)}
 						{notifications.length > 0 && (
-							<Button variant="outline" size="sm" onClick={handleClearAll} className={styles.clearAllButton}>
+							<Button variant="outline" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
 								<Trash2 size={16} />
 								Clear all
 							</Button>
@@ -184,37 +186,50 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className={styles.content}>
+			<div className="min-h-[400px]">
 				{notifications.length === 0 ? (
-					<Card className={styles.emptyCard}>
-						<CardContent className={styles.emptyContent}>
-							<Bell className={styles.emptyIcon} />
-							<h3 className={styles.emptyTitle}>No notifications</h3>
-							<p className={styles.emptyDescription}>You're all caught up! New notifications will appear here when they arrive.</p>
+					<Card className="text-center p-12 border-2 border-dashed border-border bg-card">
+						<CardContent className="flex flex-col items-center gap-4">
+							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
+							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
+							<p className="text-muted-foreground max-w-md text-base m-0">You're all caught up! New notifications will appear here when they arrive.</p>
 						</CardContent>
 					</Card>
 				) : (
-					<div className={styles.notificationsList}>
+					<div className="flex flex-col gap-4">
 						{notifications.map(notification => (
-							<Card key={notification.notification_id} className={`${styles.notificationCard} ${!notification.is_read ? styles.unreadCard : ""}`}>
-								<CardHeader className={styles.cardHeader}>
-									<div className={styles.notificationHeader}>
-										<div className={styles.notificationIconWrapper}>{getNotificationIcon(notification.type)}</div>
-										<div className={styles.notificationInfo}>
-											<div className={styles.notificationMeta}>
+							<Card
+								key={notification.notification_id}
+								className={cn("border transition-all duration-200 bg-card hover:translate-y-[-1px] hover:shadow-lg", !notification.is_read && "border-l-4 border-l-primary bg-card")}
+							>
+								<CardHeader className="p-6 flex justify-between items-start gap-4">
+									<div className="flex gap-4 flex-1">
+										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground flex-shrink-0">{getNotificationIcon(notification.type)}</div>
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-3 mb-2 flex-wrap">
 												{getNotificationBadge(notification.type)}
-												<span className={styles.timestamp}>{formatTimeAgo(new Date(notification.created_at))}</span>
+												<span className="text-sm text-muted-foreground">{formatTimeAgo(new Date(notification.created_at))}</span>
 											</div>
-											<CardTitle className={styles.notificationTitle}>{notification.message}</CardTitle>
+											<CardTitle className="text-base m-0">{notification.message}</CardTitle>
 										</div>
 									</div>
-									<div className={styles.notificationActions}>
+									<div className="flex gap-1 flex-shrink-0">
 										{!notification.is_read && (
-											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} className={styles.markReadButton}>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() => handleMarkAsRead(notification.notification_id)}
+												className="p-2 min-w-auto text-primary hover:bg-primary hover:text-primary-foreground"
+											>
 												<Check size={16} />
 											</Button>
 										)}
-										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} className={styles.deleteButton}>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => handleDeleteNotification(notification.notification_id)}
+											className="p-2 min-w-auto text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
+										>
 											<Trash2 size={16} />
 										</Button>
 									</div>

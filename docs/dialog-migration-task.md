@@ -84,7 +84,7 @@ import { H3, Body } from "@/components/ui/typography"
       </div>
       <div className="flex gap-2 justify-end">
         <Button variant="outline" onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button  variant="submit" onClick={handleSave}>Save</Button>
       </div>
     </div>
   </DialogContent>

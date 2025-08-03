@@ -1,29 +1,16 @@
-.transcriptContainer {
-    margin-top: 1rem;
-}
+/* This file has been migrated to use the unified component system */
+/* Note: This appears to be a duplicate of components/episode-transcripts.module.css */
 
-.showTranscriptButton {
-    padding-inline: 1rem;
-    padding-block: 0.5rem;
-    border-radius: 0.25rem;
-    background-color: rgb(37 99 235);
-    color: rgb(255 255 255);
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-}
+/* Transcript container now uses: mt-4 */
 
-.showTranscriptButton:hover {
-    background-color: rgb(29 78 216);
-}
+/* Show transcript button now uses Button component:
+   - Button variant="default" size="default"
+   - Styling: px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700
+   - Transition handled by Button component
+*/
 
-.transcriptContent {
-    max-height: 25rem;
-    overflow-y: auto;
-    border-width: 1px;
-    border-radius: 0.25rem;
-    padding: 0.5rem;
-    background-color: oklch(var(--background));
-    margin-top: 0.5rem;
-    white-space: pre-line;
-}
+/* Transcript content now uses Card component:
+   - Card variant="default" for transcript display
+   - Content: max-h-[25rem] overflow-y-auto border rounded p-2 bg-background mt-2
+   - Text: whitespace-pre-line
+*/

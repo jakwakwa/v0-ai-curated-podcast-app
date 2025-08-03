@@ -764,7 +764,7 @@ export default function AdminPage() {
 
 							{/* Generate Button */}
 							<Card>
-								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg">
+								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant={"default"}>
 									{isLoading ? (
 										<>
 											<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
@@ -903,6 +903,7 @@ export default function AdminPage() {
 										disabled={!(selectedBundleId && episodeTitle && ((uploadMethod === "file" && mp3File) || (uploadMethod === "url" && audioUrl))) || isLoading}
 										className="w-full"
 										size="lg"
+										variant={"default"}
 									>
 										{isLoading ? (
 											<>
@@ -995,7 +996,7 @@ export default function AdminPage() {
 										<p className="text-xs text-muted-foreground mt-1">Selected: {selectedPodcastIds.length} podcasts</p>
 									</div>
 
-									<Button onClick={createBundle} disabled={isCreatingBundle} className="w-full">
+									<Button onClick={createBundle} disabled={isCreatingBundle} className="w-full" variant={"default"}>
 										{isCreatingBundle ? (
 											<>
 												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
@@ -1123,7 +1124,7 @@ export default function AdminPage() {
 										/>
 									</div>
 
-									<Button onClick={editingPodcast ? updatePodcast : createPodcast} disabled={isCreatingPodcast || isUpdatingPodcast} className="w-full">
+									<Button onClick={editingPodcast ? updatePodcast : createPodcast} disabled={isCreatingPodcast || isUpdatingPodcast} className="w-full" variant={"default"}>
 										{isCreatingPodcast || isUpdatingPodcast ? (
 											<>
 												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />

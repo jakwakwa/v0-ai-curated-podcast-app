@@ -13,9 +13,10 @@ type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
 interface BundleListProps {
 	onBundleSelect: (bundle: BundleWithPodcasts) => void
+	selectedBundleId?: string
 }
 
-export function BundleList({ onBundleSelect }: BundleListProps) {
+export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps) {
 	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
@@ -80,68 +81,73 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 
 	return (
 		<div className="flex flex-col gap-4 justify-center items-center w-full max-w-md">
-			{curatedBundles.map(bundle => (
-				<Card key={bundle.bundle_id} className="cursor-pointer hover:shadow-lg transition-shadow w-full" onClick={() => onBundleSelect(bundle)}>
-					<CardContent className="p-2">
-						<div className="flex flex-col">
-							{/* Bundle info on the right */}
-							<div className="flex flex-col w-full min-w-0">
-								<div className="flex flex-row w-full min-w-0 rounded-lg gap-1">
-									{/* Image on the left - fixed square dimensions */}
-									<div className="shrink-0 p-4">
-										{bundle.image_url ? (
-											<Image src={bundle.image_url} alt={bundle.name} width={80} height={80} className="w-20 h-20 object-cover rounded-lg" />
-										) : (
-											<div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
-												<span className="text-muted-foreground text-xs">No Image</span>
-											</div>
-										)}
-									</div>
+			{curatedBundles.map(bundle => {
+				const isSelected = selectedBundleId === bundle.bundle_id
+				return (
+					<Card key={bundle.bundle_id} variant="bundle" selected={isSelected} hoverable={true} className="w-full" onClick={() => onBundleSelect(bundle)}>
+						<CardContent className="p-2">
+							<div className="flex flex-col">
+								{/* Bundle info section */}
+								<div className="flex flex-col w-full min-w-0">
+									<div className="flex flex-row w-full min-w-0 rounded-lg gap-1">
+										{/* Image on the left - fixed square dimensions */}
+										<div className="shrink-0 p-4">
+											{bundle.image_url ? (
+												<Image src={bundle.image_url} alt={bundle.name} width={80} height={80} className="w-20 h-20 object-cover rounded-lg" />
+											) : (
+												<div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center">
+													<span className="text-muted-foreground text-xs">No Image</span>
+												</div>
+											)}
+										</div>
 
-									<div className="flex flex-col w-full min-w-0 py-4 items-start">
-										{/* Bundle title - truncated */}
-										<CardTitle className="text-lg font-semibold mb-2 truncate">{bundle.name}</CardTitle>
-										{/* Bundle description - truncated with tooltip */}
-										<div className="mb-3">
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<p className="text-sm text-muted-foreground line-clamp-2 leading-tight">
-														{bundle.description}
-														{bundle.description && bundle.description.length > 100 && <span className="font-bold text-primary ml-1">read more</span>}
-													</p>
-												</TooltipTrigger>
-												<TooltipContent side="top" className="max-w-xs">
-													<p>{bundle.description}</p>
-												</TooltipContent>
-											</Tooltip>
+										<div className="flex flex-col w-full min-w-0 py-4 items-start">
+											{/* Bundle title - truncated */}
+											<CardTitle className="text-lg font-semibold mb-2 truncate w-full">{bundle.name}</CardTitle>
+											{/* Bundle description - truncated with tooltip */}
+											<div className="mb-3">
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<p className="text-sm text-muted-foreground line-clamp-2 leading-tight">
+															{bundle.description}
+															{bundle.description && bundle.description.length > 100 && <span className="font-bold text-primary ml-1">read more</span>}
+														</p>
+													</TooltipTrigger>
+													<TooltipContent side="top" className="max-w-xs">
+														<p>{bundle.description}</p>
+													</TooltipContent>
+												</Tooltip>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border">
-								{/* Podcasts list - truncated */}
-								<div className="mb-0 p-4">
-									<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
-									<ul className="space-y-1 pt-2">
-										{bundle.podcasts?.slice(0, 2).map(podcast => (
-											<li key={podcast.podcast_id} className="text-sm text-muted-foreground truncate">
-												{podcast.name}
-											</li>
-										))}
-										{bundle.podcasts && bundle.podcasts.length > 2 && <li className="text-sm text-muted-foreground">+{bundle.podcasts.length - 2} more</li>}
-									</ul>
-								</div>
 
-								{/* Fixed selection indicator */}
-								<div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
-									<Lock size={12} />
-									<span className="truncate">Fixed Selection</span>
+								{/* Podcasts section */}
+								<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border border-border">
+									{/* Podcasts list - truncated */}
+									<div className="mb-0 p-4">
+										<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
+										<ul className="space-y-1 pt-2">
+											{bundle.podcasts?.slice(0, 2).map(podcast => (
+												<li key={podcast.podcast_id} className="text-sm text-muted-foreground truncate">
+													{podcast.name}
+												</li>
+											))}
+											{bundle.podcasts && bundle.podcasts.length > 2 && <li className="text-sm text-muted-foreground">+{bundle.podcasts.length - 2} more</li>}
+										</ul>
+									</div>
+
+									{/* Fixed selection indicator */}
+									<div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
+										<Lock size={12} />
+										<span className="truncate">Fixed Selection</span>
+									</div>
 								</div>
 							</div>
-						</div>
-					</CardContent>
-				</Card>
-			))}
+						</CardContent>
+					</Card>
+				)
+			})}
 		</div>
 	)
 }

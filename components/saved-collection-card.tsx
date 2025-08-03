@@ -7,7 +7,7 @@ import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/ac
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import type { UserCurationProfile } from "@/lib/types"
-import styles from "./saved-collection-card.module.css"
+import { cn } from "@/lib/utils"
 
 export function SavedCollectionCard({ userCurationProfile }: { userCurationProfile: UserCurationProfile }) {
 	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState<UserCurationProfile>(userCurationProfile)
@@ -82,48 +82,34 @@ export function SavedCollectionCard({ userCurationProfile }: { userCurationProfi
 
 	const getStatusColor = (userCurationProfile: UserCurationProfile) => {
 		if (userCurationProfile.status === "Generated") {
-			return styles.statusGreen
+			return "text-green-600"
 		}
-		return styles.statusYellow
+		return "text-yellow-600"
 	}
 
 	const getStatusIcon = (userCurationProfile: UserCurationProfile) => {
 		if (userCurationProfile.status === "Generated") {
-			return <CheckCircle className={`${styles.statusIcon} ${styles.statusGreen}`} />
+			return <CheckCircle className="w-4 h-4 text-green-600" />
 		}
-		return <Clock className={`${styles.statusIcon} ${styles.statusYellow}`} />
+		return <Clock className="w-4 h-4 text-yellow-600" />
 	}
 
 	return (
-		<Card className={styles["card-container"]}>
+		<Card>
 			<CardHeader>
 				<CardTitle>{currentUserCurationProfile.name}</CardTitle>
 				<CardDescription>
-					<span className={getStatusColor(currentUserCurationProfile)}>
+					<span className={cn("flex items-center gap-2", getStatusColor(currentUserCurationProfile))}>
 						{getStatusIcon(currentUserCurationProfile)}
 						{getStatusText(currentUserCurationProfile)}
 					</span>
 				</CardDescription>
 			</CardHeader>
-			<CardContent>
-				{/* {(currentUserCurationProfile.status === "Saved" || currentUserCurationProfile.status === "Failed") && (
-					<Button type="button" onClick={handleGenerate} disabled={isLoading} variant="default">
-						{isLoading ? (
-							"Generating..."
-						) : (
-							<>
-								<Sparkles className={styles.icon} />
-								Generate Podcast
-							</>
-						)}
-					</Button>
-				)} */}
-				{currentUserCurationProfile.status === "Failed" && <p className={styles["error-message"]}>Podcast generation failed. Please try again.</p>}
-			</CardContent>
+			<CardContent>{currentUserCurationProfile.status === "Failed" && <p className="text-destructive text-sm">Podcast generation failed. Please try again.</p>}</CardContent>
 			{currentUserCurationProfile.status === "Generated" && (
-				<CardFooter className={styles["card-footer"]}>
-					<Link href={`/collections/${currentUserCurationProfile.profile_id}`}>
-						<Button variant="outline" className={styles["full-width-button"]}>
+				<CardFooter>
+					<Link href={`/collections/${currentUserCurationProfile.profile_id}`} className="w-full">
+						<Button variant="outline" className="w-full">
 							View Episodes
 						</Button>
 					</Link>

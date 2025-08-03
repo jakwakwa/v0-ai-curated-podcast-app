@@ -4,8 +4,8 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-// Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
+// Cache episodes for 1 week since they're only released weekly
+export const revalidate = 604800 // 7 days in seconds
 
 export async function GET(_request: Request) {
 	try {

@@ -9,6 +9,14 @@ interface PodcastCardProps {
 	onPlayEpisode: (episode: Episode) => void
 }
 
+/* JS DOC */
+/**
+ * @description This component is used to display a podcast card.
+ * @param {Object} props - The component props
+ * @param {Episode} props.episode - The episode data
+ * @param {Function} props.onPlayEpisode - The function to play the episode
+ * @returns {JSX.Element} The PodcastCard component (Card)
+ */
 export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 	return (
 		<Card className={styles["podcast-card-flex-col"]}>
@@ -28,7 +36,7 @@ export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button className={styles["button-full-width"]} disabled={!episode.audio_url} onClick={() => onPlayEpisode(episode)}>
+				<Button className={styles["button-full-width"]} disabled={!episode.audio_url} onClick={() => onPlayEpisode(episode)} variant="default">
 					<PlayCircle className={styles["button-icon-margin-right"]} />
 					Play Episode
 				</Button>

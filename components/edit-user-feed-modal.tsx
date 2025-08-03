@@ -65,7 +65,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 						<Button type="button" variant="outline" onClick={onClose}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={isLoading}>
+						<Button type="submit" disabled={isLoading} variant="default">
 							{isLoading ? "Saving..." : "Save Changes"}
 						</Button>
 					</div>

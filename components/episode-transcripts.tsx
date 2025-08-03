@@ -9,7 +9,7 @@ export function EpisodeTranscript({ transcript }: { transcript: string }) {
 	return (
 		<div className={styles.transcriptContainer}>
 			{!show ? (
-				<Button className={styles.showTranscriptButton} onClick={() => setShow(true)}>
+				<Button className={styles.showTranscriptButton} onClick={() => setShow(true)} variant="default">
 					Show transcript
 				</Button>
 			) : (

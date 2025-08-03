@@ -194,7 +194,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 								</div>
 
 								<div className={styles.formActions}>
-									<Button onClick={handleUpdateProfile} disabled={isLoading}>
+									<Button variant="default" onClick={handleUpdateProfile} disabled={isLoading}>
 										{isLoading ? <Loader2 className={`${styles.formButtonIcon} ${styles.formButtonIconSpin}`} /> : <Save className={styles.formButtonIcon} />}
 										Save Changes
 									</Button>

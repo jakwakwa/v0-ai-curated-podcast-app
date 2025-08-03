@@ -1,65 +1,42 @@
 {
-	"yaml.maxItemsComputed": 1000,
-	"terminal.integrated.shellIntegration.decorationsEnabled": true,
-	"terminal.integrated.shellIntegration.enabled": true,
-	"terminal.integrated.defaultProfile.linux": "zsh",
-	"terminal.integrated.defaultProfile.osx": "zsh",
-	"terminal.integrated.defaultProfile.windows": "zsh",
-	"terminal.integrated.profiles.linux": {
-		"zsh": {
-			"path": "zsh"
-		}
-	},
-	"terminal.integrated.profiles.osx": {
-		"zsh": {
-			"path": "/bin/zsh"
-		}
-	},
-	"editor.fontFamily": "Dank, Fira Code",
-	"editor.fontSize": 10,
-	"editor.lineHeight": 1.75,
-	"editor.fontWeight": "500",
-	"editor.fontLigatures": true,
-	"terminal.integrated.fontSize": 10.5,
-	"terminal.integrated.lineHeight": 1.3,
-	"terminal.integrated.fontWeight": "300",
-	"terminal.integrated.suggest.enabled": true,
-	"terminal.integrated.shellIntegration.environmentReporting": true,
-	"terminal.integrated.suggest.cdPath": "relative",
-	"terminal.integrated.suggest.inlineSuggestion": "alwaysOnTop",
-	"terminal.integrated.suggest.runOnEnter": "never",
-	"terminal.integrated.detectLocale": "auto",
-	"terminal.integrated.wordSeparators": " ()[]{}'\"`─",
-	"terminal.integrated.localEchoLatencyThreshold": 2,
-	"terminal.integrated.enableFileLinks": "on",
-	"terminal.integrated.allowChords": false,
-	"terminal.integrated.gpuAcceleration": "on",
-	"terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
-	"terminal.integrated.tabs.focusMode": "singleClick",
-	"terminal.integrated.tabs.hideCondition": "singleGroup",
-	"terminal.integrated.tabs.location": "left",
-	"workbench.editor.tabSizingFixedMaxWidth": 50,
-	"workbench.editor.tabSizingFixedMinWidth": 40,
-	"editor.tabSize": 2,
-	"editor.renderWhitespace": "all",
-	"editor.insertSpaces": true,
-	"editor.wordWrap": "bounded",
-	"cursor.general.enableShadowWorkspace": false,
-	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "Vira Carbon High Contrast",
-	"editor.defaultFormatter": "biomejs.biome",
-	"editor.formatOnSave": true,
-	"json.format.enable": false,
-	"[typescript]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
-	"editor.codeActionsOnSave": {
-		"source.organizeImports.biome": "explicit"
-	},
-	"editor.maxTokenizationLineLength": 15000,
-	"editor.renderLineHighlight": "line",
-	"editor.renderLineHighlightOnlyWhenFocus": true,
-	"[markdown]": {
-		"editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
-	}
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  },
+  "biome.lspBin": "biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "quickfix.biome": "explicit",
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
+    }
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "quickfix.biome": "explicit",
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "quickfix.biome": "explicit",
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
+    }
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.codeActionsOnSave": {
+      "quickfix.biome": "explicit",
+      "source.organizeImports.biome": "explicit",
+      "source.fixAll.biome": "explicit"
+    }
+  }
 }

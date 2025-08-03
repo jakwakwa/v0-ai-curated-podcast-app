@@ -60,7 +60,7 @@ export default function SubscriptionSuccessPage() {
 							<p className="text-sm text-muted-foreground">You can now access all premium features. Manage your subscription anytime in your account settings.</p>
 
 							<div className="flex flex-col sm:flex-row gap-3 justify-center">
-								<Button asChild>
+								<Button asChild variant="default">
 									<Link href="/dashboard">
 										Start Using Premium Features
 										<ArrowRight className="ml-2 h-4 w-4" />

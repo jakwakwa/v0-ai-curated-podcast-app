@@ -5,6 +5,94 @@
 
 @import "tailwindcss";
 
+@theme {
+    /* Default border behavior - use explicit border color */
+    --default-border-color: var(--color-border);
+    --color-background: oklch(0.15 0.02 264);
+    --color-foreground: oklch(0.95 0.01 264);
+    --color-card: oklch(0.18 0.03 264);
+    --color-card-foreground: oklch(0.93 0.01 264);
+    --color-popover: oklch(0.16 0.02 264);
+    --color-popover-foreground: oklch(0.94 0.01 264);
+    --color-primary: oklch(0.88 0.0839 163.71);
+    --color-primary-foreground: oklch(0.98 0.01 264);
+    --color-secondary: oklch(0.22 0.04 264);
+    --color-secondary-foreground: oklch(0.88 0.02 264);
+    --color-muted: oklch(0.47 0.0294 265.34 / 0.33);
+    --color-muted-foreground: oklch(0.68 0.03 264);
+    --color-accent: oklch(0.24 0.05 264);
+    --color-accent-foreground: oklch(0.91 0.02 264);
+    --color-destructive: oklch(0.62 0.22 25);
+    --color-destructive-foreground: oklch(0.98 0.01 264);
+    --color-border: hsla(240, 8%, 50%, 0.2);
+    --color-border-light: oklch(0.75 0.02 240 / 0.4);
+    --color-input: oklch(0.3 0.04 264);
+    --color-ring: oklch(0.55 0.05 264);
+    --color-dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
+
+    /* Accent colors for selection states */
+    --color-accent-selection: oklch(0.88 0.0839 163.71);
+    --color-accent-selection-bg: oklch(0.88 0.0839 163.71 / 0.1);
+    --color-accent-selection-border: oklch(0.88 0.0839 163.71 / 0.6);
+
+    /* Form field colors */
+    --color-form-input-bg: oklch(0.61 0.07 264.2 / 0.31);
+    --color-form-input-text: oklch(0.9 0.02 264);
+    --color-form-placeholder: oklch(0.7 0.03 264 / 0.7);
+    --color-form-border: oklch(0.75 0.02 240 / 0.4);
+    --color-form-border-focus: oklch(0.61 0.085 195.16);
+    --color-form-border-active: oklch(0.64 0.0951 207.84);
+    --color-form-border-disabled: oklch(0.3 0.0116 178.7);
+    --color-form-bg-disabled: oklch(0.25 0.03 264 / 0.5);
+    --color-form-text-disabled: oklch(0.5 0.02 264);
+    --color-form-focus-ring: oklch(0.61 0.085 195.16 / 0.3);
+    --color-form-error-border: oklch(0.62 0.22 25);
+    --color-form-error-ring: oklch(0.62 0.22 25 / 0.2);
+
+    /* Button-specific colors */
+    --color-button-primary-foreground: oklch(0.94 0.0283 174.5);
+    --color-button-secondary-foreground: oklch(0.84 0.0534 262.66);
+    --color-button-destructive-foreground: oklch(0.84 0.0483 18.16);
+    --color-button-outline: oklch(0.75 0.02 240 / 0.4);
+    --color-button-outline-hover: oklch(0.8 0.02 240 / 0.5);
+    --color-button-default-bg-hover: oklch(0.25 0.03 264);
+    --color-button-ghost-hover: oklch(0.24 0.05 264);
+
+    --color-button-default-bg: oklch(0.61 0.085 195.16);
+    --color-button-default-bg-active: oklch(0.64 0.0951 207.84);
+    --color-button-default-bg-disabled: oklch(0.3 0.0116 178.7);
+    --color-button-default-bg-focus: oklch(0.61 0.085 195.16);
+    --color-button-default-bg-focus-visible: oklch(0.61 0.085 195.16);
+    --color-button-default-bg-focus-visible-hover: oklch(0.6 0.1107 170.08);
+    --color-button-default-bg-hover: oklch(0.51 0.0931 166.04);
+
+    /* other button variant backgrounds */
+    --color-button-secondary-bg: oklch(0.43 0.1664 281.55);
+    --color-button-secondary-bg-hover: oklch(0.43 0.1664 281.55);
+    --color-button-secondary-bg-active: oklch(0.43 0.1664 281.55);
+    --color-button-secondary-bg-disabled: oklch(0.37 0.1046 263.41);
+    --color-button-secondary-bg-focus: oklch(0.43 0.1664 281.55);
+    --color-button-secondary-bg-focus-visible: oklch(0.43 0.1664 281.55);
+    --color-button-secondary-bg-focus-visible-hover: oklch(0.43 0.1664 281.55);
+
+    --color-button-destructive-bg: oklch(0.56 0.1836 23.71);
+    --color-button-destructive-bg-hover: oklch(0.6 0.1723 20.31);
+    --color-button-destructive-bg-active: oklch(0.62 0.22 25);
+    --color-button-destructive-bg-disabled: oklch(0.65 0.0533 17.09);
+    --color-button-destructive-bg-focus: oklch(0.68 0.1637 20.23);
+    --color-button-destructive-bg-focus-visible: oklch(0.68 0.1637 20.23);
+    --color-button-destructive-bg-focus-visible-hover: oklch(0.61 0.2018 22.19);
+
+    --font-sans: "Public Sans", system-ui, sans-serif;
+    --font-heading: "Mozilla Headline", Georgia, serif;
+
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+}
+
 /* Legacy Mixins for CSS Module Compatibility */
 @define-mixin h1-text {
     font-size: 2.25rem;
@@ -105,7 +193,7 @@
     font-weight: 400;
     letter-spacing: 0.025em;
     padding: 0.5rem 0.75rem;
-    border: 1px solid hsla(var(--border-hsl));
+    border: 1px solid var(--color-border);
     border-radius: 0.375rem;
     background-color: hsla(var(--background-hsl));
     color: hsla(var(--foreground-hsl));
@@ -136,7 +224,7 @@
     --accent: oklch(0.279 0.041 260.031);
     --accent-foreground: oklch(0.984 0.003 247.858);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
+
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.551 0.027 264.364);
     --chart-1: oklch(0.488 0.243 264.376);
@@ -152,7 +240,7 @@
     --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.551 0.027 264.364);
-    --dialog-bg: oklch(0.129 0.042 264.695 / 0.5);
+    --dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
     --dialog-content: oklch(0.208 0.042 265.755);
     --dialog-glow: oklch(0.929 0.013 255.508 / 0.3);
 
@@ -173,9 +261,15 @@
     --accent-foreground-hsl: 247.858 0.3% 98.4%;
     --destructive-hsl: 22.216 19.1% 70.4%;
     --destructive-foreground-hsl: 247.858 0.3% 98.4%;
-    --border-hsl: 255.508 1.3% 92.9%;
     --input-hsl: 255.508 1.3% 92.9%;
     --ring-hsl: 264.364 2.7% 55.1%;
+}
+
+/* Explicit border color defaults */
+@layer base {
+    .border {
+        border-color: var(--color-border);
+    }
 }
 
 /* Base Styles */

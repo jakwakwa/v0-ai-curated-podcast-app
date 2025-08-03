@@ -1,11 +1,13 @@
 import React from "react"
+import { type CardProps, cardVariants } from "@/lib/component-variants"
 import { cn } from "@/lib/utils"
-import { cardVariants, type CardProps } from "@/lib/component-variants"
 
 interface CardComponentProps extends React.HTMLAttributes<HTMLDivElement>, CardProps {}
 
 // Main Card component
-const Card = React.forwardRef<HTMLDivElement, CardComponentProps>(({ className, variant, ...props }, ref) => <div ref={ref} className={cn(cardVariants({ variant, className }))} {...props} />)
+const Card = React.forwardRef<HTMLDivElement, CardComponentProps>(({ className, variant, selected, hoverable, ...props }, ref) => (
+	<div ref={ref} className={cn(cardVariants({ variant, selected, hoverable, className }))} {...props} />
+))
 Card.displayName = "Card"
 
 // Card sub-components

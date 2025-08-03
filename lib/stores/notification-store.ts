@@ -22,6 +22,8 @@ export interface NotificationStore {
 	notifications: Notification[]
 	unreadCount: number
 	isLoading: boolean
+	isFromCache: boolean
+	lastFetched: number | null
 	error: string | null
 
 	// Actions for preferences
@@ -37,44 +39,56 @@ export interface NotificationStore {
 	deleteNotification: (notificationId: string) => Promise<void>
 	clearAll: () => Promise<void>
 
+	// Cache management
+	refreshNotifications: () => Promise<void>
+	invalidateNotificationsCache: () => void
+	invalidatePreferencesCache: () => void
+
 	// Utility actions
 	setLoading: (loading: boolean) => void
 	setError: (error: string | null) => void
 	reset: () => void
 }
 
-// Mock notification preferences for testing
-const MOCK_PREFERENCES: NotificationPreferences = {
-	emailNotifications: true,
-	inAppNotifications: true,
-	updatedAt: new Date("2024-01-15"),
+// Cache durations
+const NOTIFICATIONS_CACHE_DURATION = 15 * 60 * 1000 // 15 minutes in milliseconds
+const PREFERENCES_CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
+
+// Helper functions for localStorage caching
+const getCachedData = (key: string, duration: number): unknown | null => {
+	try {
+		const cached = localStorage.getItem(key)
+		if (cached) {
+			const { data, timestamp } = JSON.parse(cached)
+			if (Date.now() - timestamp < duration) {
+				return data
+			}
+		}
+	} catch (error) {
+		console.warn("Failed to read cache:", error)
+	}
+	return null
 }
 
-// Mock notifications for testing
-const MOCK_NOTIFICATIONS: Notification[] = [
-	{
-		notification_id: "1",
-		user_id: "user1",
-		type: "episode_ready",
-		message: "Your weekly curated episode is ready!",
-		is_read: false,
-		created_at: new Date().toISOString(),
-	},
-	{
-		notification_id: "2",
-		user_id: "user1",
-		type: "weekly_reminder",
-		message: "Don't forget to check your new episodes this week",
-		is_read: true,
-		created_at: new Date(Date.now() - 86400000).toISOString(),
-	},
-]
+const setCachedData = (key: string, data: unknown): void => {
+	try {
+		const cacheData = {
+			data,
+			timestamp: Date.now(),
+		}
+		localStorage.setItem(key, JSON.stringify(cacheData))
+	} catch (error) {
+		console.warn("Failed to write cache:", error)
+	}
+}
 
 const initialState = {
 	preferences: null,
 	notifications: [],
 	unreadCount: 0,
 	isLoading: false,
+	isFromCache: false,
+	lastFetched: null,
 	error: null,
 }
 
@@ -85,56 +99,82 @@ export const useNotificationStore = create<NotificationStore>()(
 
 			// Actions for preferences
 			loadPreferences: async () => {
-				set({ isLoading: true, error: null }, false, "loadPreferences:start")
+				set({ isLoading: true, error: null })
 
 				try {
-					// For testing purposes, use mock data instead of API call
-					// In production, this would be: const response = await fetch("/api/account/notifications")
+					// Try to get cached preferences first
+					const cachedPreferences = getCachedData("preferences_cache", PREFERENCES_CACHE_DURATION) as NotificationPreferences | null
 
-					// Simulate API delay
-					await new Promise(resolve => setTimeout(resolve, 1000))
-
-					// Use mock data for testing
-					const preferences = MOCK_PREFERENCES
-					set({ preferences, isLoading: false }, false, "loadPreferences:success")
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
+					if (cachedPreferences) {
+						set({
+							preferences: cachedPreferences,
+							isFromCache: true,
 							isLoading: false,
-						},
-						false,
-						"loadPreferences:error"
-					)
+						})
+						return
+					}
+
+					// Fetch fresh preferences
+					const response = await fetch("/api/account/notifications", {
+						headers: { "Cache-Control": "max-age=3600" }, // 1 hour cache
+					})
+
+					if (!response.ok) {
+						throw new Error(`Failed to load preferences: ${response.status}`)
+					}
+
+					const preferences = await response.json()
+					setCachedData("preferences_cache", preferences)
+
+					set({
+						preferences,
+						isFromCache: false,
+						isLoading: false,
+						lastFetched: Date.now(),
+					})
+				} catch (error) {
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({
+						error: message,
+						isLoading: false,
+					})
+					console.error("Failed to load preferences:", error)
 				}
 			},
 
 			updatePreferences: async (newPreferences: { emailNotifications: boolean; inAppNotifications: boolean }) => {
-				set({ isLoading: true, error: null }, false, "updatePreferences:start")
+				set({ isLoading: true, error: null })
 
 				try {
-					// For testing purposes, simulate API call
-					await new Promise(resolve => setTimeout(resolve, 1000))
+					// Call API to update preferences
+					const response = await fetch("/api/account/notifications", {
+						method: "PATCH",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(newPreferences),
+					})
 
-					// Mock successful update
-					const updatedPreferences = {
-						...MOCK_PREFERENCES,
-						...newPreferences,
-						updatedAt: new Date(),
+					if (!response.ok) {
+						throw new Error(`Failed to update preferences: ${response.status}`)
 					}
 
-					set({ preferences: updatedPreferences, isLoading: false }, false, "updatePreferences:success")
+					const updatedPreferences = await response.json()
+
+					// Update cache with new data
+					setCachedData("preferences_cache", updatedPreferences)
+
+					set({
+						preferences: updatedPreferences,
+						isLoading: false,
+						lastFetched: Date.now(),
+					})
 					return { success: true }
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : "Unknown error"
-					set(
-						{
-							error: errorMessage,
-							isLoading: false,
-						},
-						false,
-						"updatePreferences:error"
-					)
+					set({
+						error: errorMessage,
+						isLoading: false,
+					})
+					console.error("Failed to update preferences:", error)
 					return { error: errorMessage }
 				}
 			},
@@ -165,138 +205,217 @@ export const useNotificationStore = create<NotificationStore>()(
 
 			// Actions for notifications
 			loadNotifications: async () => {
-				set({ isLoading: true, error: null }, false, "loadNotifications:start")
+				set({ isLoading: true, error: null })
 
 				try {
-					// For testing purposes, use mock data instead of API call
-					// In production, this would be: const response = await fetch("/api/notifications")
+					// Try to get cached notifications first
+					const cachedNotifications = getCachedData("notifications_cache", NOTIFICATIONS_CACHE_DURATION) as Notification[] | null
 
-					// Simulate API delay
-					await new Promise(resolve => setTimeout(resolve, 1000))
-
-					// Use mock data for testing
-					const notifications = MOCK_NOTIFICATIONS
-					const unreadCount = notifications.filter(n => !n.is_read).length
-
-					set({ notifications, unreadCount, isLoading: false }, false, "loadNotifications:success")
-				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
+					if (cachedNotifications && Array.isArray(cachedNotifications)) {
+						const unreadCount = cachedNotifications.filter(n => !n.is_read).length
+						set({
+							notifications: cachedNotifications,
+							unreadCount,
+							isFromCache: true,
 							isLoading: false,
-						},
-						false,
-						"loadNotifications:error"
-					)
+						})
+						return
+					}
+
+					// Fetch fresh notifications
+					const response = await fetch("/api/notifications", {
+						headers: { "Cache-Control": "max-age=900" }, // 15 minutes cache
+					})
+
+					if (!response.ok) {
+						throw new Error(`Failed to load notifications: ${response.status}`)
+					}
+
+					const notifications = await response.json()
+					const unreadCount = notifications.filter((n: Notification) => !n.is_read).length
+
+					setCachedData("notifications_cache", notifications)
+
+					set({
+						notifications,
+						unreadCount,
+						isFromCache: false,
+						isLoading: false,
+						lastFetched: Date.now(),
+					})
+				} catch (error) {
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({
+						error: message,
+						isLoading: false,
+					})
+					console.error("Failed to load notifications:", error)
 				}
 			},
 
 			markAsRead: async (notificationId: string) => {
-				set({ isLoading: true, error: null }, false, "markAsRead:start")
-
 				try {
-					// For testing purposes, simulate API call
-					await new Promise(resolve => setTimeout(resolve, 500))
+					// Call API to mark as read
+					const response = await fetch(`/api/notifications/${notificationId}/read`, {
+						method: "POST",
+					})
 
-					// Mock successful update
+					if (!response.ok) {
+						throw new Error(`Failed to mark notification as read: ${response.status}`)
+					}
+
+					// Update local state optimistically
 					const { notifications } = get()
 					const updatedNotifications = notifications.map(n => (n.notification_id === notificationId ? { ...n, is_read: true } : n))
 					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
 
-					set({ notifications: updatedNotifications, unreadCount, isLoading: false }, false, "markAsRead:success")
+					// Update cache with new data
+					setCachedData("notifications_cache", updatedNotifications)
+
+					set({
+						notifications: updatedNotifications,
+						unreadCount,
+						lastFetched: Date.now(),
+					})
 				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"markAsRead:error"
-					)
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({ error: message })
+					console.error("Failed to mark notification as read:", error)
+					throw error
 				}
 			},
 
 			markAllAsRead: async () => {
-				set({ isLoading: true, error: null }, false, "markAllAsRead:start")
-
 				try {
-					// For testing purposes, simulate API call
-					await new Promise(resolve => setTimeout(resolve, 500))
+					// Call API to mark all as read (endpoint needs to be created)
+					const response = await fetch("/api/notifications/mark-all-read", {
+						method: "POST",
+					})
 
-					// Mock successful update
+					if (!response.ok) {
+						throw new Error(`Failed to mark all as read: ${response.status}`)
+					}
+
+					// Update local state optimistically
 					const { notifications } = get()
 					const updatedNotifications = notifications.map(n => ({ ...n, is_read: true }))
 
-					set({ notifications: updatedNotifications, unreadCount: 0, isLoading: false }, false, "markAllAsRead:success")
+					// Update cache with new data
+					setCachedData("notifications_cache", updatedNotifications)
+
+					set({
+						notifications: updatedNotifications,
+						unreadCount: 0,
+						lastFetched: Date.now(),
+					})
 				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"markAllAsRead:error"
-					)
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({ error: message })
+					console.error("Failed to mark all as read:", error)
+					throw error
 				}
 			},
 
 			deleteNotification: async (notificationId: string) => {
-				set({ isLoading: true, error: null }, false, "deleteNotification:start")
-
 				try {
-					// For testing purposes, simulate API call
-					await new Promise(resolve => setTimeout(resolve, 500))
+					// Call API to delete notification
+					const response = await fetch(`/api/notifications/${notificationId}`, {
+						method: "DELETE",
+					})
 
-					// Mock successful update
+					if (!response.ok) {
+						throw new Error(`Failed to delete notification: ${response.status}`)
+					}
+
+					// Update local state optimistically
 					const { notifications } = get()
 					const updatedNotifications = notifications.filter(n => n.notification_id !== notificationId)
 					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
 
-					set({ notifications: updatedNotifications, unreadCount, isLoading: false }, false, "deleteNotification:success")
+					// Update cache with new data
+					setCachedData("notifications_cache", updatedNotifications)
+
+					set({
+						notifications: updatedNotifications,
+						unreadCount,
+						lastFetched: Date.now(),
+					})
 				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"deleteNotification:error"
-					)
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({ error: message })
+					console.error("Failed to delete notification:", error)
+					throw error
 				}
 			},
 
 			clearAll: async () => {
-				set({ isLoading: true, error: null }, false, "clearAll:start")
+				set({ isLoading: true, error: null })
 
 				try {
-					// For testing purposes, simulate API call
-					await new Promise(resolve => setTimeout(resolve, 500))
+					// Call API to clear all notifications
+					const response = await fetch("/api/notifications", {
+						method: "DELETE",
+					})
 
-					// Mock successful update
-					set({ notifications: [], unreadCount: 0, isLoading: false }, false, "clearAll:success")
+					if (!response.ok) {
+						throw new Error(`Failed to clear notifications: ${response.status}`)
+					}
+
+					// Clear cache and local state
+					localStorage.removeItem("notifications_cache")
+
+					set({
+						notifications: [],
+						unreadCount: 0,
+						isLoading: false,
+						lastFetched: Date.now(),
+					})
 				} catch (error) {
-					set(
-						{
-							error: error instanceof Error ? error.message : "Unknown error",
-							isLoading: false,
-						},
-						false,
-						"clearAll:error"
-					)
+					const message = error instanceof Error ? error.message : "Unknown error"
+					set({
+						error: message,
+						isLoading: false,
+					})
+					console.error("Failed to clear notifications:", error)
+					throw error
+				}
+			},
+
+			// Cache management
+			refreshNotifications: async () => {
+				// Invalidate cache and force fresh fetch
+				localStorage.removeItem("notifications_cache")
+				set({ isFromCache: false })
+				await get().loadNotifications()
+			},
+
+			invalidateNotificationsCache: () => {
+				try {
+					localStorage.removeItem("notifications_cache")
+				} catch (error) {
+					console.warn("Failed to invalidate notifications cache:", error)
+				}
+			},
+
+			invalidatePreferencesCache: () => {
+				try {
+					localStorage.removeItem("preferences_cache")
+				} catch (error) {
+					console.warn("Failed to invalidate preferences cache:", error)
 				}
 			},
 
 			// Utility actions
 			setLoading: loading => {
-				set({ isLoading: loading }, false, "setLoading")
+				set({ isLoading: loading })
 			},
 
 			setError: error => {
-				set({ error }, false, "setError")
+				set({ error })
 			},
 
 			reset: () => {
-				set(initialState, false, "reset")
+				set(initialState)
 			},
 		}),
 		{

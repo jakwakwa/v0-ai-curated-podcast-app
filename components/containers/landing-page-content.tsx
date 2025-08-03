@@ -180,7 +180,7 @@ export default function LandingPageContent() {
 								}}
 								whileTap={{ scale: 0.98 }}
 							>
-								<Button size="lg" className={styles.heroButton}>
+								<Button size="lg" className={styles.heroButton} variant="default">
 									<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 400 }}>
 										Start Free Trial
 										<UilArrowRight className={styles.arrowIcon} />
@@ -421,7 +421,7 @@ export default function LandingPageContent() {
 									}}
 									whileTap={{ scale: 0.95 }}
 								>
-									<Button size="lg" className={styles.ctaButton}>
+									<Button size="lg" className={styles.ctaButton} variant="default">
 										<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
 											Start Free Trial
 											<UilArrowRight className={styles.arrowIcon} />

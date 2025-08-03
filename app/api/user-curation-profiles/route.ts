@@ -2,8 +2,8 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-// Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
+// Cache user curation profiles for 24 hours - optimized for weekly content updates and limited bundle changes
+export const revalidate = 86400 // 24 hours in seconds
 
 export async function GET(_request: Request) {
 	try {
