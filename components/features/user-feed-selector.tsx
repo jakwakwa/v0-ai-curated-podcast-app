@@ -188,7 +188,7 @@ function UserFeedSelectorWizard() {
 
 			{/* Step 2: Select Content */}
 			{step === 2 && (
-				<div>
+				<div className="w-full min-h-screen">
 					<Typography variant="h2" className="mb-2">
 						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
 					</Typography>

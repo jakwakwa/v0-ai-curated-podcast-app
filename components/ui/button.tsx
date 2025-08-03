@@ -13,8 +13,7 @@ const buttonVariants = cva(
 					"bg-[var(--color-button-default-bg)] text-foreground border border-[var(--color-button-outline)] rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-default-bg-hover)] hover:border-[var(--color-button-outline-hover)]",
 				destructive:
 					"bg-[var(--color-button-destructive-bg)] text-[var(--color-button-destructive-foreground)] border border-[var(--color-button-destructive-bg)] rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-destructive-bg-hover)] hover:border-[var(--color-button-destructive-bg-hover)] focus-visible:outline-[var(--color-button-destructive-bg)]/50",
-				outline:
-					"bg-transparent text-foreground border border-[var(--color-button-outline)] rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-default-bg-hover)] hover:border-[var(--color-button-outline-hover)]",
+				outline: "bg-transparent text-foreground border border rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-default-bg-hover)] hover:border-[var(--color-button-outline-hover)]",
 				secondary:
 					"bg-[var(--color-button-secondary-bg)] text-[var(--color-button-secondary-foreground)] border border-[var(--color-button-secondary-bg)] rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)]",
 				ghost: "bg-transparent text-foreground hover:bg-[var(--color-button-ghost-hover)] hover:text-accent-foreground",

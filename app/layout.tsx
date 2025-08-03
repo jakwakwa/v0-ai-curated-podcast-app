@@ -6,6 +6,7 @@ import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
 import { Toaster } from "sonner"
+import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
 import { ClientProviders } from "./client-providers"
 import { StoreInitializer } from "./store-initializer"
 
@@ -45,6 +46,7 @@ export default function RootLayout({
 				<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
 			</head>
 			<body className={`${workSans.className}`}>
+				<GlobalProgressBar />
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{

@@ -1,6 +1,6 @@
 import { memo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Body, BodySmall, H3, Typography } from "@/components/ui/typography"
+import { Body, H3 } from "@/components/ui/typography"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
 
 interface ProfileFeedCardsProps {
@@ -24,8 +24,8 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 							<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<H3 className="mt-6 text-xl font-semibold tracking-tight">{userCurationProfile?.name}</H3>
-							<BodySmall className="mt-2 mb-4">Status: {userCurationProfile?.status}</BodySmall>
+							<H3 className="mt-0 text-accent text-xl font-semibold tracking-tight">{userCurationProfile?.name}</H3>
+							{/* <BodySmall className="mt-2 mb-4">Status: {userCurationProfile?.status}</BodySmall> */}
 						</CardContent>
 					</Card>
 				)}
@@ -34,14 +34,12 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 				{showBundleCard && userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 					<Card variant="bundle">
 						<CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">
-								<Typography variant="h3">Selected Bundle</Typography>
+							<CardTitle className="w-full text-xl font-semibold tracking-tight">
+								Recent Activity: <br />
+								<span className="text-custom-md text-accent"> {userCurationProfile.selectedBundle.name} Bundle</span>
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<H3 className="w-full mt-6 text-xl font-semibold tracking-tight">{userCurationProfile.selectedBundle.name}</H3>
-							<BodySmall className="mt-2 mb-4">{userCurationProfile.selectedBundle.description}</BodySmall>
-
 							{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
 								<div>
 									<Body className="text-xl font-semibold tracking-tight mt-2 mb-2">Podcasts:</Body>

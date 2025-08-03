@@ -132,7 +132,7 @@ export function NotificationPreferences() {
 								<span>In-App Notifications</span>
 								<div className="flex items-center gap-1">{preferences.inAppNotifications ? <CheckIcon className="w-3 h-3 text-green-600" /> : <X className="w-3 h-3 text-red-600" />}</div>
 							</div>
-							<DateIndicator indicator={preferences.updatedAt} label="Last updated" />
+							<DateIndicator size="sm" indicator={preferences.updatedAt} label="Last updated" />
 						</div>
 					</CardContent>
 				</Card>

@@ -120,7 +120,7 @@ export default function Page() {
 	}
 
 	return (
-		<div className="container mx-auto p-6 max-w-7xl">
+		<div className="container mx-auto m-0 p-0 max-w-full lg:max-w-7xl">
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex items-center gap-4">
 					<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
@@ -145,8 +145,8 @@ export default function Page() {
 				</Button>
 			</div>
 
-			<div className="flex flex-col gap-4 md:gap-6 md:flex-row-reverse">
-				<div className="w-full md:w-2/5 md:min-w-[400px]">
+			<div className="flex flex-col gap-4 md:gap-12 md:flex-col-reverse lg:flex-row-reverse">
+				<div className="w-full md:w-full md:min-w-[280px] ">
 					{userCurationProfile ? (
 						<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
 					) : (
@@ -177,7 +177,7 @@ export default function Page() {
 
 				<div className="w-full">
 					{combinedEpisodes.length === 0 ? (
-						<Card variant="glass">
+						<Card variant="glass" className="w-full">
 							<CardHeader>
 								<CardTitle>Weekly Episodes</CardTitle>
 							</CardHeader>

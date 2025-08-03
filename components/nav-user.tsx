@@ -60,8 +60,8 @@ export function NavUser({
 							<AvatarFallback className="rounded-lg">...</AvatarFallback>
 						</Avatar>
 						<div className="grid flex-1 text-left text-sm leading-tight">
-							<span className="truncate font-medium">Loading...</span>
-							<span className="truncate text-xs text-muted-foreground">Loading...</span>
+							<span className="truncate font-medium">Loading...3</span>
+							<span className="truncate text-xs text-muted-foreground">Loading. 2..</span>
 						</div>
 						<MoreVerticalIcon className="ml-auto h-4 w-4" />
 					</SidebarMenuButton>

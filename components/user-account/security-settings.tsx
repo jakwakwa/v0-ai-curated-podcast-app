@@ -131,7 +131,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 				{/* Password Section */}
 				<div className="space-y-4">
 					<h3 className="text-lg font-semibold">Password</h3>
-					<div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-lg bg-muted/50">
+					<div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-lg bg-card">
 						<div className="flex items-center gap-3">
 							<Lock className="h-5 w-5 text-muted-foreground" />
 							<div>
@@ -231,7 +231,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 				{/* Two-Factor Authentication Section */}
 				<div className="space-y-4">
 					<h3 className="text-lg font-semibold">Two-Factor Authentication</h3>
-					<div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-lg bg-muted/50">
+					<div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-lg bg-background">
 						<div className="flex items-center gap-3">
 							<Smartphone className="h-5 w-5 text-muted-foreground" />
 							<div>

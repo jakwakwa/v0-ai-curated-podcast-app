@@ -43,11 +43,31 @@ export default function AccountSettingsPage() {
 				</div>
 
 				<Tabs defaultValue="profile" className="space-y-6">
-					<TabsList className="grid w-full grid-cols-4">
-						<TabsTrigger value="profile">Profile</TabsTrigger>
-						<TabsTrigger value="notifications">Notifications</TabsTrigger>
-						<TabsTrigger value="security">Security</TabsTrigger>
-						<TabsTrigger value="subscription">Subscription</TabsTrigger>
+					<TabsList className="grid w-full grid-cols-4 bg-[var(--color-card-neutral)] border border-[var(--color-border)] h-12">
+						<TabsTrigger
+							value="profile"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Profile
+						</TabsTrigger>
+						<TabsTrigger
+							value="notifications"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Notifications
+						</TabsTrigger>
+						<TabsTrigger
+							value="security"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Security
+						</TabsTrigger>
+						<TabsTrigger
+							value="subscription"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Subscription
+						</TabsTrigger>
 					</TabsList>
 
 					<TabsContent value="profile" className="space-y-6">

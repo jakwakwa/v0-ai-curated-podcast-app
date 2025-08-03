@@ -1,12 +1,39 @@
+import type React from "react"
+
 interface DateIndicatorProps {
-	indicator: Date
+	indicator: Date | string
 	label: string
+	size: "xs" | "sm"
 }
 
-function DateIndicator({ indicator, label }: DateIndicatorProps): React.ReactElement {
+function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): React.ReactElement {
+	const formatDate = (date: Date | string): string => {
+		if (!date) return "Unknown"
+
+		try {
+			// If it's already a Date object, use it directly
+			if (date instanceof Date) {
+				return date.toLocaleDateString()
+			}
+
+			// If it's a string, convert it to a Date first
+			const dateObject = new Date(date)
+
+			// Check if the date is valid
+			if (isNaN(dateObject.getTime())) {
+				return "Invalid date"
+			}
+
+			return dateObject.toLocaleDateString()
+		} catch (error) {
+			console.warn("Failed to format date:", error)
+			return "Invalid date"
+		}
+	}
+
 	return (
-		<div className="mt-2 text-xs text-muted-foreground">
-			{label}: {indicator.toLocaleDateString()}
+		<div className={`mt-2 text-custom-${size}  text-muted-foreground/50`}>
+			{label}: {formatDate(indicator)}
 		</div>
 	)
 }

@@ -15,7 +15,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 	const getLabelColorClass = (labelColor: string) => {
 		switch (labelColor) {
 			case "primary":
-				return "text-primary"
+				return "text-primary text-left"
 			case "secondary":
 				return "text-secondary"
 			case "success":

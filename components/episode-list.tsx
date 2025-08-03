@@ -4,7 +4,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
-import { Badge } from "./ui/badge"
+import DateIndicator from "./ui/date-indicator"
 import { Typography } from "./ui/typography"
 
 interface EpisodeListProps {
@@ -13,22 +13,22 @@ interface EpisodeListProps {
 	playingEpisodeId?: string | null
 }
 
-const formatDate = (date: Date | null | undefined) => {
+const _formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
 	return new Date(date).toLocaleString()
 }
 
 export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisode, playingEpisodeId }) => {
 	return (
-		<Card>
+		<Card className="w-full">
 			<CardHeader>
 				<CardTitle>All Episodes</CardTitle>
 			</CardHeader>
 			<CardContent>
 				{episodes.length > 0 ? (
-					<ul className="flex flex-col gap-4">
+					<ul className="flex flex-col justify-start gap-2 w-full">
 						{episodes.map(episode => (
-							<li key={episode.episode_id} className="flex items-center bg-card/50 hover:bg-card/10 active:bg-card/20 justify-center px-12 py-4 gap-6	 episode-card w-full">
+							<li key={episode.episode_id} className="flex items-center bg-card/50 hover:bg-card/10 active:bg-card/20 justify-start px-12 py-4 w-full px-0 gap-6 episode-card w-full ">
 								<div className="flex-shrink-0 pl-4">
 									{episode.image_url ? (
 										<Image src={episode.image_url} alt={episode.title} className="h-24 w-24 rounded-md object-cover" width={96} height={96} />
@@ -38,22 +38,28 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 										</div>
 									)}
 								</div>
-								<div className="flex-1 min-w-0">
+								<div className="flex  w-full flex-col justify-around py-2  px-3 gap-1">
 									<Typography className="text-custom-h5 font-medium">{episode.title}</Typography>
+									{/* 
+									Description
+									 */}
 									<p className="text-custom-sm text-muted-foreground episode-card-description">{episode.description || "No description available."}</p>
-									<Badge variant="card" size="sm" className="text-custom-xxs text-muted-foreground text-right opacity-70 mt-2">
-										Published: {episode.published_at ? formatDate(episode.published_at) : "No date"}
-									</Badge>
+									{/*
+									 Published Date
+									  */}
+									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
-										<div className="mt-2 flex-self-end w-full flex justify-end">
+										<div className="mt-2 ml-0 pl-0 flex-self-start w-full flex justify-start">
 											<Button
 												onClick={() => onPlayEpisode(episode.episode_id)}
 												variant="outline"
 												size="sm"
-												className={playingEpisodeId === episode.episode_id ? "bg-primary text-custom-xs text-primary-foreground" : "bg-card/50 text-custom-sm text-muted-foreground hover:bg-card/75"}
+												className={
+													playingEpisodeId === episode.episode_id ? "m-0 p-0 bg-primary text-custom-xs text-primary-foreground" : "bg-card/50 text-custom-sm text-muted-foreground hover:bg-card/75"
+												}
 											>
-												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3" />
+												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3 pl-0 text-left" />
 												{playingEpisodeId === episode.episode_id ? "Playing..." : "Play Episode"}
 											</Button>
 										</div>

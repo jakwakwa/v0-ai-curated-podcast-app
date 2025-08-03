@@ -625,11 +625,31 @@ export default function AdminPage() {
 			</div>
 
 			<Tabs defaultValue="episode-generation" className="space-y-6">
-				<TabsList className="grid w-full grid-cols-4">
-					<TabsTrigger value="episode-generation">Episode Generation</TabsTrigger>
-					<TabsTrigger value="bundle-management">Bundle Management</TabsTrigger>
-					<TabsTrigger value="podcast-management">Podcast Management</TabsTrigger>
-					<TabsTrigger value="testing">Testing</TabsTrigger>
+				<TabsList className="grid w-full grid-cols-4 bg-[var(--color-card-neutral)] border border-[var(--color-border)] h-12">
+					<TabsTrigger
+						value="episode-generation"
+						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+					>
+						Episode Generation
+					</TabsTrigger>
+					<TabsTrigger
+						value="bundle-management"
+						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+					>
+						Bundle Management
+					</TabsTrigger>
+					<TabsTrigger
+						value="podcast-management"
+						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+					>
+						Podcast Management
+					</TabsTrigger>
+					<TabsTrigger
+						value="testing"
+						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+					>
+						Testing
+					</TabsTrigger>
 				</TabsList>
 
 				{/* Episode Generation Tab */}
@@ -940,7 +960,7 @@ export default function AdminPage() {
 							</Button>
 
 							{showCreateBundle && (
-								<div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+								<div className="space-y-4 p-4 border rounded-lg bg-card">
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
 											<Label htmlFor="bundleName">Bundle Name *</Label>
@@ -1082,7 +1102,7 @@ export default function AdminPage() {
 							</Button>
 
 							{showCreatePodcast && (
-								<div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+								<div className="space-y-4 p-4 border rounded-lg bg-background">
 									<div className="flex items-center justify-between mb-4">
 										<h4 className="font-semibold">{editingPodcast ? "Edit Podcast" : "Create New Podcast"}</h4>
 										{editingPodcast && (

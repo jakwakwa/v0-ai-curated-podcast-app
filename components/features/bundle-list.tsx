@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Bundle, Podcast } from "@/lib/types"
+import { AppSpinner } from "../ui/app-spinner"
+import { PageHeader } from "../ui/page-header"
 
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
@@ -47,8 +49,13 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center min-h-[200px]">
-				<p>Loading PODSLICE Bundles...</p>
+			<div className="wrapper">
+				<PageHeader title="PODSLICE Bundles" description="Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected." />
+				<div className="p-8 max-w-[1200px] mx-auto">
+					<div className="flex items-center justify-center min-h-[400px]">
+						<AppSpinner size="lg" label="Loading Bundles..." />
+					</div>
+				</div>
 			</div>
 		)
 	}

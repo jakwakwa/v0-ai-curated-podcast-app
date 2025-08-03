@@ -134,7 +134,7 @@ export function NotificationPreferences() {
 						<div className="flex flex-col gap-2 text-sm">
 							<SettingsToggle preferences={preferences} label="Email" settingType="emailNotifications" toggleHandler={handleNotificationToggle} />
 							<SettingsToggle preferences={preferences} label="In-App" settingType="inAppNotifications" toggleHandler={handleNotificationToggle} />
-							<DateIndicator indicator={preferences.updatedAt} label="Last updated" />
+							<DateIndicator size="sm" indicator={preferences.updatedAt} label="Last updated" />
 						</div>
 					</CardContent>
 				</Card>

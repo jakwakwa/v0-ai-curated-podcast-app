@@ -2,6 +2,7 @@
 
 import { AlertCircle, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { EpisodeList } from "@/components/episode-list"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
@@ -15,6 +16,13 @@ export default function EpisodesPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+
+	// Find the portal container on mount
+	useEffect(() => {
+		const container = document.getElementById("global-audio-player")
+		setPortalContainer(container)
+	}, [])
 
 	const fetchEpisodes = useCallback(async () => {
 		try {
@@ -86,55 +94,38 @@ export default function EpisodesPage() {
 					</div>
 				</div>
 			) : (
-				<>
-					<div className="mt-8">
-						<h2 className="text-2xl font-semibold tracking-tight mb-6">All Episodes ({episodes.length})</h2>
-						<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
+				<div className="mt-8">
+					<h2 className="text-2xl font-semibold tracking-tight mb-6">All Episodes ({episodes.length})</h2>
+					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 
-						{/* Audio player shown at page level when episode is playing */}
-						{playingEpisodeId && (
-							<div className="mt-6">
-								<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
-							</div>
-						)}
-					</div>
-				</>
+					{/* Spacer for fixed audio player */}
+					{playingEpisodeId && <div className="h-24" />}
+				</div>
 			)}
+
+			{/* Portal audio player to global container */}
+			{playingEpisodeId &&
+				portalContainer &&
+				createPortal(
+					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
+					</div>,
+					portalContainer
+				)}
 		</div>
 	)
 }
 
 function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
-	console.log("AudioPlayerWrapper - playingEpisodeId:", playingEpisodeId)
-	console.log("AudioPlayerWrapper - episodes count:", episodes.length)
-
+	// Force fresh lookup of episode to avoid caching issues
 	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
-	console.log("AudioPlayerWrapper - found episode:", currentEpisode)
 
-	if (!currentEpisode) {
-		console.warn("No episode found for ID:", playingEpisodeId)
-		return (
-			<div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
-				<p className="text-sm text-destructive">Episode not found</p>
-				<button type="button" onClick={onClose} className="text-xs underline">
-					Close
-				</button>
-			</div>
-		)
+	// biome-ignore lint/complexity/useOptionalChain: <keep>
+	if (!(currentEpisode && currentEpisode.audio_url)) {
+		// Don't render anything - let the parent handle the conditional rendering
+		// This prevents the player from "hiding" when switching between episodes
+		return null
 	}
 
-	if (!currentEpisode.audio_url) {
-		console.warn("Episode found but no audio URL:", currentEpisode)
-		return (
-			<div className="p-4 bg-muted/10 border border-muted/20 rounded-md">
-				<p className="text-sm text-muted-foreground">No audio available for this episode</p>
-				<button type="button" onClick={onClose} className="text-xs underline">
-					Close
-				</button>
-			</div>
-		)
-	}
-
-	console.log("AudioPlayerWrapper - rendering AudioPlayer with episode:", currentEpisode.title)
 	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

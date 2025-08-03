@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useProfileStore } from "@/lib/stores/profile-store"
-import styles from "./profile-management.module.css"
 
 interface ProfileManagementProps {
 	className?: string
@@ -106,8 +105,8 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 	if (isLoading && !profile) {
 		return (
 			<Card className={className}>
-				<CardContent className={styles.loadingContent}>
-					<Loader2 className="spinner" />
+				<CardContent className="flex items-center justify-center py-8">
+					<Loader2 className="h-6 w-6 animate-spin" />
 				</CardContent>
 			</Card>
 		)
@@ -117,41 +116,59 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 		<div className={className}>
 			<Card>
 				<CardHeader>
-					<CardTitle className={styles.cardTitle}>
-						<User className={styles.cardTitleIcon} />
+					<CardTitle className="flex items-center gap-2">
+						<User className="h-5 w-5" />
 						Profile Information
 					</CardTitle>
 					<CardDescription>Manage your personal information and account details.</CardDescription>
 				</CardHeader>
-				<CardContent className={styles.cardContentSpaceY6}>
+				<CardContent className="flex flex-col gap-6">
 					{/* Avatar Section */}
-					<div className={styles.avatarSection}>
-						<div className={styles.avatarContainer}>
-							<Avatar className={styles.avatarSize}>
+					<div className="flex items-center gap-6">
+						<div className="relative">
+							<Avatar className="h-20 w-20">
 								<AvatarImage src={profile?.avatar || ""} alt={profile?.name} />
-								<AvatarFallback className={styles.avatarFallbackText}>{profile?.name ? getUserInitials(profile.name) : "U"}</AvatarFallback>
+								<AvatarFallback className="text-lg">{profile?.name ? getUserInitials(profile.name) : "U"}</AvatarFallback>
 							</Avatar>
 
 							{/* Avatar Upload Button */}
-							<Button size="sm" variant="outline" className={styles.avatarUploadButton} onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
-								<Camera className={styles.avatarUploadButtonIcon} />
+							<Button
+								size="sm"
+								variant="secondary"
+								className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 bg-[var(--color-card-neutral)] border-2 border-[var(--color-border)]"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isLoading}
+							>
+								<Camera className="h-4 w-4" />
 							</Button>
 
 							{/* Hidden file input */}
-							<input ref={fileInputRef} type="file" accept="image/*" className={styles.hiddenInput} onChange={handleFileChange} />
+							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
 						</div>
 
-						<div className={styles.profileDetails}>
-							<h3 className={styles.profileName}>{profile?.name || "User"}</h3>
-							<p className={styles.profileEmail}>{profile?.email}</p>
-							<div className={styles.profileActions}>
-								<Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
-									<Upload className={styles.profileActionButtonIcon} />
+						<div className="flex-1">
+							<h3 className="font-medium">{profile?.name || "User"}</h3>
+							<p className="text-sm text-muted-foreground">{profile?.email}</p>
+							<div className="flex gap-2 mt-2">
+								<Button
+									size="sm"
+									variant="secondary"
+									className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isLoading}
+								>
+									<Upload className="h-4 w-4 mr-1" />
 									Upload Photo
 								</Button>
 								{profile?.avatar && (
-									<Button size="sm" variant="outline" onClick={handleRemoveAvatar} disabled={isLoading}>
-										<X className={styles.profileActionButtonIcon} />
+									<Button
+										size="sm"
+										variant="secondary"
+										className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
+										onClick={handleRemoveAvatar}
+										disabled={isLoading}
+									>
+										<X className="h-4 w-4 mr-1" />
 										Remove
 									</Button>
 								)}
@@ -162,18 +179,24 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<Separator />
 
 					{/* Profile Information */}
-					<div className={styles.profileInfoSection}>
-						<div className={styles.profileInfoSectionHeader}>
-							<h3 className={styles.profileInfoTitle}>Personal Information</h3>
-							<Button variant="outline" size="sm" onClick={() => setIsEditing(!isEditing)} disabled={isLoading}>
+					<div className="flex flex-col gap-4 p-4 rounded-lg bg-[var(--color-card-neutral)]">
+						<div className="flex items-center justify-between">
+							<h3 className="text-lg font-semibold">Personal Information</h3>
+							<Button
+								variant="secondary"
+								size="sm"
+								className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
+								onClick={() => setIsEditing(!isEditing)}
+								disabled={isLoading}
+							>
 								{isEditing ? (
 									<>
-										<X className={styles.profileActionButtonIcon} />
+										<X className="h-4 w-4 mr-1" />
 										Cancel
 									</>
 								) : (
 									<>
-										<Edit3 className={styles.profileActionButtonIcon} />
+										<Edit3 className="h-4 w-4 mr-1" />
 										Edit
 									</>
 								)}
@@ -182,45 +205,50 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 
 						{isEditing ? (
 							/* Edit Form */
-							<div className={styles.editForm}>
-								<div className={styles.formGroup}>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-2">
 									<Label htmlFor="name">Full Name</Label>
 									<Input id="name" value={editForm.name} onChange={e => handleInputChange("name", e.target.value)} placeholder="Enter your full name" />
 								</div>
 
-								<div className={styles.formGroup}>
+								<div className="flex flex-col gap-2">
 									<Label htmlFor="email">Email Address</Label>
 									<Input id="email" type="email" value={editForm.email} onChange={e => handleInputChange("email", e.target.value)} placeholder="Enter your email address" />
 								</div>
 
-								<div className={styles.formActions}>
+								<div className="flex gap-2">
 									<Button variant="default" onClick={handleUpdateProfile} disabled={isLoading}>
-										{isLoading ? <Loader2 className={`${styles.formButtonIcon} ${styles.formButtonIconSpin}`} /> : <Save className={styles.formButtonIcon} />}
+										{isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
 										Save Changes
 									</Button>
-									<Button variant="outline" onClick={() => setIsEditing(false)} disabled={isLoading}>
+									<Button
+										variant="secondary"
+										className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
+										onClick={() => setIsEditing(false)}
+										disabled={isLoading}
+									>
 										Cancel
 									</Button>
 								</div>
 							</div>
 						) : (
 							/* Display Information */
-							<div className={styles.displayInfoGrid}>
-								<div className={styles.displayInfoGroup}>
-									<p className={styles.displayInfoLabel}>Full Name</p>
-									<p className={styles.displayInfoValue}>{profile?.name || "Not set"}</p>
+							<div className="grid gap-4 md:grid-cols-2">
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Full Name</p>
+									<p className="text-sm text-muted-foreground">{profile?.name || "Not set"}</p>
 								</div>
-								<div className={styles.displayInfoGroup}>
-									<p className={styles.displayInfoLabel}>Email Address</p>
-									<p className={styles.displayInfoValue}>{profile?.email || "Not set"}</p>
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Email Address</p>
+									<p className="text-sm text-muted-foreground">{profile?.email || "Not set"}</p>
 								</div>
-								<div className={styles.displayInfoGroup}>
-									<p className={styles.displayInfoLabel}>Member Since</p>
-									<p className={styles.displayInfoValue}>{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "Unknown"}</p>
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Member Since</p>
+									<p className="text-sm text-muted-foreground">{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
-								<div className={styles.displayInfoGroup}>
-									<p className={styles.displayInfoLabel}>Last Updated</p>
-									<p className={styles.displayInfoValue}>{profile?.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "Unknown"}</p>
+								<div className="flex flex-col gap-2">
+									<p className="text-sm font-medium">Last Updated</p>
+									<p className="text-sm text-muted-foreground">{profile?.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
 							</div>
 						)}
@@ -229,13 +257,13 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<Separator />
 
 					{/* Account Status */}
-					<div className={styles.accountStatusSection}>
-						<h3 className={styles.accountStatusTitle}>Account Status</h3>
-						<div className={styles.accountStatusDetails}>
-							<Badge variant="default" size="sm">
+					<div className="flex flex-col gap-4 p-4 rounded-lg bg-[var(--color-card-neutral)]">
+						<h3 className="text-lg font-semibold">Account Status</h3>
+						<div className="flex items-center gap-2">
+							<Badge variant="secondary" size="sm" className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] text-foreground">
 								Active
 							</Badge>
-							<span className={styles.accountStatusText}>Your account is active and in good standing</span>
+							<span className="text-sm text-muted-foreground">Your account is active and in good standing</span>
 						</div>
 					</div>
 				</CardContent>

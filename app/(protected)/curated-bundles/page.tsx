@@ -3,6 +3,7 @@
 import { AlertCircle, Lock, RefreshCw } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { EpisodeList } from "@/components/episode-list"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
@@ -25,6 +26,13 @@ export default function CuratedBundlesPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+
+	// Find the portal container on mount
+	useEffect(() => {
+		const container = document.getElementById("global-audio-player")
+		setPortalContainer(container)
+	}, [])
 
 	const fetchCuratedBundles = useCallback(async () => {
 		try {
@@ -66,15 +74,20 @@ export default function CuratedBundlesPage() {
 		setPlayingEpisodeId(null)
 	}
 
+	if (isLoading) {
+		return (
+			<div className="p-8 max-w-[1200px] mx-auto">
+				<div className="flex items-center justify-center min-h-[400px]">
+					<AppSpinner size="lg" label="Loading Bundles..." />
+				</div>
+			</div>
+		)
+	}
 	return (
 		<div className="wrapper">
 			<PageHeader title="PODSLICE Bundles" description="Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected." />
 
-			{isLoading ? (
-				<div className="flex items-center justify-center min-h-[400px]">
-					<AppSpinner size="lg" label="Loading PODSLICE Bundles..." />
-				</div>
-			) : error ? (
+			{error && (
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -88,7 +101,8 @@ export default function CuratedBundlesPage() {
 						</Button>
 					</div>
 				</div>
-			) : curatedBundles.length === 0 ? (
+			)}
+			{curatedBundles.length === 0 ? (
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
@@ -104,7 +118,7 @@ export default function CuratedBundlesPage() {
 				</div>
 			) : (
 				<>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+					<div className="flex gap-8 mt-8">
 						{curatedBundles.map(bundle => (
 							<Card key={bundle.bundle_id} className="transition-all duration-200 ease-in-out h-full flex flex-col hover:-translate-y-1 hover:shadow-lg">
 								<CardHeader className="p-6 border-b border-border">
@@ -148,55 +162,40 @@ export default function CuratedBundlesPage() {
 
 					{/* Show episodes from bundles using the migrated EpisodeList component */}
 					{episodes.length > 0 && (
-						<div className="mt-12">
+						<div className="flex flex-col gap-8 mt-12 w-full">
 							<h2 className="text-2xl font-semibold tracking-tight mb-6">Episodes from PODSLICE Bundles</h2>
 							<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 
-							{/* Audio player shown at page level when episode is playing */}
-							{playingEpisodeId && (
-								<div className="mt-6">
-									<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
-								</div>
-							)}
+							{/* Spacer for fixed audio player */}
+							{playingEpisodeId && <div className="h-24" />}
 						</div>
 					)}
 				</>
 			)}
+
+			{/* Portal audio player to global container */}
+			{playingEpisodeId &&
+				portalContainer &&
+				createPortal(
+					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
+					</div>,
+					portalContainer
+				)}
 		</div>
 	)
 }
 
 function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
-	console.log("AudioPlayerWrapper - playingEpisodeId:", playingEpisodeId)
-	console.log("AudioPlayerWrapper - episodes count:", episodes.length)
-
+	// Force fresh lookup of episode to avoid caching issues
 	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
-	console.log("AudioPlayerWrapper - found episode:", currentEpisode)
 
-	if (!currentEpisode) {
-		console.warn("No episode found for ID:", playingEpisodeId)
-		return (
-			<div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
-				<p className="text-sm text-destructive">Episode not found</p>
-				<button type="button" onClick={onClose} className="text-xs underline">
-					Close
-				</button>
-			</div>
-		)
+	// biome-ignore lint/complexity/useOptionalChain: <keep>
+	if (!(currentEpisode && currentEpisode.audio_url)) {
+		// Don't render anything - let the parent handle the conditional rendering
+		// This prevents the player from "hiding" when switching between episodes
+		return null
 	}
 
-	if (!currentEpisode.audio_url) {
-		console.warn("Episode found but no audio URL:", currentEpisode)
-		return (
-			<div className="p-4 bg-muted/10 border border-muted/20 rounded-md">
-				<p className="text-sm text-muted-foreground">No audio available for this episode</p>
-				<button type="button" onClick={onClose} className="text-xs underline">
-					Close
-				</button>
-			</div>
-		)
-	}
-
-	console.log("AudioPlayerWrapper - rendering AudioPlayer with episode:", currentEpisode.title)
 	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

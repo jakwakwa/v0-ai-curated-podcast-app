@@ -41,7 +41,7 @@
     --color-destructive-foreground: oklch(0.98 0.01 264);
     --color-border: oklch(0.65 0.0397 167.67 / 0.2);
     --color-border-light: oklch(0.62 0.1429 22.15 / 0.86);
-    --color-input: oklch(0.3 0.04 264);
+    --color-input: oklch(0.28 0.0075 274.69);
     --color-ring: oklch(0.55 0.05 264);
     --color-dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
     --color-radial-gradient: linear-gradient(45deg, rgb(5.1% 5.1% 7.06%), rgb(9.41% 8.63% 21.2%), rgb(4.31% 27.8% 69%), rgb(47.5% 69% 4.31%));
@@ -65,10 +65,6 @@
     --color-primary: oklch(0.922 0 0);
     --color-muted: oklch(0.99 0 none / 0.55);
     --color-accent: oklch(0.78 0.1144 343.08 / 0.8);
-    --color-destructive: oklch(0.67 0.172 29.87 / 0.8);
-    --color-border: oklch(0.23 0.027 284.07 / 0.86);
-    --color-input: oklch(0.215 0.14 215.14);
-    --color-ring: oklch(0.55 0.05 264);
 
     /* Accent colors for selection states */
     --color-accent-selection: oklch(0.88 0.0839 163.71);
@@ -76,16 +72,15 @@
     --color-accent-selection-border: oklch(0.88 0.0839 163.71 / 0.6);
 
     /* Form field colors */
-    --color-form-input-bg: oklch(0.61 0.07 264.2 / 0.31);
+    --color-form-input-bg: oklch(0.22 0.01 283.64 / 0.61);
     --color-form-input-text: oklch(0.9 0.02 264);
     --color-form-placeholder: oklch(0.7 0.03 264 / 0.7);
-    --color-form-border: oklch(0.75 0.02 240 / 0.4);
-    --color-form-border-focus: oklch(0.61 0.085 195.16);
-    --color-form-border-active: oklch(0.64 0.0951 207.84);
-    --color-form-border-disabled: oklch(0.3 0.0116 178.7);
+    --color-form-border: oklch(0.22 0.01 283.64 / 0.21) --color-form-border-focus: oklch(0.79 0.13 194.85);
+    --color-form-border-active: oklch(0.71 0.088 278.05);
+    --color-form-border-disabled: oklch(0.6 0.0159 180.36);
     --color-form-bg-disabled: oklch(0.25 0.03 264 / 0.5);
     --color-form-text-disabled: oklch(0.5 0.02 264);
-    --color-form-focus-ring: oklch(0.61 0.085 195.16 / 0.3);
+    --color-form-focus-ring: oklch(0.79 0.128 194.87 / 0.82);
     --color-form-error-border: oklch(0.62 0.22 25);
     --color-form-error-ring: oklch(0.62 0.22 25 / 0.2);
 
@@ -114,6 +109,8 @@
     --color-button-secondary-bg-focus: oklch(0.43 0.1664 281.55);
     --color-button-secondary-bg-focus-visible: oklch(0.43 0.1664 281.55);
     --color-button-secondary-bg-focus-visible-hover: oklch(0.43 0.1664 281.55);
+
+    --color-dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
 
     --color-button-destructive-bg: oklch(0.56 0.1836 23.71);
     --color-button-destructive-bg-hover: oklch(0.6 0.1723 20.31);
@@ -235,6 +232,12 @@ h3 {
     letter-spacing: -0.025em;
 }
 
+::selection {
+    color: rgb(181, 187, 226);
+    background: rgba(107, 35, 207, 0.981);
+}
+
+
 button {
     font-size: var(--text-body-sm);
     line-height: 1.25rem;
@@ -265,16 +268,32 @@ button {
     letter-spacing: 0.025em;
 }
 
+label {
+    font-size: var(--text-body-sm);
+    line-height: 2.45rem;
+    font-weight: 500;
+    padding-bottom: 0.425rem !important;
+    letter-spacing: 0.025em;
+    color: var(--color-foreground);
+}
+
+
 input,
 textarea {
     font-size: var(--text-body-sm);
     line-height: 1.25rem;
     font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     letter-spacing: 0.025em;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
     border-radius: 0.375rem;
-    background-color: hsla(var(--background-hsl));
+    height: 2.425rem !important;
+    padding-top: 1.425rem !important;
+    padding-bottom: 1.425rem !important;
+    background-color: var(--color-form-input-bg);
     color: hsla(var(--foreground-hsl));
     transition: border-color 0.2s ease-in-out;
 }

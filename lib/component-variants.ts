@@ -131,7 +131,7 @@ export const inputVariants = cva(
 		variants: {
 			variant: {
 				default:
-					"bg-[var(--color-form-input-bg)] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
+					"bg-[#2a1f3d] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
 				glass:
 					"bg-[var(--color-form-input-bg)]/50 backdrop-blur-sm border-white/20 text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)]",
 			},
@@ -153,7 +153,7 @@ export const textareaVariants = cva("flex min-h-[60px] w-full rounded-md border 
 	variants: {
 		variant: {
 			default:
-				"bg-[var(--color-form-input-bg)] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
+				"bg-[#2a1f3d] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
 		},
 		size: {
 			default: "px-3 py-2 text-sm",
@@ -172,7 +172,7 @@ export const selectVariants = cva("", {
 	variants: {
 		trigger: {
 			default:
-				"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-[var(--color-form-input-bg)] border-[var(--color-form-border)] px-3 py-2 text-sm text-[var(--color-form-input-text)] shadow-xs outline-none transition-all duration-200 data-[placeholder]:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50",
+				"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-[oklch(0.30_0.1388_290.83/0.48)] border-[var(--color-form-border)] px-3 py-2 text-sm text-[var(--color-form-input-text)] shadow-xs outline-none transition-all duration-200 data-[placeholder]:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50",
 		},
 		content: {
 			default: "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
