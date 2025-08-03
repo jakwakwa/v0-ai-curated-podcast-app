@@ -231,7 +231,9 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<div className="space-y-4">
 						<h3 className="text-lg font-semibold">Account Status</h3>
 						<div className="flex items-center gap-2">
-							<Badge variant="default">Active</Badge>
+							<Badge variant="default" size="sm">
+								Active
+							</Badge>
 							<span className="text-sm text-muted-foreground">Your account is active and in good standing</span>
 						</div>
 					</div>

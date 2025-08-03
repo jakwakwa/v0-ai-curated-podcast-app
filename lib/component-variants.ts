@@ -1,5 +1,21 @@
 import { cva, type VariantProps } from "class-variance-authority"
 
+// Background variants - using clean utility classes
+export const backgroundVariants = cva("", {
+	variants: {
+		variant: {
+			linear: "bg-linear-gradient",
+			linearSecondary: "bg-linear-gradient-secondary",
+			radial: "bg-radial-gradient",
+			radialSecondary: "bg-radial-gradient-secondary",
+			glass: "bg-[var(--color-background-glass)]",
+			secondary: "bg-[var(--color-secondary-background)]",
+			primary: "bg-[var(--color-background)]",
+			transparent: "bg-transparent",
+		},
+	},
+})
+
 // Typography variants - unified text styling system
 export const typographyVariants = cva("", {
 	variants: {
@@ -10,12 +26,28 @@ export const typographyVariants = cva("", {
 			h4: "font-heading text-h4 font-semibold text-foreground",
 			h5: "font-heading text-h5 font-semibold text-foreground",
 			body: "font-body text-body text-foreground",
-			"body-sm": "font-body text-body-sm text-muted-foreground",
-			muted: "text-sm text-muted-foreground",
+			"body-sm": "font-body text-[var(--text-body-sm)] text-muted-foreground",
+			muted: "text-[var(--text-body-sm)] text-muted-foreground",
+			link: "text-[var(--text-body-sm)] text-link",
+			button: "text-[var(--text-body-sm)] text-button",
+			label: "text-[var(--text-body-sm)] text-label",
+			caption: "text-[var(--text-body-sm)] text-caption",
+			small: "text-[var(--text-body-sm)] text-small",
+		},
+		size: {
+			default: "text-body",
+			xs: "text-[var(--text-body-xs)]",
+			xxs: "text-[var(--text-body-xs)]",
+			sm: "text-[var(--text-body-sm)]",
+			md: "text-[var(--text-body)]",
+			lg: "text-[var(--text-h3)]",
+			xl: "text-[var(--text-h2)]",
+			xxl: "text-[var(--text-h1)]",
 		},
 	},
 	defaultVariants: {
 		variant: "body",
+		size: "default",
 	},
 })
 
@@ -24,9 +56,9 @@ export const cardVariants = cva("rounded-2xl border transition-all duration-200"
 	variants: {
 		variant: {
 			default: "border bg-card text-card-foreground",
-			glass: "border-white/10 bg-card/25 backdrop-blur-2xl shadow-glass",
+			glass: "bg-glass border-white/10 bg-card/95 backdrop-blur-md shadow-glass",
 			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
-			bundle: "border bg-dialog-bg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-lg hover:-translate-y-0.5",
+			bundle: "border bg-dialog-bg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-lg backdrop-blur-md hover:-translate-y-0.5",
 		},
 		selected: {
 			true: "border-2 border-accent-selection-border bg-gradient-to-br from-accent-selection-bg to-card shadow-lg shadow-accent-selection-bg/20",
@@ -208,10 +240,18 @@ export const badgeVariants = cva(
 				secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
 				destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
 				outline: "text-foreground",
+				card: "border-transparent bg-card text-card-foreground shadow hover:bg-card/80",
+			},
+			size: {
+				sm: "px-2 py-0.5 text-xs",
+				md: "px-2.5 py-0.5 text-xs",
+				lg: "px-3 py-1 text-sm",
+				xl: "px-4 py-1.5 text-sm",
 			},
 		},
 		defaultVariants: {
 			variant: "default",
+			size: "md",
 		},
 	}
 )

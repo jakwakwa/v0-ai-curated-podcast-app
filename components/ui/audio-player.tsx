@@ -7,6 +7,7 @@ import styles from "@/components/ui/audio-player.module.css"
 import type { Episode } from "@/lib/types"
 
 import { Button } from "./button"
+import { Typography } from "./typography"
 
 // TODO: use these exports in Titles and Descriptions
 // TODO: export these exports to utils/text-utils.ts
@@ -92,7 +93,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	// Memoized expensive calculations
 	const formattedCurrentTime = useMemo(() => formatTime(currentTime), [currentTime])
 	const formattedDuration = useMemo(() => formatTime(duration), [duration])
-	const truncatedDescription = useMemo(() => truncateDescription(episode.description, 100), [episode.description])
+	const _truncatedDescription = useMemo(() => truncateDescription(episode.description, 100), [episode.description])
 
 	const audioSource = useMemo(() => {
 		return episode.audio_url !== "sample-for-simulated-tests.mp3" ? episode.audio_url : "/sample-for-simulated-tests.mp3"
@@ -223,9 +224,8 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 				)}
 			</div>
 
-			<div className={styles.info}>
-				<h3 title={episode.title}>{episode.title}</h3>
-				<p title={episode.description ?? ""}>{truncatedDescription}</p>
+			<div className="flex flex-col gap-2">
+				<Typography className="text-custom-h5 font-medium">{episode.title}</Typography>
 			</div>
 
 			<div className={styles.controls}>
@@ -255,15 +255,14 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 					{volumeIcon}
 				</Button>
 				<input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
+				{onClose && (
+					<Button variant="ghost" onClick={onClose} size="sm" className="ml-2 h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+						</svg>
+					</Button>
+				)}
 			</div>
-
-			{onClose && (
-				<Button variant="default" onClick={onClose} className={styles.closeButton}>
-					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-					</svg>
-				</Button>
-			)}
 			<audio ref={audioRef} src={episode.audio_url}>
 				<track
 					kind="captions"

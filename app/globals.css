@@ -5,12 +5,27 @@
 
 @import "tailwindcss";
 
+@import "tw-animate-css";
+
+@import 'tailwindcss';
+
 @theme {
+    --custom-a0: rgb(5.1% 5.1% 7.06%);
+    --custom-a10: rgb(9.41% 8.63% 21.2%);
+    --custom-a20: rgb(4.31% 27.8% 69%);
+    --custom-a30: rgb(47.5% 69% 4.31%);
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+
     /* Default border behavior - use explicit border color */
-    --default-border-color: var(--color-border);
-    --color-background: oklch(0.15 0.02 264);
-    --color-foreground: oklch(0.95 0.01 264);
-    --color-card: oklch(0.18 0.03 264);
+    --default-border-color: var(--color-border-light);
+    --color-background: oklch(0.21 0.0713 293.73 / 0.72);
+    --color-foreground: oklch(0.93 0.0277 258.37);
+    --color-card-neutral: oklch(0.18 0.03 264);
+    --color-card: oklch(0.76 0.1266 190.92 / 0.09);
     --color-card-foreground: oklch(0.93 0.01 264);
     --color-popover: oklch(0.16 0.02 264);
     --color-popover-foreground: oklch(0.94 0.01 264);
@@ -19,16 +34,41 @@
     --color-secondary: oklch(0.22 0.04 264);
     --color-secondary-foreground: oklch(0.88 0.02 264);
     --color-muted: oklch(0.47 0.0294 265.34 / 0.33);
-    --color-muted-foreground: oklch(0.68 0.03 264);
+    --color-muted-foreground: oklch(0.78 0.0384 263.58);
     --color-accent: oklch(0.24 0.05 264);
     --color-accent-foreground: oklch(0.91 0.02 264);
     --color-destructive: oklch(0.62 0.22 25);
     --color-destructive-foreground: oklch(0.98 0.01 264);
-    --color-border: hsla(240, 8%, 50%, 0.2);
-    --color-border-light: oklch(0.75 0.02 240 / 0.4);
+    --color-border: oklch(0.65 0.0397 167.67 / 0.2);
+    --color-border-light: oklch(0.62 0.1429 22.15 / 0.86);
     --color-input: oklch(0.3 0.04 264);
     --color-ring: oklch(0.55 0.05 264);
     --color-dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
+    --color-radial-gradient: linear-gradient(45deg, rgb(5.1% 5.1% 7.06%), rgb(9.41% 8.63% 21.2%), rgb(4.31% 27.8% 69%), rgb(47.5% 69% 4.31%));
+    --color-radial-gradient-secondary: radial-gradient(ellipse 80% 50% at 50% -20%, oklch(0.15 0.02 264), oklch(0.15 0.02 264));
+
+
+
+
+    --color-linear-gradient: linear-gradient(to right bottom, hsla(253, 90%, 66%, 0.1), rgba(0, 0, 0, 0), hsla(158, 80%, 40%, 0.1));
+    --color-linear-gradient-secondary: linear-gradient(to right bottom, hsla(185, 78%, 76%, 0.956), rgba(8, 241, 183, 0.424), hsla(158, 80%, 40%, 0.1));
+
+    /* background colors */
+    --color-background-glass: rgba(19, 7, 48, 0.146);
+    --color-secondary-background: linear-gradient(to right bottom, hsla(185, 78%, 76%, 0.956), rgba(8, 241, 183, 0.424), hsla(158, 80%, 40%, 0.1));
+    --color-background: hsla(253, 90%, 66%, 0.1);
+
+
+
+    --color-popover: oklch(0.269 0 0);
+    --color-popover-foreground: oklch(0.985 0 0);
+    --color-primary: oklch(0.922 0 0);
+    --color-muted: oklch(0.99 0 none / 0.55);
+    --color-accent: oklch(0.78 0.1144 343.08 / 0.8);
+    --color-destructive: oklch(0.67 0.172 29.87 / 0.8);
+    --color-border: oklch(0.23 0.027 284.07 / 0.86);
+    --color-input: oklch(0.215 0.14 215.14);
+    --color-ring: oklch(0.55 0.05 264);
 
     /* Accent colors for selection states */
     --color-accent-selection: oklch(0.88 0.0839 163.71);
@@ -83,88 +123,126 @@
     --color-button-destructive-bg-focus-visible: oklch(0.68 0.1637 20.23);
     --color-button-destructive-bg-focus-visible-hover: oklch(0.61 0.2018 22.19);
 
-    --font-sans: "Public Sans", system-ui, sans-serif;
-    --font-heading: "Mozilla Headline", Georgia, serif;
+    --font-heading: "Public Sans",
+        system-ui,
+        sans-serif;
+    --font-sans: "Mozilla Headline",
+        Georgia,
+        serif;
+
+    --text-body: 0.875rem;
+    --text-body-sm: 0.875rem;
+    --text-body-xs: 0.75rem;
+    --text-h1: 1.8rem;
+    --text-h2: 1.45rem;
+    --text-h3: 1.375rem;
+    --text-h4: 1.225rem;
+    --text-h5: 1.105rem;
+    --text-xxs: 0.625rem;
+    --text-xs: 0.875rem;
+    --text-sm: var(--text-body-xs);
+    --text-md: var(--text-body);
+    --text-lg: var(--text-h3);
+    --text-xl: var(--text-h2);
+    --text-xxl: var(--text-h1);
 
     --breakpoint-sm: 640px;
     --breakpoint-md: 768px;
     --breakpoint-lg: 1024px;
     --breakpoint-xl: 1280px;
     --breakpoint-2xl: 1536px;
+
+    /* Background Image Theme Values */
+    --background-image-linear-gradient: var(--color-linear-gradient);
+    --background-image-linear-gradient-secondary: var(--color-linear-gradient-secondary);
+    --background-image-radial-gradient: var(--color-radial-gradient);
+    --background-image-radial-gradient-secondary: var(--color-radial-gradient-secondary);
+
+    --_gradient-blend-mode: normal;
+    --_gradient-blur: 0px;
 }
 
+
 /* Legacy Mixins for CSS Module Compatibility */
-@define-mixin h1-text {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
+h1 {
+    font-size: var(--text-h1);
+    line-height: 2.25rem;
     font-weight: 700;
     letter-spacing: -0.025em;
 }
 
-@define-mixin h2-text {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-}
-
-@define-mixin h3-text {
-    font-size: 1.5rem;
+h2 {
+    font-size: var(--text-h2);
     line-height: 2rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@define-mixin h4-text {
-    font-size: 1.25rem;
+h3 {
+    font-size: var(--text-h3);
     line-height: 1.75rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@define-mixin h5-text {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-}
-
-@define-mixin body-text {
-    font-size: 1rem;
+h4 {
+    font-size: var(--text-h4);
     line-height: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+h5 {
+    font-size: var(--text-h5);
+    line-height: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+p {
+    font-size: var(--text-body);
+    line-height: 1.35rem;
     font-weight: 400;
     letter-spacing: 0.025em;
+    margin-bottom: 0.35rem;
 }
 
-@define-mixin body-text-sm {
-    font-size: 0.875rem;
+ul,
+ol,
+li {
+    font-size: var(--text-body);
+    line-height: 1.15rem;
+    font-weight: 400;
+    letter-spacing: 0.005em;
+    margin-bottom: 0rem;
+}
+
+
+
+small {
+    font-size: var(--text-body-sm);
     line-height: 1.25rem;
     font-weight: 400;
     letter-spacing: 0.025em;
 }
 
-@define-mixin text-body {
-    font-size: 1rem;
-    line-height: 1.5rem;
-    font-weight: 400;
-    letter-spacing: 0.025em;
-}
 
-@define-mixin text-h3 {
-    font-size: 1.5rem;
+
+h3 {
+    font-size: var(--text-h3);
     line-height: 2rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
-@define-mixin button-text {
-    font-size: 0.875rem;
+button {
+    font-size: var(--text-body-sm);
     line-height: 1.25rem;
     font-weight: 500;
     letter-spacing: 0.025em;
 }
 
-@define-mixin button-primary {
+button {
     background-color: hsla(var(--primary-hsl));
     color: hsla(var(--primary-foreground-hsl));
     border: 1px solid hsla(var(--primary-hsl));
@@ -173,22 +251,23 @@
     transition: all 0.2s ease-in-out;
 }
 
-@define-mixin button-primary-hover {
+button:hover {
     background-color: hsla(var(--primary-hsl) / 0.9);
     border-color: hsla(var(--primary-hsl) / 0.9);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px hsla(var(--primary-hsl) / 0.3);
 }
 
-@define-mixin dropdown-button-text {
-    font-size: 0.875rem;
+button {
+    font-size: var(--text-body-sm);
     line-height: 1.25rem;
     font-weight: 500;
     letter-spacing: 0.025em;
 }
 
-@define-mixin input-textarea {
-    font-size: 0.875rem;
+input,
+textarea {
+    font-size: var(--text-body-sm);
     line-height: 1.25rem;
     font-weight: 400;
     letter-spacing: 0.025em;
@@ -200,75 +279,179 @@
     transition: border-color 0.2s ease-in-out;
 }
 
-@define-mixin input-textarea:focus {
-    outline: none;
-    border-color: hsla(var(--ring-hsl));
-    box-shadow: 0 0 0 2px hsla(var(--ring-hsl) / 0.2);
-}
 
-/* Single Theme: Dark (Source of Truth) */
-:root {
-    --radius: 0.625rem;
-    --background: oklch(0.129 0.042 264.695);
-    --foreground: oklch(0.984 0.003 247.858);
-    --card: oklch(0.208 0.042 265.755);
-    --card-foreground: oklch(0.984 0.003 247.858);
-    --popover: oklch(0.208 0.042 265.755);
-    --popover-foreground: oklch(0.984 0.003 247.858);
-    --primary: oklch(0.929 0.013 255.508);
-    --primary-foreground: oklch(0.208 0.042 265.755);
-    --secondary: oklch(0.279 0.041 260.031);
-    --secondary-foreground: oklch(0.984 0.003 247.858);
-    --muted: oklch(0.279 0.041 260.031);
-    --muted-foreground: oklch(0.704 0.04 256.788);
-    --accent: oklch(0.279 0.041 260.031);
-    --accent-foreground: oklch(0.984 0.003 247.858);
-    --destructive: oklch(0.704 0.191 22.216);
 
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.551 0.027 264.364);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.208 0.042 265.755);
-    --sidebar-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-accent: oklch(0.279 0.041 260.031);
-    --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.551 0.027 264.364);
-    --dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
-    --dialog-content: oklch(0.208 0.042 265.755);
-    --dialog-glow: oklch(0.929 0.013 255.508 / 0.3);
 
-    /* HSL versions for legacy mixins */
-    --background-hsl: 264.695 4.2% 12.9%;
-    --foreground-hsl: 247.858 0.3% 98.4%;
-    --card-hsl: 265.755 4.2% 20.8%;
-    --card-foreground-hsl: 247.858 0.3% 98.4%;
-    --popover-hsl: 265.755 4.2% 20.8%;
-    --popover-foreground-hsl: 247.858 0.3% 98.4%;
-    --primary-hsl: 255.508 1.3% 92.9%;
-    --primary-foreground-hsl: 265.755 4.2% 20.8%;
-    --secondary-hsl: 260.031 4.1% 27.9%;
-    --secondary-foreground-hsl: 247.858 0.3% 98.4%;
-    --muted-hsl: 260.031 4.1% 27.9%;
-    --muted-foreground-hsl: 256.788 4.0% 70.4%;
-    --accent-hsl: 260.031 4.1% 27.9%;
-    --accent-foreground-hsl: 247.858 0.3% 98.4%;
-    --destructive-hsl: 22.216 19.1% 70.4%;
-    --destructive-foreground-hsl: 247.858 0.3% 98.4%;
-    --input-hsl: 255.508 1.3% 92.9%;
-    --ring-hsl: 264.364 2.7% 55.1%;
-}
 
 /* Explicit border color defaults */
 @layer base {
     .border {
         border-color: var(--color-border);
+    }
+
+    .bg-background {
+        background: #000000;
+        --_gradient-blend-mode: normal;
+        --_gradient-blur: 20px;
+        background-image: var(--bg-background);
+
+        mix-blend-mode: var(--_gradient-blend-mode);
+
+    }
+}
+
+/* Custom background utilities - Firefox-compatible */
+@layer utilities {
+    .bg-linear-gradient {
+        background-image: var(--color-linear-gradient);
+
+
+    }
+
+    .episode-card {
+        background: #131718a8;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #61706f45;
+        box-shadow: 1px 2px 1px 2px #0c0c0d2e;
+    }
+
+    .episode-card:hover {
+        background: #131718a8;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #61706f45;
+        box-shadow: 1px 2px 1px 2px #0c0c0d2e;
+        transform: translateY(-1px);
+        box-shadow: 0 4px -12px hsla(var(--primary-hsl) / 0.3);
+    }
+
+    .episode-card-description {
+        font-size: var(--text-body-sm);
+        line-height: 1.25rem;
+        line-clamp: 2;
+        font-weight: 400;
+        letter-spacing: 0.025em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .bg-card {
+        background-color: var(--color-background);
+    }
+
+
+    .bg-linear-gradient-secondary {
+        background-image: var(--color-linear-gradient-secondary);
+    }
+
+    .bg-radial-gradient {
+        background-image: var(--color-radial-gradient);
+    }
+
+    .bg-radial-gradient-secondary {
+        background-image: radial-gradient(ellipse 80% 50% at 0% 20%, rgb(119, 22, 199), rgba(78, 38, 120, 1));
+    }
+
+    /* Firefox gradient fix - override Tailwind's problematic gradient variables */
+    @supports (-moz-orient: inline) {
+
+        .bg-linear-gradient,
+        .bg-radial-gradient,
+        .bg-linear-gradient-secondary,
+        .bg-radial-gradient-secondary {
+            --tw-gradient-via-stops: initial !important;
+        }
+    }
+}
+
+@layer utilities {
+    .backdrop-blur-md {
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+
+
+    .backdrop-blur-lg {
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+    }
+}
+
+
+/* Custom text size utilities - using custom names to avoid Tailwind conflicts */
+@layer utilities {
+    .text-custom-xxs {
+        font-size: var(--text-xxs) !important;
+        line-height: 1 !important;
+    }
+
+    .text-custom-xs {
+        font-size: var(--text-xs) !important;
+        line-height: 1.25 !important;
+    }
+
+    .text-custom-sm {
+        font-size: var(--text-sm) !important;
+        line-height: 1.25 !important;
+    }
+
+    .text-custom-body {
+        font-size: var(--text-body) !important;
+        line-height: 1.5 !important;
+    }
+
+    .text-custom-md {
+        font-size: var(--text-md) !important;
+        line-height: 1.375 !important;
+    }
+
+    .text-custom-lg {
+        font-size: var(--text-lg) !important;
+        line-height: 1.5 !important;
+    }
+
+    .text-custom-xl {
+        font-size: var(--text-xl) !important;
+        line-height: 1.375 !important;
+    }
+
+    .text-custom-xxl {
+        font-size: var(--text-xxl) !important;
+        line-height: 1.25 !important;
+    }
+
+    .text-custom-h1 {
+        font-size: var(--text-h1) !important;
+        line-height: 1.125 !important;
+        font-weight: 700 !important;
+    }
+
+    .text-custom-h2 {
+        font-size: var(--text-h2) !important;
+        line-height: 1.2 !important;
+        font-weight: 600 !important;
+    }
+
+    .text-custom-h3 {
+        font-size: var(--text-h3) !important;
+        line-height: 1.25 !important;
+        font-weight: 600 !important;
+    }
+
+    .text-custom-h4 {
+        font-size: var(--text-h4) !important;
+        line-height: 1.273 !important;
+        font-weight: 600 !important;
+    }
+
+    .text-custom-h5 {
+        font-size: var(--text-h5) !important;
+        line-height: 1.333 !important;
+        font-weight: 600 !important;
     }
 }
 
@@ -278,11 +461,12 @@
     body {
         overflow-x: hidden;
         width: 100%;
-        background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 24, 51, .6), rgba(78, 38, 120, 0.3)) !important;
+
     }
 
     .content {
-        background-image: radial-gradient(ellipse 80% 70% at 50% -40%, rgba(21, 99, 131, 0.9), rgb(18, 18, 20)), radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 24, 51, .6), rgba(24, 23, 26, 0.3));
+        background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 24, 51, .6), rgba(78, 38, 120, 0.3)) !important;
+
     }
 }
 
@@ -319,5 +503,44 @@
 
     50% {
         opacity: 0.5;
+    }
+}
+
+.dark {
+    --sidebar: hsl(240deg 21.38% 19.34% / 25%);
+    --sidebar-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-primary: hsl(224.3 76.3% 48%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsla(263, 45%, 29%, 0.425);
+    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-border: hsl(240 3.7% 15.9%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+    * {
+        font-size: 14px;
+        @apply border-border outline-ring/50;
+    }
+
+    body {
+        background: #000000;
+        background-image: url('/generic-mobile-portrait-image.svg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: top;
+        @apply bg-background text-foreground;
     }
 }

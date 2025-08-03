@@ -84,7 +84,7 @@ export function NotificationBell() {
 				<Button variant="ghost" size="icon" className="relative" aria-label={`Notifications (${unreadCount} unread)`}>
 					<Bell size={20} />
 					{unreadCount > 0 && (
-						<Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-xs flex items-center justify-center">
+						<Badge variant="destructive" size="sm" className="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-xs flex items-center justify-center">
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>
 					)}

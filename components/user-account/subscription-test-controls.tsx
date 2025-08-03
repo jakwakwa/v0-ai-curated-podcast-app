@@ -123,16 +123,16 @@ export function SubscriptionTestControls() {
 
 						{/* Status Badges */}
 						<div className="flex flex-wrap gap-1">
-							<Badge variant="secondary" className="text-xs">
+							<Badge variant="secondary" size="sm" className="text-xs">
 								{subscription?.status || "Free"}
 							</Badge>
 							{subscription?.trialEnd && (
-								<Badge variant="outline" className="text-xs">
+								<Badge variant="outline" size="sm" className="text-xs">
 									Trial
 								</Badge>
 							)}
 							{subscription?.canceledAt && (
-								<Badge variant="destructive" className="text-xs">
+								<Badge variant="destructive" size="sm" className="text-xs">
 									Canceled
 								</Badge>
 							)}

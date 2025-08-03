@@ -119,15 +119,35 @@ export default function NotificationsPage() {
 	const getNotificationBadge = (type: Notification["type"]) => {
 		switch (type) {
 			case "episode_ready":
-				return <Badge className="bg-primary text-primary-foreground">Episode Ready</Badge>
+				return (
+					<Badge variant="default" size="sm" className="bg-primary text-primary-foreground font-semibold">
+						Episode Ready
+					</Badge>
+				)
 			case "weekly_reminder":
-				return <Badge className="bg-secondary text-secondary-foreground">Reminder</Badge>
+				return (
+					<Badge variant="default" size="sm" className="bg-secondary text-secondary-foreground">
+						Reminder
+					</Badge>
+				)
 			case "subscription_expiring":
-				return <Badge className="bg-accent text-accent-foreground">Subscription</Badge>
+				return (
+					<Badge variant="default" size="sm" className="bg-accent text-accent-foreground">
+						Subscription
+					</Badge>
+				)
 			case "trial_ending":
-				return <Badge className="bg-destructive text-destructive-foreground">Trial</Badge>
+				return (
+					<Badge variant="default" size="sm" className="bg-destructive text-destructive-foreground">
+						Trial
+					</Badge>
+				)
 			default:
-				return <Badge variant="outline">Notification</Badge>
+				return (
+					<Badge variant="default" size="sm" className="bg-accent text-accent-foreground">
+						Notification
+					</Badge>
+				)
 		}
 	}
 
@@ -166,7 +186,9 @@ export default function NotificationsPage() {
 						<Bell className="w-6 h-6 text-primary" />
 						<h1 className="text-2xl font-semibold m-0">Notifications</h1>
 						{unreadCount > 0 && (
-							<Badge className="bg-destructive text-destructive-foreground font-semibold min-w-[20px] h-5 flex items-center justify-center rounded-full text-sm">{unreadCount}</Badge>
+							<Badge variant="default" size="sm" className="bg-destructive text-destructive-foreground font-semibold min-w-[20px] h-5 flex items-center justify-center rounded-full text-sm">
+								{unreadCount}
+							</Badge>
 						)}
 					</div>
 					<div className="flex gap-2 flex-wrap">
@@ -204,7 +226,7 @@ export default function NotificationsPage() {
 							>
 								<CardHeader className="p-6 flex justify-between items-start gap-4">
 									<div className="flex gap-4 flex-1">
-										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground flex-shrink-0">{getNotificationIcon(notification.type)}</div>
+										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-card text-primary-foreground flex-shrink-0">{getNotificationIcon(notification.type)}</div>
 										<div className="flex-1 min-w-0">
 											<div className="flex items-center gap-3 mb-2 flex-wrap">
 												{getNotificationBadge(notification.type)}

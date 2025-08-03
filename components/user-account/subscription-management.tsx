@@ -111,7 +111,9 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 								<p className="text-sm text-muted-foreground">{subscription ? "Active subscription" : "Free plan"}</p>
 								{currentPlanTier?.description && <p className="text-sm text-muted-foreground mt-1">{currentPlanTier.description}</p>}
 							</div>
-							<Badge variant={subscription ? "default" : "secondary"}>{subscription ? "Active" : "Free"}</Badge>
+							<Badge variant={subscription ? "default" : "secondary"} size="sm">
+								{subscription ? "Active" : "Free"}
+							</Badge>
 						</div>
 					</div>
 
@@ -259,7 +261,9 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 										</div>
 										<div className="text-right">
 											<p className="font-medium">{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}</p>
-											<Badge variant={item.status === "active" ? "default" : "secondary"}>{item.status}</Badge>
+											<Badge variant={item.status === "active" ? "default" : "secondary"} size="sm">
+												{item.status}
+											</Badge>
 										</div>
 									</div>
 								))}

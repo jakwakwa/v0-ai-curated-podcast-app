@@ -1,12 +1,14 @@
 "use client"
 
 import { AlertCircle } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import EditUserFeedModal from "@/components/edit-user-feed-modal"
 import { EpisodeList } from "@/components/episode-list"
 import { ProfileFeedCards } from "@/components/features/profile-feed-cards"
 import UserFeedSelector from "@/components/features/user-feed-selector"
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
@@ -16,13 +18,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { PageHeader } from "@/components/ui/page-header"
 import { H2, Typography } from "@/components/ui/typography"
 import { useEpisodesStore } from "@/lib/stores/episodes-store"
-import type { UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import type { Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
 
 export default function Page() {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
 	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+
+	// Find the portal container on mount
+	useEffect(() => {
+		const container = document.getElementById("global-audio-player")
+		setPortalContainer(container)
+	}, [])
 
 	// Use the episodes store
 	const { episodes, bundleEpisodes, combinedEpisodes, userCurationProfile, isLoading, isFromCache, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore()
@@ -75,14 +84,13 @@ export default function Page() {
 		}
 	}
 
-	const handlePlayEpisode = (episodeId: string) => {
-		console.log(episodeId)
+	const handlePlayEpisode = useCallback((episodeId: string) => {
 		setPlayingEpisodeId(episodeId)
-	}
+	}, [])
 
-	const handleClosePlayer = () => {
+	const handleClosePlayer = useCallback(() => {
 		setPlayingEpisodeId(null)
-	}
+	}, [])
 
 	const handleRefreshData = async () => {
 		await refreshData()
@@ -199,15 +207,8 @@ export default function Page() {
 							{/* Use the migrated EpisodeList component with proper props */}
 							<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 
-							{/* Audio player shown at page level when episode is playing */}
-							{playingEpisodeId && (
-								<div className="mt-6">
-									{(() => {
-										const currentEpisode = combinedEpisodes.find(ep => ep.episode_id === playingEpisodeId)
-										return currentEpisode?.audio_url ? <AudioPlayer episode={currentEpisode} onClose={handleClosePlayer} /> : null
-									})()}
-								</div>
-							)}
+							{/* Spacer for fixed audio player */}
+							{playingEpisodeId && <div className="h-24" />}
 						</div>
 					)}
 				</div>
@@ -232,6 +233,16 @@ export default function Page() {
 					/>
 				</DialogContent>
 			</Dialog>
+
+			{/* Portal audio player to global container */}
+			{playingEpisodeId &&
+				portalContainer &&
+				createPortal(
+					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={combinedEpisodes} onClose={handleClosePlayer} />
+					</div>,
+					portalContainer
+				)}
 		</div>
 	)
 }
@@ -249,4 +260,18 @@ function UserFeedWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
 	}, [userCurationProfile, hasCreated, onSuccess])
 
 	return <UserFeedSelector />
+}
+
+function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
+	// Force fresh lookup of episode to avoid caching issues
+	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+
+	// biome-ignore lint/complexity/useOptionalChain: <keep>
+	if (!(currentEpisode && currentEpisode.audio_url)) {
+		// Don't render anything - let the parent handle the conditional rendering
+		// This prevents the player from "hiding" when switching between episodes
+		return null
+	}
+
+	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

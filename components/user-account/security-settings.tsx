@@ -239,7 +239,7 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 								<div className="flex items-center gap-2 mt-1">
 									{securityInfo?.twoFactorEnabled ? (
 										<>
-											<Badge className="bg-green-100 text-green-700">
+											<Badge variant="default" size="sm" className="bg-green-100 text-green-700">
 												<Check className="h-3 w-3 mr-1" />
 												Enabled
 											</Badge>
@@ -247,7 +247,9 @@ export function SecuritySettings({ className }: SecuritySettingsProps) {
 										</>
 									) : (
 										<>
-											<Badge variant="outline">Disabled</Badge>
+											<Badge variant="outline" size="sm">
+												Disabled
+											</Badge>
 											<p className="text-sm text-muted-foreground">Add an extra layer of security</p>
 										</>
 									)}

@@ -1,12 +1,14 @@
-import type { VariantProps } from "class-variance-authority"
 import type * as React from "react"
 import { badgeVariants } from "@/lib/component-variants"
 import { cn } from "@/lib/utils"
 
-interface BadgeComponentProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeComponentProps) {
-	return <div className={cn(badgeVariants({ variant }), className)} {...props} />
+function Badge({
+	className,
+	variant = "default",
+	size = "md",
+	...props
+}: { className?: string; variant: "default" | "secondary" | "destructive" | "outline" | "card"; size: "sm" | "md" | "lg" | "xl" } & React.HTMLAttributes<HTMLDivElement>) {
+	return <div className={cn(badgeVariants({ variant, size }), className)} {...props} />
 }
 
-export { Badge, type BadgeComponentProps }
+export { Badge }

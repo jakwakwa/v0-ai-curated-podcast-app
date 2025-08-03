@@ -674,7 +674,7 @@ export default function AdminPage() {
 											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 											<div className="flex flex-wrap gap-2">
 												{selectedBundle.podcasts.map(podcast => (
-													<Badge key={podcast.podcast_id} variant="outline">
+													<Badge size="sm" key={podcast.podcast_id} variant="outline">
 														{podcast.name}
 													</Badge>
 												))}
@@ -810,7 +810,7 @@ export default function AdminPage() {
 											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 											<div className="flex flex-wrap gap-2">
 												{selectedBundle.podcasts.map(podcast => (
-													<Badge key={podcast.podcast_id} variant="outline">
+													<Badge size="sm" key={podcast.podcast_id} variant="outline">
 														{podcast.name}
 													</Badge>
 												))}
@@ -986,7 +986,7 @@ export default function AdminPage() {
 																{podcast.name}
 															</label>
 															<p className="text-xs text-muted-foreground">{podcast.description}</p>
-															<Badge variant="secondary" className="text-xs mt-1">
+															<Badge size="sm" variant="secondary" className="text-xs mt-1">
 																{podcast.category}
 															</Badge>
 														</div>
@@ -1030,7 +1030,7 @@ export default function AdminPage() {
 												<p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
 												<div className="flex flex-wrap gap-1">
 													{bundle.podcasts.map(podcast => (
-														<Badge key={podcast.podcast_id} variant="outline" className="text-xs">
+														<Badge size="sm" key={podcast.podcast_id} variant="outline" className="text-xs">
 															{podcast.name}
 														</Badge>
 													))}
@@ -1155,7 +1155,9 @@ export default function AdminPage() {
 									<span>
 										{category} Podcasts ({podcastsByCategory[category].length})
 									</span>
-									<Badge variant="outline">{category}</Badge>
+									<Badge size="sm" variant="outline">
+										{category}
+									</Badge>
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="p-4">
@@ -1165,7 +1167,9 @@ export default function AdminPage() {
 											<div className="flex-1">
 												<div className="flex items-center gap-2 mb-1">
 													<h4 className="font-medium">{podcast.name}</h4>
-													<Badge variant={podcast.is_active ? "default" : "secondary"}>{podcast.is_active ? "Active" : "Inactive"}</Badge>
+													<Badge size="sm" variant={podcast.is_active ? "default" : "secondary"}>
+														{podcast.is_active ? "Active" : "Inactive"}
+													</Badge>
 												</div>
 												<p className="text-sm text-muted-foreground mb-2">{podcast.description}</p>
 												<a href={podcast.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate block">

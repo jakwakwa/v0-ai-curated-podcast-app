@@ -10,7 +10,9 @@ import AudioPlayer from "@/components/ui/audio-player"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHeader } from "@/components/ui/page-header"
 import type { Bundle, Episode, Podcast } from "@/lib/types"
+
 // CSS module migrated to Tailwind classes
 
 // Type for bundle with podcasts array from API
@@ -66,10 +68,7 @@ export default function CuratedBundlesPage() {
 
 	return (
 		<div className="wrapper">
-			<div className="header">
-				<h1>PODSLICE Bundles</h1>
-				<p>Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected.</p>
-			</div>
+			<PageHeader title="PODSLICE Bundles" description="Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected." />
 
 			{isLoading ? (
 				<div className="flex items-center justify-center min-h-[400px]">
@@ -114,10 +113,12 @@ export default function CuratedBundlesPage() {
 											<CardTitle className="text-2xl font-semibold leading-8 tracking-tight mb-0">{bundle.name}</CardTitle>
 											<CardDescription className="text-base leading-6 font-normal tracking-wide text-muted-foreground mb-0">{bundle.description}</CardDescription>
 										</div>
-										<div className="relative border-2 border-white block rounded-lg overflow-hidden w-full h-48">{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}</div>
+										<div className="relative border-2 border-white block rounded-lg overflow-hidden w-full h-48">
+											{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}
+										</div>
 
 										<div className="flex items-center justify-between gap-3 text-2xl font-semibold p-4">
-											<Badge variant="outline" className="text-sm leading-tight font-normal tracking-wide">
+											<Badge variant="outline" size="sm" className="text-sm leading-tight font-normal tracking-wide">
 												{bundle.podcasts.length} Podcasts
 											</Badge>
 											<div className="flex items-center gap-2 text-sm leading-tight font-normal tracking-wide">
@@ -154,10 +155,7 @@ export default function CuratedBundlesPage() {
 							{/* Audio player shown at page level when episode is playing */}
 							{playingEpisodeId && (
 								<div className="mt-6">
-									{(() => {
-										const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
-										return currentEpisode?.audio_url ? <AudioPlayer episode={currentEpisode} onClose={handleClosePlayer} /> : null
-									})()}
+									<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
 								</div>
 							)}
 						</div>
@@ -166,4 +164,39 @@ export default function CuratedBundlesPage() {
 			)}
 		</div>
 	)
+}
+
+function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
+	console.log("AudioPlayerWrapper - playingEpisodeId:", playingEpisodeId)
+	console.log("AudioPlayerWrapper - episodes count:", episodes.length)
+
+	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+	console.log("AudioPlayerWrapper - found episode:", currentEpisode)
+
+	if (!currentEpisode) {
+		console.warn("No episode found for ID:", playingEpisodeId)
+		return (
+			<div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md">
+				<p className="text-sm text-destructive">Episode not found</p>
+				<button type="button" onClick={onClose} className="text-xs underline">
+					Close
+				</button>
+			</div>
+		)
+	}
+
+	if (!currentEpisode.audio_url) {
+		console.warn("Episode found but no audio URL:", currentEpisode)
+		return (
+			<div className="p-4 bg-muted/10 border border-muted/20 rounded-md">
+				<p className="text-sm text-muted-foreground">No audio available for this episode</p>
+				<button type="button" onClick={onClose} className="text-xs underline">
+					Close
+				</button>
+			</div>
+		)
+	}
+
+	console.log("AudioPlayerWrapper - rendering AudioPlayer with episode:", currentEpisode.title)
+	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

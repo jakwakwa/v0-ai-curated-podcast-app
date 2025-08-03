@@ -73,7 +73,7 @@ export default function AboutPage() {
 	return (
 		<div className="container">
 			{/* Short Intro */}
-			<section className="text-center py-16 mb-16">
+			<section className="text-center pt-16 pb-4 mb-0">
 				<div className="max-w-[800px] mx-auto">
 					<Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} className="scale-[2] mx-auto mb-8" />
 
@@ -86,14 +86,16 @@ export default function AboutPage() {
 			<section className="mb-16 p-16">
 				<div className="text-center mb-12">
 					<h2 className="text-3xl leading-9 font-semibold tracking-tight mb-4">How It Works!</h2>
-					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.</p>
+					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
+						Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.
+					</p>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 					{howItWorks.map(step => (
 						<Card key={step.step} className="transition-all duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg">
 							<CardHeader>
-								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-semibold text-lg mb-4">{step.step}</div>
+								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-radial-gradient-secondary text-primary-foreground font-semibold text-lg mb-4">{step.step}</div>
 								<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{step.title}</CardTitle>
 							</CardHeader>
 							<CardContent>
@@ -107,15 +109,24 @@ export default function AboutPage() {
 			<section className="mb-16 p-16">
 				<div className="text-center mb-12">
 					<h2 className="text-3xl leading-9 font-semibold tracking-tight mb-4">Choose Your Plan</h2>
-					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
+					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
+						From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
+					</p>
 				</div>
 
 				<div className="grid grid-cols-1 gap-8 max-w-[1200px] mx-auto lg:grid-cols-3 lg:max-w-[1400px]">
 					{tiers.map(tier => {
 						const buttonProps = getButtonProps(tier)
 						return (
-							<Card key={tier.name} className={`transition-all duration-200 ease-in-out relative h-full flex flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-primary scale-105" : ""}`}>
-								{tier.popular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground font-semibold">Most Popular</Badge>}
+							<Card
+								key={tier.name}
+								className={`transition-all duration-200 ease-in-out relative h-full flex flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-primary scale-105" : ""}`}
+							>
+								{tier.popular && (
+									<Badge variant="secondary" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold">
+										Most Popular
+									</Badge>
+								)}
 								<CardHeader>
 									<div className="flex flex-col mt-4">
 										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>

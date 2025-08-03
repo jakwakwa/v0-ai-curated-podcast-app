@@ -5,13 +5,11 @@ import { useRouter } from "next/navigation"
 import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { StoreInitializer } from "../store-initializer"
-// CSS module migrated to Tailwind classes
 
-// Inner component that uses the sidebar context
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 	const { state } = useSidebar()
 
@@ -19,27 +17,17 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 		<>
 			<AppSidebar />
 			<SidebarInset>
-				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] bg-background backdrop-blur-md ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0">
 					<div className="flex items-center gap-2 px-4">
 						{/* @ts-ignore */}
 						<SidebarTrigger className="-ml-1" />
 						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-						<Breadcrumb>
-							<BreadcrumbList>
-								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator className="hidden md:block" />
-								<BreadcrumbItem>
-									<BreadcrumbPage>Data Fetching</BreadcrumbPage>
-								</BreadcrumbItem>
-							</BreadcrumbList>
-						</Breadcrumb>
+						<DynamicBreadcrumb />
 					</div>
 				</header>
 
-				<main className="flex flex-col flex-grow transition-all duration-300 ease-in-out">
-					<div className="bg-gradient-to-br from-blue-900/90 via-blue-950 to-gray-950 w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-8">{children}</div>
+				<main className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-1 md:px-12 mt-0 mb-20 ${state === "expanded" ? "w-full" : "w-full"}`}>
+					<div className="w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-8 min-h-screen">{children}</div>
 				</main>
 			</SidebarInset>
 		</>
@@ -120,7 +108,16 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 		<SidebarProvider>
 			<StoreInitializer />
 			<ProtectedLayoutInner>{children}</ProtectedLayoutInner>
-			{/* <DummyDataTogglePanel /> */}
+
+			{/* Global audio player - always on top */}
+			<div
+				id="global-audio-player"
+				className="fixed bottom-0 left-64 right-0 z-[9999] pointer-events-auto"
+				style={{
+					// @ts-ignore
+					position: "fixed !important",
+				}}
+			/>
 		</SidebarProvider>
 	)
 }

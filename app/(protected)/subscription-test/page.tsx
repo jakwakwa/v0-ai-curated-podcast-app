@@ -42,11 +42,15 @@ export default function SubscriptionTestPage() {
 							<div className="grid gap-4">
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Plan:</span>
-									<Badge variant="outline">{getCurrentPlanName()}</Badge>
+									<Badge variant="outline" size="sm">
+										{getCurrentPlanName()}
+									</Badge>
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Status:</span>
-									<Badge variant={subscription?.status === "active" ? "default" : "secondary"}>{subscription?.status || "Free"}</Badge>
+									<Badge variant={subscription?.status === "active" ? "default" : "secondary"} size="sm">
+										{subscription?.status || "Free"}
+									</Badge>
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="font-medium">Subscription ID:</span>
@@ -89,12 +93,14 @@ export default function SubscriptionTestPage() {
 								<div key={tier.id} className="p-4 border rounded-lg">
 									<div className="flex items-center justify-between mb-2">
 										<h3 className="font-medium">{tier.name}</h3>
-										<Badge variant={tier.popular ? "default" : "secondary"}>${tier.price}/month</Badge>
+										<Badge variant={tier.popular ? "default" : "secondary"} size="sm">
+											${tier.price}/month
+										</Badge>
 									</div>
 									<p className="text-sm text-muted-foreground mb-2">{tier.description}</p>
 									<div className="flex flex-wrap gap-1">
 										{tier.features.map((feature, index) => (
-											<Badge key={index} variant="outline" className="text-xs">
+											<Badge key={index} variant="outline" size="sm" className="text-xs">
 												{feature}
 											</Badge>
 										))}
@@ -126,7 +132,9 @@ export default function SubscriptionTestPage() {
 										</div>
 										<div className="text-right">
 											<p className="font-medium">{item.amount > 0 ? `$${item.amount.toFixed(2)}` : "Free"}</p>
-											<Badge variant={item.status === "active" ? "default" : "secondary"}>{item.status}</Badge>
+											<Badge variant={item.status === "active" ? "default" : "secondary"} size="sm">
+												{item.status}
+											</Badge>
 										</div>
 									</div>
 								))}

@@ -98,9 +98,9 @@ export default function CurationProfileManagementPage() {
 
 				{isLoading ? (
 					<div className="p-8 max-w-[1200px] mx-auto">
-											<div className="flex items-center justify-center min-h-[400px]">
-						<AppSpinner size="lg" label="Loading Personalized Feed..." />
-					</div>
+						<div className="flex items-center justify-center min-h-[400px]">
+							<AppSpinner size="lg" label="Loading Personalized Feed..." />
+						</div>
 					</div>
 				) : userCurationProfile ? (
 					<div className="flex flex-col w-full gap-5">

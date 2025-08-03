@@ -71,18 +71,18 @@ function SidebarProvider({
 			}
 
 			// This sets the cookie to keep the sidebar state.
-			// biome-ignore lint/suspicious/noDocumentCookie: <This is acceptable>
+			// biome-ignore lint/suspicious/noDocumentCookie: <keep>
 			document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
 		},
 		[setOpenProp, open]
 	)
 
 	// Helper to toggle the sidebar.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <keep>
 	const toggleSidebar = React.useCallback(() => {
 		return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open)
-	}, [isMobile, setOpen])
+	}, [isMobile, setOpen, setOpenMobile])
 
-	// Adds a keyboard shortcut to toggle the sidebar.
 	React.useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
@@ -99,6 +99,7 @@ function SidebarProvider({
 	// This makes it easier to style the sidebar with Tailwind classes.
 	const state = open ? "expanded" : "collapsed"
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <keep>
 	const contextValue = React.useMemo<SidebarContextProps>(
 		() => ({
 			state,
@@ -109,7 +110,7 @@ function SidebarProvider({
 			setOpenMobile,
 			toggleSidebar,
 		}),
-		[state, open, setOpen, isMobile, openMobile, toggleSidebar]
+		[state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
 	)
 
 	return (
@@ -124,7 +125,7 @@ function SidebarProvider({
 							...style,
 						} as React.CSSProperties
 					}
-					className={cn("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", className)}
+					className={cn("group/sidebar-wrapped has-data-[variant=inset]:bg-sidebar bg-transparent flex min-h-svh w-full mt-0", className)}
 					{...props}
 				>
 					{children}
@@ -232,6 +233,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 		<Button
 			data-sidebar="trigger"
 			data-slot="sidebar-trigger"
+			// variant="ghost"
 			size="icon"
 			className={cn("size-7", className)}
 			onClick={event => {
@@ -277,7 +279,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 			data-slot="sidebar-inset"
 			className={cn(
 				"bg-background relative flex w-full flex-1 flex-col",
-				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 gap-0",
+				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
 				className
 			)}
 			{...props}
@@ -319,7 +321,7 @@ function SidebarGroupLabel({ className, asChild = false, ...props }: React.Compo
 			data-slot="sidebar-group-label"
 			data-sidebar="group-label"
 			className={cn(
-				"text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+				"text-sidebar-foreground/70 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md mt-0 px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
 				"group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
 				className
 			)}
@@ -356,7 +358,14 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
 }
 
 function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
-	return <li data-slot="sidebar-menu-item" data-sidebar="menu-item" className={cn("group/menu-item relative", className)} {...props} />
+	return (
+		<li
+			data-slot="sidebar-menu-item"
+			data-sidebar="menu-item"
+			className={cn("group/menu-item relative", className, "text-custom-sm bg-card/0 hover:bg-[#131718a8]	 hover:text-custom-sm active:bg-card/20")}
+			{...props}
+		/>
+	)
 }
 
 const sidebarMenuButtonVariants = cva(
@@ -502,7 +511,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<"ul">) {
 		<ul
 			data-slot="sidebar-menu-sub"
 			data-sidebar="menu-sub"
-			className={cn("border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5", "group-data-[collapsible=icon]:hidden", className)}
+			className={cn("border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0", "group-data-[collapsible=icon]:hidden", className)}
 			{...props}
 		/>
 	)

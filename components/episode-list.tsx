@@ -1,10 +1,11 @@
 import { Music, Play } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
 import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
+import { Badge } from "./ui/badge"
+import { Typography } from "./ui/typography"
 
 interface EpisodeListProps {
 	episodes: Episode[]
@@ -27,10 +28,10 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				{episodes.length > 0 ? (
 					<ul className="flex flex-col gap-4">
 						{episodes.map(episode => (
-							<li key={episode.episode_id} className="flex items-center gap-4">
-								<div className="flex-shrink-0">
+							<li key={episode.episode_id} className="flex items-center bg-card/50 hover:bg-card/10 active:bg-card/20 justify-center px-12 py-4 gap-6	 episode-card w-full">
+								<div className="flex-shrink-0 pl-4">
 									{episode.image_url ? (
-										<Image src={episode.image_url} alt={episode.title} className="h-12 w-12 rounded-md object-cover" width={48} height={48} />
+										<Image src={episode.image_url} alt={episode.title} className="h-24 w-24 rounded-md object-cover" width={96} height={96} />
 									) : (
 										<div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center">
 											<Music className="h-6 w-6 text-muted-foreground" />
@@ -38,21 +39,21 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									)}
 								</div>
 								<div className="flex-1 min-w-0">
-									<Link href={`/episodes/${episode.episode_id}`} className="font-medium text-lg leading-7 hover:underline">
-										{episode.title}
-									</Link>
-									<p className="text-sm leading-5 text-muted-foreground">{episode.description || "No description available."}</p>
-									<p className="text-xs leading-4 text-muted-foreground">Published: {episode.published_at ? formatDate(episode.published_at) : "No date"}</p>
+									<Typography className="text-custom-h5 font-medium">{episode.title}</Typography>
+									<p className="text-custom-sm text-muted-foreground episode-card-description">{episode.description || "No description available."}</p>
+									<Badge variant="card" size="sm" className="text-custom-xxs text-muted-foreground text-right opacity-70 mt-2">
+										Published: {episode.published_at ? formatDate(episode.published_at) : "No date"}
+									</Badge>
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
-										<div className="mt-2">
+										<div className="mt-2 flex-self-end w-full flex justify-end">
 											<Button
 												onClick={() => onPlayEpisode(episode.episode_id)}
 												variant="outline"
 												size="sm"
-												className={playingEpisodeId === episode.episode_id ? "bg-primary text-primary-foreground" : ""}
+												className={playingEpisodeId === episode.episode_id ? "bg-primary text-custom-xs text-primary-foreground" : "bg-card/50 text-custom-sm text-muted-foreground hover:bg-card/75"}
 											>
-												<Play className="w-4 h-4 mr-1" />
+												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3" />
 												{playingEpisodeId === episode.episode_id ? "Playing..." : "Play Episode"}
 											</Button>
 										</div>

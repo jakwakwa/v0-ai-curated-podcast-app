@@ -18,7 +18,7 @@ export async function GET(_request: Request) {
 			where: {
 				OR: [
 					{
-						user_curation_profile: { user_id: userId },
+						userProfile: { user_id: userId },
 					},
 					{
 						bundle: {
@@ -31,9 +31,9 @@ export async function GET(_request: Request) {
 			},
 			include: {
 				podcast: true, // Unified podcast model
-				user_curation_profile: {
+				userProfile: {
 					include: {
-						bundle: {
+						selectedBundle: {
 							include: {
 								bundle_podcast: {
 									include: { podcast: true },
