@@ -120,6 +120,54 @@
     --color-button-destructive-bg-focus-visible: oklch(0.68 0.1637 20.23);
     --color-button-destructive-bg-focus-visible-hover: oklch(0.61 0.2018 22.19);
 
+    /* Shadow System - Based on Figma Design */
+    --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* Colored shadows for primary accent */
+    --shadow-primary-sm: 0px 1px 3px 0px rgba(139, 92, 246, 0.1), 0px 1px 2px 0px rgba(139, 92, 246, 0.06);
+    --shadow-primary-md: 0px 4px 6px -1px rgba(139, 92, 246, 0.1), 0px 2px 4px -1px rgba(139, 92, 246, 0.06);
+    --shadow-primary-lg: 0px 10px 15px -3px rgba(139, 92, 246, 0.1), 0px 4px 6px -2px rgba(139, 92, 246, 0.05);
+    --shadow-primary-xl: 0px 20px 25px -5px rgba(139, 92, 246, 0.1), 0px 10px 10px -5px rgba(139, 92, 246, 0.04);
+
+    /* Colored shadows for success/destructive */
+    --shadow-success-sm: 0px 1px 3px 0px rgba(34, 197, 94, 0.1), 0px 1px 2px 0px rgba(34, 197, 94, 0.06);
+    --shadow-success-md: 0px 4px 6px -1px rgba(34, 197, 94, 0.1), 0px 2px 4px -1px rgba(34, 197, 94, 0.06);
+    --shadow-success-lg: 0px 10px 15px -3px rgba(34, 197, 94, 0.1), 0px 4px 6px -2px rgba(34, 197, 94, 0.05);
+
+    --shadow-destructive-sm: 0px 1px 3px 0px rgba(239, 68, 68, 0.1), 0px 1px 2px 0px rgba(239, 68, 68, 0.06);
+    --shadow-destructive-md: 0px 4px 6px -1px rgba(239, 68, 68, 0.1), 0px 2px 4px -1px rgba(239, 68, 68, 0.06);
+    --shadow-destructive-lg: 0px 10px 15px -3px rgba(239, 68, 68, 0.1), 0px 4px 6px -2px rgba(239, 68, 68, 0.05);
+
+    /* Inner shadows for pressed states */
+    --shadow-inner: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.06);
+    --shadow-inner-sm: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+    --shadow-inner-lg: inset 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
+
+    /* Glow effects */
+    --shadow-glow-sm: 0px 0px 4px 0px rgba(139, 92, 246, 0.3);
+    --shadow-glow-md: 0px 0px 8px 0px rgba(139, 92, 246, 0.4);
+    --shadow-glow-lg: 0px 0px 16px 0px rgba(139, 92, 246, 0.5);
+
+    /* Dark mode specific shadows */
+    --shadow-dark-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+    --shadow-dark-sm: 0px 1px 3px 0px rgba(0, 0, 0, 0.4), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+    --shadow-dark-md: 0px 4px 6px -1px rgba(0, 0, 0, 0.4), 0px 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-dark-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0.4), 0px 4px 6px -2px rgba(0, 0, 0, 0.3);
+
+    /* Focus ring shadows */
+    --shadow-focus: 0px 0px 0px 3px rgba(139, 92, 246, 0.1);
+    --shadow-focus-ring: 0px 0px 0px 3px rgba(139, 92, 246, 0.2);
+
+    /* Dropdown and popover shadows */
+    --shadow-dropdown: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-modal: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-tooltip: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -1px rgba(0, 0, 0, 0.06);
+
     --font-heading: "Public Sans",
         system-ui,
         sans-serif;
@@ -258,7 +306,7 @@ button:hover {
     background-color: hsla(var(--primary-hsl) / 0.9);
     border-color: hsla(var(--primary-hsl) / 0.9);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px hsla(var(--primary-hsl) / 0.3);
+    box-shadow: var(--shadow-primary-md);
 }
 
 button {
@@ -332,7 +380,8 @@ textarea {
         border-radius: 10px;
         padding: 10px;
         border: 1px solid #61706f45;
-        box-shadow: 1px 2px 1px 2px #0c0c0d2e;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s ease-in-out;
     }
 
     .episode-card:hover {
@@ -340,9 +389,8 @@ textarea {
         border-radius: 10px;
         padding: 10px;
         border: 1px solid #61706f45;
-        box-shadow: 1px 2px 1px 2px #0c0c0d2e;
+        box-shadow: var(--shadow-md);
         transform: translateY(-1px);
-        box-shadow: 0 4px -12px hsla(var(--primary-hsl) / 0.3);
     }
 
     .episode-card-description {
@@ -373,6 +421,139 @@ textarea {
 
     .bg-radial-gradient-secondary {
         background-image: radial-gradient(ellipse 80% 50% at 0% 20%, rgb(119, 22, 199), rgba(78, 38, 120, 1));
+    }
+
+    /* Shadow Utilities */
+    .shadow-xs {
+        box-shadow: var(--shadow-xs);
+    }
+
+    .shadow-sm {
+        box-shadow: var(--shadow-sm);
+    }
+
+    .shadow-md {
+        box-shadow: var(--shadow-md);
+    }
+
+    .shadow-lg {
+        box-shadow: var(--shadow-lg);
+    }
+
+    .shadow-xl {
+        box-shadow: var(--shadow-xl);
+    }
+
+    .shadow-2xl {
+        box-shadow: var(--shadow-2xl);
+    }
+
+    /* Primary colored shadows */
+    .shadow-primary-sm {
+        box-shadow: var(--shadow-primary-sm);
+    }
+
+    .shadow-primary-md {
+        box-shadow: var(--shadow-primary-md);
+    }
+
+    .shadow-primary-lg {
+        box-shadow: var(--shadow-primary-lg);
+    }
+
+    .shadow-primary-xl {
+        box-shadow: var(--shadow-primary-xl);
+    }
+
+    /* Success shadows */
+    .shadow-success-sm {
+        box-shadow: var(--shadow-success-sm);
+    }
+
+    .shadow-success-md {
+        box-shadow: var(--shadow-success-md);
+    }
+
+    .shadow-success-lg {
+        box-shadow: var(--shadow-success-lg);
+    }
+
+    /* Destructive shadows */
+    .shadow-destructive-sm {
+        box-shadow: var(--shadow-destructive-sm);
+    }
+
+    .shadow-destructive-md {
+        box-shadow: var(--shadow-destructive-md);
+    }
+
+    .shadow-destructive-lg {
+        box-shadow: var(--shadow-destructive-lg);
+    }
+
+    /* Inner shadows */
+    .shadow-inner {
+        box-shadow: var(--shadow-inner);
+    }
+
+    .shadow-inner-sm {
+        box-shadow: var(--shadow-inner-sm);
+    }
+
+    .shadow-inner-lg {
+        box-shadow: var(--shadow-inner-lg);
+    }
+
+    /* Glow effects */
+    .shadow-glow-sm {
+        box-shadow: var(--shadow-glow-sm);
+    }
+
+    .shadow-glow-md {
+        box-shadow: var(--shadow-glow-md);
+    }
+
+    .shadow-glow-lg {
+        box-shadow: var(--shadow-glow-lg);
+    }
+
+    /* Focus shadows */
+    .shadow-focus {
+        box-shadow: var(--shadow-focus);
+    }
+
+    .shadow-focus-ring {
+        box-shadow: var(--shadow-focus-ring);
+    }
+
+    /* Component-specific shadows */
+    .shadow-dropdown {
+        box-shadow: var(--shadow-dropdown);
+    }
+
+    .shadow-modal {
+        box-shadow: var(--shadow-modal);
+    }
+
+    .shadow-tooltip {
+        box-shadow: var(--shadow-tooltip);
+    }
+
+    /* Dark mode shadows */
+    .dark .shadow-xs {
+        box-shadow: var(--shadow-dark-xs);
+    }
+
+    .dark .shadow-sm {
+        box-shadow: var(--shadow-dark-sm);
+    }
+
+    .dark .shadow-md {
+        box-shadow: var(--shadow-dark-md);
+    }
+
+    .dark .shadow-lg {
+        box-shadow: var(--shadow-dark-lg);
     }
 
     /* Firefox gradient fix - override Tailwind's problematic gradient variables */
