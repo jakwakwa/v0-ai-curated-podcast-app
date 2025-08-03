@@ -2,12 +2,15 @@
 
 import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import { motion, useScroll, useTransform } from "framer-motion"
+import { CheckCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
-import styles from "@/styles/new-landing-page.module.css"
+import styles from "@/styles/landing-page-content.module.css"
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 
 export default function LandingPageContent() {
 	const router = useRouter()
@@ -118,7 +121,7 @@ export default function LandingPageContent() {
 		}
 	}
 
-	const testimonials = [
+	const _testimonials = [
 		{
 			name: "Sarah Chen",
 			role: "Product Manager",
@@ -143,7 +146,7 @@ export default function LandingPageContent() {
 	]
 
 	return (
-		<div className="container">
+		<div className={styles.container}>
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<motion.div
@@ -180,18 +183,13 @@ export default function LandingPageContent() {
 								}}
 								whileTap={{ scale: 0.98 }}
 							>
-								<Button size="lg" className={styles.heroButton} variant="default">
-									<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 400 }}>
-										Start Free Trial
-										<UilArrowRight className={styles.arrowIcon} />
-									</motion.span>
-								</Button>
-							</motion.div>
-						</Link>
-						<Link href="/about">
-							<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-								<Button variant="outline" size="lg" className="text-lg px-8 py-6">
-									See How It Works
+								<Button
+									size="lg"
+									variant="default"
+									className="text-lg px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
+								>
+									Start Free Trial
+									<UilArrowRight className={styles.arrowIcon} />
 								</Button>
 							</motion.div>
 						</Link>
@@ -291,7 +289,7 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Testimonials Section */}
-			<section className={styles.testimonialsSection}>
+			{/* <section className={styles.testimonialsSection}>
 				<div className={styles.testimonialsContainer}>
 					<motion.div
 						className={styles.testimonialsHeader}
@@ -338,72 +336,64 @@ export default function LandingPageContent() {
 						))}
 					</div>
 				</div>
-			</section>
+			</section> */}
 
 			{/* Pricing Section */}
-			<section className={styles.pricingSection}>
-				<div className={styles.pricingContainer}>
-					<motion.div className={styles.pricingHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className={styles.pricingTitle}>Choose Your Plan</h2>
-						<p className={styles.pricingDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
-					</motion.div>
-					<div className={styles.pricingGrid}>
-						{tiers.map((tier, index) => {
-							const buttonProps = getButtonProps(tier)
-							return (
-								<motion.div
-									key={tier.name}
-									className={`${styles.pricingCard} ${tier.popular ? styles.popular : ""}`}
-									initial={{ opacity: 0, y: 30, scale: 0.9 }}
-									whileInView={{ opacity: 1, y: 0, scale: tier.popular ? 1.05 : 1 }}
-									viewport={{ once: true, margin: "-100px" }}
-									transition={{
-										duration: 0.6,
-										ease: "easeOut",
-										delay: index * 0.1,
-									}}
-									whileHover={{
-										scale: tier.popular ? 1.08 : 1.03,
-										transition: { duration: 0.2 },
-									}}
-								>
-									{tier.popular && (
-										<motion.div className={styles.popularBadge} initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-											Most Popular
-										</motion.div>
-									)}
-									<div className={styles.pricingCardContent}>
-										<h3 className={styles.pricingCardTitle}>{tier.name}</h3>
-										<div className={styles.pricingCardPrice}>
-											<span className={styles.price}>${tier.price}</span>
-											{tier.price !== 0 && <span className={styles.duration}>/month</span>}
+			<section className="mb-16 p-16">
+				<div className="text-center mb-12">
+					<h2 className="text-3xl leading-9 font-semibold tracking-tight mb-4">Choose Your Plan</h2>
+					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
+						From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
+					</p>
+				</div>
+
+				<div className="grid grid-cols-1 gap-8 max-w-[1200px] mx-auto lg:grid-cols-3 lg:max-w-[1400px]">
+					{tiers.map(tier => {
+						const buttonProps = getButtonProps(tier)
+						return (
+							<Card
+								key={tier.name}
+								className={`transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent scale-105" : ""}`}
+							>
+								{tier.popular && (
+									<Badge variant="outline" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold border-primary/10">
+										Most Popular
+									</Badge>
+								)}
+								<CardHeader>
+									<div className="flex flex-col mt-4">
+										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
+										<div className="flex items-baseline gap-1 mb-4">
+											<span className="text-3xl leading-9 font-bold tracking-tight">${tier.price}</span>
+											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
 										</div>
-										<p className={styles.pricingCardDescription}>{tier.description}</p>
-										<ul className={styles.pricingFeatures}>
-											{tier.features.map((feature, featureIndex) => (
-												<motion.li
-													key={featureIndex}
-													className={styles.pricingFeature}
-													initial={{ opacity: 0, x: -10 }}
-													whileInView={{ opacity: 1, x: 0 }}
-													transition={{ delay: 0.3 + featureIndex * 0.1 }}
-												>
-													<UilCheckCircle className={styles.pricingFeatureIcon} />
-													<span className={styles.pricingFeatureText}>{feature}</span>
-												</motion.li>
-											))}
-										</ul>
+										<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
 									</div>
-									<Button className={styles.pricingButton} variant={buttonProps.variant} size="lg" disabled={buttonProps.disabled} onClick={buttonProps.onClick}>
+								</CardHeader>
+								<CardContent className="flex flex-col flex-1 justify-between">
+									<ul className="list-none p-0 m-0 mb-8">
+										{tier.features.map((feature, index) => (
+											<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground">
+												<CheckCircle size={16} className="text-primary flex-shrink-0" />
+												{feature}
+											</li>
+										))}
+									</ul>
+									<Button
+										className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-primary text-primary-foreground" : ""}`}
+										variant={buttonProps.variant}
+										size="lg"
+										disabled={buttonProps.disabled}
+										onClick={buttonProps.onClick}
+									>
 										{buttonProps.children}
 									</Button>
-								</motion.div>
-							)
-						})}
-					</div>
+								</CardContent>
+							</Card>
+						)
+					})}
 				</div>
 			</section>
-
 			{/* CTA Section */}
 			<section className={styles.ctaSection}>
 				<motion.div className={styles.ctaContainer} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
@@ -421,18 +411,15 @@ export default function LandingPageContent() {
 									}}
 									whileTap={{ scale: 0.95 }}
 								>
-									<Button size="lg" className={styles.ctaButton} variant="default">
+									<Button
+										size="lg"
+										variant="default"
+										className="text-lg px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
+									>
 										<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
 											Start Free Trial
 											<UilArrowRight className={styles.arrowIcon} />
 										</motion.span>
-									</Button>
-								</motion.div>
-							</Link>
-							<Link href="/about">
-								<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-									<Button variant="outline" size="lg" className={styles.ctaButton}>
-										Learn More
 									</Button>
 								</motion.div>
 							</Link>

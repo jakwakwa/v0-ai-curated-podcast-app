@@ -62,6 +62,7 @@
     font-size: 1.125rem;
     color: oklch(var(--muted-foreground));
     margin-bottom: 2rem;
+    line-height: 1.75;
     max-width: 48rem;
     margin-left: auto;
     margin-right: auto;
