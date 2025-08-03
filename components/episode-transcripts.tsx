@@ -1,19 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import styles from "./episode-transcripts.module.css"
+// CSS module migrated to Tailwind classes
 import { Button } from "./ui/button"
 
 export function EpisodeTranscript({ transcript }: { transcript: string }) {
 	const [show, setShow] = useState(false)
 	return (
-		<div className={styles.transcriptContainer}>
+		<div className="mt-4">
 			{!show ? (
-				<Button className={styles.showTranscriptButton} onClick={() => setShow(true)} variant="default">
+				<Button className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700" onClick={() => setShow(true)} variant="default">
 					Show transcript
 				</Button>
 			) : (
-				<div className={styles.transcriptContent}>{transcript}</div>
+				<div className="max-h-[25rem] overflow-y-auto border rounded p-2 bg-background mt-2 whitespace-pre-line">{transcript}</div>
 			)}
 		</div>
 	)

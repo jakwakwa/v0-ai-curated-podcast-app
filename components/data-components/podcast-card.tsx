@@ -2,7 +2,7 @@ import { Calendar, Clock, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
-import styles from "./podcast-card.module.css"
+// CSS module migrated to Tailwind classes
 
 interface PodcastCardProps {
 	episode: Episode
@@ -19,25 +19,25 @@ interface PodcastCardProps {
  */
 export function PodcastCard({ episode, onPlayEpisode }: PodcastCardProps) {
 	return (
-		<Card className={styles["podcast-card-flex-col"]}>
+		<Card className="flex flex-col w-full bg-gradient-to-br from-gray-900 to-gray-800">
 			<CardHeader>
-				<CardTitle className={styles["card-title-lg"]}>{episode.title}</CardTitle>
-				<CardDescription className={styles["card-description-flex"]}>
-					<Calendar className={styles["icon-small"]} />
+				<CardTitle className="text-xl font-semibold leading-7 tracking-tight">{episode.title}</CardTitle>
+				<CardDescription className="flex items-start gap-2 text-base md:text-sm">
+					<Calendar className="h-4 w-4" />
 					<span>{episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</span>
 				</CardDescription>
 			</CardHeader>
-			<CardContent className={styles["card-content-flex"]}>
-				<div className={styles["items-center-justify-between"]}>
-					<div className={styles["text-muted-foreground-sm"]}>
-						<Clock className={styles["icon-small"]} />
+			<CardContent className="flex">
+				<div className="flex items-center justify-between w-full">
+					<div className="text-sm text-muted-foreground">
+						<Clock className="h-4 w-4" />
 						<span>{episode.audio_url ? "Available" : "N/A"}</span>
 					</div>
 				</div>
 			</CardContent>
 			<CardFooter>
-				<Button className={styles["button-full-width"]} disabled={!episode.audio_url} onClick={() => onPlayEpisode(episode)} variant="default">
-					<PlayCircle className={styles["button-icon-margin-right"]} />
+				<Button className="w-full" disabled={!episode.audio_url} onClick={() => onPlayEpisode(episode)} variant="default">
+					<PlayCircle className="mr-2 h-4 w-4" />
 					Play Episode
 				</Button>
 			</CardFooter>

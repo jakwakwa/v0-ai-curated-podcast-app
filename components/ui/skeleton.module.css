@@ -1,5 +1,0 @@
-.skeleton {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    border-radius: 0.375rem;
-    background-color: oklch(var(--primary) / 0.1);
-}

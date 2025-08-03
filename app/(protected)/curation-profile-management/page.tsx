@@ -9,7 +9,7 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
-import styles from "./page.module.css"
+// CSS module migrated to Tailwind classes
 
 const formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
@@ -97,10 +97,10 @@ export default function CurationProfileManagementPage() {
 				</div>
 
 				{isLoading ? (
-					<div className={styles.loadingContainer}>
-						<div className={styles.loadingWrapper}>
-							<AppSpinner size="lg" label="Loading Personalized Feed..." />
-						</div>
+					<div className="p-8 max-w-[1200px] mx-auto">
+											<div className="flex items-center justify-center min-h-[400px]">
+						<AppSpinner size="lg" label="Loading Personalized Feed..." />
+					</div>
 					</div>
 				) : userCurationProfile ? (
 					<div className="flex flex-col w-full gap-5">

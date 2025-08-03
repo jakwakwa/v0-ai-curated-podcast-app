@@ -1,190 +1,70 @@
-.loadingContent {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-block: 2rem;
-}
+/* This file has been migrated to use the unified component system */
 
-.loadingSpinner {
-    height: 1.5rem;
-    width: 1.5rem;
+/* Loading content now uses: flex items-center justify-center py-8 */
 
-}
+/* Loading spinner now uses: h-6 w-6 */
 
-.cardTitle {
-    display: flex;
-    align-items: center;
-    column-gap: 0.5rem;
-}
+/* Card title now uses: flex items-center gap-2 */
 
-.cardTitleIcon {
-    height: 1.25rem;
-    width: 1.25rem;
-}
+/* Card title icon now uses: h-5 w-5 */
 
-.cardContentSpaceY6 {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1.5rem;
-}
+/* Card content space y6 now uses: flex flex-col gap-6 */
 
-.avatarSection {
-    display: flex;
-    align-items: center;
-    column-gap: 1.5rem;
-}
+/* Avatar section now uses: flex items-center gap-6 */
 
-.avatarContainer {
-    position: relative;
-}
+/* Avatar container now uses: relative */
 
-.avatarSize {
-    height: 5rem;
-    width: 5rem;
-}
+/* Avatar size now uses: h-20 w-20 */
 
-.avatarFallbackText {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-}
+/* Avatar fallback text now uses: text-lg leading-7 */
 
-.avatarUploadButton {
-    position: absolute;
-    bottom: -0.5rem;
-    right: -0.5rem;
-    height: 2rem;
-    width: 2rem;
-    border-radius: 9999px;
-    padding: 0;
-}
+/* Avatar upload button now uses: absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 */
 
-.avatarUploadButtonIcon {
-    height: 1rem;
-    width: 1rem;
-}
+/* Avatar upload button icon now uses: h-4 w-4 */
 
-.hiddenInput {
-    display: none;
-}
+/* Hidden input now uses: hidden */
 
-.profileDetails {
-    flex: 1;
-}
+/* Profile details now uses: flex-1 */
 
-.profileName {
-    font-weight: 500;
-}
+/* Profile name now uses: font-medium */
 
-.profileEmail {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(var(--muted-foreground));
-}
+/* Profile email now uses: text-sm leading-tight text-muted-foreground */
 
-.profileActions {
-    display: flex;
-    column-gap: 0.5rem;
-    margin-top: 0.5rem;
-}
+/* Profile actions now uses: flex gap-2 mt-2 */
 
-.profileActionButtonIcon {
-    height: 1rem;
-    width: 1rem;
-    margin-right: 0.25rem;
-}
+/* Profile action button icon now uses: h-4 w-4 mr-1 */
 
-.profileInfoSection {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1rem;
-}
+/* Profile info section now uses: flex flex-col gap-4 */
 
-.profileInfoSectionHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+/* Profile info section header now uses: flex items-center justify-between */
 
-.profileInfoTitle {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-}
+/* Profile info title now uses: text-lg leading-7 font-semibold */
 
-.editForm {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1rem;
-}
+/* Edit form now uses: flex flex-col gap-4 */
 
-.formGroup {
-    display: flex;
-    flex-direction: column;
-    row-gap: 0.5rem;
-}
+/* Form group now uses: flex flex-col gap-2 */
 
-.formActions {
-    display: flex;
-    column-gap: 0.5rem;
-}
+/* Form actions now uses: flex gap-2 */
 
-.formButtonIcon {
-    height: 1rem;
-    width: 1rem;
-    margin-right: 0.25rem;
-}
+/* Form button icon now uses: h-4 w-4 mr-1 */
 
-.formButtonIconSpin {}
+/* Form button icon spin now uses: animate-spin */
 
-.displayInfoGrid {
-    display: grid;
-    gap: 1rem;
-}
+/* Display info grid now uses responsive layout:
+   - Mobile: grid gap-4
+   - Desktop: md:grid-cols-2
+*/
 
-@media (min-width: 768px) {
-    .displayInfoGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
+/* Display info group now uses: flex flex-col gap-2 */
 
-.displayInfoGroup {
-    display: flex;
-    flex-direction: column;
-    row-gap: 0.5rem;
-}
+/* Display info label now uses: text-sm leading-tight font-medium */
 
-.displayInfoLabel {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-}
+/* Display info value now uses: text-sm leading-tight text-muted-foreground */
 
-.displayInfoValue {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(var(--muted-foreground));
-}
+/* Account status section now uses: flex flex-col gap-4 */
 
-.accountStatusSection {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1rem;
-}
+/* Account status title now uses: text-lg leading-7 font-semibold */
 
-.accountStatusTitle {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-}
+/* Account status details now uses: flex items-center gap-2 */
 
-.accountStatusDetails {
-    display: flex;
-    align-items: center;
-    column-gap: 0.5rem;
-}
-
-.accountStatusText {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(var(--muted-foreground));
-}
+/* Account status text now uses: text-sm leading-tight text-muted-foreground */

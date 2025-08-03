@@ -9,7 +9,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { StoreInitializer } from "../store-initializer"
-import styles from "./layout.module.css"
+// CSS module migrated to Tailwind classes
 
 // Inner component that uses the sidebar context
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
@@ -38,8 +38,8 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 					</div>
 				</header>
 
-				<main className={`${styles.mainContent} ${state === "expanded" ? styles.mainContentExpanded : ""}`}>
-					<div className={styles.content}>{children}</div>
+				<main className="flex flex-col flex-grow transition-all duration-300 ease-in-out">
+					<div className="bg-gradient-to-br from-blue-900/90 via-blue-950 to-gray-950 w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-8">{children}</div>
 				</main>
 			</SidebarInset>
 		</>

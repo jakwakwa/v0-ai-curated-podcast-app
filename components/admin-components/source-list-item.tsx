@@ -5,17 +5,17 @@ import Image from "next/image"
 import { removePodcastSource } from "@/app/actions"
 import type { Source } from "@/lib/types"
 import { Card } from "../ui/card"
-import styles from "./source-list-item.module.css"
+// CSS module migrated to Tailwind classes
 
 export function SourceListItem({ source }: { source: Source }) {
 	return (
-		<Card className={styles["card-container"]}>
-			<div className={styles["image-wrapper"]}>
-				<Image src={source.image_url || "/placeholder.svg"} alt={`${source.name} cover art`} width={80} height={80} className={styles["image-styles"]} />
+		<Card className="flex flex-col items-center gap-4 p-4">
+			<div className="w-full max-w-[100px] p-0">
+				<Image src={source.image_url || "/placeholder.svg"} alt={`${source.name} cover art`} width={80} height={80} className="rounded-sm border p-0" />
 			</div>
-			<div className={styles["text-content-wrapper"]}>
-				<p className={styles["text-xs"]}>{source.name}</p>
-				<p className={`${styles["text-xs"]} ${styles["text-muted-foreground"]}`}>{source.url}</p>
+			<div className="w-full flex flex-col justify-start">
+				<p className="text-xs">{source.name}</p>
+				<p className="text-xs text-muted-foreground truncate">{source.url}</p>
 			</div>
 			<form action={removePodcastSource}>
 				<input type="hidden" name="id" value={source.id} />
