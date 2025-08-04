@@ -218,43 +218,42 @@
 
 /* Legacy Mixins for CSS Module Compatibility */
 h1 {
-    /* font-size: var(--text-h1); */
+    font-size: var(--text-h1);
     line-height: 2.25rem;
     font-weight: 700;
     letter-spacing: -0.025em;
 }
 
 h2 {
-    /* font-size: var(--text-h4); */
-    /* line-height: 2rem; */
-    /* font-weight: 600; */
+    font-size: var(--text-h2);
+    line-height: 2rem;
+    font-weight: 600;
     letter-spacing: -0.025em;
 }
 
 h3 {
-    /* font-size: var(--text-h3); */
-    /* line-height: 1.75rem; */
+    font-size: var(--text-h3);
+    line-height: 1.75rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
 h4 {
-    /* font-size: var(--text-h4); */
+    font-size: var(--text-h4);
     line-height: 1.5rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
 h5 {
-    /* font-size: var(--text-h5); */
+    font-size: var(--text-h5);
     line-height: 1.5rem;
     font-weight: 600;
     letter-spacing: -0.025em;
 }
 
 p {
-    /* font-size: var(--text-body); */
-
+    font-size: var(--text-body);
     font-weight: 400;
     letter-spacing: 0.025em;
     margin-bottom: 0.35rem;
@@ -263,10 +262,10 @@ p {
 ul,
 ol,
 li {
-    /* font-size: var(--text-body); */
-    /* line-height: 1.15rem; */
-    /* font-weight: 400; */
-    /* letter-spacing: 0.005em; */
+    font-size: var(--text-body);
+    line-height: 1.15rem;
+    font-weight: 400;
+    letter-spacing: 0.005em;
     margin-bottom: 0rem;
 }
 

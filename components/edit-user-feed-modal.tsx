@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 interface EditUserFeedModalProps {
 	isOpen: boolean
@@ -14,9 +15,9 @@ interface EditUserFeedModalProps {
 	onSave: (updatedData: Partial<UserCurationProfileWithRelations>) => Promise<void>
 }
 
-export default function EditUserFeedModal({ isOpen, onClose, collection, onSave }: Readonly<EditUserFeedModalProps>) {
-	const [name, setName] = useState(collection.name)
-	const [status, _setStatus] = useState(collection.status)
+export default function EditUserFeedModal({ isOpen, onClose, collection, onSave }: Readonly<EditUserFeedModalProps>): React.ReactElement {
+	const [name, setName] = useState(collection?.name ?? "")
+	const [status, setStatus] = useState(collection?.status ?? "Active")
 	const [isLoading, setIsLoading] = useState(false)
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +48,21 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 						<Label htmlFor="name">Feed Name</Label>
 						<Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Enter feed name" required />
 					</div>
-
+					<div className="space-y-2">
+						<Label htmlFor="status">Status</Label>
+						<Select value={status ? status : "Active"} onValueChange={setStatus}>
+							<SelectTrigger className="bg-input text-foreground/80">
+								<SelectValue placeholder="Select status" />
+							</SelectTrigger>
+							<SelectContent className="bg-[#000] border border-border h-auto min-h-[100px] ">
+								{["Active", "Inactive"].map(status => (
+									<SelectItem key={status} className="text-primary font-semibold leading-6 tracking-tight hover:bg-background" value={status}>
+										{status}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 					<div className="flex justify-end gap-2 pt-4">
 						<Button type="button" variant="outline" onClick={onClose}>
 							Cancel

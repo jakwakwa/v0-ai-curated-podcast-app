@@ -6,7 +6,7 @@ interface CardComponentProps extends React.HTMLAttributes<HTMLDivElement>, CardP
 
 // Main Card component
 const Card = React.forwardRef<HTMLDivElement, CardComponentProps>(({ className, variant, selected, hoverable, ...props }, ref) => (
-	<div ref={ref} className={cn(cardVariants({ variant, selected, hoverable, className }))} {...props} />
+	<div ref={ref} className={cn(cardVariants({ variant, selected, hoverable, className: "w-full pt-2 pb-8 px-2" }))} {...props} />
 ))
 Card.displayName = "Card"
 
@@ -17,7 +17,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
-	<h3 ref={ref} className={cn("text-custom-h3 font-heading font-semibold leading-none tracking-tight", className)} {...props} />
+	<div ref={ref} className={cn("text-custom-h3 font-heading font-semibold leading-none tracking-tight", className)} {...props} />
 ))
 CardTitle.displayName = "CardTitle"
 

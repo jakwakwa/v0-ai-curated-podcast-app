@@ -5,18 +5,17 @@ import { useCallback, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { toast } from "sonner"
 import EditUserFeedModal from "@/components/edit-user-feed-modal"
+import EmptyStateCard from "@/components/empty-state-card"
 import { EpisodeList } from "@/components/episode-list"
 import { ProfileFeedCards } from "@/components/features/profile-feed-cards"
 import UserFeedSelector from "@/components/features/user-feed-selector"
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { PageHeader } from "@/components/ui/page-header"
-import { H2, Typography } from "@/components/ui/typography"
+import { Typography } from "@/components/ui/typography"
 import { useEpisodesStore } from "@/lib/stores/episodes-store"
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
@@ -34,7 +33,7 @@ export default function Page() {
 	}, [])
 
 	// Use the episodes store
-	const { episodes, bundleEpisodes, combinedEpisodes, userCurationProfile, isLoading, isFromCache, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore()
+	const { combinedEpisodes, userCurationProfile, isLoading, isFromCache, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore()
 
 	// Fetch data on component mount
 	useEffect(() => {
@@ -144,76 +143,40 @@ export default function Page() {
 					Refresh
 				</Button>
 			</div>
-
 			<div className="flex flex-col gap-4 md:gap-12 md:flex-col-reverse lg:flex-row-reverse">
 				<div className="w-full md:w-full md:min-w-[280px] ">
 					{userCurationProfile ? (
 						<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
 					) : (
-						<div className="w-full max-w-2xl md:max-w-full">
-							{/* Empty State Card - using glass variant for better visual appeal */}
-							<Card variant="glass">
-								<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-									<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">Current Personalized Feed</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<Alert>
-										<AlertCircle className="h-4 w-4" />
-										<AlertTitle>No Personalized Feed Found</AlertTitle>
-										<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">
-											It looks like you haven't created a Personalized Feed yet. Start by creating one!
-										</AlertDescription>
-									</Alert>
-									<div className="mt-6 text-center">
-										<Button variant="default" onClick={() => setIsCreateWizardOpen(true)}>
-											Create Personalized Feed
-										</Button>
-									</div>
-								</CardContent>
-							</Card>
-						</div>
+						<EmptyStateCard
+							title="No Personalized Feed Found"
+							message={{
+								description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+								notificationTitle: "No Personalized Feed Found",
+								notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+								selectStateActionText: "Create Personalized Feed",
+							}}
+							selectStateAction={() => setIsCreateWizardOpen(true)}
+						/>
 					)}
 				</div>
 
 				<div className="w-full">
 					{combinedEpisodes.length === 0 ? (
-						<Card variant="glass" className="w-full">
-							<CardHeader>
-								<CardTitle>Weekly Episodes</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<Alert>
-									<AlertCircle className="h-4 w-4" />
-									<AlertTitle>No Episodes Available</AlertTitle>
-									<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">
-										{userCurationProfile
-											? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-											: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
-									</AlertDescription>
-								</Alert>
-							</CardContent>
-						</Card>
+						<EmptyStateCard
+							title="No Episodes Found"
+							message={{
+								description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+								notificationTitle: "No Episodes Found",
+								notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+								selectStateActionText: "Create Personalized Feed",
+							}}
+						/>
 					) : (
-						<div className="space-y-6">
-							<div className="flex items-center justify-between mb-6">
-								<H2 className="text-2xl font-semibold tracking-tight">Weekly Episodes</H2>
-								<div className="flex gap-4 text-base leading-6 font-normal tracking-[0.025em] text-muted-foreground">
-									<span>Total: {combinedEpisodes.length}</span>
-									<span>Custom: {episodes.length}</span>
-									<span>Bundle: {bundleEpisodes.length}</span>
-								</div>
-							</div>
-
-							{/* Use the migrated EpisodeList component with proper props */}
-							<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
-
-							{/* Spacer for fixed audio player */}
-							{playingEpisodeId && <div className="h-24" />}
-						</div>
+						<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 					)}
 				</div>
 			</div>
-
 			{userCurationProfile && (
 				<EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile as UserCurationProfileWithRelations} onSave={handleSaveUserCurationProfile} />
 			)}
@@ -233,7 +196,6 @@ export default function Page() {
 					/>
 				</DialogContent>
 			</Dialog>
-
 			{/* Portal audio player to global container */}
 			{playingEpisodeId &&
 				portalContainer &&

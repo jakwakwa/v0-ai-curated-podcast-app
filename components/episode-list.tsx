@@ -1,5 +1,6 @@
 import { Music, Play } from "lucide-react"
 import Image from "next/image"
+
 import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +12,7 @@ interface EpisodeListProps {
 	episodes: Episode[]
 	onPlayEpisode?: (episodeId: string) => void
 	playingEpisodeId?: string | null
+	_href?: string // TODO: remove this
 }
 
 const _formatDate = (date: Date | null | undefined) => {
@@ -39,14 +41,11 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									)}
 								</div>
 								<div className="flex  w-full flex-col justify-around py-2  px-3 gap-1">
+									{/* TypeError: Failed to parse URL from v0-ai-curated-podcast-app.vercel.app/api/episodes */}
+
 									<Typography className="text-custom-h5 font-medium">{episode.title}</Typography>
-									{/* 
-									Description
-									 */}
-									<p className="text-custom-sm text-muted-foreground episode-card-description">{episode.description || "No description available."}</p>
-									{/*
-									 Published Date
-									  */}
+
+									<p className="text-custom-sm text-muted-foreground episode-card-description truncate max-w-full md:max-w-xs">{episode.description || "No description available."}</p>
 									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
