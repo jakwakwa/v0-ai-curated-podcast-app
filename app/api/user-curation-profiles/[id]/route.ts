@@ -7,7 +7,7 @@ interface RouteParams {
 }
 
 export async function GET(
-	_request: Request, // Marked as unused
+	_request: Request,
 	{ params }: RouteParams
 ) {
 	try {
@@ -125,7 +125,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 }
 
 export async function DELETE(
-	_request: Request, // Marked as unused
+	_request: Request,
 	{ params }: RouteParams
 ) {
 	try {

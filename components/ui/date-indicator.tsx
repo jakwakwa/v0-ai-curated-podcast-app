@@ -3,10 +3,10 @@ import type React from "react"
 interface DateIndicatorProps {
 	indicator: Date | string
 	label: string
-	size: "xs" | "sm"
+	size?: "xs" | "sm"
 }
 
-function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): React.ReactElement {
+function DateIndicator({ indicator, label }: DateIndicatorProps): React.ReactElement {
 	const formatDate = (date: Date | string): string => {
 		if (!date) return "Unknown"
 
@@ -31,8 +31,13 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 		}
 	}
 
+	const sizeClasses = {
+		xs: "text-[0.5rem]",
+		sm: "text-[0.6rem]",
+	}
+
 	return (
-		<div className={`mt-1 uppercase text-[0.6rem]  text-primary-foreground/60`}>
+		<div className={`mt-1 uppercase ${sizeClasses[size]} text-primary-foreground/60`}>
 			{label}: {formatDate(indicator)}
 		</div>
 	)
