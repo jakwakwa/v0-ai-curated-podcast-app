@@ -12,7 +12,9 @@ import UserFeedSelector from "@/components/features/user-feed-selector"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { PageHeader } from "@/components/ui/page-header"
 import { Typography } from "@/components/ui/typography"
@@ -97,9 +99,11 @@ export default function Page() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center p-6">
-				<div className="flex flex-col items-center justify-center min-h-[400px]">
-					<AppSpinner size="lg" label="Loading dashboard..." />
+			<div className="h-screen w-full flex items-center justify-center p-6">
+				<div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+					<div className="flex items-center justify-center w-full">
+						<AppSpinner size="lg" label="Loading dashboard..." />
+					</div>
 				</div>
 			</div>
 		)
@@ -107,7 +111,7 @@ export default function Page() {
 
 	if (error) {
 		return (
-			<div className="container mx-auto p-6 max-w-7xl">
+			<div className="container mx-auto p-6">
 				<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 				<Alert>
 					<AlertCircle className="h-4 w-4" />
@@ -119,92 +123,96 @@ export default function Page() {
 	}
 
 	return (
-		<div className="container mx-auto m-0 p-0 max-w-full lg:max-w-7xl">
-			<div className="flex items-center justify-between mb-6">
-				<div className="flex items-center gap-4">
-					<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
-					{isFromCache && (
-						<div className="flex items-center gap-2 text-sm text-muted-foreground">
+		<div className="container mx-auto pb-12 w-full pt-12">
+			<Card variant="glass" className="flex flex-col pb-12 w-full px-12">
+				<div className="flex items-center justify-between w-full pt-8 pb-0 px-12">
+					<div className="flex items-center gap-4">
+						<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
+						{isFromCache && (
+							<div className="flex items-center gap-2 text-sm text-muted-foreground mt-2  mr-8 absolute top-0 right-0">
+								<Badge variant="outline" size="sm" className="text-sm">
+									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+									</svg>{" "}
+									<span className="text-[0.6rem] text-secondary-foreground px-1">Cached data</span>
+								</Badge>
+							</div>
+						)}
+					</div>
+					<Button variant="ghost" className="flex items-center gap-2" size="xs" onClick={handleRefreshData} disabled={isLoading}>
+						{isLoading ? (
+							<AppSpinner size="xs" />
+						) : (
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
 							</svg>
-							Cached data
-						</div>
-					)}
+						)}
+						Refresh Episodes
+					</Button>
 				</div>
-				<Button variant="outline" size="sm" onClick={handleRefreshData} disabled={isLoading} className="flex items-center gap-2">
-					{isLoading ? (
-						<AppSpinner size="sm" />
-					) : (
-						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-						</svg>
-					)}
-					Refresh
-				</Button>
-			</div>
-			<div className="flex flex-col gap-4 md:gap-12 md:flex-col-reverse lg:flex-row-reverse">
-				<div className="w-full md:w-full md:min-w-[280px] ">
-					{userCurationProfile ? (
-						<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
-					) : (
-						<EmptyStateCard
-							title="No Personalized Feed Found"
-							message={{
-								description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
-								notificationTitle: "No Personalized Feed Found",
-								notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
-								selectStateActionText: "Create Personalized Feed",
-							}}
-							selectStateAction={() => setIsCreateWizardOpen(true)}
-						/>
-					)}
-				</div>
+				<div className="flex flex-col px-8 mx-auto w-full md:gap-3 md:flex-col-reverse lg:flex-row">
+					<div className="w-full md:w-full md:min-w-[280px] ">
+						{userCurationProfile ? (
+							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
+						) : (
+							<EmptyStateCard
+								title="No Personalized Feed Found"
+								message={{
+									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									notificationTitle: "No Personalized Feed Found",
+									notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									selectStateActionText: "Create Personalized Feed",
+								}}
+								selectStateAction={() => setIsCreateWizardOpen(true)}
+							/>
+						)}
+					</div>
 
-				<div className="w-full">
-					{combinedEpisodes.length === 0 ? (
-						<EmptyStateCard
-							title="No Episodes Found"
-							message={{
-								description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
-								notificationTitle: "No Episodes Found",
-								notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
-								selectStateActionText: "Create Personalized Feed",
-							}}
-						/>
-					) : (
-						<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
-					)}
+					<div className="w-100 min-w-[600px]">
+						{combinedEpisodes.length === 0 ? (
+							<EmptyStateCard
+								title="No Episodes Found"
+								message={{
+									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									notificationTitle: "No Episodes Found",
+									notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									selectStateActionText: "Create Personalized Feed",
+								}}
+							/>
+						) : (
+							<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
+						)}
+					</div>
 				</div>
-			</div>
-			{userCurationProfile && (
-				<EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile as UserCurationProfileWithRelations} onSave={handleSaveUserCurationProfile} />
-			)}
-
-			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
-				<DialogContent className="w-full md:max-w-2/3 overflow-y-auto px-8">
-					<DialogHeader>
-						<DialogTitle>
-							<Typography variant="h3">Personalized Feed Builder</Typography>
-						</DialogTitle>
-					</DialogHeader>
-					<UserFeedWizardWrapper
-						onSuccess={async () => {
-							setIsCreateWizardOpen(false)
-							await refreshData()
-						}}
-					/>
-				</DialogContent>
-			</Dialog>
-			{/* Portal audio player to global container */}
-			{playingEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
-						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={combinedEpisodes} onClose={handleClosePlayer} />
-					</div>,
-					portalContainer
+				{userCurationProfile && (
+					<EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile as UserCurationProfileWithRelations} onSave={handleSaveUserCurationProfile} />
 				)}
+
+				<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
+					<DialogContent className="w-full overflow-y-auto px-8">
+						<DialogHeader>
+							<DialogTitle>
+								<Typography variant="h3">Personalized Feed Builder</Typography>
+							</DialogTitle>
+						</DialogHeader>
+						<UserFeedWizardWrapper
+							onSuccess={async () => {
+								setIsCreateWizardOpen(false)
+								await refreshData()
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
+				{/* Portal audio player to global container */}
+				{playingEpisodeId &&
+					portalContainer &&
+					createPortal(
+						<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+							<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={combinedEpisodes} onClose={handleClosePlayer} />
+						</div>,
+						portalContainer
+					)}
+			</Card>
 		</div>
 	)
 }

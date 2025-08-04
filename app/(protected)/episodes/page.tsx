@@ -88,9 +88,9 @@ export default function EpisodesPage() {
 						<AlertDescription className="mt-2">There are no episodes available at the moment. Create a personal feed or select a bundle to start getting episodes.</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
-						<Button onClick={fetchEpisodes} variant="outline">
+						<Button onClick={fetchEpisodes} variant="default">
 							<RefreshCw className="h-4 w-4 mr-2" />
-							Refresh
+							Refresh Episodes
 						</Button>
 					</div>
 				</div>

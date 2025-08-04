@@ -92,7 +92,7 @@ export default function CurationProfileManagementPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-12 px-12">
 			<div className="grid grid-cols-1 lg:grid-cols-1 w-full lg:min-w-full/[60%] gap-8 px-4 py-5">
 				<div className="flex items-center justify-between mb-4">
 					<h1 className="text-2xl font-bold">Personalized Feed Management</h1>
@@ -105,18 +105,18 @@ export default function CurationProfileManagementPage() {
 						</div>
 					</div>
 				) : userCurationProfile ? (
-					<div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-6">
+					<div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-4">
 						<Card className="lg:col-span-1 flex flex-col w-full gap-8">
 							<CardHeader className="w-full flex flex-col justify-between pb-2 mb-4">
-								<div className="flex flex-col gap-6 justify-between w-full">
+								<div className="flex flex-col gap-4 justify-between w-full">
 									<div className="flex flex-col">
-										<CardTitle className="w-full">Your Feed Profile</CardTitle>
+										<CardTitle className="w-full my-2">Your Feed Profile</CardTitle>
 
 										<Typography as="h4" className="w-full text-accent-foreground p-0 m-0">
 											{userCurationProfile?.name}
 										</Typography>
 									</div>
-									<Button variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
+									<Button className="mt-2" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 										Update Personalized Feed
 									</Button>
 								</div>

@@ -22,7 +22,7 @@ const _formatDate = (date: Date | null | undefined) => {
 
 export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisode, playingEpisodeId }) => {
 	return (
-		<Card className="w-full">
+		<Card className="w-full min-h-[300px]">
 			<CardHeader>
 				<CardTitle>All Episodes</CardTitle>
 			</CardHeader>
@@ -43,13 +43,13 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 								<div className="flex  w-full flex-col justify-around py-2  px-3 gap-1">
 									{/* TypeError: Failed to parse URL from v0-ai-curated-podcast-app.vercel.app/api/episodes */}
 
-									<Typography className="text-custom-h5 font-medium">{episode.title}</Typography>
+									<Typography className="text-custom-body font-medium truncate mb-0">{episode.title}</Typography>
 
-									<p className="text-custom-sm text-muted-foreground episode-card-description truncate max-w-full md:max-w-xs">{episode.description || "No description available."}</p>
+									<p className="text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{episode.description || "No description available."}</p>
 									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
-										<div className="mt-2 ml-0 pl-0 flex-self-start w-full flex justify-start">
+										<div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start">
 											<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="default" size="sm" className={playingEpisodeId === episode.episode_id ? "m-0 p-0" : ""}>
 												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3 pl-0 text-left" />
 												{playingEpisodeId === episode.episode_id ? "Playing..." : "Play Episode"}

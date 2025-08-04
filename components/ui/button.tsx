@@ -12,15 +12,16 @@ const buttonVariants = cva(
 				default: "border-b-light bg-secondary hover:bg-secondary-dark",
 				destructive:
 					"bg-[var(--color-button-destructive-bg)] text-[var(--color-button-destructive-foreground)] border border-[var(--color-button-destructive-bg)] rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-destructive-bg-hover)] hover:border-[var(--color-button-destructive-bg-hover)] focus-visible:outline-[var(--color-button-destructive-bg)]/50",
-				outline: "bg-transparent px-4 py-2 shadow-xs hover:bg-[var(--color-button-default-bg-hover)] hover:border-[var(--color-button-outline-hover)]",
+				outline: "bg-transparent border-b-light px-4 py-2 shadow-xs hover:bg-[var(--color-button-default-bg-hover)] hover:border-[var(--color-button-outline-hover)]",
 				secondary: "rounded-lg px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)]",
-				ghost: "bg-transparent text-foreground hover:bg-[var(--color-button-ghost-hover)] hover:text-accent-foreground",
+				ghost: "bg-transparent text-foreground hover:color-[var(--color-secondary)] hover:text-accent-foreground",
 				link: "text-[var(--color-button-default-bg)] underline-offset-4 hover:underline p-0 h-auto w-auto inline-block align-middle leading-none text-base",
 			},
 			size: {
 				default: "h-12 px-4 py-2",
 				bundles: "h-auto px-4 py-8",
 				sm: "h-8 px-3 text-xs rounded-md",
+				xs: "h-8 px-3 text-[0.6rem] rounded-md",
 				lg: "h-10 px-6 rounded-md",
 				icon: "size-9 p-0",
 			},
@@ -39,7 +40,7 @@ function Button({
 	...props
 }: React.ComponentProps<"button"> & {
 	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
-	size?: "default" | "bundles" | "sm" | "lg" | "icon"
+	size?: "default" | "bundles" | "sm" | "xs" | "lg" | "icon"
 	asChild?: boolean
 }) {
 	const Comp = asChild ? Slot : "button"

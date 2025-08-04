@@ -44,7 +44,7 @@ export default function SubscriptionSuccessPage() {
 						<CardDescription>Your subscription has been successfully activated.</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
-						<div className="bg-muted p-4 rounded-lg">
+						<div className="bg-card p-4 rounded-lg">
 							<h3 className="font-semibold mb-2">What's included in your plan:</h3>
 							<ul className="text-sm space-y-1">
 								{currentPlan?.features?.map((feature: string, index: number) => (

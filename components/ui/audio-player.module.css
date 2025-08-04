@@ -5,11 +5,12 @@
     bottom: 0;
     left: 0;
     right: 0;
+    display: flex;
     padding-left: 100px;
     justify-content: space-between;
     padding-right: 100px;
     padding-top: 20px;
-    padding-bottom: 30px;
+    padding-bottom: 15px;
     background: linear-gradient(135deg, #1a1a1a 0%, #3b220584 100%);
     border-top: 1px solid #333;
 
@@ -57,7 +58,7 @@
 }
 
 .playPauseButton {
-    background: #ddcc13;
+    background: rgb(84 174 119);
     color: rgb(45, 39, 39);
     border: none;
     border-radius: 50%;
@@ -73,9 +74,9 @@
 }
 
 .playPauseButton:hover {
-    background: #d7be1e;
+    background: rgb(106, 233, 155);
     transform: scale(1.05);
-    box-shadow: 0 4px 32px rgba(255, 226, 37, 0.4), 0 4px 12px rgba(192, 168, 11, 0.712);
+    box-shadow: 0 4px 32px rgba(36, 211, 167, 0.4), 0 4px 12px rgba(11, 192, 104, 0.712);
 }
 
 .playPauseButton:active {

@@ -23,9 +23,9 @@ export const cardVariants = cva("rounded-2xl border transition-all duration-200"
 	variants: {
 		variant: {
 			default: "border bg-card text-card-foreground",
-			glass: "bg-cardglass backdrop-blur-md shadow-glass",
+			glass: "bg-cardglass",
 			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
-			bundle: "border bg-dialog-bg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-lg backdrop-blur-md hover:-translate-y-0.5",
+			bundle: "border bg-dialog-bg shadow-lg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-md border-b-light/30 backdrop-blur-md hover:-translate-y-0.5 pb-4",
 		},
 		selected: {
 			true: "border-2 border-accent-selection-border bg-gradient-to-br from-accent-selection-bg to-card shadow-lg shadow-accent-selection-bg/20",
@@ -176,11 +176,12 @@ export const badgeVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+				default: "border-transparent bg-card text-primary-foreground shadow hover:bg-primary/80",
 				secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
 				destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-				outline: "text-foreground",
+				outline: "text-foreground border-1 border-foreground/40",
 				card: "border-transparent bg-card text-card-foreground shadow hover:bg-card/80",
+				primarycard: "bg-primary-card border-transparent",
 			},
 			size: {
 				sm: "px-2 py-0.5 text-xs",
@@ -190,7 +191,7 @@ export const badgeVariants = cva(
 			},
 		},
 		defaultVariants: {
-			variant: "default",
+			variant: "primarycard",
 			size: "md",
 		},
 	}
@@ -225,6 +226,8 @@ export type BadgeProps = VariantProps<typeof badgeVariants>
 export const spinnerVariants = cva("", {
 	variants: {
 		size: {
+			xs: "w-2 h-2",
+			xxs: "w-1 h-1",
 			sm: "w-4 h-4",
 			md: "w-8 h-8",
 			lg: "w-12 h-12",

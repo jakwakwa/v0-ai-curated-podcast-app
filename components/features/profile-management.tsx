@@ -1,6 +1,6 @@
 "use client"
 
-import { Camera, Edit3, Loader2, Save, Upload, User, X } from "lucide-react"
+import { Camera, Edit3, Loader2, Save, User, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -122,11 +122,11 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					</CardTitle>
 					<CardDescription>Manage your personal information and account details.</CardDescription>
 				</CardHeader>
-				<CardContent className="flex flex-col gap-6">
+				<CardContent className="space-y-6">
 					{/* Avatar Section */}
 					<div className="flex items-center gap-6">
 						<div className="relative">
-							<Avatar className="h-20 w-20">
+							<Avatar className="h-30 w-30 bg-[#176a888f]">
 								<AvatarImage src={profile?.avatar || ""} alt={profile?.name} />
 								<AvatarFallback className="text-lg">{profile?.name ? getUserInitials(profile.name) : "U"}</AvatarFallback>
 							</Avatar>
@@ -134,8 +134,8 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 							{/* Avatar Upload Button */}
 							<Button
 								size="sm"
-								variant="secondary"
-								className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 bg-[var(--color-card-neutral)] border-2 border-[var(--color-border)]"
+								variant="default"
+								className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full p-0 bg-cardglass border-2 border-[var(--color-border)] z-60"
 								onClick={() => fileInputRef.current?.click()}
 								disabled={isLoading}
 							>
@@ -143,31 +143,15 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 							</Button>
 
 							{/* Hidden file input */}
-							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+							<Input ref={fileInputRef} type="file" accept="image/*" className="hidden bg-transparent z-50  opacity-0 absolute bottom-0 right-0" onChange={handleFileChange} />
 						</div>
 
 						<div className="flex-1">
 							<h3 className="font-medium">{profile?.name || "User"}</h3>
 							<p className="text-sm text-muted-foreground">{profile?.email}</p>
 							<div className="flex gap-2 mt-2">
-								<Button
-									size="sm"
-									variant="secondary"
-									className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
-									onClick={() => fileInputRef.current?.click()}
-									disabled={isLoading}
-								>
-									<Upload className="h-4 w-4 mr-1" />
-									Upload Photo
-								</Button>
 								{profile?.avatar && (
-									<Button
-										size="sm"
-										variant="secondary"
-										className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
-										onClick={handleRemoveAvatar}
-										disabled={isLoading}
-									>
+									<Button size="sm" variant="outline" onClick={handleRemoveAvatar} disabled={isLoading}>
 										<X className="h-4 w-4 mr-1" />
 										Remove
 									</Button>
@@ -179,16 +163,10 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<Separator />
 
 					{/* Profile Information */}
-					<div className="flex flex-col gap-4 p-4 rounded-lg bg-[var(--color-card-neutral)]">
+					<Card className="space-y-4 p-4 bg-cardglass">
 						<div className="flex items-center justify-between">
 							<h3 className="text-lg font-semibold">Personal Information</h3>
-							<Button
-								variant="secondary"
-								size="sm"
-								className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
-								onClick={() => setIsEditing(!isEditing)}
-								disabled={isLoading}
-							>
+							<Button variant="default" size="sm" onClick={() => setIsEditing(!isEditing)} disabled={isLoading}>
 								{isEditing ? (
 									<>
 										<X className="h-4 w-4 mr-1" />
@@ -205,13 +183,13 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 
 						{isEditing ? (
 							/* Edit Form */
-							<div className="flex flex-col gap-4">
-								<div className="flex flex-col gap-2">
+							<div className="space-y-4">
+								<div className="space-y-2">
 									<Label htmlFor="name">Full Name</Label>
 									<Input id="name" value={editForm.name} onChange={e => handleInputChange("name", e.target.value)} placeholder="Enter your full name" />
 								</div>
 
-								<div className="flex flex-col gap-2">
+								<div className="space-y-2">
 									<Label htmlFor="email">Email Address</Label>
 									<Input id="email" type="email" value={editForm.email} onChange={e => handleInputChange("email", e.target.value)} placeholder="Enter your email address" />
 								</div>
@@ -221,12 +199,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 										{isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
 										Save Changes
 									</Button>
-									<Button
-										variant="secondary"
-										className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] hover:bg-[var(--color-accent)]"
-										onClick={() => setIsEditing(false)}
-										disabled={isLoading}
-									>
+									<Button variant="outline" onClick={() => setIsEditing(false)} disabled={isLoading}>
 										Cancel
 									</Button>
 								</div>
@@ -234,33 +207,33 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 						) : (
 							/* Display Information */
 							<div className="grid gap-4 md:grid-cols-2">
-								<div className="flex flex-col gap-2">
+								<div className="space-y-2">
 									<p className="text-sm font-medium">Full Name</p>
 									<p className="text-sm text-muted-foreground">{profile?.name || "Not set"}</p>
 								</div>
-								<div className="flex flex-col gap-2">
+								<div className="space-y-2">
 									<p className="text-sm font-medium">Email Address</p>
 									<p className="text-sm text-muted-foreground">{profile?.email || "Not set"}</p>
 								</div>
-								<div className="flex flex-col gap-2">
+								<div className="space-y-2">
 									<p className="text-sm font-medium">Member Since</p>
 									<p className="text-sm text-muted-foreground">{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
-								<div className="flex flex-col gap-2">
+								<div className="space-y-2">
 									<p className="text-sm font-medium">Last Updated</p>
 									<p className="text-sm text-muted-foreground">{profile?.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "Unknown"}</p>
 								</div>
 							</div>
 						)}
-					</div>
+					</Card>
 
 					<Separator />
 
 					{/* Account Status */}
-					<div className="flex flex-col gap-4 p-4 rounded-lg bg-[var(--color-card-neutral)]">
+					<div className="space-y-4">
 						<h3 className="text-lg font-semibold">Account Status</h3>
 						<div className="flex items-center gap-2">
-							<Badge variant="secondary" size="sm" className="bg-[var(--color-card-neutral)] border border-[var(--color-border)] text-foreground">
+							<Badge variant="default" size="sm">
 								Active
 							</Badge>
 							<span className="text-sm text-muted-foreground">Your account is active and in good standing</span>

@@ -1,8 +1,8 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 
 export default function SubscriptionPage() {
@@ -41,23 +41,19 @@ export default function SubscriptionPage() {
 	const currentPlan = getCurrentPlanName()
 
 	return (
-		<div className="container mx-auto px-4 py-8 max-w-4xl">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-12 px-12 pt-12">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold tracking-tight">Subscription Management</h1>
 				<p className="text-muted-foreground">Manage your subscription, billing, and account preferences.</p>
-				<div className="mt-4 p-4 bg-muted rounded-lg">
+				<div className="flex items-center justify-between mt-4 p-4 bg-card rounded-lg">
 					<p className="text-sm">
-						<strong>Current Plan:</strong> {currentPlan}
+						<strong>Current Plan:</strong> {currentPlan} <span className="text-muted-foreground">({currentPlan})</span>
 					</p>
+					<Button variant="default" size="sm">
+						Manage Subscription
+					</Button>
 				</div>
 			</div>
-
-			<div className="mt-8">
-				<p className="mb-4">To change your subscription plan, please visit your account settings.</p>
-				<Button asChild variant="default">
-					<Link href="/account">Manage Subscription</Link>
-				</Button>
-			</div>
-		</div>
+		</Card>
 	)
 }

@@ -6,7 +6,7 @@ interface CardComponentProps extends React.HTMLAttributes<HTMLDivElement>, CardP
 
 // Main Card component
 const Card = React.forwardRef<HTMLDivElement, CardComponentProps>(({ className, variant, selected, hoverable, ...props }, ref) => (
-	<div ref={ref} className={cn(cardVariants({ variant, selected, hoverable, className: "w-full pt-2 pb-8 px-2" }))} {...props} />
+	<div ref={ref} className={cn(cardVariants({ variant, selected, hoverable, className }))} {...props} />
 ))
 Card.displayName = "Card"
 

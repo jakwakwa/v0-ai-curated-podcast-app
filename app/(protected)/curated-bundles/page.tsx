@@ -7,9 +7,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageHeader } from "@/components/ui/page-header"
-import { Body } from "@/components/ui/typography"
+import { Body, Typography } from "@/components/ui/typography"
 import type { Bundle, Podcast } from "@/lib/types"
 
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
@@ -64,7 +64,7 @@ export default function CuratedBundlesPage() {
 		)
 	}
 	return (
-		<div className="wrapper">
+		<div className="wrapper mt-12">
 			<PageHeader
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."
@@ -93,21 +93,21 @@ export default function CuratedBundlesPage() {
 						<AlertDescription className="mt-2">There are no PODSLICE Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
-						<Button onClick={fetchCuratedBundles} variant="outline">
+						<Button onClick={fetchCuratedBundles} variant="default">
 							<RefreshCw className="h-4 w-4 mr-2" />
-							Refresh
+							Refresh Episodes
 						</Button>
 					</div>
 				</div>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
 					{curatedBundles.map(bundle => (
-						<Card key={bundle.bundle_id} className="h-auto flex flex-col max-h-[400px]">
+						<Card key={bundle.bundle_id} className="h-auto flex flex-col max-h-[600px]" variant="bundle">
 							<CardHeader className="px-6 pb-2 pt-4 border-b border-border">
 								<div className="w-full flex flex-col gap-3">
 									<div className="flex flex-col gap-3">
-										<CardTitle className="text-2xl font-semibold leading-8 tracking-tight mb-0">{bundle.name}</CardTitle>
-										<CardDescription className="text-base leading-6 font-normal tracking-wide text-foreground/80 mb-0">{bundle.description}</CardDescription>
+										<CardTitle className="text-custom-body font-semibold leading-8 tracking-tight leading-tight mb-0 truncate">{bundle.name}</CardTitle>
+										<p className="text-[0.7rem]  leading-6 font-normal tracking-tight leading-[1] line-clamp-2 max-h-[3rem] truncate text-foreground/80 mb-0">{bundle.description}</p>
 									</div>
 									<div className="relative border-2 border-white block rounded-lg overflow-hidden w-full h-32">
 										{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}
@@ -127,12 +127,16 @@ export default function CuratedBundlesPage() {
 
 							<CardContent className="py-1 px-6 overflow-y-auto">
 								<Body className="text-2xl font-semibold leading-8 tracking-tight mb-4">Included Podcasts:</Body>
-								<ul className="list-none p-0 m-0 flex flex-col gap-4">
+								<ul className="list-none p-0 m-0 flex flex-col gap-4 max-h-[20rem] overflow-y-auto">
 									{bundle.podcasts.map(podcast => (
-										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-4 w-full border border-border rounded-lg bg-gray-900/80">
+										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-4 w-full border-1 border-dark/10 bg-cardglass rounded-lg">
 											<div className="w-full flex flex-col gap-1">
-												<span className="text-lg font-semibold leading-7 tracking-tight opacity-80">{podcast.name}</span>
-												<p className="text-muted-foreground text-sm leading-relaxed opacity-70">{podcast.description}</p>
+												<Typography as="h5" className="text-custom-body font-semibold leading-7 tracking-tight my-1 opacity-80">
+													{podcast.name}
+												</Typography>
+												<Typography as="p" className="text-muted-foreground text-sm leading-relaxed opacity-80 line-clamp-3 max-h-[5rem] leading-[1.1]">
+													{podcast.description}
+												</Typography>
 											</div>
 										</li>
 									))}

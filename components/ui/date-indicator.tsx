@@ -32,7 +32,7 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 	}
 
 	return (
-		<div className={`mt-2 text-custom-${size}  text-muted-foreground/50`}>
+		<div className={`mt-1 uppercase text-[0.6rem]  text-primary-foreground/60`}>
 			{label}: {formatDate(indicator)}
 		</div>
 	)

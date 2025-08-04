@@ -13,14 +13,14 @@ const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(({ className, 
 	const HeadingComponent = level === 1 ? H1 : level === 2 ? H2 : H3
 
 	return (
-		<header className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
+		<div className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
 			<HeadingComponent className="mt-2 mb-6 text-h1 font-bold">{title}</HeadingComponent>
 			{description && (
 				<Typography as="p" className="text-h4 max-w-4xl">
 					{description}
 				</Typography>
 			)}
-		</header>
+		</div>
 	)
 })
 PageHeader.displayName = "PageHeader"
