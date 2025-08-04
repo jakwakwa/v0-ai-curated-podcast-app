@@ -29,8 +29,6 @@ const H5 = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography v
 // Body text components
 const Body = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography variant="body" as="p" {...props} />
 
-const BodySmall = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography variant="body-sm" as="p" {...props} />
-
 const Muted = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography variant="muted" as="p" {...props} />
 
-export { Typography, H1, H2, H3, H4, H5, Body, BodySmall, Muted }
+export { Typography, H1, H2, H3, H4, H5, Body, Muted }

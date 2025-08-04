@@ -675,13 +675,13 @@ export default function AdminPage() {
 									<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
 								</CardHeader>
 								<CardContent className="p-4">
-									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
-										<SelectTrigger>
+									<Select onValueChange={setSelectedBundleId}>
+										<SelectTrigger className="select-custom-trigger hover:select-custom-content-hover	">
 											<SelectValue placeholder="Select a bundle..." />
 										</SelectTrigger>
-										<SelectContent>
+										<SelectContent className="select-custom-content">
 											{bundles.map(bundle => (
-												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
+												<SelectItem className="select-custom-item" key={bundle.bundle_id} value={bundle.bundle_id}>
 													{bundle.name} ({bundle.podcasts.length} shows)
 												</SelectItem>
 											))}

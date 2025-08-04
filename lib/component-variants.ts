@@ -1,53 +1,20 @@
 import { cva, type VariantProps } from "class-variance-authority"
 
-// Background variants - using clean utility classes
-export const backgroundVariants = cva("", {
-	variants: {
-		variant: {
-			linear: "bg-linear-gradient",
-			linearSecondary: "bg-linear-gradient-secondary",
-			radial: "bg-radial-gradient",
-			radialSecondary: "bg-radial-gradient-secondary",
-			glass: "bg-[var(--color-background-glass)]",
-			secondary: "bg-[var(--color-secondary-background)]",
-			primary: "bg-[var(--color-background)]",
-			transparent: "bg-transparent",
-		},
-	},
-})
-
 // Typography variants - unified text styling system
 export const typographyVariants = cva("", {
 	variants: {
 		variant: {
-			h1: "font-heading text-h1 font-bold text-foreground",
-			h2: "font-heading text-h2 font-bold text-foreground",
-			h3: "font-heading text-h3 font-semibold text-foreground",
-			h4: "font-heading text-h4 font-semibold text-foreground",
-			h5: "font-heading text-h5 font-semibold text-foreground",
-			body: "font-body text-body text-foreground",
-			"body-sm": "font-body text-[var(--text-body-sm)] text-muted-foreground",
+			h1: "font-heading font-normal text-foreground-muted",
+			h2: "font-heading font-bold leading-[1.5] text-foreground",
+			h3: "font-heading font-normal text-secondary-foreground my-4",
+			h4: "font-sans text-md",
+			h5: "font-sans text-h5 uppercase font-semibold text-foreground",
+			body: "font-sans text-body",
 			muted: "text-[var(--text-body-sm)] text-muted-foreground",
 			link: "text-[var(--text-body-sm)] text-link",
-			button: "text-[var(--text-body-sm)] text-button",
 			label: "text-[var(--text-body-sm)] text-label",
 			caption: "text-[var(--text-body-sm)] text-caption",
-			small: "text-[var(--text-body-sm)] text-small",
 		},
-		size: {
-			default: "text-body",
-			xs: "text-[var(--text-body-xs)]",
-			xxs: "text-[var(--text-body-xs)]",
-			sm: "text-[var(--text-body-sm)]",
-			md: "text-[var(--text-body)]",
-			lg: "text-[var(--text-h3)]",
-			xl: "text-[var(--text-h2)]",
-			xxl: "text-[var(--text-h1)]",
-		},
-	},
-	defaultVariants: {
-		variant: "body",
-		size: "default",
 	},
 })
 
@@ -56,7 +23,7 @@ export const cardVariants = cva("rounded-2xl border transition-all duration-200"
 	variants: {
 		variant: {
 			default: "border bg-card text-card-foreground",
-			glass: "bg-glass border-white/10 bg-card/95 backdrop-blur-md shadow-glass",
+			glass: "bg-cardglass backdrop-blur-md shadow-glass",
 			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
 			bundle: "border bg-dialog-bg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-lg backdrop-blur-md hover:-translate-y-0.5",
 		},
@@ -96,33 +63,6 @@ export const headerVariants = cva("text-left", {
 		spacing: "default",
 	},
 })
-
-// Button variants - enhanced version of your existing button system
-export const buttonVariants = cva(
-	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-	{
-		variants: {
-			variant: {
-				default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-				destructive: "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-				outline: "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-				secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-				ghost: "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-				link: "text-primary underline-offset-4 hover:underline",
-			},
-			size: {
-				default: "h-9 px-4 py-2 has-[>svg]:px-3",
-				sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-				lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-				icon: "size-9",
-			},
-		},
-		defaultVariants: {
-			variant: "default",
-			size: "default",
-		},
-	}
-)
 
 // Input variants - unified form field styling
 export const inputVariants = cva(
@@ -274,7 +214,6 @@ export const avatarVariants = cva("relative flex shrink-0 overflow-hidden rounde
 export type TypographyProps = VariantProps<typeof typographyVariants>
 export type CardProps = VariantProps<typeof cardVariants>
 export type HeaderProps = VariantProps<typeof headerVariants>
-export type ButtonProps = VariantProps<typeof buttonVariants>
 export type InputProps = VariantProps<typeof inputVariants>
 export type TextareaProps = VariantProps<typeof textareaVariants>
 export type SelectProps = VariantProps<typeof selectVariants>

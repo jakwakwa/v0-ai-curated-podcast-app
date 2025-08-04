@@ -9,6 +9,7 @@ import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
+import { H3 } from "@/components/ui/typography"
 import type { Episode } from "@/lib/types"
 
 export default function EpisodesPage() {
@@ -95,7 +96,7 @@ export default function EpisodesPage() {
 				</div>
 			) : (
 				<div className="mt-8">
-					<h2 className="text-2xl font-semibold tracking-tight mb-6">All Episodes ({episodes.length})</h2>
+					<H3>All Episodes ({episodes.length})</H3>
 					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 
 					{/* Spacer for fixed audio player */}

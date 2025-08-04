@@ -51,14 +51,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
 										<div className="mt-2 ml-0 pl-0 flex-self-start w-full flex justify-start">
-											<Button
-												onClick={() => onPlayEpisode(episode.episode_id)}
-												variant="outline"
-												size="sm"
-												className={
-													playingEpisodeId === episode.episode_id ? "m-0 p-0 bg-primary text-custom-xs text-primary-foreground" : "bg-card/50 text-custom-sm text-muted-foreground hover:bg-card/75"
-												}
-											>
+											<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="default" size="sm" className={playingEpisodeId === episode.episode_id ? "m-0 p-0" : ""}>
 												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3 pl-0 text-left" />
 												{playingEpisodeId === episode.episode_id ? "Playing..." : "Play Episode"}
 											</Button>

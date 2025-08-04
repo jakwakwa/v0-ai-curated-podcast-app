@@ -32,7 +32,7 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 
 				{/* Bundle Card - using bundle variant for better visual distinction */}
 				{showBundleCard && userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-					<Card variant="bundle">
+					<Card className="bg-cardglass" variant="glass">
 						<CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
 							<CardTitle className="w-full text-xl font-semibold tracking-tight">
 								Recent Activity: <br />
