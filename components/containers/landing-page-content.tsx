@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 import styles from "@/styles/landing-page-content.module.css"
+import { LandingPageHeader } from "../layout/LandingPageHeader"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 
 export default function LandingPageContent() {
@@ -147,6 +148,7 @@ export default function LandingPageContent() {
 
 	return (
 		<div className={styles.container}>
+			<LandingPageHeader />
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
 				<motion.div
@@ -380,7 +382,7 @@ export default function LandingPageContent() {
 										))}
 									</ul>
 									<Button
-										className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-primary text-primary-foreground" : ""}`}
+										className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-radial-gradient-secondary text-primary-foreground hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out" : ""}`}
 										variant={buttonProps.variant}
 										size="lg"
 										disabled={buttonProps.disabled}

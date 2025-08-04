@@ -318,12 +318,7 @@ button {
     transition: all 0.2s ease-in-out;
 }
 
-img {
-    border-radius: 10px;
-    transform: scale(1.01);
-    box-shadow: var(--shadow-md);
-    border: 3px solid #176a888f;
-}
+
 
 /* button:hover {
     background-color: hsla(var(--primary-hsl) / 0.9);
@@ -333,6 +328,7 @@ img {
 } */
 
 button {
+    background-color: #000000;
     font-size: var(--text-body);
     line-height: 1.25rem;
     font-weight: 500;
