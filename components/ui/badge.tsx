@@ -7,7 +7,7 @@ function Badge({
 	variant = "default",
 	size = "md",
 	...props
-}: { className?: string; variant: "default" | "secondary" | "destructive" | "outline" | "card"; size: "sm" | "md" | "lg" | "xl" } & React.HTMLAttributes<HTMLDivElement>) {
+}: { className?: string; variant: "default" | "secondary" | "destructive" | "outline" | "card" | "primarycard"; size: "sm" | "md" | "lg" | "xl" } & React.HTMLAttributes<HTMLDivElement>) {
 	/**
 	 * --------------------------------
 	 * JSDOC

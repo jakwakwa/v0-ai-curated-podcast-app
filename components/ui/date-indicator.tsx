@@ -6,7 +6,7 @@ interface DateIndicatorProps {
 	size?: "xs" | "sm"
 }
 
-function DateIndicator({ indicator, label }: DateIndicatorProps): React.ReactElement {
+function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): React.ReactElement {
 	const formatDate = (date: Date | string): string => {
 		if (!date) return "Unknown"
 

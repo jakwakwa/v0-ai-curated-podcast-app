@@ -1,6 +1,6 @@
 import { Button } from "./button"
 import { PageHeader } from "./page-header"
-import { Body, BodySmall, H1, H2, H3, Muted } from "./typography"
+import { Body, H1, H2, H3, Muted } from "./typography"
 
 // This component demonstrates how to use the new unified component system
 // It replaces all the scattered styling patterns with consistent components
@@ -19,7 +19,7 @@ export function ComponentShowcase() {
 				<H2>This is an H2 heading</H2>
 				<H3>This is an H3 heading</H3>
 				<Body>This is body text with consistent styling</Body>
-				<BodySmall>This is smaller body text</BodySmall>
+				<Muted>This is smaller body text</Muted>
 				<Muted>This is muted text for secondary information</Muted>
 			</div>
 
@@ -28,19 +28,19 @@ export function ComponentShowcase() {
 				{/* Default Card */}
 				<div className="rounded-2xl border bg-card text-card-foreground transition-all duration-200 p-6">
 					<H3 className="mb-2">Default Card</H3>
-					<BodySmall>This uses the default card styling</BodySmall>
+					<Muted>This uses the default card styling</Muted>
 				</div>
 
 				{/* Glass Card */}
 				<div className="rounded-2xl border border-white/10 bg-card/25 backdrop-blur-2xl shadow-glass p-6">
 					<H3 className="mb-2">Glass Card</H3>
-					<BodySmall>This uses the glass morphism effect</BodySmall>
+					<Muted>This uses the glass morphism effect</Muted>
 				</div>
 
 				{/* Episode Card */}
 				<div className="rounded-2xl border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 p-6">
 					<H3 className="mb-2">Episode Card</H3>
-					<BodySmall>This uses the episode-specific styling</BodySmall>
+					<Muted>This uses the episode-specific styling</Muted>
 				</div>
 			</div>
 
@@ -57,11 +57,11 @@ export function ComponentShowcase() {
 			<div className="bg-card/25 backdrop-blur-sm border border-white/20 rounded-lg p-6">
 				<H3 className="mb-4">Migration Benefits</H3>
 				<div className="space-y-2">
-					<BodySmall>✅ One Card component instead of 4+ different implementations</BodySmall>
-					<BodySmall>✅ One Typography system instead of scattered text styles</BodySmall>
-					<BodySmall>✅ One Header component instead of repeated header patterns</BodySmall>
-					<BodySmall>✅ Consistent design tokens using your OKLCH colors</BodySmall>
-					<BodySmall>✅ Type-safe variants with class-variance-authority</BodySmall>
+					<Muted>✅ One Card component instead of 4+ different implementations</Muted>
+					<Muted>✅ One Typography system instead of scattered text styles</Muted>
+					<Muted>✅ One Header component instead of repeated header patterns</Muted>
+					<Muted>✅ Consistent design tokens using your OKLCH colors</Muted>
+					<Muted>✅ Type-safe variants with class-variance-authority</Muted>
 				</div>
 			</div>
 		</div>

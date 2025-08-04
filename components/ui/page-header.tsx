@@ -9,7 +9,7 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLElement>, HeaderProps
 	level?: 1 | 2 | 3
 }
 
-const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(({ className, spacing, title, description, level = 1, ...props }, ref) => {
+const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ className, spacing, title, description, level = 1, ...props }, ref) => {
 	const HeadingComponent = level === 1 ? H1 : level === 2 ? H2 : H3
 
 	return (
