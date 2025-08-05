@@ -80,9 +80,7 @@ export const useBundlesStore = create<BundlesState>()(
 					}
 
 					// Fetch fresh bundles
-					const response = await fetch("/api/curated-bundles", {
-						headers: { "Cache-Control": "max-age=604800" }, // 7 days cache
-					})
+					const response = await fetch("/api/curated-bundles")
 
 					if (!response.ok) {
 						throw new Error("Failed to fetch bundles")
@@ -120,9 +118,7 @@ export const useBundlesStore = create<BundlesState>()(
 					}
 
 					// Fetch fresh data
-					const response = await fetch("/api/curated-bundles", {
-						headers: { "Cache-Control": "max-age=604800" },
-					})
+					const response = await fetch("/api/curated-bundles")
 
 					if (!response.ok) {
 						throw new Error("Failed to refresh bundles")

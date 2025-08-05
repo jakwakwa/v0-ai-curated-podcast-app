@@ -10,16 +10,16 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export default function AccountSettingsPage() {
 	const { isLoaded } = useUser()
-const { subscription, isLoading: subscriptionLoading } = useSubscriptionStore((state) => ({
+	const { subscription, isLoading: subscriptionLoading } = useSubscriptionStore(state => ({
 		subscription: state.subscription,
-		isLoading: state.isLoading
+		isLoading: state.isLoading,
 	}))
 
 	const getCurrentPlanName = () => {
 		if (!subscription) return "No active plan"
-		const planName = subscription.plan_type === 'casual_listener' ? 'Casual Listener' : 'Curate & Control'
-		if (subscription.status === 'trialing') return `${planName} (Trial)`
-		if (subscription.status === 'canceled') return `${planName} (Canceled)`
+		const planName = subscription.plan_type === "casual_listener" ? "Casual Listener" : "Curate & Control"
+		if (subscription.status === "trialing") return `${planName} (Trial)`
+		if (subscription.status === "canceled") return `${planName} (Canceled)`
 		if (subscription.cancel_at_period_end) return `${planName} (Canceling)`
 		return planName
 	}
@@ -33,7 +33,7 @@ const { subscription, isLoading: subscriptionLoading } = useSubscriptionStore((s
 	}
 
 	return (
-		<div className="container mx-auto py-8 px-2 md:px-4 mt-12">
+		<div className="container mx-auto py-8 px-2 md:px-4 mt-4">
 			<div className="max-w-4xl mx-auto">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold">Account Settings</h1>

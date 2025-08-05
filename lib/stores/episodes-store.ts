@@ -106,9 +106,7 @@ export const useEpisodesStore = create<EpisodesState>()(
 					}
 
 					// Fetch fresh episodes
-					const response = await fetch("/api/episodes", {
-						headers: { "Cache-Control": "max-age=604800" }, // 7 days cache
-					})
+					const response = await fetch("/api/episodes")
 
 					if (!response.ok) {
 						throw new Error("Failed to fetch episodes")
@@ -163,9 +161,7 @@ export const useEpisodesStore = create<EpisodesState>()(
 					}
 
 					// Fetch fresh profile
-					const response = await fetch("/api/user-curation-profiles", {
-						headers: { "Cache-Control": "max-age=3600" }, // 1 hour cache
-					})
+					const response = await fetch("/api/user-curation-profiles")
 
 					if (!response.ok) {
 						throw new Error("Failed to fetch user curation profile")
@@ -202,14 +198,7 @@ export const useEpisodesStore = create<EpisodesState>()(
 					}
 
 					// Fetch fresh data
-					const [profileResponse, episodesResponse] = await Promise.all([
-						fetch("/api/user-curation-profiles", {
-							headers: { "Cache-Control": "max-age=3600" },
-						}),
-						fetch("/api/episodes", {
-							headers: { "Cache-Control": "max-age=604800" },
-						}),
-					])
+					const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
 
 					if (!(profileResponse.ok && episodesResponse.ok)) {
 						throw new Error("Failed to refresh data")

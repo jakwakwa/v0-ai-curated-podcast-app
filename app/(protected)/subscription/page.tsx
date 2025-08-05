@@ -41,7 +41,7 @@ export default function SubscriptionPage() {
 	const currentPlan = getCurrentPlanName()
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-12 px-12 pt-12">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12 pt-12">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold tracking-tight">Subscription Management</h1>
 				<p className="text-muted-foreground">Manage your subscription, billing, and account preferences.</p>

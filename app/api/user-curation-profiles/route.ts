@@ -7,9 +7,12 @@ export const revalidate = 86400 // 24 hours in seconds
 
 export async function GET(_request: Request) {
 	try {
+		console.log("User curation profiles API: Starting request...")
 		const { userId } = await auth()
+		console.log("User curation profiles API: Auth successful, userId:", userId)
 
 		if (!userId) {
+			console.log("User curation profiles API: No userId, returning 401")
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 

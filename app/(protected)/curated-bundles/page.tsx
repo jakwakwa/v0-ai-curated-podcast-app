@@ -64,7 +64,7 @@ export default function CuratedBundlesPage() {
 		)
 	}
 	return (
-		<div className="wrapper mt-12">
+		<div className="wrapper mt-4">
 			<PageHeader
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."

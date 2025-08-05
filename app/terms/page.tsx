@@ -212,7 +212,7 @@ export default function TermsPage() {
 						<CardContent>
 							<p>For questions about these Terms of Service, please contact us at:</p>
 							<div className="mt-4 p-4 bg-background rounded-lg border">
-									<p className="font-semibold text-custom-h5">Podslice.ai Team</p>
+								<p className="font-semibold text-custom-h5">Podslice.ai Team</p>
 								<p>Email: support@podslice.ai</p>
 								<p>
 									Website:{" "}
@@ -224,7 +224,7 @@ export default function TermsPage() {
 						</CardContent>
 					</Card>
 
-					<div className="text-right mt-12 pt-8 border-t">
+					<div className="text-right mt-4 pt-8 border-t">
 						<p className="text-xs text-muted-foreground">By using our service, you acknowledge that you have read and understood these Terms of Service and agree to be bound by them.</p>
 						<div className="mt-4">
 							<Link href="/privacy" className="text-xs text-primary hover:underline">

@@ -2,24 +2,26 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma" // Use the global client
 
-// Cache episodes for 1 week since they're only released weekly
-export const revalidate = 604800 // 7 days in seconds
+export const dynamic = "force-dynamic"
 
 export async function GET(_request: Request) {
 	try {
+		console.log("Episodes API: Starting request...")
 		const { userId } = await auth()
+		console.log("Episodes API: Auth successful, userId:", userId)
+
 		if (!userId) {
+			console.log("Episodes API: No userId, returning 401")
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
+		console.log("Episodes API: Querying database...")
 		const episodes = await prisma.episode.findMany({
 			where: {
 				OR: [
-					{
-						userProfile: { user_id: userId },
-					},
+					{ userProfile: { user_id: userId } },
 					{
 						bundle: {
 							user_curation_profile: {
@@ -30,7 +32,7 @@ export async function GET(_request: Request) {
 				],
 			},
 			include: {
-				podcast: true, // Unified podcast model
+				podcast: true,
 				userProfile: {
 					include: {
 						selectedBundle: {
@@ -51,17 +53,19 @@ export async function GET(_request: Request) {
 				},
 			},
 			orderBy: { created_at: "desc" },
-			// --- PRISMA CACHING STRATEGY ---
-			// This enables Prisma's built-in query caching for 7 days (604800 seconds)
-			cacheStrategy: {
-				ttl: 60 * 60 * 24 * 7, // 7 days in seconds
-				swr: 60 * 60 * 24 * 2, // 2 days soft revalidation window (optional, for background refresh)
-			},
+			// cacheStrategy: {
+			// 	ttl: 300,
+			// 	swr: 60,
+			// 	tags: ["findMany_episodes"],
+			// },
 		})
 
-		return NextResponse.json(episodes)
+		console.log("Episodes API: Query successful, found", episodes.length, "episodes")
+		const response = NextResponse.json(episodes)
+		response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=60")
+		return response
 	} catch (error) {
-		console.error("Error fetching episodes:", error)
+		console.error("Episodes API: Error fetching episodes:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }

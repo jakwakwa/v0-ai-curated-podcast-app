@@ -92,7 +92,7 @@ export default function CurationProfileManagementPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-12 px-12">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
 			<div className="grid grid-cols-1 lg:grid-cols-1 w-full lg:min-w-full/[60%] gap-8 px-4 py-5">
 				<div className="flex items-center justify-between mb-4">
 					<h1 className="text-2xl font-bold">Personalized Feed Management</h1>

@@ -18,7 +18,6 @@ import type { NextRequest } from "next/server"
 // Create route matchers to identify which token type each route should require
 const isOAuthAccessible = createRouteMatcher(["/oauth(.*)"])
 const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
-const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
 const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
 const isAdminPageAccessible = createRouteMatcher(["/admin(.*)"])
@@ -60,20 +59,17 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 		// Admin API routes require session tokens + individual routes check admin status
 		await auth.protect()
 	} else if (isUserApiAccessible(req)) {
-		await auth.protect({ token: "session_token" })
+		await auth.protect()
 	} else if (isMachineTokenAccessible(req)) {
 		await auth.protect({ token: "machine_token" })
 	} else if (isUserAccessible(req)) {
-		await auth.protect({ token: "session_token" })
+		await auth.protect()
 	} else if (isAdminPageAccessible(req)) {
 		// Admin pages require session tokens + page-level admin checking
-		await auth.protect({ token: "session_token" })
+		await auth.protect()
 	} else if (isProtectedRoute(req)) {
 		// Protected routes require session tokens
-		await auth.protect({ token: "session_token" })
-	} else if (isApiKeyAccessible(req)) {
-		// Don't protect general API routes by default
-		// await auth.protect({ token: "api_key" })
+		await auth.protect()
 	}
 	// For public routes (like landing page), don't call auth.protect()
 	// but still allow auth() to be called for checking user status

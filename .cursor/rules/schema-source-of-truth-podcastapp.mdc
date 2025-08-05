@@ -1,212 +1,123 @@
----
+--
 alwaysApply: true
 ---
-# Schema source of truth if youre working with a branch out of sync with the main branch
+# Schema source of truth for PODSLICE (v0-ai-curated-podcast-app)
 
-## For "PODSLICE" aka `v0-ai-curated-podcast-app`
+## CRITICAL: Use these exact field names in Prisma queries
 
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl"]
-}
+### Database Schema Uses Snake Case with @map Directives
+Your Prisma schema uses `@map` directives to map camelCase field names to snake_case database columns.
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+### ✅ CORRECT Field Names (Use These)
 
-model User {
-  id                   String               @id @default(cuid()) @map("user_id")
-  name                 String?              @map("name")
-  email                String               @unique @map("email")
-  password             String               @map("password")
-  image                String?              @map("image")
-  emailVerified        DateTime?            @map("email_verified")
-  isAdmin              Boolean              @default(false) @map("is_admin")
-  emailNotifications   Boolean              @default(true) @map("email_notifications")
-  inAppNotifications   Boolean              @default(true) @map("in_app_notifications")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
-  ownedBundles         Bundle[]
-  feedback             EpisodeFeedback[]
-  notifications        Notification[]
-  ownedPodcasts        Podcast[]
-  subscriptions        Subscription[]
-  userCurationProfiles UserCurationProfile?
+#### Episode Model Relations
+```typescript
+// Episode relations
+userProfile: UserCurationProfile?  // ✅ CORRECT (camelCase)
+bundle: Bundle?                    // ✅ CORRECT (camelCase)
 
-  @@map("user")
-}
+// Database field names (in where clauses)
+user_id: string                    // ✅ CORRECT (snake_case)
+profile_id: string                 // ✅ CORRECT (snake_case)
+bundle_id: string                  // ✅ CORRECT (snake_case)
+podcast_id: string                 // ✅ CORRECT (snake_case)
+```
 
-/// ───────────────────────────────────
-/// UNIFIED PODCAST CATALOG
-/// ───────────────────────────────────
-model Podcast {
-  id           String           @id @default(uuid()) @map("podcast_id")
-  name         String           @map("name")
-  description  String?          @map("description")
-  url          String           @unique @map("url")
-  imageUrl     String?          @map("image_url")
-  category     String?          @map("category")
-  isActive     Boolean          @default(true) @map("is_active")
-  ownerUserId  String?          @map("owner_user_id")
-  createdAt    DateTime         @default(now()) @map("created_at")
-  bundleLinks  BundlePodcast[]
-  episodes     Episode[]
-  ownerUser    User?            @relation(fields: [ownerUserId], references: [id])
-  profileLinks ProfilePodcast[]
+#### Bundle Model Relations
+```typescript
+// Bundle relations  
+bundle_podcast: BundlePodcast[]    // ✅ CORRECT (snake_case)
+user_curation_profile: UserCurationProfile[] // ✅ CORRECT (snake_case)
 
-  @@index([ownerUserId])
-  @@index([isActive])
-  @@map("podcast")
-}
+// Database field names
+bundle_id: string                  // ✅ CORRECT
+owner_user_id: string              // ✅ CORRECT
+```
 
-/// ───────────────────────────────────
-/// UNIFIED EPISODE TABLE
-/// ───────────────────────────────────
-model Episode {
-  id            String               @id @default(uuid()) @map("episode_id")
-  podcastId     String               @map("podcast_id")
-  userProfileId String?              @map("profile_id")
-  bundleId      String?              @map("bundle_id")
-  title         String               @map("title")
-  description   String?              @map("description")
-  audioUrl      String               @map("audio_url")
-  imageUrl      String?              @map("image_url")
-  publishedAt   DateTime?            @map("published_at")
-  weekNr        DateTime?            @map("week_nr")
-  createdAt     DateTime             @default(now()) @map("created_at")
-  bundle        Bundle?              @relation(fields: [bundleId], references: [id])
-  podcast       Podcast              @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  userProfile   UserCurationProfile? @relation(fields: [userProfileId], references: [id])
-  feedback      EpisodeFeedback[]
+#### UserCurationProfile Model Relations
+```typescript
+// UserCurationProfile relations
+selectedBundle: Bundle?            // ✅ CORRECT (camelCase)
+user: User                         // ✅ CORRECT (camelCase)
 
-  @@index([podcastId, weekNr], map: "episode_podcast_week_idx")
-  @@index([publishedAt])
-  @@index([userProfileId], map: "episode_profile_idx")
-  @@index([bundleId], map: "episode_bundle_idx")
-  @@map("episode")
-}
+// Database field names
+profile_id: string                 // ✅ CORRECT
+user_id: string                    // ✅ CORRECT
+selected_bundle_id: string         // ✅ CORRECT selected_bundle_id: // ✅ CORRECT
 
-/// ───────────────────────────────────
-/// BUNDLES (static or user-custom)
-/// ───────────────────────────────────
-model Bundle {
-  id          String                @id @default(uuid()) @map("bundle_id")
-  name        String                @map("name")
-  description String?               @map("description")
-  imageUrl    String?               @map("image_url")
-  isStatic    Boolean               @default(true) @map("is_static")
-  isActive    Boolean               @default(true) @map("is_active")
-  ownerUserId String?               @map("owner_user_id")
-  createdAt   DateTime              @default(now()) @map("created_at")
-  ownerUser   User?                 @relation(fields: [ownerUserId], references: [id])
-  podcasts    BundlePodcast[]
-  episodes    Episode[]
-  profiles    UserCurationProfile[]
+```
 
-  @@index([isStatic, isActive], map: "bundle_static_active_idx")
-  @@index([ownerUserId], map: "bundle_owner_idx")
-  @@map("bundle")
-}
+### ❌ WRONG Field Names (Never Use These)
+```typescript
+// ❌ WRONG - Don't use these
+user_profile: UserCurationProfile?
+selected_bundle: Bundle?
+bundlePodcast: BundlePodcast[]
+userProfile: UserCurationProfile?  // This is correct for Episode model
+```
 
-/// Junction table: Bundle ↔ Podcast
-model BundlePodcast {
-  bundleId  String  @map("bundle_id")
-  podcastId String  @map("podcast_id")
-  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-  podcast   Podcast @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+### Correct API Query Patterns
 
-  @@id([bundleId, podcastId])
-  @@map("bundle_podcast")
-}
+#### Episode Query Pattern
+```typescript
+const episodes = await prisma.episode.findMany({
+  where: {
+    OR: [
+      { userProfile: { user_id: userId } },           // ✅ CORRECT
+      {
+        bundle: {
+          user_curation_profile: {                    // ✅ CORRECT
+            some: { user_id: userId },
+          },
+        },
+      },
+    ],
+  },
+  include: {
+    podcast: true,
+    userProfile: {                                    // ✅ CORRECT
+      include: {
+        selectedBundle: {                             // ✅ CORRECT
+          include: {
+            bundle_podcast: {                         // ✅ CORRECT
+              include: { podcast: true },
+            },
+          },
+        },
+      },
+    },
+    bundle: {                                         // ✅ CORRECT
+      include: {
+        bundle_podcast: {                             // ✅ CORRECT
+          include: { podcast: true },
+        },
+      },
+    },
+  },
+  orderBy: { created_at: "desc" },                   // ✅ CORRECT
+})
+```
 
-/// ───────────────────────────────────
-/// USER CURATION PROFILES
-/// ───────────────────────────────────
-model UserCurationProfile {
-  id                 String           @id @default(uuid()) @map("profile_id")
-  userId             String           @unique @map("user_id")
-  name               String           @map("name")
-  status             String           @default("Draft") @map("status")
-  audioUrl           String?          @map("audio_url")
-  imageUrl           String?          @map("image_url")
-  createdAt          DateTime         @default(now()) @map("created_at")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
-  generatedAt        DateTime?        @map("generated_at")
-  lastGenerationDate DateTime?        @map("last_generation_date")
-  nextGenerationDate DateTime?        @map("next_generation_date")
-  isActive           Boolean          @default(true) @map("is_active")
-  isBundleSelection  Boolean          @default(false) @map("is_bundle_selection")
-  selectedBundleId   String?          @map("selected_bundle_id")
-  episodes           Episode[]
-  podcastSelections  ProfilePodcast[]
-  selectedBundle     Bundle?          @relation(fields: [selectedBundleId], references: [id])
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+---
 
-  @@map("user_curation_profile")
-}
+## AI Agent Instructions
 
-/// Junction table: UserCurationProfile ↔ Podcast
-model ProfilePodcast {
-  profileId String              @map("profile_id")
-  podcastId String              @map("podcast_id")
-  podcast   Podcast             @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  profile   UserCurationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+- **ALWAYS** check this rule before writing or editing any Prisma query.
+- **NEVER** assume all relations are camelCase or snake_case—use the exact field names above.
+- **ALWAYS** check existing API routes for field name patterns.
+- **NEVER** copy field names from old rules or out-of-date documentation.
+- **If in doubt, check `prisma/schema.prisma` directly.**
 
-  @@id([profileId, podcastId])
-  @@map("profile_podcast")
-}
+---
 
-/// ───────────────────────────────────
-/// SUPPORTING MODELS (unchanged logic)
-/// ───────────────────────────────────
-model Notification {
-  id        String   @id @default(uuid()) @map("notification_id")
-  userId    String   @map("user_id")
-  type      String   @map("type")
-  message   String   @map("message")
-  isRead    Boolean  @default(false) @map("is_read")
-  createdAt DateTime @default(now()) @map("created_at")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+## Emergency Fix Protocol
 
-  @@map("notification")
-}
+If casing issues are reintroduced:
+1. **IMMEDIATELY** revert the changes.
+2. Check this document for correct field names.
+3. Use the existing working API routes as reference.
+4. **NEVER** regenerate Prisma client or change schema without verifying field names.
 
-model Subscription {
-  id                 String    @id @default(uuid()) @map("subscription_id")
-  userId             String    @map("user_id")
-  linkCustomerId     String?   @map("link_customer_id")
-  linkSubscriptionId String?   @map("link_subscription_id")
-  linkPriceId        String?   @map("link_price_id")
-  status             String    @default("trialing") @map("status")
-  currentPeriodStart DateTime? @map("current_period_start")
-  currentPeriodEnd   DateTime? @map("current_period_end")
-  trialStart         DateTime? @map("trail_start")
-  trialEnd           DateTime? @map("trial_end")
-  canceledAt         DateTime? @map("canceled_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+---
 
-  @@map("subscription")
-}
-
-model EpisodeFeedback {
-  id        String         @id @default(uuid()) @map("feedback_id")
-  userId    String         @map("user_id")
-  episodeId String         @map("episode_id")
-  rating    FeedbackRating @map("rating")
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
-  episode   Episode        @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, episodeId])
-  @@map("episode_feedback")
-}
-
-enum FeedbackRating {
-  THUMBS_UP
-  THUMBS_DOWN
-  NEUTRAL
-}
+**This rule is the single source of truth for all Prisma field names and relation casing in this project.**

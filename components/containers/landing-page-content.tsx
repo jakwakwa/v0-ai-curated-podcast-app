@@ -6,18 +6,41 @@ import { CheckCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import LandingAudioPlayer from "@/components/demo/landing-audio-player"
-import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
 import styles from "@/styles/landing-page-content.module.css"
 import { LandingPageHeader } from "../layout/LandingPageHeader"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 
-export default function LandingPageContent() {
-	const router = useRouter()
-	const { subscription, tiers, initializeTransaction, isLoading } = useSubscriptionStore()
+// Hardcoded subscription tiers for landing page
+const SUBSCRIPTION_TIERS = [
+	{
+		id: "freeslice",
+		name: "FreeSlice",
+		price: 0,
+		description: "Perfect for podcast discovery and light listening",
+		features: ["Always free", "Free member", "Free Bundle"],
+		popular: false,
+	},
+	{
+		id: "casual_listener",
+		name: "Casual Listener",
+		price: 5,
+		description: "Enhanced experience with premium features and priority access",
+		features: ["Only billed monthly", "Free member", "Free Bundle"],
+		popular: false,
+	},
+	{
+		id: "curate_control",
+		name: "Curate & Control",
+		price: 10,
+		description: "Ultimate control with unlimited custom curation profiles",
+		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
+		popular: true,
+	},
+]
 
+export default function LandingPageContent() {
 	const features = [
 		{
 			icon: <UilStar className="w-6 h-6" />,
@@ -75,69 +98,6 @@ export default function LandingPageContent() {
 			title: "Receive Weekly Insights",
 			description: "Get your personalized, human-quality audio summary delivered every Friday—no hunting, no fluff, just pure value.",
 			action: "Get your briefing",
-		}
-	]
-
-	const handleUpgrade = async (planCode: string | undefined) => {
-		if (!planCode) {
-			console.error("No plan code provided for upgrade.")
-			return
-		}
-		const result = await initializeTransaction(planCode)
-		if ("checkoutUrl" in result && result.checkoutUrl) {
-			router.push(result.checkoutUrl)
-		} else if ("error" in result) {
-			console.error("Failed to initialize transaction:", result.error)
-		}
-	}
-
-	// Determine current plan and button states
-	const getCurrentPlanName = () => {
-		if (!subscription) return "FreeSlice"
-		const currentPlan = tiers.find(tier => tier.paystackPlanCode === subscription.paystackPlanCode)
-		return currentPlan?.name || "FreeSlice"
-	}
-
-	const getButtonProps = (tier: (typeof tiers)[0]) => {
-		const currentPlanName = getCurrentPlanName()
-		if (currentPlanName === tier.name) {
-			return {
-				children: "Active",
-				disabled: true,
-				variant: "secondary" as const,
-				onClick: () => {},
-			}
-		}
-
-		return {
-			children: tier.name === "FreeSlice" ? "Downgrade" : `Upgrade to ${tier.name}`,
-			disabled: isLoading,
-			variant: tier.popular ? ("default" as const) : ("outline" as const),
-			onClick: () => handleUpgrade(tier.paystackPlanCode),
-		}
-	}
-
-	const _testimonials = [
-		{
-			name: "Sarah Chen",
-			role: "Product Manager",
-			content:
-				"Podslice.ai saved me 6 hours last week alone. I was drowning in my podcast backlog, but now I get all the key insights in just 20 minutes. The AI voice is so natural, it's like listening to a human expert who actually knows how to get to the point.",
-			rating: 5,
-		},
-		{
-			name: "Marcus Rodriguez",
-			role: "PhD Candidate",
-			content:
-				"I used to struggle through 4-hour podcast episodes for my research. Now I can scan dozens of sources in the same time. The AI voice quality is incredible—it doesn't feel artificial at all. I've reclaimed 8 hours per week for actual work instead of endless listening.",
-			rating: 5,
-		},
-		{
-			name: "Jennifer Park",
-			role: "CEO",
-			content:
-				"Game changer for staying informed without the time sink. The AI voice is remarkably human—my team actually thought I was sharing insights from a real industry expert. I'm saving 5+ hours weekly while staying more informed than ever.",
-			rating: 5,
 		},
 	]
 
@@ -161,9 +121,8 @@ export default function LandingPageContent() {
 							Cut the chatter.<div className={styles.heroSubtitleSlogan}>Keep the insight.</div>
 						</motion.p>
 						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
-							Tired of sifting through hours of podcasts for that one golden nugget? Podslice.ai transforms chaotic audio into crystal-clear,
-							actionable knowledge with remarkably human AI voices. Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights
-							that actually matter.
+							Tired of sifting through hours of podcasts for that one golden nugget? Podslice.ai transforms chaotic audio into crystal-clear, actionable knowledge with remarkably human AI voices.
+							Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights that actually matter.
 						</motion.p>
 					</div>
 					<motion.div
@@ -174,19 +133,13 @@ export default function LandingPageContent() {
 					>
 						<Link href="/sign-up">
 							<div>
-								<div className={styles.heroBtn}>
-									Start Free Trial
-									
-								</div>
+								<div className={styles.heroBtn}>Start Free Trial</div>
 							</div>
 						</Link>
 					</motion.div>
 					{/* Demo Audio Player */}
-					<div className="mt-12 w-full max-w-3xl mx-auto px-4">
-						<LandingAudioPlayer 
-							title="How to Scale Your SaaS Business - Key Insights"
-							subtitle="Learn how successful SaaS companies achieve sustainable growth"
-						/>
+					<div className="mt-4 w-full max-w-3xl mx-auto px-4">
+						<LandingAudioPlayer title="How to Scale Your SaaS Business - Key Insights" subtitle="Learn how successful SaaS companies achieve sustainable growth" />
 					</div>
 				</div>
 			</section>
@@ -217,7 +170,7 @@ export default function LandingPageContent() {
 								}}
 							>
 								<motion.div
-								 className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
+									className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
 									whileHover={{
 										scale: 1.1,
 										rotate: 5,
@@ -260,70 +213,17 @@ export default function LandingPageContent() {
 									transition: { duration: 0.2 },
 								}}
 							>
-								<div className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10">
-									{step.step}
-								</div>
+								<div className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10">{step.step}</div>
 								<h3 className={styles.stepTitle}>{step.title}</h3>
 								<p className={styles.stepDescription}>{step.description}</p>
 								<motion.div className={styles.stepAction} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
 									<span className="text-sm bg-secondary px-2 py-1 rounded-md">{step.action}</span>
-								
 								</motion.div>
 							</motion.div>
 						))}
 					</div>
 				</div>
 			</section>
-
-			{/* Testimonials Section */}
-			{/* <section className={styles.testimonialsSection}>
-				<div className={styles.testimonialsContainer}>
-					<motion.div
-						className={styles.testimonialsHeader}
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true, margin: "-100px" }}
-						transition={{ duration: 0.6 }}
-					>
-						<h2 className={styles.testimonialsTitle}>What Our Users Say</h2>
-						<p className={styles.testimonialsDescription}>Join thousands of satisfied users who are already saving time and getting more value from their content consumption.</p>
-					</motion.div>
-					<div className={styles.testimonialsGrid}>
-						{testimonials.map((testimonial, index) => (
-							<motion.div
-								key={index}
-								className={styles.testimonialCard}
-								initial={{ opacity: 0, y: 30, scale: 0.95 }}
-								whileInView={{ opacity: 1, y: 0, scale: 1 }}
-								viewport={{ once: true, margin: "-100px" }}
-								transition={{
-									duration: 0.5,
-									ease: "easeOut",
-									delay: index * 0.1,
-								}}
-								whileHover={{
-									y: -3,
-									boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
-									transition: { duration: 0.2 },
-								}}
-							>
-								<div className={styles.testimonialRating}>
-									{Array.from({ length: testimonial.rating }).map((_, i) => (
-										<motion.div key={i} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
-											<UilStar className={styles.starIcon} />
-										</motion.div>
-									))}
-								</div>
-								<p className={styles.testimonialContent}>"{testimonial.content}"</p>
-								<div>
-									<p className={styles.testimonialAuthor}>{testimonial.name}</p>
-									<p className={styles.testimonialRole}>{testimonial.role}</p>
-								</div>
-							</motion.div>
-						))}
-					</div>
-				</div>
-			</section> */}
 
 			{/* Pricing Section */}
 			<section className={styles.pricingSection}>
@@ -333,50 +233,47 @@ export default function LandingPageContent() {
 						<p className={styles.pricingDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
 					</div>
 					<div className={styles.pricingGrid}>
-						{tiers.map(tier => {
-							const buttonProps = getButtonProps(tier)
-							return (
-								<Card
-									key={tier.name}
-									className={`transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent scale-105" : ""}`}
-								>
-									{tier.popular && (
-										<Badge variant="outline" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold border-primary/10">
-											Most Popular
-										</Badge>
-									)}
-									<CardHeader>
-										<div className="flex flex-col mt-4">
-											<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
-											<div className="flex items-baseline gap-1 mb-4">
-												<span className="text-3xl leading-9 font-bold tracking-tight">${tier.price}</span>
-												{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
-											</div>
-											<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
+						{SUBSCRIPTION_TIERS.map(tier => (
+							<Card
+								key={tier.name}
+								className={`transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent scale-105" : ""}`}
+							>
+								{tier.popular && (
+									<Badge variant="outline" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold border-primary/10">
+										Most Popular
+									</Badge>
+								)}
+								<CardHeader>
+									<div className="flex flex-col mt-4">
+										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
+										<div className="flex items-baseline gap-1 mb-4">
+											<span className="text-3xl leading-9 font-bold tracking-tight">${tier.price}</span>
+											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
 										</div>
-									</CardHeader>
-									<CardContent className="flex flex-col flex-1 justify-between">
-										<ul className="list-none p-0 m-0 mb-8">
-											{tier.features.map((feature, index) => (
-												<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground">
-													<CheckCircle size={16} className="text-primary flex-shrink-0" />
-													{feature}
-												</li>
-											))}
-										</ul>
+										<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
+									</div>
+								</CardHeader>
+								<CardContent className="flex flex-col flex-1 justify-between">
+									<ul className="list-none p-0 m-0 mb-8">
+										{tier.features.map((feature, index) => (
+											<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground">
+												<CheckCircle size={16} className="text-primary flex-shrink-0" />
+												{feature}
+											</li>
+										))}
+									</ul>
+									<Link href="/sign-up">
 										<Button
 											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-radial-gradient-secondary text-primary-foreground hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out" : ""}`}
-											variant={buttonProps.variant}
+											variant={tier.popular ? "default" : "outline"}
 											size="lg"
-											disabled={buttonProps.disabled}
-											onClick={buttonProps.onClick}
 										>
-											{buttonProps.children}
+											{tier.name === "FreeSlice" ? "Start Free" : "Start Free Trial"}
 										</Button>
-									</CardContent>
-								</Card>
-							)
-						})}
+									</Link>
+								</CardContent>
+							</Card>
+						))}
 					</div>
 				</div>
 			</section>

@@ -344,7 +344,7 @@ export default function PrivacyPage() {
 						</CardContent>
 					</Card>
 
-					<div className="text-right mt-12 pt-8 border-t">
+					<div className="text-right mt-4 pt-8 border-t">
 						<p className="text-xs text-muted-foreground">This Privacy Policy is effective as of {lastUpdated} and applies to all users of our service worldwide.</p>
 						<div className="mt-4">
 							<Link href="/terms" className="text-xs text-primary hover:underline">

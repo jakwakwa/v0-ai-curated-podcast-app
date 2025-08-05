@@ -179,7 +179,7 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-12 px-12 pt-12">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12 pt-12">
 			<div className="mb-8 px-12">
 				<div className="flex justify-between items-center flex-wrap gap-4">
 					<div className="flex items-center gap-3">
