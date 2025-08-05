@@ -5,7 +5,7 @@ import { ProfileManagement } from "@/components/features/profile-management"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NotificationPreferences } from "@/components/user-account/notification-preferences"
 import { SecuritySettings } from "@/components/user-account/security-settings"
-import { SubscriptionTestControls } from "@/components/user-account/subscription-test-controls"
+import { SubscriptionTestControlsPaddle as SubscriptionTestControls } from "@/components/user-account/subscription-test-controls-paddle"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export default function AccountSettingsPage() {

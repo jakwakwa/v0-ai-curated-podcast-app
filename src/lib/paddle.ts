@@ -1,4 +1,4 @@
-import { initializePaddle as initPaddle } from "@paddle/paddle-js"
+import { Paddle } from "@paddle/paddle-js"
 
 export const PADDLE_PRODUCTS = {
 	CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
@@ -6,11 +6,16 @@ export const PADDLE_PRODUCTS = {
 } as const
 
 export const initializePaddle = async () => {
-	const paddle = await initPaddle({
+	if (!process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN) {
+		throw new Error("NEXT_PUBLIC_PADDLE_CLIENT_TOKEN env var missing")
+	}
+
+	const paddle = new Paddle({
 		environment: process.env.NODE_ENV === "production" ? "production" : "sandbox",
-		token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || "",
+		clientToken: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN,
 	})
 
+	await paddle.setup()
 	return paddle
 }
 
@@ -22,7 +27,7 @@ export const openCheckout = async (priceId: string) => {
 	}
 
 	try {
-		paddle.Checkout.open({
+		await paddle.Checkout.open({
 			items: [
 				{
 					priceId: priceId,

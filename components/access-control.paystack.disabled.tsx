@@ -1,6 +1,6 @@
 "use client"
 
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export type Feature = "custom_curation_profiles" | "weekly_combo" | "free_bundle"
 

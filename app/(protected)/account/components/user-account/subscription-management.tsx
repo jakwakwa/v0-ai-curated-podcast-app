@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
-import { PADDLE_PRODUCTS } from "@/src/lib/paddle"
+import { PADDLE_PRODUCTS } from "@/lib/paddle"
 
 export function SubscriptionManagement() {
 	const { status, plan, trialEndsAt, cancelAtPeriodEnd, nextBillDate, isLoading, error, cancelSubscription, resumeSubscription, updatePaymentMethod, updateSubscription } = useSubscriptionStore()

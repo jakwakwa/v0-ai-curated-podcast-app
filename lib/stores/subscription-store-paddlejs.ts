@@ -37,6 +37,7 @@ interface SubscriptionState {
 	resumeSubscription: () => Promise<void>
 	updatePaymentMethod: () => Promise<void>
 	updateSubscription: (priceId: string) => Promise<void>
+    loadSubscription: () => Promise<void>
 }
 
 export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
@@ -70,19 +71,26 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	setIsLoading: isLoading => set({ isLoading }),
 	setError: error => set({ error }),
 
+    loadSubscription: async () => {
+        set({ isLoading: true })
+        try {
+            const res = await fetch("/api/subscriptions/status")
+            if (!res.ok) throw new Error(await res.text())
+            const data = await res.json()
+            set({ subscription: data })
+        } catch (error) {
+            set({ error: error instanceof Error ? error.message : "Failed to load subscription" })
+        } finally {
+            set({ isLoading: false })
+        }
+    },
+
 	cancelSubscription: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle cancellation API call
-			const currentSubscription = get().subscription
-			if (currentSubscription) {
-				set({
-					subscription: {
-						...currentSubscription,
-						cancel_at_period_end: true,
-					},
-				})
-			}
+			const res = await fetch("/api/subscriptions/cancel", { method: "POST" })
+			if (!res.ok) throw new Error(await res.text())
+			await get().loadSubscription()
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to cancel subscription" })
 		} finally {
@@ -93,16 +101,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	resumeSubscription: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle resume API call
-			const currentSubscription = get().subscription
-			if (currentSubscription) {
-				set({
-					subscription: {
-						...currentSubscription,
-						cancel_at_period_end: false,
-					},
-				})
-			}
+			const res = await fetch("/api/subscriptions/resume", { method: "POST" })
+			if (!res.ok) throw new Error(await res.text())
+			await get().loadSubscription()
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to resume subscription" })
 		} finally {
@@ -113,8 +114,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	updatePaymentMethod: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle payment method update
-			console.log("Update payment method called")
+			const res = await fetch("/api/subscriptions/update-payment", { method: "POST" })
+			if (!res.ok) throw new Error(await res.text())
+			await get().loadSubscription()
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to update payment method" })
 		} finally {
@@ -125,8 +127,13 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	updateSubscription: async (priceId: string) => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle subscription update
-			console.log("Update subscription called with priceId:", priceId)
+			const res = await fetch("/api/subscriptions/update", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ planId: priceId }),
+			})
+			if (!res.ok) throw new Error(await res.text())
+			await get().loadSubscription()
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to update subscription" })
 		} finally {
