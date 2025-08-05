@@ -15,12 +15,17 @@ import type { NextRequest } from "next/server"
  * Manage billing (org:sys_billing:manage)
  */
 
-// Create route matchers to identify which token type each route should require
+// Route matchers for different authorization levels
 const isOAuthAccessible = createRouteMatcher(["/oauth(.*)"])
-const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
 const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
-const isUserAccessible = createRouteMatcher(["/user(.*)"])
+
+// Super admin routes (requires admin verification in individual routes)
+const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
 const isAdminPageAccessible = createRouteMatcher(["/admin(.*)"])
+
+// Legacy user routes (to be migrated)
+const isUserAccessible = createRouteMatcher(["/user(.*)"])
+// Authenticated user routes (free/tier1/tier2 users - tier checks in individual routes)
 const isUserApiAccessible = createRouteMatcher([
 	"/api/account(.*)",
 	"/api/curated-bundles(.*)",
@@ -33,7 +38,8 @@ const isUserApiAccessible = createRouteMatcher([
 	"/api/test-auth(.*)",
 	"/api/user-curation-profiles(.*)",
 ])
-const isProtectedRoute = createRouteMatcher([
+
+const isProtectedPageRoute = createRouteMatcher([
 	"/(protected)(.*)",
 	"/dashboard(.*)",
 	"/account(.*)",
@@ -48,10 +54,17 @@ const isProtectedRoute = createRouteMatcher([
 /**
  * Clerk Middleware
  *
+ * Authorization Layers:
+ * 1. Public routes - No authentication required (landing, marketing)
+ * 2. Free users - Basic auth + can select ONE bundle only
+ * 3. Tier 1 users - Basic auth + unlimited bundle selections (same features as free)
+ * 4. Tier 2 users - All access except admin functions
+ * 5. Super admin - Full system access
+ *
  * Protection Strategy:
- * 1. Middleware ensures basic authentication for protected routes
- * 2. Individual admin routes call requireOrgAdmin() for granular admin checking
- * 3. Admin UI pages redirect if user lacks proper access
+ * - Middleware ensures Clerk auth context for routes that call auth()
+ * - Individual routes check subscription tiers and admin status
+ * - Bundle selection limits enforced in business logic, not middleware
  */
 export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
 	// Check if the request matches each route and enforce the corresponding token type
