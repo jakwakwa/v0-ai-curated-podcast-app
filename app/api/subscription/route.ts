@@ -15,9 +15,9 @@ export async function GET() {
 		}
 
 		const subscription = await prisma.subscription.findFirst({
-			where: { userId: userId },
+			where: { user_id: userId },
 			orderBy: {
-				createdAt: "desc",
+				created_at: "desc",
 			},
 		})
 
