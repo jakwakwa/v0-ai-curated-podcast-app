@@ -30,6 +30,17 @@ const isUserApiAccessible = createRouteMatcher([
 	"/api/subscription(.*)",
 	"/api/user-curation-profiles(.*)",
 ])
+const isProtectedRoute = createRouteMatcher([
+	"/(protected)(.*)",
+	"/dashboard(.*)",
+	"/account(.*)",
+	"/collections(.*)",
+	"/curated-bundles(.*)",
+	"/curation-profile-management(.*)",
+	"/episodes(.*)",
+	"/notifications(.*)",
+	"/subscription(.*)",
+])
 
 /**
  * Clerk Middleware
@@ -57,12 +68,17 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 	} else if (isAdminPageAccessible(req)) {
 		// Admin pages require session tokens + page-level admin checking
 		await auth.protect({ token: "session_token" })
+	} else if (isProtectedRoute(req)) {
+		// Protected routes require session tokens
+		await auth.protect({ token: "session_token" })
 	} else if (isApiKeyAccessible(req)) {
 		// Don't protect general API routes by default
 		// await auth.protect({ token: "api_key" })
 	}
+	// For public routes (like landing page), don't call auth.protect()
+	// but still allow auth() to be called for checking user status
 })
 
 export const config = {
-	matcher: ["/((?!_next/static|_next/image|favicon.ico).*)", "/((?!_next/static|_next/image|favicon.ico).*)"],
+	matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }
