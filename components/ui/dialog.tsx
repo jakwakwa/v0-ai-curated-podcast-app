@@ -4,7 +4,6 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Typography } from "./typography"
 
 const Dialog = DialogPrimitive.Root
 
@@ -55,7 +54,7 @@ DialogFooter.displayName = "DialogFooter"
 
 const DialogTitle = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>>(({ className, ...props }, ref) => (
 	<DialogPrimitive.Title ref={ref} className={cn(className)}>
-		<Typography as="h1">{props.children}</Typography>
+		{props.children}
 	</DialogPrimitive.Title>
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName

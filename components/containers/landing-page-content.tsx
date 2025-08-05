@@ -118,7 +118,7 @@ export default function LandingPageContent() {
 							<Image className="mx-auto" src={"/logo.png"} width={400} height={200} alt="logo" />
 						</motion.h1>
 						<motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
-							Cut the chatter.<div className={styles.heroSubtitleSlogan}>Keep the insight.</div>
+							Cut the chatter.<span className={styles.heroSubtitleSlogan}>Keep the insight.</span>
 						</motion.p>
 						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
 							Tired of sifting through hours of podcasts for that one golden nugget? Podslice.ai transforms chaotic audio into crystal-clear, actionable knowledge with remarkably human AI voices.
