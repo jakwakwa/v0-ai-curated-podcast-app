@@ -56,15 +56,15 @@ const isProtectedPageRoute = createRouteMatcher([
  *
  * Authorization Layers:
  * 1. Public routes - No authentication required (landing, marketing)
- * 2. Free users - Basic auth + can select ONE bundle only
- * 3. Tier 1 users - Basic auth + unlimited bundle selections (same features as free)
+ * 2. Free users - Basic auth + can select ONE bundle at a time (available bundles change)
+ * 3. Tier 1 users - Basic auth + can select multiple bundles from available bundles
  * 4. Tier 2 users - All access except admin functions
  * 5. Super admin - Full system access
  *
  * Protection Strategy:
  * - Middleware ensures Clerk auth context for routes that call auth()
  * - Individual routes check subscription tiers and admin status
- * - Bundle selection limits enforced in business logic, not middleware
+ * - Bundle selection limits enforced in bundle selection API/UI logic
  */
 export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
 	// Check if the request matches each route and enforce the corresponding token type
@@ -84,7 +84,7 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 	} else if (isAdminPageAccessible(req)) {
 		// Admin pages require session tokens + page-level admin checking
 		await auth.protect()
-	} else if (isProtectedRoute(req)) {
+	} else if (isProtectedPageRoute(req)) {
 		// Protected routes require session tokens
 		await auth.protect()
 	}
