@@ -22,11 +22,15 @@ const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
 const isAdminPageAccessible = createRouteMatcher(["/admin(.*)"])
 const isUserApiAccessible = createRouteMatcher([
+	"/api/account(.*)",
 	"/api/curated-bundles(.*)",
 	"/api/curated-podcasts(.*)",
 	"/api/episodes(.*)",
 	"/api/notifications(.*)",
+	"/api/paystack(.*)",
 	"/api/subscription(.*)",
+	"/api/sync-user(.*)",
+	"/api/test-auth(.*)",
 	"/api/user-curation-profiles(.*)",
 ])
 const isProtectedRoute = createRouteMatcher([
