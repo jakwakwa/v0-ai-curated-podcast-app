@@ -6,10 +6,7 @@ interface RouteParams {
 	params: Promise<{ id: string }>
 }
 
-export async function GET(
-	_request: Request,
-	{ params }: RouteParams
-) {
+export async function GET(_request: Request, { params }: RouteParams) {
 	try {
 		const { userId } = await auth()
 
@@ -124,10 +121,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 	}
 }
 
-export async function DELETE(
-	_request: Request,
-	{ params }: RouteParams
-) {
+export async function DELETE(_request: Request, { params }: RouteParams) {
 	try {
 		const { userId } = await auth()
 

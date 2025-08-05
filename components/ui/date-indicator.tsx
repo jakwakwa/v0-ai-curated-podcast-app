@@ -20,6 +20,7 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 			const dateObject = new Date(date)
 
 			// Check if the date is valid
+			// biome-ignore lint/suspicious/noGlobalIsNan: <suppressed>
 			if (isNaN(dateObject.getTime())) {
 				return "Invalid date"
 			}

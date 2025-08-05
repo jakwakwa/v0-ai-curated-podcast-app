@@ -1,4 +1,5 @@
 import type React from "react"
+import { Button } from "@/components/ui/button"
 import { openCheckout, PADDLE_PRODUCTS } from "../lib/paddle"
 
 const PricingPage: React.FC = () => {
@@ -27,9 +28,9 @@ const PricingPage: React.FC = () => {
 							<span className="text-4xl font-extrabold text-gray-900">$6.95</span>
 							<span className="text-base font-medium text-gray-500">/month</span>
 						</p>
-						<button onClick={() => handleSubscribe(PADDLE_PRODUCTS.CASUAL_LISTENER)} className="mt-8 block w-full bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700">
+						<Button variant="default" onClick={() => handleSubscribe(PADDLE_PRODUCTS.CASUAL_LISTENER)} className="mt-8 block w-full bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700">
 							Start Free Trial
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -42,9 +43,9 @@ const PricingPage: React.FC = () => {
 							<span className="text-4xl font-extrabold text-gray-900">$10.00</span>
 							<span className="text-base font-medium text-gray-500">/month</span>
 						</p>
-						<button onClick={() => handleSubscribe(PADDLE_PRODUCTS.CURATE_CONTROL)} className="mt-8 block w-full bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700">
+						<Button variant="default" onClick={() => handleSubscribe(PADDLE_PRODUCTS.CURATE_CONTROL)} className="mt-8 block w-full bg-blue-600 text-white rounded-md py-2 px-4 hover:bg-blue-700">
 							Start Free Trial
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>

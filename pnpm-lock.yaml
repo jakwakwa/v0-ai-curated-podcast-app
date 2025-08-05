@@ -38,6 +38,9 @@ importers:
       '@paddle/paddle-js':
         specifier: ^1.4.2
         version: 1.4.2
+      '@paddle/paddle-node-sdk':
+        specifier: ^3.2.0
+        version: 3.2.0
       '@prisma/client':
         specifier: ^6.13.0
         version: 6.13.0(prisma@6.11.1(typescript@5.8.2))(typescript@5.8.2)
@@ -1338,6 +1341,10 @@ packages:
 
   '@paddle/paddle-js@1.4.2':
     resolution: {integrity: sha512-pY9jYS+g3vk6ecc7GbCsVSuBEo1Yh+hxYE4i2XoY5/ZBAZLuCkQi/80hOmSBkFoaETohOpDmurILlQdgUHUcvw==}
+
+  '@paddle/paddle-node-sdk@3.2.0':
+    resolution: {integrity: sha512-g4GBXoMIpwg2nZdwKrFuvH/pCYXKoqrYOa04yaFgo9Lb8VYI6TRf3q3Z89qS4ktaWBFX09Ai4usbazuGHoNJ7g==}
+    engines: {node: '>=20'}
 
   '@parcel/watcher-android-arm64@2.5.1':
     resolution: {integrity: sha512-KF8+j9nNbUN8vzOFDpRMsaKBHZ/mcjEjMToVMJOhTozkDonQFFrRcfdLWn6yWKCmJKmdVxSgHiYvTCef4/qcBA==}
@@ -4705,6 +4712,8 @@ snapshots:
     optional: true
 
   '@paddle/paddle-js@1.4.2': {}
+
+  '@paddle/paddle-node-sdk@3.2.0': {}
 
   '@parcel/watcher-android-arm64@2.5.1':
     optional: true

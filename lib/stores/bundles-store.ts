@@ -1,9 +1,9 @@
 import { create } from "zustand"
 import { devtools } from "zustand/middleware"
-import type { Bundle } from "@/lib/types"
+import type { Bundle, Podcast } from "@/lib/types"
 
 // Bundle with podcasts array from API response
-export type BundleWithPodcasts = Bundle & { podcasts: any[] }
+export type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
 interface BundlesState {
 	// State

@@ -36,6 +36,7 @@
         "@google/genai": "^1.12.0",
         "@iconscout/react-unicons": "2.2.3-rc.6ef815a5",
         "@paddle/paddle-js": "^1.4.2",
+        "@paddle/paddle-node-sdk": "^3.2.0",
         "@prisma/client": "^6.13.0",
         "@prisma/extension-accelerate": "^2.0.2",
         "@radix-ui/react-alert-dialog": "^1.1.14",
