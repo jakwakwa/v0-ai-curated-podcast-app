@@ -6,8 +6,16 @@ export async function POST(request: Request) {
 		const body = await request.json()
 		const { userId, tags } = body
 		
-		// Invalidate user-specific episode cache
-		const tagsToInvalidate = tags || (userId ? [`user_episodes_${userId}`] : ["active_bundles"])
+		// Invalidate user-specific caches or global caches
+		const tagsToInvalidate = tags || (userId ? [
+			`user_episodes_${userId}`,
+			`user_profile_${userId}`,
+			`user_notifications_${userId}`,
+			`user_subscription_${userId}`
+		] : [
+			"active_bundles",
+			"global_podcasts"
+		])
 		
 		await prisma.$accelerate.invalidate({
 			tags: tagsToInvalidate,

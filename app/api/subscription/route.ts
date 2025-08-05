@@ -19,6 +19,11 @@ export async function GET() {
 			orderBy: {
 				created_at: "desc",
 			},
+			cacheStrategy: {
+				ttl: 1200, // 20 minutes - subscriptions don't change often
+				swr: 300, // 5 minutes stale while revalidate
+				tags: [`user_subscription_${userId}`],
+			},
 		})
 
 		return NextResponse.json(subscription)

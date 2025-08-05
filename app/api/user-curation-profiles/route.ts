@@ -31,6 +31,11 @@ export async function GET(_request: Request) {
 					},
 				},
 			},
+			cacheStrategy: {
+				ttl: 600, // 10 minutes - user profiles change more frequently
+				swr: 180, // 3 minutes stale while revalidate
+				tags: [`user_profile_${userId}`],
+			},
 		})
 
 		if (!userCurationProfile) {
