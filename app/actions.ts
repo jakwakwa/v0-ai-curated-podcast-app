@@ -106,7 +106,7 @@ export async function saveCuration(formData: FormData) {
 	try {
 		await prisma.$transaction([
 			prisma.userCurationProfile.update({
-				where: { user_id: userCurationProfileId, profile_id: userId },
+				where: { profile_id: userCurationProfileId, user_id: userId },
 				data: {
 					status: "Saved",
 					name: "Source User Curation Profile",
@@ -161,7 +161,7 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 	try {
 		// Update the user curation profile status and set generatedAt timestamp
 		await prisma.userCurationProfile.update({
-			where: { user_id: userCurationProfileId, profile_id: userId },
+			where: { profile_id: userCurationProfileId, user_id: userId },
 			data: {
 				status: "Generated",
 				generated_at: new Date(),
