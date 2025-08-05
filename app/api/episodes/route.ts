@@ -51,6 +51,12 @@ export async function GET(_request: Request) {
 				},
 			},
 			orderBy: { created_at: "desc" },
+			// --- PRISMA CACHING STRATEGY ---
+			// This enables Prisma's built-in query caching for 7 days (604800 seconds)
+			cacheStrategy: {
+				ttl: 60 * 60 * 24 * 7, // 7 days in seconds
+				swr: 60 * 60 * 24 * 2, // 2 days soft revalidation window (optional, for background refresh)
+			},
 		})
 
 		return NextResponse.json(episodes)
