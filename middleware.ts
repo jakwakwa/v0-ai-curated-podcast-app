@@ -56,9 +56,9 @@ const isProtectedPageRoute = createRouteMatcher([
  *
  * Authorization Layers:
  * 1. Public routes - No authentication required (landing, marketing)
- * 2. Free users - Basic auth + can select ONE bundle (limited bundle access)
- * 3. Tier 1 users - Basic auth + can select ONE bundle (expanded bundle access)
- * 4. Tier 2 users - All access + can select ONE bundle from all available bundles
+ * 2. Free users - Basic auth + can select ONE bundle (limited bundle selection)
+ * 3. Tier 1 users - Basic auth + can select ONE bundle from all available bundles
+ * 4. Tier 2 users - All Tier 1 access + can create custom bundles
  * 5. Super admin - Full system access
  *
  * Protection Strategy:
