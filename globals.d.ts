@@ -18,6 +18,21 @@ interface IProcessEnv {
 }
 
 declare global {
-	interface IProcessEnv extends globalThis.IProcessEnv { }
+	namespace NodeJS {
+		interface ProcessEnv {
+			NODE_ENV: "development" | "production" | "staging"
+			DATABASE_URL: string
+			DIRECT_DATABASE_URL: string // Direct PostgreSQL connection for migrations
+			NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string
+			CLERK_SECRET_KEY: string
+			GOOGLE_CLOUD_PROJECT_ID: string
+			GOOGLE_CLOUD_STORAGE_BUCKET_NAME: string
+			WF__INNGEST_EVENT_KEY?: string
+			WF__INNGEST_SIGNING_KEY?: string
+		}
+	}
 }
+
+export {}
+
 declare module "*.module.css"

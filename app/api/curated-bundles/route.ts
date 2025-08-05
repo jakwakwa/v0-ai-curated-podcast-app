@@ -29,6 +29,11 @@ export async function GET(_request: NextRequest) {
 				},
 			},
 			orderBy: { created_at: "desc" },
+			cacheStrategy: {
+				ttl: 3600, // 1 hour - bundles don't change often
+				swr: 300, // 5 minutes stale while revalidate
+				tags: ["active_bundles"],
+			},
 		})
 
 		// Transform data for response

@@ -56,11 +56,11 @@ export async function GET(_request: Request) {
 				},
 			},
 			orderBy: { created_at: "desc" },
-			// cacheStrategy: {
-			// 	ttl: 300,
-			// 	swr: 60,
-			// 	tags: ["findMany_episodes"],
-			// },
+			cacheStrategy: {
+				ttl: 300, // 5 minutes
+				swr: 60, // Stale while revalidate for 1 minute
+				tags: [`user_episodes_${userId}`],
+			},
 			})
 		)
 

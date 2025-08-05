@@ -16,6 +16,11 @@ export async function GET(_request: Request) {
 		const notifications = await prisma.notification.findMany({
 			where: { user_id: userId },
 			orderBy: { created_at: "desc" },
+			cacheStrategy: {
+				ttl: 900, // 15 minutes
+				swr: 300, // 5 minutes stale while revalidate
+				tags: [`user_notifications_${userId}`],
+			},
 		})
 
 		return NextResponse.json(notifications)
