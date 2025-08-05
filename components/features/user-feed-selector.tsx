@@ -93,7 +93,7 @@ function UserFeedSelectorWizard() {
 	// Show loading state while checking for existing profile
 	if (isCheckingProfile) {
 		return (
-			<div className="max-w-[1200px] mx-auto p-8 md:p-4">
+			<div className="max-w-[300px] md:max-w-[1200px] mx-auto p-8 md:p-4">
 				<div className="text-center py-12">
 					<AppSpinner size="lg" label="Checking your profile status..." />
 				</div>
@@ -104,7 +104,7 @@ function UserFeedSelectorWizard() {
 	// Show message if user already has an active profile
 	if (existingProfile) {
 		return (
-			<div className="max-w-[1200px] mx-auto p-8 md:p-4">
+			<div className="max-w-[300px] md:max-w-[1200px] mx-auto p-8 md:p-4">
 				<Card className="w-full mx-auto">
 					<CardHeader className="text-center">
 						<div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -172,7 +172,7 @@ function UserFeedSelectorWizard() {
 								variant="default"
 								className="w-full h-auto"
 							>
-								<div className="flex flex-col gap-2 w-full items-start px-4 py-2">
+								<div className="flex flex-col gap-2 w-full items-start px-2 md:px-4 py-2">
 									<Typography className="text-primary w-full inline-block" variant="h4" as="h4">
 										Custom Personalized Feed
 									</Typography>

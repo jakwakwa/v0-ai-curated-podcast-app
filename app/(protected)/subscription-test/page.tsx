@@ -25,7 +25,7 @@ export default function SubscriptionTestPage() {
 
 	return (
 		<>
-			<div className="container mx-auto px-4 py-8 max-w-6xl">
+			<div className="container mx-auto px-2 md:px-4 py-8 max-w-6xl">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold tracking-tight">Subscription Test Page</h1>
 					<p className="text-muted-foreground">Test all subscription management functionality with mock data</p>

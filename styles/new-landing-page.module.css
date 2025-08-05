@@ -50,6 +50,7 @@
     color: oklch(var(--muted-foreground));
     margin-bottom: 1rem;
     font-weight: 600;
+    line-height: 1.3;
 }
 
 @media (min-width: 768px) {
@@ -59,11 +60,15 @@
 }
 
 .heroDescription {
-    font-size: 1.125rem;
+    font-size: 11.2rem;
     color: oklch(var(--muted-foreground));
     margin-bottom: 2rem;
-    line-height: 1.75;
-    max-width: 48rem;
+    line-height: 1.3;
+    text-align: center;
+
+
+    /* max-width: 48rem; */
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -1093,6 +1098,8 @@
     .container {
         padding: 0rem;
     }
+
+
 
     .logoContainer {
         width: 100%;

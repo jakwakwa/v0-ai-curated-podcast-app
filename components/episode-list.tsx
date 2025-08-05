@@ -22,7 +22,7 @@ const _formatDate = (date: Date | null | undefined) => {
 
 export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisode, playingEpisodeId }) => {
 	return (
-		<Card className="w-full min-h-[300px]">
+		<Card className="w-full min-h-none md:min-h-[300px]">
 			<CardHeader>
 				<CardTitle>All Episodes</CardTitle>
 			</CardHeader>
@@ -30,28 +30,28 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				{episodes.length > 0 ? (
 					<ul className="flex flex-col justify-start gap-2 w-full">
 						{episodes.map(episode => (
-							<li key={episode.episode_id} className="flex items-center bg-card/50 hover:bg-card/10 active:bg-card/20 justify-start px-12 py-4 w-full px-0 gap-6 episode-card w-full ">
+							<li key={episode.episode_id} className="flex items-center bg-card/50 hover:bg-card/10 active:bg-card/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
 								<div className="flex-shrink-0 pl-4">
 									{episode.image_url ? (
-										<Image src={episode.image_url} alt={episode.title} className="h-24 w-24 rounded-md object-cover" width={96} height={96} />
+										<Image src={episode.image_url} alt={episode.title} className="h-12 w-12 md:h-24 md:w-24 rounded-md object-cover" width={96} height={96} />
 									) : (
-										<div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center">
+										<div className="h-12 w-12 md:h-24 md:w-24 rounded-md bg-muted flex items-center justify-center">
 											<Music className="h-6 w-6 text-muted-foreground" />
 										</div>
 									)}
 								</div>
-								<div className="flex  w-full flex-col justify-around py-2  px-3 gap-1">
+								<div className="flex  w-full flex-col justify-around py-2  px-2 md:px-8 gap-1">
 									{/* TypeError: Failed to parse URL from v0-ai-curated-podcast-app.vercel.app/api/episodes */}
 
-									<Typography className="text-custom-body font-medium truncate mb-0">{episode.title}</Typography>
+									<Typography className="text-custom-sm md:text-custom-body font-medium truncate mb-0">{episode.title}</Typography>
 
-									<p className="text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{episode.description || "No description available."}</p>
+									<p className="text-custom-xxs md:text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{episode.description || "No description available."}</p>
 									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
 										<div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start">
 											<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="default" size="sm" className={playingEpisodeId === episode.episode_id ? "m-0 p-0" : ""}>
-												<Play className="w-4 h-4 text-custom-xxs max-w-3 max-h-3 pl-0 text-left" />
+												<Play className="w-4 h-4 text-custom-xxs md:text-custom-sm md:w-6 md:h-6 md:max-w-3 md:max-h-3 pl-0 text-left" />
 												{playingEpisodeId === episode.episode_id ? "Playing..." : "Play Episode"}
 											</Button>
 										</div>

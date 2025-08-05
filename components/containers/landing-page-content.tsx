@@ -163,7 +163,7 @@ export default function LandingPageContent() {
 							<Image className="mx-auto" src={"/logo.png"} width={400} height={200} alt="logo" />
 						</motion.h1>
 						<motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
-							Cut the chatter. Keep the insight.
+							Cut the chatter.<div className={styles.heroSubtitleSlogan}>Keep the insight.</div>
 						</motion.p>
 						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
 							Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. PODSLICE transforms chaotic audio into crystal-clear,
@@ -188,7 +188,7 @@ export default function LandingPageContent() {
 								<Button
 									size="lg"
 									variant="default"
-									className="text-lg px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
+									className="text-lg px-4 md:px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
 								>
 									Start Free Trial
 									<UilArrowRight className={styles.arrowIcon} />
@@ -243,7 +243,7 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* How It Works Section */}
-			<section className={styles.howItWorksSection}>
+			<section className={`${styles.howItWorksSection} text-left md:text-center p-4 md:p-16`}>
 				<div className={styles.howItWorksContainer}>
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
 						<h2 className={styles.howItWorksTitle}>How PODSLICE Works</h2>
@@ -253,7 +253,7 @@ export default function LandingPageContent() {
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className={styles.stepCard}
+								className={`${styles.stepCard} ${step.step === 1 ? "md:col-span-2 bg-[#f0f0f0]" : ""}`}
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -341,61 +341,61 @@ export default function LandingPageContent() {
 			</section> */}
 
 			{/* Pricing Section */}
-			<section className="mb-16 p-16">
-				<div className="text-center mb-12">
-					<h2 className="text-3xl leading-9 font-semibold tracking-tight mb-4">Choose Your Plan</h2>
-					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
-						From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
-					</p>
-				</div>
-
-				<div className="grid grid-cols-1 gap-8 max-w-[1200px] mx-auto lg:grid-cols-3 lg:max-w-[1400px]">
-					{tiers.map(tier => {
-						const buttonProps = getButtonProps(tier)
-						return (
-							<Card
-								key={tier.name}
-								className={`transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent scale-105" : ""}`}
-							>
-								{tier.popular && (
-									<Badge variant="outline" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold border-primary/10">
-										Most Popular
-									</Badge>
-								)}
-								<CardHeader>
-									<div className="flex flex-col mt-4">
-										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
-										<div className="flex items-baseline gap-1 mb-4">
-											<span className="text-3xl leading-9 font-bold tracking-tight">${tier.price}</span>
-											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
+			<section className={styles.pricingSection}>
+				<div className={styles.pricingContainer}>
+					<div className={styles.pricingHeader}>
+						<h2 className={styles.pricingTitle}>Choose Your Plan</h2>
+						<p className={styles.pricingDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
+					</div>
+					<div className={styles.pricingGrid}>
+						{tiers.map(tier => {
+							const buttonProps = getButtonProps(tier)
+							return (
+								<Card
+									key={tier.name}
+									className={`transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent scale-105" : ""}`}
+								>
+									{tier.popular && (
+										<Badge variant="outline" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2 bg-radial-gradient-secondary text-primary-foreground font-semibold border-primary/10">
+											Most Popular
+										</Badge>
+									)}
+									<CardHeader>
+										<div className="flex flex-col mt-4">
+											<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
+											<div className="flex items-baseline gap-1 mb-4">
+												<span className="text-3xl leading-9 font-bold tracking-tight">${tier.price}</span>
+												{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
+											</div>
+											<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
 										</div>
-										<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
-									</div>
-								</CardHeader>
-								<CardContent className="flex flex-col flex-1 justify-between">
-									<ul className="list-none p-0 m-0 mb-8">
-										{tier.features.map((feature, index) => (
-											<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground">
-												<CheckCircle size={16} className="text-primary flex-shrink-0" />
-												{feature}
-											</li>
-										))}
-									</ul>
-									<Button
-										className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-radial-gradient-secondary text-primary-foreground hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out" : ""}`}
-										variant={buttonProps.variant}
-										size="lg"
-										disabled={buttonProps.disabled}
-										onClick={buttonProps.onClick}
-									>
-										{buttonProps.children}
-									</Button>
-								</CardContent>
-							</Card>
-						)
-					})}
+									</CardHeader>
+									<CardContent className="flex flex-col flex-1 justify-between">
+										<ul className="list-none p-0 m-0 mb-8">
+											{tier.features.map((feature, index) => (
+												<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground">
+													<CheckCircle size={16} className="text-primary flex-shrink-0" />
+													{feature}
+												</li>
+											))}
+										</ul>
+										<Button
+											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? "bg-radial-gradient-secondary text-primary-foreground hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out" : ""}`}
+											variant={buttonProps.variant}
+											size="lg"
+											disabled={buttonProps.disabled}
+											onClick={buttonProps.onClick}
+										>
+											{buttonProps.children}
+										</Button>
+									</CardContent>
+								</Card>
+							)
+						})}
+					</div>
 				</div>
 			</section>
+
 			{/* CTA Section */}
 			<section className={styles.ctaSection}>
 				<motion.div className={styles.ctaContainer} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
@@ -416,7 +416,7 @@ export default function LandingPageContent() {
 									<Button
 										size="lg"
 										variant="default"
-										className="text-lg px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
+										className="text-lg px-4 md:px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
 									>
 										<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
 											Start Free Trial
@@ -431,15 +431,17 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Footer */}
-			<footer className="py-12 px-4 border-t">
-				<motion.div className="max-w-7xl mx-auto text-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+			<footer className="py-8 md:py-12 px-2 md:px-4 border-t">
+				<motion.div className="max-w-screen md:max-w-7xl mx-auto text-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
 					<div className="flex justify-center items-center mb-4">
 						<motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
 							<UilStar className="w-8 h-8 text-primary mr-2" />
 						</motion.div>
 						<span className="text-2xl font-bold">PODSLICE</span>
 					</div>
-					<p className="text-muted-foreground mb-4">Cut the chatter. Keep the insight.</p>
+					<p className="text-muted-foreground mb-4">
+						Cut the chatter.<span className={styles.heroSubtitleSlogan}>Keep the insight.</span>
+					</p>
 					<div className="flex justify-center items-center space-x-6 text-sm text-muted-foreground">
 						<Link href="/about" className="hover:text-foreground transition-colors">
 							About

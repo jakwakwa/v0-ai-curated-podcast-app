@@ -235,7 +235,7 @@ export function SubscriptionManagement({ className }: SubscriptionManagementProp
 			</Card>
 
 			<Dialog open={showBillingHistory} onOpenChange={setShowBillingHistory}>
-				<DialogContent className="max-w-2xl">
+				<DialogContent className="max-w-screen md:max-w-2xl">
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
 							<History className="h-5 w-5 text-muted-foreground" />

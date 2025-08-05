@@ -129,7 +129,7 @@ export default function CuratedBundlesPage() {
 								<Body className="text-2xl font-semibold leading-8 tracking-tight mb-4">Included Podcasts:</Body>
 								<ul className="list-none p-0 m-0 flex flex-col gap-4 max-h-[20rem] overflow-y-auto">
 									{bundle.podcasts.map(podcast => (
-										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-4 w-full border-1 border-dark/10 bg-cardglass rounded-lg">
+										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-2 md:px-4 w-full border-1 border-dark/10 bg-cardglass rounded-lg">
 											<div className="w-full flex flex-col gap-1">
 												<Typography as="h5" className="text-custom-body font-semibold leading-7 tracking-tight my-1 opacity-80">
 													{podcast.name}

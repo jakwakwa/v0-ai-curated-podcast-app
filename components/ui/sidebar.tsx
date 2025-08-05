@@ -164,7 +164,7 @@ function Sidebar({
 					data-sidebar="sidebar"
 					data-slot="sidebar"
 					data-mobile="true"
-					className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
+					className="bg-[#00000000] text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
 					style={
 						{
 							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -494,7 +494,7 @@ function SidebarMenuSkeleton({
 		<div data-slot="sidebar-menu-skeleton" data-sidebar="menu-skeleton" className={cn("flex h-8 items-center gap-2 rounded-md px-2", className)} {...props}>
 			{showIcon && <Skeleton className="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
 			<Skeleton
-				className="h-4 max-w-(--skeleton-width) flex-1"
+				className="h-4 max-w-screen md:max-w-(--skeleton-width) flex-1"
 				data-sidebar="menu-skeleton-text"
 				style={
 					{

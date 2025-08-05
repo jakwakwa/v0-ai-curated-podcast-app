@@ -11,7 +11,7 @@ export default function SubscriptionPage() {
 
 	if (!isLoaded) {
 		return (
-			<div className="container mx-auto px-4 py-8">
+			<div className="container mx-auto px-2 md:px-4 py-8">
 				<div className="animate-pulse space-y-4">
 					<div className="h-8 bg-muted rounded w-1/3"></div>
 					<div className="h-32 bg-muted rounded"></div>
@@ -22,7 +22,7 @@ export default function SubscriptionPage() {
 
 	if (!user) {
 		return (
-			<div className="container mx-auto px-4 py-8">
+			<div className="container mx-auto px-2 md:px-4 py-8">
 				<div className="text-center">
 					<h1 className="text-2xl font-bold mb-4">Access Denied</h1>
 					<p className="text-muted-foreground mb-6">Please sign in to view your subscription.</p>

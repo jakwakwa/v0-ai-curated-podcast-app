@@ -26,7 +26,7 @@ export function UserFeed({ userCurationProfiles }: UserFeedProps) {
 					<CardDescription className="text-lg">Create your first Personalized Feed to start generating personalized podcasts</CardDescription>
 				</CardHeader>
 				<CardContent className="text-center space-y-4">
-					<p className="text-muted-foreground max-w-md mx-auto">
+					<p className="text-muted-foreground max-w-screen md:max-w-md mx-auto">
 						Choose from our PODSLICE Bundles or create a custom profile with your favorite podcasts. Our AI will generate weekly episodes based on your selections.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -24,8 +24,8 @@ export default function SubscriptionSuccessPage() {
 
 	if (loading) {
 		return (
-			<div className="container mx-auto px-4 py-12">
-				<div className="flex justify-center items-center min-h-[400px]">
+			<div className="container mx-auto px-2 md:px-4 py-12">
+				<div className="flex justify-center items-center min-h-[400px]	">
 					<AppSpinner size="lg" label="Finalizing your subscription..." />
 				</div>
 			</div>
@@ -33,7 +33,7 @@ export default function SubscriptionSuccessPage() {
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-12">
+		<div className="container mx-auto px-2 md:px-4 py-12">
 			<div className="mx-auto">
 				<Card className="text-center">
 					<CardHeader>

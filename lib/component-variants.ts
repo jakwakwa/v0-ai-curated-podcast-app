@@ -76,9 +76,9 @@ export const inputVariants = cva(
 					"bg-[var(--color-form-input-bg)]/50 backdrop-blur-sm border-white/20 text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)]",
 			},
 			size: {
-				default: "h-9 px-3 py-2 text-sm",
-				sm: "h-8 px-2 py-1 text-xs",
-				lg: "h-12 px-4 py-3 text-base",
+				default: "h-9 px-3 md:px-4 py-2 text-sm",
+				sm: "h-8 px-2 md:px-3 py-1 text-xs",
+				lg: "h-12 px-4 md:px-6 py-3 text-base",
 			},
 		},
 		defaultVariants: {

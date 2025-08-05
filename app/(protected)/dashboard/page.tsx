@@ -123,9 +123,9 @@ export default function Page() {
 	}
 
 	return (
-		<div className="container mx-auto pb-12 w-full pt-12">
-			<Card variant="glass" className="flex flex-col pb-12 w-full px-12">
-				<div className="flex items-center justify-between w-full pt-8 pb-0 px-12">
+		<div className="container mx-auto pb-12 w-full pt-12 px-2 md:px-4">
+			<Card variant="glass" className="flex flex-col pb-12 w-full px-2 md:px-4">
+				<div className="flex items-center justify-between w-full pt-8 pb-0 px-2 md:px-4">
 					<div className="flex items-center gap-4">
 						<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 						{isFromCache && (
@@ -150,8 +150,8 @@ export default function Page() {
 						Refresh Episodes
 					</Button>
 				</div>
-				<div className="flex flex-col px-8 mx-auto w-full md:gap-3 md:flex-col-reverse lg:flex-row">
-					<div className="w-full md:w-full md:min-w-[280px] ">
+				<div className="flex flex-col px-2 md:px-4 mx-auto w-full md:gap-3 md:flex-col-reverse lg:flex-row">
+					<div className="w-full  md:w-full  md:min-w-[280px] md:max-w-[300px] ">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
 						) : (
@@ -168,7 +168,7 @@ export default function Page() {
 						)}
 					</div>
 
-					<div className="w-100 min-w-[600px]">
+					<div className="w-100 min-w-none max-w-screen md:min-w-[700px] md:max-w-[700px]">
 						{combinedEpisodes.length === 0 ? (
 							<EmptyStateCard
 								title="No Episodes Found"
@@ -207,7 +207,7 @@ export default function Page() {
 				{playingEpisodeId &&
 					portalContainer &&
 					createPortal(
-						<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+						<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
 							<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={combinedEpisodes} onClose={handleClosePlayer} />
 						</div>,
 						portalContainer
