@@ -21,6 +21,7 @@ model User {
   created_at             DateTime             @default(now()) @map("created_at")
   updated_at             DateTime             @updatedAt @map("updated_at")
   paystack_customer_id   String?              @unique @map("paystack_customer_id")
+  paddle_customer_id     String?              @unique @map("paddle_customer_id")
   ownedBundles           Bundle[]
   feedback               EpisodeFeedback[]
   notifications          Notification[]
@@ -171,12 +172,16 @@ model Subscription {
   user_id                    String    @map("user_id")
   paystack_subscription_code String?   @unique @map("paystack_subscription_code")
   paystack_plan_code         String?   @map("paystack_plan_code")
+  paddle_subscription_id     String?   @unique @map("paddle_subscription_id")
+  paddle_price_id            String?   @map("paddle_price_id")
+  plan_type                  String    @default("casual_listener") @map("plan_type")
   status                     String    @default("trialing") @map("status")
   current_period_start       DateTime? @map("current_period_start")
   current_period_end         DateTime? @map("current_period_end")
   trial_start                DateTime? @map("trial_start")
   trial_end                  DateTime? @map("trial_end")
   canceled_at                DateTime? @map("canceled_at")
+  cancel_at_period_end       Boolean   @default(false) @map("cancel_at_period_end")
   created_at                 DateTime  @default(now()) @map("created_at")
   updated_at                 DateTime  @updatedAt @map("updated_at")
   user                       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)

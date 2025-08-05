@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion"
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import LandingAudioPlayer from "@/components/demo/landing-audio-player"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -60,7 +61,7 @@ export default function LandingPageContent() {
 		{
 			step: 1,
 			title: "Choose Your Focus",
-			description: "Select from expertly PODSLICE Bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
+			description: "Select from expertly Podslice.ai Bundles or pick your favorite shows. Define what matters to you in under 2 minutes.",
 			action: "Start your profile",
 		},
 		{
@@ -74,13 +75,7 @@ export default function LandingPageContent() {
 			title: "Receive Weekly Insights",
 			description: "Get your personalized, human-quality audio summary delivered every Friday—no hunting, no fluff, just pure value.",
 			action: "Get your briefing",
-		},
-		{
-			step: 4,
-			title: "Apply Immediately",
-			description: "Listen, learn, and implement. Each summary is designed for immediate action, not just consumption.",
-			action: "Take action",
-		},
+		}
 	]
 
 	const handleUpgrade = async (planCode: string | undefined) => {
@@ -127,7 +122,7 @@ export default function LandingPageContent() {
 			name: "Sarah Chen",
 			role: "Product Manager",
 			content:
-				"PODSLICE saved me 6 hours last week alone. I was drowning in my podcast backlog, but now I get all the key insights in just 20 minutes. The AI voice is so natural, it's like listening to a human expert who actually knows how to get to the point.",
+				"Podslice.ai saved me 6 hours last week alone. I was drowning in my podcast backlog, but now I get all the key insights in just 20 minutes. The AI voice is so natural, it's like listening to a human expert who actually knows how to get to the point.",
 			rating: 5,
 		},
 		{
@@ -166,7 +161,7 @@ export default function LandingPageContent() {
 							Cut the chatter.<div className={styles.heroSubtitleSlogan}>Keep the insight.</div>
 						</motion.p>
 						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
-							Tired of sifting through hours of podcasts for that one golden nugget? Stop drowning in endless chatter and information overload. PODSLICE transforms chaotic audio into crystal-clear,
+							Tired of sifting through hours of podcasts for that one golden nugget? Podslice.ai transforms chaotic audio into crystal-clear,
 							actionable knowledge with remarkably human AI voices. Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights
 							that actually matter.
 						</motion.p>
@@ -178,24 +173,21 @@ export default function LandingPageContent() {
 						transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
 					>
 						<Link href="/sign-up">
-							<motion.div
-								whileHover={{
-									scale: 1.02,
-									boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-								}}
-								whileTap={{ scale: 0.98 }}
-							>
-								<Button
-									size="lg"
-									variant="default"
-									className="text-lg px-4 md:px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
-								>
+							<div>
+								<div className={styles.heroBtn}>
 									Start Free Trial
-									<UilArrowRight className={styles.arrowIcon} />
-								</Button>
-							</motion.div>
+									
+								</div>
+							</div>
 						</Link>
 					</motion.div>
+					{/* Demo Audio Player */}
+					<div className="mt-12 w-full max-w-3xl mx-auto px-4">
+						<LandingAudioPlayer 
+							title="How to Scale Your SaaS Business - Key Insights"
+							subtitle="Learn how successful SaaS companies achieve sustainable growth"
+						/>
+					</div>
 				</div>
 			</section>
 
@@ -203,7 +195,7 @@ export default function LandingPageContent() {
 			<section className={styles.featuresSection}>
 				<div className={styles.featuresContainer}>
 					<motion.div className={styles.featuresHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className={styles.featuresTitle}>Why Choose PODSLICE?</h2>
+						<h2 className={styles.featuresTitle}>Why Choose Podslice.ai?</h2>
 						<p className={styles.featuresDescription}>We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.</p>
 					</motion.div>
 					<div className={styles.featuresGrid}>
@@ -225,7 +217,7 @@ export default function LandingPageContent() {
 								}}
 							>
 								<motion.div
-									className={styles.featureIcon}
+								 className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
 									whileHover={{
 										scale: 1.1,
 										rotate: 5,
@@ -246,14 +238,14 @@ export default function LandingPageContent() {
 			<section className={`${styles.howItWorksSection} text-left md:text-center p-4 md:p-16`}>
 				<div className={styles.howItWorksContainer}>
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<h2 className={styles.howItWorksTitle}>How PODSLICE Works</h2>
-						<p className={styles.howItWorksDescription}>Getting started with PODSLICE is straightforward. Follow these four simple steps to create your focused content experience.</p>
+						<h2 className={styles.howItWorksTitle}>How Podslice.ai Works</h2>
+						<p className={styles.howItWorksDescription}>Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.</p>
 					</motion.div>
 					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className={`${styles.stepCard} ${step.step === 1 ? "md:col-span-2 bg-[#f0f0f0]" : ""}`}
+								className={`${styles.stepCard}`}
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -268,21 +260,14 @@ export default function LandingPageContent() {
 									transition: { duration: 0.2 },
 								}}
 							>
-								<motion.div
-									className={styles.stepNumber}
-									whileHover={{
-										scale: 1.2,
-										boxShadow: "0 0 20px rgba(59, 130, 246, 0.4)",
-										transition: { duration: 0.2 },
-									}}
-								>
+								<div className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10">
 									{step.step}
-								</motion.div>
+								</div>
 								<h3 className={styles.stepTitle}>{step.title}</h3>
 								<p className={styles.stepDescription}>{step.description}</p>
 								<motion.div className={styles.stepAction} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
-									<span>{step.action}</span>
-									<UilArrowRight className={styles.arrowIcon} />
+									<span className="text-sm bg-secondary px-2 py-1 rounded-md">{step.action}</span>
+								
 								</motion.div>
 							</motion.div>
 						))}
@@ -431,26 +416,23 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Footer */}
-			<footer className="py-8 md:py-12 px-2 md:px-4 border-t">
+			<footer className="py-8 md:py-12 px-2 md:px-4">
 				<motion.div className="max-w-screen md:max-w-7xl mx-auto text-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
 					<div className="flex justify-center items-center mb-4">
-						<motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
-							<UilStar className="w-8 h-8 text-primary mr-2" />
-						</motion.div>
-						<span className="text-2xl font-bold">PODSLICE</span>
+						<span className="text-2xl font-bold">Podslice.ai</span>
 					</div>
-					<p className="text-muted-foreground mb-4">
-						Cut the chatter.<span className={styles.heroSubtitleSlogan}>Keep the insight.</span>
-					</p>
-					<div className="flex justify-center items-center space-x-6 text-sm text-muted-foreground">
-						<Link href="/about" className="hover:text-foreground transition-colors">
-							About
-						</Link>
+					<div className="flex justify-center items-center space-x-6 text-sm text-foreground/70">
 						<Link href="/sign-up" className="hover:text-foreground transition-colors">
 							Sign Up
 						</Link>
 						<Link href="/login" className="hover:text-foreground transition-colors">
 							Login
+						</Link>
+						<Link href="/terms" className="hover:text-foreground transition-colors">
+							Terms
+						</Link>
+						<Link href="/privacy" className="hover:text-foreground transition-colors">
+							Privacy
 						</Link>
 					</div>
 				</motion.div>

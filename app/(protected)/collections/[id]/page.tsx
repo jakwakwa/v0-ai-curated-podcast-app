@@ -53,7 +53,7 @@ export default function CollectionPage({ params }: UserCurationProfileProps) {
 	const pathname = usePathname()
 
 	useEffect(() => {
-		if (!pathname.startsWith("/collections/")) {
+		if (pathname && !pathname.startsWith("/collections/")) {
 			setPlayingEpisode(null)
 		}
 	}, [pathname])

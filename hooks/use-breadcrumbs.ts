@@ -27,6 +27,9 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
 	const pathname = usePathname()
 
 	return useMemo(() => {
+		// Handle null pathname case
+		if (!pathname) return []
+
 		// Remove leading slash and split by '/'
 		const segments = pathname.split("/").filter(Boolean)
 

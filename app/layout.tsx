@@ -57,6 +57,8 @@ export default function RootLayout({
 						<StoreInitializer />
 						{children}
 						<Toaster />
+
+						{/* Global Footer for Terms and Privacy */}
 					</ClientProviders>
 				</ClerkProvider>
 			</body>

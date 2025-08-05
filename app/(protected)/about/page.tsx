@@ -2,6 +2,7 @@
 
 import { CheckCircle } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -80,6 +81,15 @@ export default function AboutPage() {
 					<p className="text-base leading-6 font-normal tracking-wide mb-8 max-w-[600px] mx-auto">
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>
+					<div className="flex justify-center items-center space-x-4 text-sm text-muted-foreground mb-8">
+						<Link href="/terms" className="hover:text-foreground transition-colors">
+							Terms of Service
+						</Link>
+						<span>•</span>
+						<Link href="/privacy" className="hover:text-foreground transition-colors">
+							Privacy Policy
+						</Link>
+					</div>
 				</div>
 			</section>
 			{/* How It Works */}

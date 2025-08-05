@@ -213,6 +213,38 @@
 
     --_gradient-blend-mode: normal;
     --_gradient-blur: 0px;
+
+    /* Podslice glassmorphism styles as variables */
+    --card-background-glass: rgba(255, 255, 255, 0.1);
+    --card-border-glass: rgba(255, 255, 255, 0.2);
+    --section-background-glass: rgba(255, 255, 255, 0.05);
+		--border-glass: hsla(255, 100%, 100%, 0.2);
+		--border-glass-hsl: 255, 100%, 100%, 0.2;
+		--outline-glass: hsla(255, 100%, 100%, 0.2);
+		--outline-glass-hsl: 255, 100%, 100%, 0.2;
+    /* Custom variables from podslice */
+    --primary-gradient: linear-gradient(to bottom left, hsla(var(--primary-gradient-start-hsl)), hsla(var(--primary-gradient-end-hsl	)));
+		--tertiary-gradient: linear-gradient(to top right, hsla(var(--tertiary-gradient-start-hsl)), hsla(var(--tertiary-gradient-end-hsl)));
+    --primary-gradient-end: hsla(277, 89%, 59%, 0.96);
+		--primary-gradient-end-hsl: 277, 89%, 59%, 0.96;
+		--primary-gradient-start: hsla(27, 99%, 73%, 0.896);
+		--primary-gradient-start-hsl: 27, 99%, 73%, 0.896;
+
+		--tertiary-gradient-accent: linear-gradient(to bottom left, hsla(var(--tertiary-gradient-end-hsl)), hsla(var(--tertiary-gradient-start-hsl)));
+
+		--tertiary-gradient-end: rgb(165, 229, 228);
+		--tertiary-gradient-end-hsl: 170, 80%, 68%;
+		--tertiary-gradient-start: hsla(242, 94%, 60%, 0.896);
+		--tertiary-gradient-start-hsl: 242, 94%, 60%, 0.896;
+
+
+    --accent-gradient: linear-gradient(to bottom left, hsla(var(--accent-gradient-start-hsl)), hsla(var(--accent-gradient-end-hsl)));
+		--accent-gradient-end: hsla(264, 63%, 48%);
+		--accent-gradient-end-hsl: 264, 63%, 48%;
+		--accent-gradient-start: hsla(120, 87%, 81%, 0.896);
+		--accent-gradient-start-hsl: 120, 87%, 81%, 0.896;
+
+    --sidebar-background: #10101a54;
 }
 
 
@@ -263,12 +295,21 @@ ul,
 ol,
 li {
     font-size: var(--text-body);
-    line-height: 1.15rem;
+    line-height: 1.35rem;
     font-weight: 400;
     letter-spacing: 0.005em;
     margin-bottom: 0rem;
 }
 
+ul {
+    margin-bottom: 1rem;
+}
+
+strong {
+    font-weight: 600;
+
+    color: #b0f2dd;
+}
 
 
 small {

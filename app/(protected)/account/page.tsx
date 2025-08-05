@@ -6,24 +6,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NotificationPreferences } from "@/components/user-account/notification-preferences"
 import { SecuritySettings } from "@/components/user-account/security-settings"
 import { SubscriptionTestControls } from "@/components/user-account/subscription-test-controls"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export default function AccountSettingsPage() {
 	const { isLoaded } = useUser()
-	const { subscription, isLoading: subscriptionLoading } = useSubscriptionStore()
+const { subscription, isLoading: subscriptionLoading } = useSubscriptionStore((state) => ({
+		subscription: state.subscription,
+		isLoading: state.isLoading
+	}))
 
 	const getCurrentPlanName = () => {
 		if (!subscription) return "No active plan"
-		switch (subscription.status) {
-			case "trialing":
-				return "Trial"
-			case "active":
-				return "Pro"
-			case "canceled":
-				return "Canceled"
-			default:
-				return "Unknown"
-		}
+		const planName = subscription.plan_type === 'casual_listener' ? 'Casual Listener' : 'Curate & Control'
+		if (subscription.status === 'trialing') return `${planName} (Trial)`
+		if (subscription.status === 'canceled') return `${planName} (Canceled)`
+		if (subscription.cancel_at_period_end) return `${planName} (Canceling)`
+		return planName
 	}
 
 	if (!isLoaded) {
