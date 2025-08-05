@@ -37,36 +37,45 @@ export async function isOrgAdmin(): Promise<boolean> {
 			return false
 		}
 
-		if (!orgId) {
-			if (process.env.NODE_ENV === "development") {
-				const { isAdmin } = await import("@/lib/admin")
-				return await isAdmin()
-			}
-			return false
-		}
-
-		const adminRoleVariations = ["org:admin", "Admin", "admin", "org:Admin"]
-
-		for (const roleVariation of adminRoleVariations) {
-			if (has({ role: roleVariation })) {
+		// Always try database admin check first (works across all environments)
+		try {
+			const { isAdmin } = await import("@/lib/admin")
+			const dbAdminStatus = await isAdmin()
+			if (dbAdminStatus) {
 				return true
 			}
+		} catch (dbError) {
+			console.error("Database admin check failed:", dbError)
 		}
 
+		// If we have an organization, try org role checking
+		if (orgId) {
+			const adminRoleVariations = ["org:admin", "Admin", "admin", "org:Admin"]
+
+			for (const roleVariation of adminRoleVariations) {
+				try {
+					if (has({ role: roleVariation })) {
+						return true
+					}
+				} catch (roleError) {
+					console.error(`Error checking role ${roleVariation}:`, roleError)
+				}
+			}
+		}
+
+		// No admin access found
 		return false
 	} catch (error) {
 		console.error("Error in isOrgAdmin:", error)
 
-		if (process.env.NODE_ENV === "development") {
-			try {
-				const { isAdmin } = await import("@/lib/admin")
-				return await isAdmin()
-			} catch (fallbackError) {
-				console.error("Fallback admin check also failed:", fallbackError)
-			}
+		// Final fallback: try database admin check
+		try {
+			const { isAdmin } = await import("@/lib/admin")
+			return await isAdmin()
+		} catch (fallbackError) {
+			console.error("All admin checks failed:", fallbackError)
+			return false
 		}
-
-		return false
 	}
 }
 
