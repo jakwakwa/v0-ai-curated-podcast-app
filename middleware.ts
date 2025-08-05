@@ -70,9 +70,11 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 	} else if (isProtectedRoute(req)) {
 		// Protected routes require session tokens
 		await auth.protect()
+	} else {
+		// For any route that calls auth(), we need to protect it
+		// This includes the landing page (/) which calls auth() to check user status
+		await auth.protect()
 	}
-	// For public routes (like landing page), don't call auth.protect()
-	// but still allow auth() to be called for checking user status
 })
 
 export const config = {
