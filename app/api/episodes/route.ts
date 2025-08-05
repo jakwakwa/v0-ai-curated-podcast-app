@@ -3,8 +3,10 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma" // Use the global client
+import { withDatabaseTimeout } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
+export const maxDuration = 60 // 1 minute for complex database queries
 
 export async function GET(_request: Request) {
 	try {
@@ -18,7 +20,8 @@ export async function GET(_request: Request) {
 		}
 
 		console.log("Episodes API: Querying database...")
-		const episodes = await prisma.episode.findMany({
+		const episodes = await withDatabaseTimeout(
+			prisma.episode.findMany({
 			where: {
 				OR: [
 					{ userProfile: { user_id: userId } },
@@ -58,7 +61,8 @@ export async function GET(_request: Request) {
 			// 	swr: 60,
 			// 	tags: ["findMany_episodes"],
 			// },
-		})
+			})
+		)
 
 		console.log("Episodes API: Query successful, found", episodes.length, "episodes")
 		const response = NextResponse.json(episodes)

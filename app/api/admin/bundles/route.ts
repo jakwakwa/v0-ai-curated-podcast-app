@@ -2,9 +2,11 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { isOrgAdmin } from "@/lib/organization-roles"
 import { prisma } from "@/lib/prisma"
+import { withDatabaseTimeout } from "@/lib/utils"
 
 // Force this API route to be dynamic since it uses auth()
 export const dynamic = "force-dynamic"
+export const maxDuration = 120 // 2 minutes for bulk database operations
 
 // Create a new bundle
 export async function POST(request: Request) {
@@ -41,12 +43,14 @@ export async function POST(request: Request) {
 
 		// Create bundle-podcast relationships
 		if (podcast_ids.length > 0) {
-			await prisma.bundlePodcast.createMany({
-				data: podcast_ids.map((podcastId: string) => ({
-					bundle_id: bundle.bundle_id,
-					podcast_id: podcastId,
-				})),
-			})
+			await withDatabaseTimeout(
+				prisma.bundlePodcast.createMany({
+					data: podcast_ids.map((podcastId: string) => ({
+						bundle_id: bundle.bundle_id,
+						podcast_id: podcastId,
+					})),
+				})
+			)
 		}
 
 		// Fetch the created bundle with podcasts

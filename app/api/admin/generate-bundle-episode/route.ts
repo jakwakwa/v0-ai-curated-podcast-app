@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
 export const dynamic = "force-dynamic"
+export const maxDuration = 60 // 1 minute should be enough for Inngest job dispatch
 
 interface EpisodeSource {
 	id: string

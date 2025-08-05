@@ -2,10 +2,12 @@ import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
 import { requireOrgAdmin } from "@/lib/organization-roles"
 import { prisma } from "@/lib/prisma"
+import { withUploadTimeout, withDatabaseTimeout } from "@/lib/utils"
 
 // Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs" // Required for file system access
+export const maxDuration = 300 // 5 minutes for file uploads
 
 // Initialize Google Cloud Storage with the same configuration as functions.ts
 const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
@@ -27,7 +29,9 @@ async function uploadContentToBucket(bucketName: string, data: Buffer, destinati
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
 
-		await _storageUploader.bucket(bucketName).file(destinationFileName).save(data)
+		await withUploadTimeout(
+			_storageUploader.bucket(bucketName).file(destinationFileName).save(data)
+		)
 		return { success: true, fileName: destinationFileName }
 	} catch (error) {
 		console.error("Upload error:", (error as Error).message)

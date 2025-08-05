@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
 export const dynamic = "force-dynamic"
+export const maxDuration = 120 // 2 minutes for bulk database operations
 
 // Create a new podcast
 export async function POST(request: Request) {
