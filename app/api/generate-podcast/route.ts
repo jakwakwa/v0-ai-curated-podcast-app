@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 		}
 
 		await inngest.send({
-			name: "podcast/generate.requested",
+			name: "podcast/generate-gemini-tts.requested",
 			data: {
 				collectionId,
 			},

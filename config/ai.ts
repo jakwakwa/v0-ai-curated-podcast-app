@@ -19,7 +19,7 @@ export const PAYMENT_CONFIG = {
 } as const
 
 export const aiConfig = {
-	geminiModel: "gemini-2.0-flash-lite", // Default Gemini model
+	geminiModel: "gemini-2.5-flash", // Default Gemini model
 	maxSources: 1, // Maximum number of sources allowed per collection
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
 	// Add other AI-related configurations here if needed]

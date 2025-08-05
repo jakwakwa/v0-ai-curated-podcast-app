@@ -169,8 +169,8 @@ export async function triggerPodcastGeneration(userCurationProfileId: string) {
 		})
 
 		await inngest.send({
-			name: "podcast/generate.requested",
-			data: { user: { id: userId }, userCurationProfile: { id: userCurationProfileId } },
+			name: "podcast/generate-gemini-tts.requested",
+			data: { collectionId: userCurationProfileId },
 		})
 
 		revalidatePath("/build")

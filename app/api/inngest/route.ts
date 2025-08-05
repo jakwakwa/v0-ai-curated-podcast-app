@@ -1,8 +1,8 @@
 import { serve } from "inngest/next"
 import { inngest } from "../../../inngest/client"
-import { generatePodcast, generateAdminBundleEpisode } from "../../../inngest/functions"
+import { generatePodcastWithGeminiTTS, generateAdminBundleEpisodeWithGeminiTTS } from "../../../inngest/gemini-tts"
 
 export const { GET, POST, PUT } = serve({
 	client: inngest,
-	functions: [generatePodcast, generateAdminBundleEpisode],
+	functions: [generatePodcastWithGeminiTTS, generateAdminBundleEpisodeWithGeminiTTS],
 })

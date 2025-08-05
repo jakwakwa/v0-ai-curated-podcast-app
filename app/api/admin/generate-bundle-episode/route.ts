@@ -45,13 +45,15 @@ export async function POST(request: NextRequest) {
 
 		// Send event to Inngest for background processing
 		await inngest.send({
-			name: "admin/generate-bundle-episode",
+			name: "podcast/admin-generate-gemini-tts.requested",
 			data: {
 				bundleId,
-				title,
-				description,
-				image_url,
-				sources,
+				episodeTitle: title,
+				episodeDescription: description,
+				adminCurationProfile: {
+					image_url,
+					sources,
+				},
 			},
 		})
 
