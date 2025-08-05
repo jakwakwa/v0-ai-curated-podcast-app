@@ -8,7 +8,7 @@ export function GlobalProgressBar({ className }: { className?: string }) {
 	const [progress, setProgress] = useState(0)
 	const [isVisible, setIsVisible] = useState(false)
 	const [opacity, setOpacity] = useState(0)
-	const pathname = usePathname()
+	const _pathname = usePathname()
 
 	useEffect(() => {
 		// Start loading when route changes
@@ -43,7 +43,7 @@ export function GlobalProgressBar({ className }: { className?: string }) {
 			clearTimeout(timer3)
 			clearTimeout(completeTimer)
 		}
-	}, [pathname])
+	}, [])
 
 	if (!isVisible) return null
 
