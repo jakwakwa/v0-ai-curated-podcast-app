@@ -14,7 +14,7 @@ Be among the first to experience the future of podcast consumption.
 - **Type-Safe Database Access**: Data management with Prisma ORM and a PostgreSQL database.
 - **Curation Management**: Users can create "summaries" by selecting Podcast shows (Youtube show urls).
 - **Dedicated Build Workflow**: A focused, single-page interface for building and saving new podcast summaries.
-- **Podcast Dashboard**: A central hub to view saved bundles or custom bundles and previously generated summary episodes.
+- **Podcasts Dashboard**: A central hub to view saved bundles or custom bundles and previously generated summary episodes.
 - **Protected Routes**: Middleware ensures that only authenticated users can access the application's core features.
 
 ## Tech Stack
