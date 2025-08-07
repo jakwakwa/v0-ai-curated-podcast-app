@@ -1,6 +1,6 @@
 # PODSLICE.ai
 
-## AI Powered Automated Podcast Summary Application
+## AI Powered Automated Podcast Application
 
 Our advanced AI identifies and extracts the most valuable insights from hours of podcast content, eliminating the noise and focusing on what matters.
 Experience remarkably natural AI voices that deliver insights with the clarity and nuance of human speech, making complex ideas easy to understand.
