@@ -2,7 +2,6 @@
 
 // import { X } from "lucide-react"
 import Image from "next/image"
-import { removePodcastSource } from "@/app/actions"
 import type { Source } from "@/lib/types"
 import { Card } from "../ui/card"
 // CSS module migrated to Tailwind classes
@@ -17,9 +16,6 @@ export function SourceListItem({ source }: { source: Source }) {
 				<p className="text-xs">{source.name}</p>
 				<p className="text-xs text-muted-foreground truncate">{source.url}</p>
 			</div>
-			<form action={removePodcastSource}>
-				<input type="hidden" name="id" value={source.id} />
-			</form>
 		</Card>
 	)
 }

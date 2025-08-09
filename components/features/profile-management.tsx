@@ -127,7 +127,7 @@ export function ProfileManagement({ className }: ProfileManagementProps) {
 					<div className="flex items-center gap-6">
 						<div className="relative">
 							<Avatar className="h-30 w-30 bg-[#176a888f]">
-								<AvatarImage src={profile?.avatar || null} alt={profile?.name} />
+								<AvatarImage src={profile?.avatar || undefined} alt={profile?.name} />
 								<AvatarFallback className="text-lg">{profile?.name ? getUserInitials(profile.name) : "U"}</AvatarFallback>
 							</Avatar>
 

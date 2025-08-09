@@ -19,11 +19,6 @@ export async function GET(
 				owner_user_id: null, // Only show global podcasts, not user-owned ones
 			},
 			orderBy: { name: "asc" },
-			cacheStrategy: {
-				ttl: 1800, // 30 minutes - podcasts don't change frequently
-				swr: 600, // 10 minutes stale while revalidate
-				tags: ["global_podcasts"],
-			},
 		})
 
 		return NextResponse.json(curatedPodcasts)

@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 export const maxDuration = 120 // 2 minutes for file uploads
 
 export async function POST(request: Request) {

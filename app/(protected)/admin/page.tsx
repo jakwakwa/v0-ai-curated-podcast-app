@@ -1,6 +1,5 @@
 "use client"
 
-import { OrganizationSwitcher } from "@clerk/nextjs"
 import { Edit, Eye, EyeOff, FolderPlus, Mic, Plus, Sparkles, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -84,35 +83,21 @@ export default function AdminPage() {
 		try {
 			const response = await fetch("/api/admin/check")
 
-			// Check if response is ok and has content
 			if (!response.ok) {
-				// Don't log 401 errors as they're expected for non-authenticated users
-				if (response.status !== 401) {
-					console.error("Admin check API returned error:", response.status)
-				}
+				console.error("Admin check API returned error:", response.status)
 				setAdminStatus(false)
 				toast.error("Access denied. Admin privileges required.")
 				router.back()
 				return
 			}
 
-			// Check if response has content
-			const text = await response.text()
-			if (!text) {
-				console.error("Admin check API returned empty response")
+			const data = await response.json()
+
+			// Check if the response indicates admin access
+			if (data.success && data.message === "Admin access confirmed") {
+				setAdminStatus(true)
+			} else {
 				setAdminStatus(false)
-				toast.error("Error checking admin status")
-				router.back()
-				return
-			}
-
-			// Parse JSON
-			const data = JSON.parse(text)
-			setAdminStatus(data.isAdmin)
-
-			// Only redirect if user is not admin AND not in organization context
-			// If they're in org context but not admin, we'll show a different message
-			if (!data.isAdmin) {
 				toast.error("Access denied. Admin privileges required.")
 				router.back()
 			}
@@ -155,6 +140,10 @@ export default function AdminPage() {
 			toast.error("Failed to load available podcasts")
 		}
 	}, [])
+
+	const refreshPodcasts = useCallback(async () => {
+		await fetchAvailablePodcasts()
+	}, [fetchAvailablePodcasts])
 
 	useEffect(() => {
 		if (adminStatus) {
@@ -442,7 +431,13 @@ export default function AdminPage() {
 			}
 
 			const newPodcast = await response.json()
-			setAvailablePodcasts([...availablePodcasts, newPodcast])
+			console.log("New podcast created:", newPodcast)
+			console.log("Current availablePodcasts count:", availablePodcasts.length)
+			setAvailablePodcasts(prev => {
+				const updated = [...prev, newPodcast]
+				console.log("Updated availablePodcasts count:", updated.length)
+				return updated
+			})
 			toast.success("Podcast created successfully!")
 			resetPodcastForm()
 		} catch (error) {
@@ -601,6 +596,10 @@ export default function AdminPage() {
 	)
 	const categories = Object.keys(podcastsByCategory).sort()
 
+	console.log("Available podcasts:", availablePodcasts.length)
+	console.log("Categories:", categories)
+	console.log("Podcasts by category:", podcastsByCategory)
+
 	return (
 		<div className="container mx-auto p-6 max-w-6xl">
 			<div className="mb-8">
@@ -608,18 +607,6 @@ export default function AdminPage() {
 					<div>
 						<h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
 						<p className="text-muted-foreground">Manage curated content and generate weekly podcast episodes</p>
-					</div>
-					<div className="flex items-center gap-4">
-						<div className="text-right">
-							<p className="text-sm text-muted-foreground mb-1">Organization</p>
-							<OrganizationSwitcher
-								appearance={{
-									elements: {
-										organizationSwitcherTrigger: "border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 rounded-md text-sm",
-									},
-								}}
-							/>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -1078,9 +1065,37 @@ export default function AdminPage() {
 				<TabsContent value="podcast-management" className="space-y-6">
 					<Card>
 						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Mic className="w-5 h-5" />
-								Podcast Management
+							<CardTitle className="flex items-center justify-between">
+								<div className="flex items-center gap-2">
+									<Mic className="w-5 h-5" />
+									Podcast Management
+								</div>
+								<div className="flex gap-2">
+									<Button onClick={refreshPodcasts} variant="outline" size="sm">
+										Refresh
+									</Button>
+									<Button
+										onClick={async () => {
+											try {
+												const response = await fetch("/api/admin/fix-podcasts", { method: "POST" })
+												const result = await response.json()
+												if (result.success) {
+													toast.success(result.message)
+													refreshPodcasts()
+												} else {
+													toast.error("Failed to fix podcasts")
+												}
+											} catch (error) {
+												console.error("Error fixing podcasts:", error)
+												toast.error("Failed to fix podcasts")
+											}
+										}}
+										variant="outline"
+										size="sm"
+									>
+										Fix Global
+									</Button>
+								</div>
 							</CardTitle>
 							<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
 						</CardHeader>
@@ -1168,8 +1183,8 @@ export default function AdminPage() {
 					</Card>
 
 					{/* Existing Podcasts by Category */}
-					{categories.map(category => (
-						<Card key={category}>
+					{categories.map((category, index) => (
+						<Card key={`category-${category}-${index}-${podcastsByCategory[category].length}`}>
 							<CardHeader>
 								<CardTitle className="flex items-center justify-between">
 									<span>

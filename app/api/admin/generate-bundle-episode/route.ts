@@ -1,11 +1,11 @@
-import type { NextRequest } from "next/server"
+import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { inngest } from "@/inngest/client"
-import { requireOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 export const maxDuration = 60 // 1 minute should be enough for Inngest job dispatch
 
 interface EpisodeSource {
@@ -23,10 +23,20 @@ interface AdminGenerationRequest {
 	sources: EpisodeSource[]
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
 	try {
-		// Check admin permissions first
-		await requireOrgAdmin()
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
 		const body: AdminGenerationRequest = await request.json()
 		const { bundleId, title, description, image_url, sources } = body
@@ -65,12 +75,7 @@ export async function POST(request: NextRequest) {
 			title,
 		})
 	} catch (error) {
-		console.error("[ADMIN_GENERATE_BUNDLE_EPISODE]", error)
-
-		if (error instanceof Error && error.message.includes("admin role required")) {
-			return NextResponse.json({ error: "Admin access required" }, { status: 403 })
-		}
-
+		console.error("Admin generate bundle episode error:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }

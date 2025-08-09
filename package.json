@@ -5,14 +5,14 @@
     "scripts": {
         "install:legacy": "npm install --legacy-peer-deps",
         "install:fast": "npm install --legacy-peer-deps",
-        "install:clean": "rm -rf node_modules pnpm-lock.yaml package-lock.json && pnpm install",
+        "install:clean": "rm -rf node_modules pnpm-lock.yaml package-lock.json && npm install --legacy-peer-deps",
         "install:diagnose": "node install-fix.mjs",
         "deps:cleanup": "node install-fix.mjs cleanup",
         "deps:analyze": "node analyze.mjs",
         "switch:pnpm": "rm -rf package-lock.json && pnpm install --no-frozen-lockfile",
-        "dev": "pnpm prisma generate --no-engine && next dev",
-        "dev:turbo": "pnpm prisma generate --no-engine && next dev --turbopack",
-        "dev:legacy": "pnpm prisma generate --no-engine && npx @tailwindcss/cli -i ./app/globals.css -o ./dist/styles.css --watch & next dev --turbo",
+        "dev": "npx prisma generate --no-engine && next dev",
+        "dev:turbo": "npx prisma generate --no-engine && next dev --turbopack",
+        "dev:legacy": "npx prisma generate --no-engine && npx @tailwindcss/cli -i ./app/globals.css -o ./dist/styles.css --watch & next dev --turbo",
         "build": "next build",
         "build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
         "prisma:generate": "prisma generate --no-engine",
@@ -28,12 +28,12 @@
     },
     "dependencies": {
         "@ai-sdk/google": "latest",
-        "@clerk/nextjs": "^6.28.1",
-        "@clerk/themes": "^2.4.4",
-        "@clerk/types": "^4.72.0",
+        "@clerk/nextjs": "^6.30.0",
+        "@clerk/themes": "^2.4.6",
+        "@clerk/types": "^4.74.0",
         "@elevenlabs/elevenlabs-js": "latest",
         "@google-cloud/storage": "^7.16.0",
-        "@google/genai": "^1.12.0",
+        "@google/genai": "^1.13.0",
         "@iconscout/react-unicons": "2.2.3-rc.6ef815a5",
         "@paddle/paddle-js": "^1.4.2",
         "@paddle/paddle-node-sdk": "^3.2.0",
@@ -84,7 +84,7 @@
         "@tailwindcss/line-clamp": "^0.4.4",
         "@tailwindcss/typography": "^0.5.16",
         "@tailwindcss/upgrade": "^4.1.11",
-        "@types/node": "22.15.32",
+        "@types/node": "^22.15.32",
         "@types/nodemailer": "^6.4.17",
         "@types/react": "^19.1.9",
         "@types/react-dom": "^19.1.7",
@@ -102,7 +102,7 @@
         "typescript": "5.8.2"
     },
     "engines": {
-        "node": "22.x"
+        "node": "22.18.0"
     },
     "pnpm": {
         "overrides": {

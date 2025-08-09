@@ -1,33 +1,62 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { isOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "@/lib/prisma"
-import { withDatabaseTimeout } from "@/lib/utils"
 
-// Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
-export const maxDuration = 120 // 2 minutes for bulk database operations
-
-// Create a new bundle
-export async function POST(request: Request) {
+export async function GET() {
 	try {
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
 		const { userId } = await auth()
 
 		if (!userId) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		// Check if user is admin
-		const adminStatus = await isOrgAdmin()
-		if (!adminStatus) {
-			return new NextResponse("Forbidden", { status: 403 })
+		// Get all bundles
+		const bundles = await prisma.bundle.findMany({
+			include: {
+				bundle_podcast: {
+					include: { podcast: true },
+				},
+				episodes: {
+					orderBy: { published_at: "desc" },
+				},
+			},
+		})
+
+		return NextResponse.json(bundles)
+	} catch (error) {
+		console.error("Admin bundles error:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+	}
+}
+
+export async function POST(request: Request) {
+	try {
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
 		const body = await request.json()
-		const { name, description, image_url, podcast_ids } = body
+		const { name, description, isStatic, selectedPodcastIds } = body
 
-		if (!(name && description && podcast_ids && Array.isArray(podcast_ids))) {
-			return new NextResponse("Missing required fields", { status: 400 })
+		if (!name) {
+			return new NextResponse("Bundle name is required", { status: 400 })
 		}
 
 		// Create the bundle
@@ -36,47 +65,26 @@ export async function POST(request: Request) {
 				bundle_id: `bundle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				name,
 				description,
-				image_url: image_url,
+				is_static: isStatic,
 				is_active: true,
+				owner_user_id: userId,
 			},
 		})
 
-		// Create bundle-podcast relationships
-		if (podcast_ids.length > 0) {
-			await withDatabaseTimeout(
-				prisma.bundlePodcast.createMany({
-					data: podcast_ids.map((podcastId: string) => ({
-						bundle_id: bundle.bundle_id,
-						podcast_id: podcastId,
-					})),
-				})
-			)
+		// Add podcast relationships if selectedPodcastIds is provided
+		if (selectedPodcastIds && selectedPodcastIds.length > 0) {
+			await prisma.bundlePodcast.createMany({
+				data: selectedPodcastIds.map((podcastId: string) => ({
+					bundle_id: bundle.bundle_id,
+					podcast_id: podcastId,
+				})),
+			})
 		}
 
-		// Fetch the created bundle with podcasts
-		const createdBundle = await prisma.bundle.findUnique({
-			where: { bundle_id: bundle.bundle_id },
-			include: {
-				bundle_podcast: {
-					include: { podcast: true },
-				},
-			},
-		})
-
-		if (!createdBundle) {
-			return new NextResponse("Failed to create bundle", { status: 500 })
-		}
-
-		// Transform the response to match the expected format
-		const bundleWithPodcasts = {
-			...createdBundle,
-			podcasts: createdBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-		}
-
-		return NextResponse.json(bundleWithPodcasts)
+		return NextResponse.json({ success: true, bundle })
 	} catch (error) {
-		console.error("[ADMIN_BUNDLES_POST]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		console.error("Admin bundles POST error:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }
 
@@ -90,9 +98,9 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isOrgAdmin()
-		if (!adminStatus) {
-			return new NextResponse("Forbidden", { status: 403 })
+		const adminStatus = await requireAdminMiddleware()
+		if (adminStatus) {
+			return adminStatus // Return error response if not admin
 		}
 
 		const { searchParams } = new URL(request.url)

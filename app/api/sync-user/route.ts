@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { withDatabaseTimeout } from "@/lib/utils"
 
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 export const maxDuration = 60 // 1 minute for user sync operations
 
 export async function POST() {

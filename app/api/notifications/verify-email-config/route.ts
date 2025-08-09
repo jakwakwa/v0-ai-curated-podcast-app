@@ -1,14 +1,25 @@
+import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import nodemailer from "nodemailer"
-import { requireOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 
-// Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
-export const dynamic = "force-dynamic"
+// Force this API route to be dynamic since it uses auth()
+// export const dynamic = "force-dynamic"
 
 export async function GET() {
 	try {
-		// Require admin access
-		await requireOrgAdmin()
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
 		// Check environment variables
 		const config = {

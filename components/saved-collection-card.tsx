@@ -3,11 +3,33 @@ import { CheckCircle, Clock } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { getUserCurationProfileStatus, triggerPodcastGeneration } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import type { UserCurationProfile } from "@/lib/types"
 import { cn } from "@/lib/utils"
+
+// API functions to replace the non-existent server actions
+const getUserCurationProfileStatus = async (profileId: string) => {
+	const response = await fetch(`/api/user-curation-profiles/${profileId}`)
+	if (!response.ok) {
+		throw new Error("Failed to fetch profile status")
+	}
+	return response.json()
+}
+
+const triggerPodcastGeneration = async (profileId: string) => {
+	const response = await fetch("/api/generate-podcast", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ collectionId: profileId }),
+	})
+	if (!response.ok) {
+		throw new Error("Failed to trigger podcast generation")
+	}
+	return response.json()
+}
 
 export function SavedCollectionCard({ userCurationProfile }: { userCurationProfile: UserCurationProfile }) {
 	const [currentUserCurationProfile, setCurrentUserCurationProfile] = useState<UserCurationProfile>(userCurationProfile)
@@ -24,8 +46,8 @@ export function SavedCollectionCard({ userCurationProfile }: { userCurationProfi
 		try {
 			const result = await triggerPodcastGeneration(currentUserCurationProfile.profile_id)
 
-			if (!result.success) {
-				throw new Error(result.message)
+			if (!result.message) {
+				throw new Error(result.message || "Failed to trigger generation")
 			}
 
 			toast("Podcast Generation Initiated")

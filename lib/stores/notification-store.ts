@@ -1,3 +1,4 @@
+import { toast } from "sonner"
 import { create } from "zustand"
 import { devtools } from "zustand/middleware"
 
@@ -22,8 +23,6 @@ export interface NotificationStore {
 	notifications: Notification[]
 	unreadCount: number
 	isLoading: boolean
-	isFromCache: boolean
-	lastFetched: number | null
 	error: string | null
 
 	// Actions for preferences
@@ -39,47 +38,10 @@ export interface NotificationStore {
 	deleteNotification: (notificationId: string) => Promise<void>
 	clearAll: () => Promise<void>
 
-	// Cache management
-	refreshNotifications: () => Promise<void>
-	invalidateNotificationsCache: () => void
-	invalidatePreferencesCache: () => void
-
 	// Utility actions
 	setLoading: (loading: boolean) => void
 	setError: (error: string | null) => void
 	reset: () => void
-}
-
-// Cache durations
-const NOTIFICATIONS_CACHE_DURATION = 15 * 60 * 1000 // 15 minutes in milliseconds
-const PREFERENCES_CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
-
-// Helper functions for localStorage caching
-const getCachedData = (key: string, duration: number): unknown | null => {
-	try {
-		const cached = localStorage.getItem(key)
-		if (cached) {
-			const { data, timestamp } = JSON.parse(cached)
-			if (Date.now() - timestamp < duration) {
-				return data
-			}
-		}
-	} catch (error) {
-		console.warn("Failed to read cache:", error)
-	}
-	return null
-}
-
-const setCachedData = (key: string, data: unknown): void => {
-	try {
-		const cacheData = {
-			data,
-			timestamp: Date.now(),
-		}
-		localStorage.setItem(key, JSON.stringify(cacheData))
-	} catch (error) {
-		console.warn("Failed to write cache:", error)
-	}
 }
 
 const initialState = {
@@ -87,8 +49,6 @@ const initialState = {
 	notifications: [],
 	unreadCount: 0,
 	isLoading: false,
-	isFromCache: false,
-	lastFetched: null,
 	error: null,
 }
 
@@ -102,35 +62,18 @@ export const useNotificationStore = create<NotificationStore>()(
 				set({ isLoading: true, error: null })
 
 				try {
-					// Try to get cached preferences first
-					const cachedPreferences = getCachedData("preferences_cache", PREFERENCES_CACHE_DURATION) as NotificationPreferences | null
-
-					if (cachedPreferences) {
-						set({
-							preferences: cachedPreferences,
-							isFromCache: true,
-							isLoading: false,
-						})
-						return
-					}
-
 					// Fetch fresh preferences
-					const response = await fetch("/api/account/notifications", {
-						headers: { "Cache-Control": "max-age=3600" }, // 1 hour cache
-					})
+					const response = await fetch("/api/account/notifications")
 
 					if (!response.ok) {
 						throw new Error(`Failed to load preferences: ${response.status}`)
 					}
 
 					const preferences = await response.json()
-					setCachedData("preferences_cache", preferences)
 
 					set({
 						preferences,
-						isFromCache: false,
 						isLoading: false,
-						lastFetched: Date.now(),
 					})
 				} catch (error) {
 					const message = error instanceof Error ? error.message : "Unknown error"
@@ -149,7 +92,9 @@ export const useNotificationStore = create<NotificationStore>()(
 					// Call API to update preferences
 					const response = await fetch("/api/account/notifications", {
 						method: "PATCH",
-						headers: { "Content-Type": "application/json" },
+						headers: {
+							"Content-Type": "application/json",
+						},
 						body: JSON.stringify(newPreferences),
 					})
 
@@ -159,47 +104,46 @@ export const useNotificationStore = create<NotificationStore>()(
 
 					const updatedPreferences = await response.json()
 
-					// Update cache with new data
-					setCachedData("preferences_cache", updatedPreferences)
-
 					set({
 						preferences: updatedPreferences,
 						isLoading: false,
-						lastFetched: Date.now(),
 					})
+
+					toast.success("Notification preferences updated successfully!")
 					return { success: true }
 				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : "Unknown error"
+					const message = error instanceof Error ? error.message : "Unknown error"
 					set({
-						error: errorMessage,
+						error: message,
 						isLoading: false,
 					})
 					console.error("Failed to update preferences:", error)
-					return { error: errorMessage }
+					toast.error("Failed to update notification preferences")
+					return { error: message }
 				}
 			},
 
 			toggleEmailNotifications: async () => {
-				const { preferences } = get()
-				if (!preferences) {
+				const currentPreferences = get().preferences
+				if (!currentPreferences) {
 					return { error: "No preferences loaded" }
 				}
 
-				return get().updatePreferences({
-					emailNotifications: !preferences.emailNotifications,
-					inAppNotifications: preferences.inAppNotifications,
+				return await get().updatePreferences({
+					emailNotifications: !currentPreferences.emailNotifications,
+					inAppNotifications: currentPreferences.inAppNotifications,
 				})
 			},
 
 			toggleInAppNotifications: async () => {
-				const { preferences } = get()
-				if (!preferences) {
+				const currentPreferences = get().preferences
+				if (!currentPreferences) {
 					return { error: "No preferences loaded" }
 				}
 
-				return get().updatePreferences({
-					emailNotifications: preferences.emailNotifications,
-					inAppNotifications: !preferences.inAppNotifications,
+				return await get().updatePreferences({
+					emailNotifications: currentPreferences.emailNotifications,
+					inAppNotifications: !currentPreferences.inAppNotifications,
 				})
 			},
 
@@ -208,40 +152,22 @@ export const useNotificationStore = create<NotificationStore>()(
 				set({ isLoading: true, error: null })
 
 				try {
-					// Try to get cached notifications first
-					const cachedNotifications = getCachedData("notifications_cache", NOTIFICATIONS_CACHE_DURATION) as Notification[] | null
-
-					if (cachedNotifications && Array.isArray(cachedNotifications)) {
-						const unreadCount = cachedNotifications.filter(n => !n.is_read).length
-						set({
-							notifications: cachedNotifications,
-							unreadCount,
-							isFromCache: true,
-							isLoading: false,
-						})
-						return
-					}
-
 					// Fetch fresh notifications
-					const response = await fetch("/api/notifications", {
-						headers: { "Cache-Control": "max-age=900" }, // 15 minutes cache
-					})
+					const response = await fetch("/api/notifications")
 
 					if (!response.ok) {
 						throw new Error(`Failed to load notifications: ${response.status}`)
 					}
 
 					const notifications = await response.json()
-					const unreadCount = notifications.filter((n: Notification) => !n.is_read).length
 
-					setCachedData("notifications_cache", notifications)
+					// Calculate unread count
+					const unreadCount = notifications.filter((notification: Notification) => !notification.is_read).length
 
 					set({
 						notifications,
 						unreadCount,
-						isFromCache: false,
 						isLoading: false,
-						lastFetched: Date.now(),
 					})
 				} catch (error) {
 					const message = error instanceof Error ? error.message : "Unknown error"
@@ -255,70 +181,63 @@ export const useNotificationStore = create<NotificationStore>()(
 
 			markAsRead: async (notificationId: string) => {
 				try {
-					// Call API to mark as read
 					const response = await fetch(`/api/notifications/${notificationId}/read`, {
-						method: "POST",
+						method: "PATCH",
 					})
 
 					if (!response.ok) {
 						throw new Error(`Failed to mark notification as read: ${response.status}`)
 					}
 
-					// Update local state optimistically
+					// Update local state
 					const { notifications } = get()
-					const updatedNotifications = notifications.map(n => (n.notification_id === notificationId ? { ...n, is_read: true } : n))
-					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
+					const updatedNotifications = notifications.map((notification: Notification) => (notification.notification_id === notificationId ? { ...notification, is_read: true } : notification))
 
-					// Update cache with new data
-					setCachedData("notifications_cache", updatedNotifications)
+					const unreadCount = updatedNotifications.filter((notification: Notification) => !notification.is_read).length
 
 					set({
 						notifications: updatedNotifications,
 						unreadCount,
-						lastFetched: Date.now(),
 					})
 				} catch (error) {
-					const message = error instanceof Error ? error.message : "Unknown error"
-					set({ error: message })
+					const _message = error instanceof Error ? error.message : "Unknown error"
 					console.error("Failed to mark notification as read:", error)
-					throw error
+					toast.error("Failed to mark notification as read")
 				}
 			},
 
 			markAllAsRead: async () => {
 				try {
-					// Call API to mark all as read (endpoint needs to be created)
-					const response = await fetch("/api/notifications/mark-all-read", {
-						method: "POST",
+					const response = await fetch("/api/notifications", {
+						method: "DELETE",
 					})
 
 					if (!response.ok) {
-						throw new Error(`Failed to mark all as read: ${response.status}`)
+						throw new Error(`Failed to mark all notifications as read: ${response.status}`)
 					}
 
-					// Update local state optimistically
+					// Update local state
 					const { notifications } = get()
-					const updatedNotifications = notifications.map(n => ({ ...n, is_read: true }))
-
-					// Update cache with new data
-					setCachedData("notifications_cache", updatedNotifications)
+					const updatedNotifications = notifications.map((notification: Notification) => ({
+						...notification,
+						is_read: true,
+					}))
 
 					set({
 						notifications: updatedNotifications,
 						unreadCount: 0,
-						lastFetched: Date.now(),
 					})
+
+					toast.success("All notifications marked as read")
 				} catch (error) {
-					const message = error instanceof Error ? error.message : "Unknown error"
-					set({ error: message })
-					console.error("Failed to mark all as read:", error)
-					throw error
+					const _message = error instanceof Error ? error.message : "Unknown error"
+					console.error("Failed to mark all notifications as read:", error)
+					toast.error("Failed to mark all notifications as read")
 				}
 			},
 
 			deleteNotification: async (notificationId: string) => {
 				try {
-					// Call API to delete notification
 					const response = await fetch(`/api/notifications/${notificationId}`, {
 						method: "DELETE",
 					})
@@ -327,90 +246,54 @@ export const useNotificationStore = create<NotificationStore>()(
 						throw new Error(`Failed to delete notification: ${response.status}`)
 					}
 
-					// Update local state optimistically
+					// Update local state
 					const { notifications } = get()
-					const updatedNotifications = notifications.filter(n => n.notification_id !== notificationId)
-					const unreadCount = updatedNotifications.filter(n => !n.is_read).length
+					const updatedNotifications = notifications.filter((notification: Notification) => notification.notification_id !== notificationId)
 
-					// Update cache with new data
-					setCachedData("notifications_cache", updatedNotifications)
+					const unreadCount = updatedNotifications.filter((notification: Notification) => !notification.is_read).length
 
 					set({
 						notifications: updatedNotifications,
 						unreadCount,
-						lastFetched: Date.now(),
 					})
+
+					toast.success("Notification deleted")
 				} catch (error) {
-					const message = error instanceof Error ? error.message : "Unknown error"
-					set({ error: message })
+					const _message = error instanceof Error ? error.message : "Unknown error"
 					console.error("Failed to delete notification:", error)
-					throw error
+					toast.error("Failed to delete notification")
 				}
 			},
 
 			clearAll: async () => {
-				set({ isLoading: true, error: null })
-
 				try {
-					// Call API to clear all notifications
 					const response = await fetch("/api/notifications", {
 						method: "DELETE",
 					})
 
 					if (!response.ok) {
-						throw new Error(`Failed to clear notifications: ${response.status}`)
+						throw new Error(`Failed to clear all notifications: ${response.status}`)
 					}
-
-					// Clear cache and local state
-					localStorage.removeItem("notifications_cache")
 
 					set({
 						notifications: [],
 						unreadCount: 0,
-						isLoading: false,
-						lastFetched: Date.now(),
 					})
-				} catch (error) {
-					const message = error instanceof Error ? error.message : "Unknown error"
-					set({
-						error: message,
-						isLoading: false,
-					})
-					console.error("Failed to clear notifications:", error)
-					throw error
-				}
-			},
 
-			// Cache management
-			refreshNotifications: async () => {
-				// Invalidate cache and force fresh fetch
-				localStorage.removeItem("notifications_cache")
-				set({ isFromCache: false })
-				await get().loadNotifications()
-			},
-
-			invalidateNotificationsCache: () => {
-				try {
-					localStorage.removeItem("notifications_cache")
+					toast.success("All notifications cleared")
 				} catch (error) {
-					console.warn("Failed to invalidate notifications cache:", error)
-				}
-			},
-
-			invalidatePreferencesCache: () => {
-				try {
-					localStorage.removeItem("preferences_cache")
-				} catch (error) {
-					console.warn("Failed to invalidate preferences cache:", error)
+					const _message = error instanceof Error ? error.message : "Unknown error"
+					console.error("Failed to clear all notifications:", error)
+					toast.error("Failed to clear all notifications")
 				}
 			},
 
 			// Utility actions
-			setLoading: loading => {
+			setLoading: (loading: boolean) => {
 				set({ isLoading: loading })
 			},
 
-			setError: error => {
+			setError: (error: string | null) => {
 				set({ error })
 			},
 

@@ -1,64 +1,75 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { isOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "@/lib/prisma"
 
-// Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
-export const maxDuration = 120 // 2 minutes for bulk database operations
-
-// Create a new podcast
-export async function POST(request: Request) {
+export async function GET() {
 	try {
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
 		const { userId } = await auth()
 
 		if (!userId) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		// Check if user is admin
-		const adminStatus = await isOrgAdmin()
-		if (!adminStatus) {
-			return new NextResponse("Forbidden", { status: 403 })
+		// Get all podcasts
+		const podcasts = await prisma.podcast.findMany({
+			orderBy: { created_at: "desc" },
+		})
+
+		return NextResponse.json(podcasts)
+	} catch (error) {
+		console.error("Admin podcasts error:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+	}
+}
+
+export async function POST(request: Request) {
+	try {
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
 		const body = await request.json()
-		const { name, description, url, image_url, category } = body
+		const { name, description, url, imageUrl, category } = body
 
-		if (!(name && description && url && category)) {
-			return new NextResponse("Missing required fields", { status: 400 })
+		if (!(name && url)) {
+			return new NextResponse("Name and URL are required", { status: 400 })
 		}
 
-		// Allow any category - no validation needed
-
-		// Check if a podcast with the same name or URL already exists
-		const existingPodcast = await prisma.podcast.findFirst({
-			where: {
-				OR: [{ name }, { url }],
-			},
-		})
-
-		if (existingPodcast) {
-			return new NextResponse("Podcast with this name or URL already exists", { status: 400 })
-		}
-
-		// Create the podcast
+		// Create podcast
 		const podcast = await prisma.podcast.create({
 			data: {
 				podcast_id: `podcast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				name,
 				description,
 				url,
-				image_url,
+				image_url: imageUrl,
 				category,
 				is_active: true,
+				owner_user_id: null, // Admin-created podcasts should be global
 			},
 		})
 
-		return NextResponse.json(podcast)
+		return NextResponse.json({ success: true, podcast })
 	} catch (error) {
-		console.error("[ADMIN_PODCASTS_POST]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		console.error("Admin podcasts POST error:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }
 
@@ -72,9 +83,9 @@ export async function PATCH(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isOrgAdmin()
-		if (!adminStatus) {
-			return new NextResponse("Forbidden", { status: 403 })
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
 		}
 
 		const body = await request.json()
@@ -139,9 +150,9 @@ export async function DELETE(request: Request) {
 		}
 
 		// Check if user is admin
-		const adminStatus = await isOrgAdmin()
-		if (!adminStatus) {
-			return new NextResponse("Forbidden", { status: 403 })
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
 		}
 
 		const { searchParams } = new URL(request.url)

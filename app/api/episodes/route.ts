@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma" // Use the global client
 import { withDatabaseTimeout } from "@/lib/utils"
 
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 export const maxDuration = 60 // 1 minute for complex database queries
 
 export async function GET(_request: Request) {
@@ -22,52 +22,45 @@ export async function GET(_request: Request) {
 		console.log("Episodes API: Querying database...")
 		const episodes = await withDatabaseTimeout(
 			prisma.episode.findMany({
-			where: {
-				OR: [
-					{ userProfile: { user_id: userId } },
-					{
-						bundle: {
-							user_curation_profile: {
-								some: { user_id: userId },
+				where: {
+					OR: [
+						{ userProfile: { user_id: userId } },
+						{
+							bundle: {
+								user_curation_profile: {
+									some: { user_id: userId },
+								},
 							},
 						},
-					},
-				],
-			},
-			include: {
-				podcast: true,
-				userProfile: {
-					include: {
-						selectedBundle: {
-							include: {
-								bundle_podcast: {
-									include: { podcast: true },
+					],
+				},
+				include: {
+					podcast: true,
+					userProfile: {
+						include: {
+							selectedBundle: {
+								include: {
+									bundle_podcast: {
+										include: { podcast: true },
+									},
 								},
 							},
 						},
 					},
-				},
-				bundle: {
-					include: {
-						bundle_podcast: {
-							include: { podcast: true },
+					bundle: {
+						include: {
+							bundle_podcast: {
+								include: { podcast: true },
+							},
 						},
 					},
 				},
-			},
-			orderBy: { created_at: "desc" },
-			cacheStrategy: {
-				ttl: 300, // 5 minutes
-				swr: 60, // Stale while revalidate for 1 minute
-				tags: [`user_episodes_${userId}`],
-			},
+				orderBy: { created_at: "desc" },
 			})
 		)
 
 		console.log("Episodes API: Query successful, found", episodes.length, "episodes")
-		const response = NextResponse.json(episodes)
-		response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=60")
-		return response
+		return NextResponse.json(episodes)
 	} catch (error) {
 		console.error("Episodes API: Error fetching episodes:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })

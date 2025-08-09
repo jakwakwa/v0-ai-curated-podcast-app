@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 
 export async function GET() {
 	try {
@@ -18,11 +18,6 @@ export async function GET() {
 			where: { user_id: userId },
 			orderBy: {
 				created_at: "desc",
-			},
-			cacheStrategy: {
-				ttl: 1200, // 20 minutes - subscriptions don't change often
-				swr: 300, // 5 minutes stale while revalidate
-				tags: [`user_subscription_${userId}`],
 			},
 		})
 

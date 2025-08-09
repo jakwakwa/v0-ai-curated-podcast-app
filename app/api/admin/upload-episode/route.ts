@@ -1,47 +1,84 @@
+import { auth } from "@clerk/nextjs/server"
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "@/lib/prisma"
-import { withUploadTimeout, withDatabaseTimeout } from "@/lib/utils"
+import { withUploadTimeout } from "@/lib/utils"
 
-// Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
-export const dynamic = "force-dynamic"
+// Force this API route to be dynamic since it uses auth()
+// export const dynamic = "force-dynamic"
 export const runtime = "nodejs" // Required for file system access
 export const maxDuration = 300 // 5 minutes for file uploads
 
-// Initialize Google Cloud Storage with the same configuration as functions.ts
-const uploaderKeyPath = process.env.GCS_UPLOADER_KEY_PATH
+// Lazily initialize Google Cloud Storage uploader. Supports both JSON and key file path.
+let _storageUploader: Storage | undefined
 
-if (!uploaderKeyPath) {
-	throw new Error("GCS_UPLOADER_KEY_PATH environment variable is not set.")
+function looksLikeJson(value: string | undefined): boolean {
+    if (!value) return false
+    const trimmed = value.trim()
+    return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
 }
 
-const _storageUploader = new Storage({
-	keyFilename: uploaderKeyPath,
-})
+function getUploaderRaw(): string | undefined {
+    return (
+        process.env.GCS_UPLOADER_KEY_JSON ||
+        process.env.GCS_UPLOADER_KEY ||
+        process.env.GCS_UPLOADER_KEY_PATH
+    )
+}
+
+function getStorageUploader(): Storage {
+    if (_storageUploader) return _storageUploader
+    const raw = getUploaderRaw()
+    if (!raw) {
+        // Do not leak env var names or values beyond this message
+        throw new Error("Google Cloud credentials for uploader are not configured")
+    }
+    try {
+        if (looksLikeJson(raw)) {
+            _storageUploader = new Storage({ credentials: JSON.parse(raw) })
+        } else {
+            _storageUploader = new Storage({ keyFilename: raw })
+        }
+        return _storageUploader
+    } catch (err) {
+        throw new Error("Failed to initialize Google Cloud Storage uploader")
+    }
+}
 
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
 	try {
-		const [exists] = await _storageUploader.bucket(bucketName).exists()
+        const storage = getStorageUploader()
+        const [exists] = await storage.bucket(bucketName).exists()
 
 		if (!exists) {
 			console.error("ERROR: Bucket does not exist:", bucketName)
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
 
-		await withUploadTimeout(
-			_storageUploader.bucket(bucketName).file(destinationFileName).save(data)
-		)
+        await withUploadTimeout(storage.bucket(bucketName).file(destinationFileName).save(data))
 		return { success: true, fileName: destinationFileName }
 	} catch (error) {
-		console.error("Upload error:", (error as Error).message)
-		throw new Error(`Failed to upload content: ${error}`)
+        console.error("Upload error")
+        // Avoid leaking sensitive path/JSON in error messages
+        throw new Error("Failed to upload content")
 	}
 }
 
 export async function POST(request: Request) {
 	try {
-		await requireOrgAdmin()
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
 		const formData = await request.formData()
 		const bundleId = formData.get("bundleId") as string
