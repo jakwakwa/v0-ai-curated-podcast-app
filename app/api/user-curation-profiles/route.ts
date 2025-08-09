@@ -17,39 +17,45 @@ export async function GET(_request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const userCurationProfile = await prisma.userCurationProfile.findFirst({
-			where: { user_id: userId, is_active: true },
-			include: {
-				episodes: true,
-				selectedBundle: {
-					include: {
-						bundle_podcast: {
-							include: { podcast: true },
-						},
-						episodes: {
-							orderBy: { published_at: "desc" },
-						},
-					},
-				},
-			},
-		})
+        const userCurationProfile = await prisma.userCurationProfile.findFirst({
+            where: { user_id: userId, is_active: true },
+            include: {
+                episodes: true,
+                selectedBundle: {
+                    include: {
+                        bundle_podcast: { include: { podcast: true } },
+                    },
+                },
+            },
+        })
 
 		if (!userCurationProfile) {
 			console.log("User curation profiles API: No profile found, returning null")
 			return NextResponse.json(null)
 		}
 
-		// Transform the data to match the expected structure
-		const transformedProfile = {
-			...userCurationProfile,
-			selectedBundle: userCurationProfile.selectedBundle
-				? {
-						...userCurationProfile.selectedBundle,
-						podcasts: userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
-						episodes: userCurationProfile.selectedBundle.episodes || [],
-					}
-				: null,
-		}
+        // Compute bundle episodes by podcast membership (podcast-centric model)
+        let computedBundleEpisodes: unknown[] = []
+        if (userCurationProfile.selectedBundle) {
+            const podcastIds = userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast_id: string }) => bp.podcast_id)
+            if (podcastIds.length > 0) {
+                computedBundleEpisodes = await prisma.episode.findMany({
+                    where: { podcast_id: { in: podcastIds } },
+                    orderBy: { published_at: "desc" },
+                })
+            }
+        }
+
+        const transformedProfile = {
+            ...userCurationProfile,
+            selectedBundle: userCurationProfile.selectedBundle
+                ? {
+                      ...userCurationProfile.selectedBundle,
+                      podcasts: userCurationProfile.selectedBundle.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast),
+                      episodes: computedBundleEpisodes,
+                  }
+                : null,
+        }
 
 		console.log("User curation profiles API: Returning profile")
 		return NextResponse.json(transformedProfile)

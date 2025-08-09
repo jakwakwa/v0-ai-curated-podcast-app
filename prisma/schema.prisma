@@ -93,6 +93,7 @@ model Bundle {
   is_static     Boolean               @default(true) @map("is_static")
   is_active     Boolean               @default(true) @map("is_active")
   owner_user_id String?               @map("owner_user_id")
+  min_plan      PlanGate              @default(NONE) @map("min_plan")
   created_at    DateTime              @default(now()) @map("created_at")
   ownerUser     User?                 @relation(fields: [owner_user_id], references: [user_id])
   bundle_podcast BundlePodcast[]
@@ -207,4 +208,11 @@ enum FeedbackRating {
   THUMBS_UP
   THUMBS_DOWN
   NEUTRAL
+}
+
+/// Access gate for curated bundles
+enum PlanGate {
+  NONE            /// Free (all users)
+  CASUAL_LISTENER /// Tier 2 and Tier 3
+  CURATE_CONTROL  /// Tier 3 only
 }

@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 import { prisma } from "@/lib/prisma"
 
 export async function GET(_request: NextRequest) {
@@ -30,7 +32,7 @@ export async function GET(_request: NextRequest) {
 			podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
 		}))
 
-		return NextResponse.json(transformedBundles)
+        return NextResponse.json(transformedBundles, { headers: { "Cache-Control": "no-store" } })
 	} catch (error) {
 		console.error("[CURATED_BUNDLES_GET]", error)
 		// Return empty array instead of error during build or if database schema is not ready

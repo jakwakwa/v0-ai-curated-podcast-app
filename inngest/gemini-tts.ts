@@ -605,7 +605,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			// Use the first podcast from the bundle as the podcast reference
 			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
 
-			const episode = await prisma.episode.create({
+            const episode = await prisma.episode.create({
 				data: {
 					episode_id: randomUUID(),
 					title: episodeTitle,
@@ -614,8 +614,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 					image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
 					published_at: new Date(),
 					week_nr: currentWeek,
-					bundle_id: bundleId,
-					podcast_id: firstPodcast.podcast_id, // Use actual podcast ID from bundle
+                    // No bundle_id; episode is podcast-centric
+                    podcast_id: firstPodcast.podcast_id,
 				},
 			})
 			return episode

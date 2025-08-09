@@ -14,6 +14,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import EpisodeGenerationPanel from "./_components/EpisodeGenerationPanel.server"
+import BundlesPanel from "./_components/BundlesPanel.server"
+import PodcastsPanel from "./_components/PodcastsPanel.server"
 import type { Bundle, Podcast } from "@/lib/types"
 
 interface EpisodeSource {
@@ -303,7 +306,7 @@ export default function AdminPage() {
 		setIsCreatingBundle(true)
 
 		try {
-			const response = await fetch("/api/admin/bundles", {
+            const response = await fetch("/api/admin/bundles", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -319,8 +322,17 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to create bundle")
 			}
 
-			const newBundle = await response.json()
-			setBundles([...bundles, newBundle])
+            const result = await response.json()
+            const returned = result?.bundle ?? result
+            const shaped = (returned && Array.isArray(returned.podcasts))
+                ? returned
+                : {
+                    ...returned,
+                    podcasts: Array.isArray(returned?.bundle_podcast)
+                        ? returned.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast)
+                        : [],
+                  }
+            setBundles([...bundles, shaped])
 			toast.success("Bundle created successfully!")
 
 			// Reset form
@@ -413,7 +425,7 @@ export default function AdminPage() {
 		setIsCreatingPodcast(true)
 
 		try {
-			const response = await fetch("/api/admin/podcasts", {
+            const response = await fetch("/api/admin/podcasts", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -430,11 +442,12 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to create podcast")
 			}
 
-			const newPodcast = await response.json()
-			console.log("New podcast created:", newPodcast)
+            const apiResult = await response.json()
+            const newPodcast = apiResult?.podcast ?? apiResult
+            console.log("New podcast created:", newPodcast)
 			console.log("Current availablePodcasts count:", availablePodcasts.length)
 			setAvailablePodcasts(prev => {
-				const updated = [...prev, newPodcast]
+                const updated = [...prev, newPodcast]
 				console.log("Updated availablePodcasts count:", updated.length)
 				return updated
 			})

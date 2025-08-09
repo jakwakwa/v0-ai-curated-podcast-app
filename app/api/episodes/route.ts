@@ -20,44 +20,32 @@ export async function GET(_request: Request) {
 		}
 
 		console.log("Episodes API: Querying database...")
-		const episodes = await withDatabaseTimeout(
-			prisma.episode.findMany({
-				where: {
-					OR: [
-						{ userProfile: { user_id: userId } },
-						{
-							bundle: {
-								user_curation_profile: {
-									some: { user_id: userId },
-								},
-							},
-						},
-					],
-				},
-				include: {
-					podcast: true,
-					userProfile: {
-						include: {
-							selectedBundle: {
-								include: {
-									bundle_podcast: {
-										include: { podcast: true },
-									},
-								},
-							},
-						},
-					},
-					bundle: {
-						include: {
-							bundle_podcast: {
-								include: { podcast: true },
-							},
-						},
-					},
-				},
-				orderBy: { created_at: "desc" },
-			})
-		)
+        // Episodes should relate to podcasts; visibility via user's selected bundle membership
+        const profile = await prisma.userCurationProfile.findFirst({
+            where: { user_id: userId, is_active: true },
+            include: { selectedBundle: { include: { bundle_podcast: true } } },
+        })
+
+        const podcastIdsInSelectedBundle = profile?.selectedBundle?.bundle_podcast.map(bp => bp.podcast_id) ?? []
+
+        const episodes = await withDatabaseTimeout(
+            prisma.episode.findMany({
+                where: {
+                    OR: [
+                        { userProfile: { user_id: userId } },
+                        // Show episodes whose podcast belongs to the user's selected bundle
+                        ...(podcastIdsInSelectedBundle.length > 0
+                            ? [{ podcast_id: { in: podcastIdsInSelectedBundle } }]
+                            : []),
+                    ],
+                },
+                include: {
+                    podcast: true,
+                    userProfile: true,
+                },
+                orderBy: { created_at: "desc" },
+            })
+        )
 
 		console.log("Episodes API: Query successful, found", episodes.length, "episodes")
 		return NextResponse.json(episodes)

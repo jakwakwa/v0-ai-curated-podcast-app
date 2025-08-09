@@ -81,12 +81,13 @@ export async function POST(request: Request) {
 		}
 
 		const formData = await request.formData()
-		const bundleId = formData.get("bundleId") as string
+        const bundleId = (formData.get("bundleId") as string) || ""
 		const title = formData.get("title") as string
 		const description = formData.get("description") as string
 		const image_url = formData.get("image_url") as string | null
 		const file = formData.get("file") as File
 		const audioUrl = formData.get("audioUrl") as string | null
+        const providedPodcastId = (formData.get("podcastId") as string) || ""
 
 		console.log("Upload episode request:", {
 			bundleId,
@@ -99,9 +100,8 @@ export async function POST(request: Request) {
 		})
 
 		// Validate that either file or audioUrl is provided
-		if (!(bundleId && title && (file || audioUrl))) {
+        if (!(title && (file || audioUrl))) {
 			console.log("Validation failed:", {
-				bundleId: !!bundleId,
 				title: !!title,
 				file: !!file,
 				audioUrl: !!audioUrl,
@@ -114,31 +114,13 @@ export async function POST(request: Request) {
 			)
 		}
 
-		// Verify bundle exists
-		const bundle = await prisma.bundle.findUnique({
-			where: { bundle_id: bundleId },
-			include: {
-				bundle_podcast: {
-					include: { podcast: true },
-				},
-			},
-		})
-
-		if (!bundle) {
-			console.log("Bundle not found:", bundleId)
-			return NextResponse.json({ message: "Bundle not found" }, { status: 404 })
-		}
-
-		if (bundle.bundle_podcast.length === 0) {
-			console.log("Bundle has no podcasts:", bundleId)
-			return NextResponse.json({ message: "Bundle has no podcasts. Please add podcasts to the bundle first." }, { status: 400 })
-		}
-
-		console.log("Bundle found:", {
-			bundleId: bundle.bundle_id,
-			name: bundle.name,
-			podcastCount: bundle.bundle_podcast.length,
-		})
+        // Optional bundle context
+        const bundle = bundleId
+            ? await prisma.bundle.findUnique({
+                where: { bundle_id: bundleId },
+                include: { bundle_podcast: { include: { podcast: true } } },
+            })
+            : null
 
 		let finalAudioUrl: string
 
@@ -170,27 +152,32 @@ export async function POST(request: Request) {
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
 		// Use the first podcast from the bundle as the podcast reference
-		const firstPodcast = bundle.bundle_podcast[0]?.podcast
+        const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
+        const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
+
+        if (!finalPodcastId) {
+            return NextResponse.json({ message: "podcastId is required when no bundle is provided" }, { status: 400 })
+        }
 
 		console.log("Creating episode with:", {
 			title,
 			audioUrl: finalAudioUrl,
-			bundleId,
-			podcastId: firstPodcast?.podcast_id,
-			hasFirstPodcast: !!firstPodcast,
+            bundleId: bundleId || undefined,
+            podcastId: finalPodcastId,
+            hasFirstPodcast: !!firstPodcast,
 		})
 
-		const episode = await prisma.episode.create({
+        const episode = await prisma.episode.create({
 			data: {
 				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				title,
 				description: description || "",
 				audio_url: finalAudioUrl,
-				image_url: image_url || bundle.image_url || null,
+                image_url: image_url || bundle?.image_url || null,
 				published_at: new Date(),
 				week_nr: currentWeek,
-				bundle_id: bundleId,
-				podcast_id: firstPodcast?.podcast_id || bundle.bundle_podcast[0]?.podcast_id,
+                // No bundle_id: episodes are podcast-centric
+                podcast_id: finalPodcastId,
 			},
 		})
 

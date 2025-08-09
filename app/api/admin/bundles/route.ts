@@ -52,15 +52,21 @@ export async function POST(request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const body = await request.json()
-		const { name, description, isStatic, selectedPodcastIds } = body
+        const body = await request.json()
+        const { name, description, isStatic } = body
+        // Accept both UI payload shapes
+        const selectedPodcastIds: string[] = Array.isArray(body.selectedPodcastIds)
+            ? body.selectedPodcastIds
+            : Array.isArray(body.podcast_ids)
+            ? body.podcast_ids
+            : []
 
 		if (!name) {
 			return new NextResponse("Bundle name is required", { status: 400 })
 		}
 
-		// Create the bundle
-		const bundle = await prisma.bundle.create({
+        // Create the bundle
+        const bundle = await prisma.bundle.create({
 			data: {
 				bundle_id: `bundle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				name,
@@ -72,7 +78,7 @@ export async function POST(request: Request) {
 		})
 
 		// Add podcast relationships if selectedPodcastIds is provided
-		if (selectedPodcastIds && selectedPodcastIds.length > 0) {
+        if (selectedPodcastIds && selectedPodcastIds.length > 0) {
 			await prisma.bundlePodcast.createMany({
 				data: selectedPodcastIds.map((podcastId: string) => ({
 					bundle_id: bundle.bundle_id,
@@ -81,11 +87,67 @@ export async function POST(request: Request) {
 			})
 		}
 
-		return NextResponse.json({ success: true, bundle })
+        const bundleWithRelations = await prisma.bundle.findUnique({
+            where: { bundle_id: bundle.bundle_id },
+            include: { bundle_podcast: { include: { podcast: true } }, episodes: { orderBy: { published_at: "desc" } } },
+        })
+
+        return NextResponse.json({ success: true, bundle: bundleWithRelations })
 	} catch (error) {
 		console.error("Admin bundles POST error:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
+}
+
+// Update bundle podcast membership (replace set)
+export async function PATCH(request: Request) {
+    try {
+        // First check admin status
+        const adminCheck = await requireAdminMiddleware()
+        if (adminCheck) {
+            return adminCheck
+        }
+
+        const { userId } = await auth()
+        if (!userId) return new NextResponse("Unauthorized", { status: 401 })
+
+        const body = await request.json()
+        const bundleId: string | undefined = body.bundle_id || body.id
+        if (!bundleId) return new NextResponse("Bundle ID is required", { status: 400 })
+
+        // Accept both shapes
+        const podcastIds: string[] = Array.isArray(body.podcast_ids)
+            ? body.podcast_ids
+            : Array.isArray(body.selectedPodcastIds)
+            ? body.selectedPodcastIds
+            : []
+
+        // Ensure bundle exists
+        const existing = await prisma.bundle.findUnique({ where: { bundle_id: bundleId } })
+        if (!existing) return new NextResponse("Bundle not found", { status: 404 })
+
+        // Replace membership atomically
+        await prisma.$transaction([
+            prisma.bundlePodcast.deleteMany({ where: { bundle_id: bundleId } }),
+            ...(podcastIds.length > 0
+                ? [
+                    prisma.bundlePodcast.createMany({
+                        data: podcastIds.map((pid: string) => ({ bundle_id: bundleId, podcast_id: pid })),
+                    }),
+                ]
+                : []),
+        ])
+
+        const updated = await prisma.bundle.findUnique({
+            where: { bundle_id: bundleId },
+            include: { bundle_podcast: { include: { podcast: true } }, episodes: { orderBy: { published_at: "desc" } } },
+        })
+
+        return NextResponse.json({ success: true, bundle: updated })
+    } catch (error) {
+        console.error("[ADMIN_BUNDLES_PATCH]", error)
+        return new NextResponse("Internal Error", { status: 500 })
+    }
 }
 
 // Delete a bundle
