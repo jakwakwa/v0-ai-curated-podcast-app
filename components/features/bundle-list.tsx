@@ -11,7 +11,7 @@ import { AppSpinner } from "../ui/app-spinner"
 import { PageHeader } from "../ui/page-header"
 
 // Type for bundle with podcasts array from API
-type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
+type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
 
 interface BundleListProps {
 	onBundleSelect: (bundle: BundleWithPodcasts) => void
@@ -90,8 +90,9 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 		<div className="flex flex-col gap-4 justify-center items-center w-full max-w-md">
 			{curatedBundles.map(bundle => {
 				const isSelected = selectedBundleId === bundle.bundle_id
-				return (
-					<Card key={bundle.bundle_id} variant="bundle" selected={isSelected} hoverable={true} className="w-full" onClick={() => onBundleSelect(bundle)}>
+                const disabled = bundle.canInteract === false
+                return (
+                    <Card key={bundle.bundle_id} variant="bundle" selected={isSelected} hoverable={!disabled} className={`w-full ${disabled ? "opacity-60 cursor-not-allowed" : ""}`} onClick={() => !disabled && onBundleSelect(bundle)}>
 						<CardContent className="p-2">
 							<div className="flex flex-col">
 								{/* Bundle info section */}
@@ -145,9 +146,9 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 									</div>
 
 									{/* Fixed selection indicator */}
-									<div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
 										<Lock size={12} />
-										<span className="truncate">Fixed Selection</span>
+                                        <span className="truncate">{disabled ? (bundle.lockReason || "Requires higher plan") : "Fixed Selection"}</span>
 									</div>
 								</div>
 							</div>

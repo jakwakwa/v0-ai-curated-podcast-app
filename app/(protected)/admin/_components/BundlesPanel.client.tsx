@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
-export default function BundlesPanelClient({ bundles, availablePodcasts }: { bundles: BundleWithPodcasts[]; availablePodcasts: Podcast[] }) {
+export default function BundlesPanelClient({ bundles, availablePodcasts }: { bundles: (BundleWithPodcasts & { min_plan?: string; canInteract?: boolean; lockReason?: string | null })[]; availablePodcasts: Podcast[] }) {
   const [selectedPodcastIds, setSelectedPodcastIds] = useState<string[]>([])
   const [newBundleName, setNewBundleName] = useState("")
   const [newBundleDescription, setNewBundleDescription] = useState("")
@@ -21,11 +22,17 @@ export default function BundlesPanelClient({ bundles, availablePodcasts }: { bun
     setSelectedPodcastIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
   }
 
+  const [minPlan, setMinPlan] = useState<string>("NONE")
+  const [editOpen, setEditOpen] = useState<boolean>(false)
+  const [editingBundleId, setEditingBundleId] = useState<string | null>(null)
+  const [editingMinPlan, setEditingMinPlan] = useState<string>("NONE")
+  const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false)
+
   const createBundle = async () => {
     const response = await fetch("/api/admin/bundles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newBundleName.trim(), description: newBundleDescription.trim(), podcast_ids: selectedPodcastIds }),
+      body: JSON.stringify({ name: newBundleName.trim(), description: newBundleDescription.trim(), podcast_ids: selectedPodcastIds, min_plan: minPlan }),
     })
     if (!response.ok) {
       console.error("Failed to create bundle")
@@ -35,6 +42,27 @@ export default function BundlesPanelClient({ bundles, availablePodcasts }: { bun
     setNewBundleName("")
     setNewBundleDescription("")
     setSelectedPodcastIds([])
+  }
+
+  const openEditVisibility = (bundleId: string, currentMinPlan: string | undefined) => {
+    setEditingBundleId(bundleId)
+    setEditingMinPlan(currentMinPlan || "NONE")
+    setEditOpen(true)
+  }
+
+  const saveEditVisibility = async () => {
+    if (!editingBundleId) return
+    setIsSavingEdit(true)
+    try {
+      await fetch("/api/admin/bundles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bundle_id: editingBundleId, min_plan: editingMinPlan }),
+      })
+      setEditOpen(false)
+    } finally {
+      setIsSavingEdit(false)
+    }
   }
 
   return (
@@ -53,6 +81,14 @@ export default function BundlesPanelClient({ bundles, availablePodcasts }: { bun
             <div>
               <Label htmlFor="bundleDescription">Description</Label>
               <Textarea id="bundleDescription" value={newBundleDescription} onChange={e => setNewBundleDescription(e.target.value)} rows={2} />
+            </div>
+            <div>
+              <Label htmlFor="minPlan">Visibility</Label>
+              <select id="minPlan" className="w-full border rounded h-9 px-2 bg-background" value={minPlan} onChange={e => setMinPlan(e.target.value)}>
+                <option value="NONE">Free (All users)</option>
+                <option value="CASUAL_LISTENER">Tier 2 and 3</option>
+                <option value="CURATE_CONTROL">Tier 3 only</option>
+              </select>
             </div>
           </div>
           <div>
@@ -74,11 +110,14 @@ export default function BundlesPanelClient({ bundles, availablePodcasts }: { bun
         <div className="space-y-4">
           <h3 className="text-sm text-muted-foreground">Existing Bundles ({bundles.length})</h3>
           {bundles.map(bundle => (
-            <div key={bundle.bundle_id} className="p-4 border rounded-lg">
+            <div key={bundle.bundle_id} className={`p-4 border rounded-lg ${bundle.canInteract === false ? "opacity-60" : ""}`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <h4 className="font-semibold">{bundle.name}</h4>
                   <p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
+                  {bundle.canInteract === false && (
+                    <p className="text-xs text-muted-foreground">{bundle.lockReason || "Locked for your plan"}</p>
+                  )}
                   <div className="flex flex-wrap gap-1">
                     {bundle.podcasts.map((podcast: Podcast) => (
                       <Badge size="sm" key={podcast.podcast_id} variant="outline" className="text-xs">
@@ -87,7 +126,28 @@ export default function BundlesPanelClient({ bundles, availablePodcasts }: { bun
                     ))}
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">Actions</Button>
+                <Dialog open={editOpen && editingBundleId === bundle.bundle_id} onOpenChange={(o) => { if (!o) setEditOpen(false) }}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" onClick={() => openEditVisibility(bundle.bundle_id, (bundle as any).min_plan)}>Edit visibility</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit bundle visibility</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      <Label htmlFor="editMinPlan">Visibility</Label>
+                      <select id="editMinPlan" className="w-full border rounded h-9 px-2 bg-background" value={editingMinPlan} onChange={e => setEditingMinPlan(e.target.value)}>
+                        <option value="NONE">Free (All users)</option>
+                        <option value="CASUAL_LISTENER">Tier 2 and 3</option>
+                        <option value="CURATE_CONTROL">Tier 3 only</option>
+                      </select>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+                      <Button variant="default" onClick={saveEditVisibility} disabled={isSavingEdit}>{isSavingEdit ? "Saving..." : "Save"}</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           ))}

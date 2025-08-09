@@ -52,7 +52,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		}
 
 		const body = await request.json()
-		const { name, isBundleSelection, selectedBundleId, sourceUrls } = body
+        const { name, isBundleSelection, selectedBundleId, sourceUrls } = body
 
 		// biome-ignore lint/complexity/useSimplifiedLogicExpression: checking that at least one field is provided
 		if (!name && !isBundleSelection && !selectedBundleId && !sourceUrls) {
@@ -77,7 +77,21 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
 		if (isBundleSelection !== undefined) {
 			// If changing to bundle selection
-			if (isBundleSelection && selectedBundleId) {
+            if (isBundleSelection && selectedBundleId) {
+                // Gate check: ensure user's plan meets bundle min_plan
+                const [bundle, sub] = await Promise.all([
+                    prisma.bundle.findUnique({ where: { bundle_id: selectedBundleId } }),
+                    prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } }),
+                ])
+                if (!bundle) {
+                    return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
+                }
+                const plan = sub?.plan_type ?? null
+                const gate = bundle.min_plan
+                const allowed = gate === "NONE" || (gate === "CASUAL_LISTENER" && (plan === "casual_listener" || plan === "curate_control")) || (gate === "CURATE_CONTROL" && plan === "curate_control")
+                if (!allowed) {
+                    return NextResponse.json({ error: "Bundle requires a higher plan", requiredPlan: gate }, { status: 403 })
+                }
 				updatedUserCurationProfile = await prisma.userCurationProfile.update({
 					where: { profile_id: id },
 					data: {

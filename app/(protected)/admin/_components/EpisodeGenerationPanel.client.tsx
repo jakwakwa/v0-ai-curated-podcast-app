@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
+import { Lock } from "lucide-react"
 
-type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
+type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
 
 interface EpisodeSource { id: string; name: string; url: string }
 
@@ -25,7 +26,8 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
   const [newSourceName, setNewSourceName] = useState("")
   const [newSourceUrl, setNewSourceUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [uploadMethod, setUploadMethod] = useState<"generate" | "upload">("generate")
+  type UploadMethod = "generate" | "upload"
+  const [uploadMethod, setUploadMethod] = useState<UploadMethod>("generate")
   const [mp3File, setMp3File] = useState<File | null>(null)
   const [audioUrl, setAudioUrl] = useState("")
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -97,9 +99,19 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
               <Select onValueChange={setSelectedBundleId}>
                 <SelectTrigger><SelectValue placeholder="Select a bundle..." /></SelectTrigger>
                 <SelectContent>
-                  {bundles.map(b => (<SelectItem key={b.bundle_id} value={b.bundle_id}>{b.name} ({b.podcasts.length} shows)</SelectItem>))}
+                  {bundles.map(b => (
+                    <SelectItem key={b.bundle_id} value={b.bundle_id} disabled={b.canInteract === false}>
+                      {b.name} ({b.podcasts.length} shows){b.canInteract === false ? " – Locked" : ""}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {selectedBundle && selectedBundle.canInteract === false && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Lock className="w-3 h-3" />
+                  <span>{selectedBundle.lockReason || "This bundle requires a higher plan."}</span>
+                </div>
+              )}
               {selectedBundle && (
                 <div className="mt-4 p-4 bg-muted rounded-lg">
                   <h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
@@ -163,7 +175,22 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
               <CardDescription>Choose which curated bundle to upload an episode for</CardDescription>
             </CardHeader>
             <CardContent className="p-4">
-              <Select value={selectedBundleId} onValueChange={setSelectedBundleId}><SelectTrigger><SelectValue placeholder="Select a bundle..." /></SelectTrigger><SelectContent>{bundles.map(b => (<SelectItem key={b.bundle_id} value={b.bundle_id}>{b.name} ({b.podcasts.length} shows)</SelectItem>))}</SelectContent></Select>
+              <Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
+                <SelectTrigger><SelectValue placeholder="Select a bundle..." /></SelectTrigger>
+                <SelectContent>
+                  {bundles.map(b => (
+                    <SelectItem key={b.bundle_id} value={b.bundle_id} disabled={b.canInteract === false}>
+                      {b.name} ({b.podcasts.length} shows){b.canInteract === false ? " – Locked" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedBundle && selectedBundle.canInteract === false && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Lock className="w-3 h-3" />
+                  <span>{selectedBundle.lockReason || "This bundle requires a higher plan."}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card>
@@ -180,12 +207,22 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span> Upload Audio</CardTitle><CardDescription>Choose how to provide the episode audio</CardDescription></CardHeader>
             <CardContent className="p-4">
-              <div className="mb-4"><Label>Upload Method</Label><div className="flex gap-2 mt-2"><Button type="button" variant={uploadMethod === "upload" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("upload")}>Upload File</Button><Button type="button" variant={uploadMethod === "generate" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("generate")}>Direct URL</Button></div></div>
+              <div className="mb-4">
+          <Label>Upload Method</Label>
+          <div className="flex gap-2 mt-2">
+                  {(() => { const isUpload = uploadMethod === "upload"; return (
+                    <>
+                      <Button type="button" variant={isUpload ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("upload")}>Upload File</Button>
+                      <Button type="button" variant={!isUpload ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("generate")}>Direct URL</Button>
+                    </>
+                  )})()}
+          </div>
+        </div>
               {uploadMethod === "upload" && (<div><Label htmlFor="mp3File">Audio File (MP3)</Label><Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}</div>)}
-              {uploadMethod === "generate" && (<div><Label htmlFor="audioUrl">Audio URL</Label><Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" /></div>)}
+              {uploadMethod !== "upload" && (<div><Label htmlFor="audioUrl">Audio URL</Label><Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" /></div>)}
             </CardContent>
           </Card>
-          <Card><CardContent className="pt-6 p-4"><Button type="submit" disabled={!(selectedBundleId && episodeTitle && (mp3File || audioUrl)) || isLoading} className="w-full" size="lg" variant="default">{isLoading ? (<><AppSpinner size="sm" variant="simple" color="default" className="mr-2" />Uploading...</>) : (<>Upload Episode</>)}</Button></CardContent></Card>
+          <Card><CardContent className="pt-6 p-4"><Button type="submit" disabled={!(selectedBundleId && episodeTitle && (mp3File || audioUrl)) || isLoading || (selectedBundle && selectedBundle.canInteract === false)} className="w-full" size="lg" variant="default">{isLoading ? (<><AppSpinner size="sm" variant="simple" color="default" className="mr-2" />Uploading...</>) : (<>Upload Episode</>)}</Button></CardContent></Card>
         </form>
       )}
     </div>

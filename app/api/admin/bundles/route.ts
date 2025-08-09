@@ -121,22 +121,23 @@ export async function PATCH(request: Request) {
             : Array.isArray(body.selectedPodcastIds)
             ? body.selectedPodcastIds
             : []
+        const minPlan: string | undefined = body.min_plan
 
         // Ensure bundle exists
         const existing = await prisma.bundle.findUnique({ where: { bundle_id: bundleId } })
         if (!existing) return new NextResponse("Bundle not found", { status: 404 })
 
-        // Replace membership atomically
-        await prisma.$transaction([
-            prisma.bundlePodcast.deleteMany({ where: { bundle_id: bundleId } }),
-            ...(podcastIds.length > 0
-                ? [
-                    prisma.bundlePodcast.createMany({
-                        data: podcastIds.map((pid: string) => ({ bundle_id: bundleId, podcast_id: pid })),
-                    }),
-                ]
-                : []),
-        ])
+        // Replace membership atomically and update min_plan if provided
+        const tx: any[] = []
+        if (typeof minPlan === "string") {
+            const data: any = Object.assign({}, { min_plan: minPlan })
+            tx.push(prisma.bundle.update({ where: { bundle_id: bundleId }, data }))
+        }
+        tx.push(prisma.bundlePodcast.deleteMany({ where: { bundle_id: bundleId } }))
+        if (podcastIds.length > 0) {
+            tx.push(prisma.bundlePodcast.createMany({ data: podcastIds.map((pid: string) => ({ bundle_id: bundleId, podcast_id: pid })) }))
+        }
+        await prisma.$transaction(tx)
 
         const updated = await prisma.bundle.findUnique({
             where: { bundle_id: bundleId },

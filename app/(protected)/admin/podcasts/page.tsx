@@ -8,7 +8,6 @@ export default function PodcastsPage() {
     <div className="container mx-auto p-6 max-w-6xl space-y-6">
       <h1 className="text-2xl font-semibold">Podcast Management</h1>
       <Suspense fallback={<div>Loading podcasts…</div>}>
-        {/* @ts-expect-error Async Server Component */}
         <PodcastsPanel />
       </Suspense>
     </div>
