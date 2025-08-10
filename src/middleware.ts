@@ -19,7 +19,6 @@ import type { NextRequest } from "next/server"
 const isOAuthAccessible = createRouteMatcher(["/oauth(.*)"])
 const isAdminApiAccessible = createRouteMatcher(["/api/admin(.*)"])
 const isApiKeyAccessible = createRouteMatcher(["/api(.*)"])
-const isMachineTokenAccessible = createRouteMatcher(["/m2m(.*)"])
 const isUserAccessible = createRouteMatcher(["/user(.*)"])
 const isAdminPageAccessible = createRouteMatcher(["/admin(.*)"])
 const isUserApiAccessible = createRouteMatcher([
@@ -50,8 +49,6 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 		await auth.protect()
 	} else if (isUserApiAccessible(req)) {
 		await auth.protect({ token: "session_token" })
-	} else if (isMachineTokenAccessible(req)) {
-		await auth.protect({ token: "machine_token" })
 	} else if (isUserAccessible(req)) {
 		await auth.protect({ token: "session_token" })
 	} else if (isAdminPageAccessible(req)) {
@@ -64,5 +61,5 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
 })
 
 export const config = {
-	matcher: ["/((?!_next/static|_next/image|favicon.ico).*)", "/((?!_next/static|_next/image|favicon.ico).*)"],
+	matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 }
