@@ -63,4 +63,26 @@
 
 - Test suite now passes end-to-end against test DB; use `pnpm test:db:deploy` then `pnpm test`.
 
+# Admin Updates Progress – 2025-08-09
+
+## Admin Panels V2 Flags
+
+New non-sensitive feature flags control visibility of the SSR admin panels links on the legacy Admin Dashboard page:
+
+- `ADMIN_PANELS_V2_BUNDLES` (or `NEXT_PUBLIC_ADMIN_PANELS_V2_BUNDLES`)
+- `ADMIN_PANELS_V2_PODCASTS` (or `NEXT_PUBLIC_ADMIN_PANELS_V2_PODCASTS`)
+- `ADMIN_PANELS_V2_EPISODES` (or `NEXT_PUBLIC_ADMIN_PANELS_V2_EPISODES`)
+
+Parsing is handled via `lib/flags.ts`. Accepted truthy values: `1,true,t,yes,y,on` (case-insensitive). Falsy values: `0,false,f,no,n,off`.
+
+Recommended local `.env.local` entries:
+
+```
+NEXT_PUBLIC_ADMIN_PANELS_V2_BUNDLES=1
+NEXT_PUBLIC_ADMIN_PANELS_V2_PODCASTS=1
+NEXT_PUBLIC_ADMIN_PANELS_V2_EPISODES=1
+```
+
+These flags only control link visibility in the dashboard. Actual admin routes remain protected and functional regardless of flags.
+
 

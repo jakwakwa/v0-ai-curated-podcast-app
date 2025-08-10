@@ -16,6 +16,7 @@
 - `app/(protected)/admin/bundles/error.tsx` - Error boundary for Bundles admin route.
 - `app/(protected)/admin/podcasts/error.tsx` - Error boundary for Podcasts admin route.
 - `app/(protected)/admin/episodes/error.tsx` - Error boundary for Episodes admin route.
+- `app/(protected)/admin/page.tsx` - Legacy Admin dashboard; now surfaces SSR panel links behind flags.
 - `app/api/admin/bundles/route.ts` - Admin Bundles mutations API.
 - `app/api/admin/podcasts/route.ts` - Admin Podcasts API.
 - `app/api/admin/generate-bundle-episode/route.ts` - Episode generation API.
@@ -25,12 +26,14 @@
 - `lib/admin-middleware.ts` - Admin gating utilities.
 - `lib/prisma.ts` - Prisma client for server-side data access.
 - `lib/types.ts` - Shared types; import with `import type` only.
-- `lib/flags.ts` - Feature flags utility (to be added) for `ADMIN_PANELS_V2_*`.
+- `lib/flags.ts` - Feature flags utility for `ADMIN_PANELS_V2_*`.
+- `docs/admin_updates-progress-2025-08-09.md` - Documentation for admin panel flags and usage.
 - `components/admin-components/` - Legacy admin UI to retire (e.g., `source-list.tsx`, `source-list-item.tsx`).
 - `app/(protected)/collections/[id]/page.tsx` - Current non-admin usage of `components/admin-components/source-list` to be considered before full removal.
 - `tests/admin-upload-episode.test.ts` - Existing tests touching admin upload API.
 - `tests/curated-bundles-api.test.ts` - Existing tests for curated bundles API.
 - `tests/episodes-api-derivation.test.ts` - Existing tests for episodes API behavior.
+- `tests/flags.test.ts` - Unit tests for `lib/flags.ts`.
 
 ### Notes
 
@@ -47,11 +50,11 @@
   - [x] 1.4 Add co-located `error.tsx` boundaries for `bundles/`, `podcasts/`, and `episodes/` routes with minimal UX
   - [x] 1.5 Validate imports use `import type` for types and follow schema casing rules
 
-- [ ] 2.0 Implement per-panel feature flags and wiring for rollback (`ADMIN_PANELS_V2_*`)
-  - [ ] 2.1 Create `lib/flags.ts` with helpers (e.g., `isEnabled("ADMIN_PANELS_V2_BUNDLES")`); read from `process.env`
-  - [ ] 2.2 Update `app/(protected)/admin/page.tsx` to conditionally surface links/entry points to new sub-pages based on flags
-  - [ ] 2.3 Document `.env` usage for flags and add sensible defaults for local dev
-  - [ ] 2.4 Add minimal unit tests for `lib/flags.ts`
+- [x] 2.0 Implement per-panel feature flags and wiring for rollback (`ADMIN_PANELS_V2_*`)
+  - [x] 2.1 Create `lib/flags.ts` with helpers (e.g., `isEnabled("ADMIN_PANELS_V2_BUNDLES")`); read from `process.env`
+  - [x] 2.2 Update `app/(protected)/admin/page.tsx` to conditionally surface links/entry points to new sub-pages based on flags
+  - [x] 2.3 Document `.env` usage for flags and add sensible defaults for local dev
+  - [x] 2.4 Add minimal unit tests for `lib/flags.ts`
 
 - [ ] 3.0 Migrate simple admin mutations to Server Actions; keep complex/long-running via API routes
   - [ ] 3.1 Identify simple mutations per panel (e.g., Bundles: create, update visibility; Podcasts: create/update/toggle active)

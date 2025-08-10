@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 // removed Select imports; using AdminSelector for selections
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { getAdminPanelsFlags } from "@/lib/flags"
 import type { Bundle, Podcast } from "@/lib/types"
 import AdminSelector from "./_components/AdminSelector"
 import Stepper from "./_components/stepper"
@@ -42,6 +43,9 @@ export default function AdminPage() {
 	const router = useRouter()
 	const [adminStatus, setAdminStatus] = useState<boolean | null>(null)
 	const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
+
+	// Feature flags snapshot (client-safe NEXT_PUBLIC_* supported)
+	const { bundles: bundlesV2, podcasts: podcastsV2, episodes: episodesV2 } = getAdminPanelsFlags()
 
 	const [bundles, setBundles] = useState<BundleWithMeta[]>([])
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
@@ -661,690 +665,729 @@ export default function AdminPage() {
 						<p className="text-muted-foreground">Manage curated content and generate weekly podcast episodes</p>
 					</div>
 				</div>
-			</div>
 
-			<Tabs defaultValue="episode-generation" className="m-0">
-				<TabsList className="grid w-full grid-cols-4">
-					<TabsTrigger
-						value="episode-generation"
-						className="data-[state=active]:bg-glass data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] rounded-[0px] hover:text-foreground"
-					>
-						Episode Generation
-					</TabsTrigger>
-					<TabsTrigger
-						value="bundle-management"
-						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
-					>
-						Bundle Management
-					</TabsTrigger>
-					<TabsTrigger
-						value="podcast-management"
-						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
-					>
-						Podcast Management
-					</TabsTrigger>
-					<TabsTrigger
-						value="testing"
-						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
-					>
-						Testing
-					</TabsTrigger>
-				</TabsList>
-
-				{/* Episode Generation Tab */}
-				<TabsContent value="episode-generation" className="space-y-6 mt-8">
-					<div className="flex gap-4 mb-4">
-						<Button variant={episodeMode === "generate" ? "default" : "outline"} onClick={() => setEpisodeMode("generate")}>
-							Generate Episode
-						</Button>
-						<Button variant={episodeMode === "upload" ? "default" : "outline"} onClick={() => setEpisodeMode("upload")}>
-							Upload MP3
-						</Button>
-					</div>
-
-					{episodeMode === "generate" ? (
-						<div className="grid gap-6">
-							{/* Step 1: Select Bundle (AdminSelector) */}
-							<AdminSelector type="bundle" description="Choose which curated bundle to generate an episode for" items={bundles} selectedId={selectedBundleId} onChange={setSelectedBundleId} step={1} />
-
-							{/* Step 2: Episode Details */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Stepper step={2} />
-										Episode Details
-									</CardTitle>
-									<CardDescription>Provide basic information for the episode</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-4 p-4">
-									<div>
-										<Label htmlFor="title">Episode Title *</Label>
-										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
-									</div>
-									<div>
-										<Label htmlFor="description">Episode Description (Optional)</Label>
-										<Textarea
-											id="description"
-											value={episodeDescription}
-											onChange={e => setEpisodeDescription(e.target.value)}
-											placeholder="Brief description of this week's episode content..."
-											rows={3}
-										/>
-									</div>
-									<div>
-										<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
-										<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
-										<p className="text-xs text-muted-foreground mt-1">If not provided, the bundle's image will be used. Use direct image URLs for best results.</p>
-									</div>
-								</CardContent>
-							</Card>
-
-							{/* Step 3: Add Sources */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Stepper step={3} />
-										Add Episode Sources
-									</CardTitle>
-									<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-4 p-4	">
-									{/* Add new source form */}
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label htmlFor="sourceName">Source Name</Label>
-											<Input id="sourceName" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} placeholder="e.g., Lex Fridman - AI Discussion" />
-										</div>
-										<div>
-											<Label htmlFor="sourceUrl">Source URL</Label>
-											<Input id="sourceUrl" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
-										</div>
-									</div>
-									<Button onClick={addSource} variant="outline" className="w-full">
-										<Plus className="w-4 h-4 mr-2" />
-										Add Source
+				{(bundlesV2 || podcastsV2 || episodesV2) && (
+					<Card className="mb-6">
+						<CardHeader>
+							<CardTitle>New SSR Admin Panels</CardTitle>
+							<CardDescription>Try the new server-rendered admin panels for faster loads and consistency.</CardDescription>
+						</CardHeader>
+						<CardContent className="flex flex-wrap gap-2">
+							{bundlesV2 && (
+								<Link href="/admin/bundles" className="inline-flex">
+									<Button variant="outline" size="sm">
+										Bundles Panel
 									</Button>
+								</Link>
+							)}
+							{podcastsV2 && (
+								<Link href="/admin/podcasts" className="inline-flex">
+									<Button variant="outline" size="sm">
+										Podcasts Panel
+									</Button>
+								</Link>
+							)}
+							{episodesV2 && (
+								<Link href="/admin/episodes" className="inline-flex">
+									<Button variant="outline" size="sm">
+										Episodes Panel
+									</Button>
+								</Link>
+							)}
+						</CardContent>
+					</Card>
+				)}
 
-									{/* Display added sources */}
-									{sources.length > 0 && (
-										<div className="space-y-2">
-											<h4 className="font-semibold">Added Sources ({sources.length})</h4>
-											{sources.map(source => (
-												<div key={source.id} className="flex items-center justify-between p-3 bg-muted-transparent rounded-lg">
-													<div>
-														<p className="font-medium">{source.name}</p>
-														<p className="text-sm text-muted-foreground truncate">{source.url}</p>
-													</div>
-													<Button onClick={() => removeSource(source.id)} variant="ghost" size="sm">
-														<Trash2 className="w-4 h-4" />
-													</Button>
-												</div>
-											))}
-										</div>
-									)}
-								</CardContent>
-							</Card>
+				<Tabs defaultValue="episode-generation" className="m-0">
+					<TabsList className="grid w-full grid-cols-4">
+						<TabsTrigger
+							value="episode-generation"
+							className="data-[state=active]:bg-glass data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] rounded-[0px] hover:text-foreground"
+						>
+							Episode Generation
+						</TabsTrigger>
+						<TabsTrigger
+							value="bundle-management"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Bundle Management
+						</TabsTrigger>
+						<TabsTrigger
+							value="podcast-management"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Podcast Management
+						</TabsTrigger>
+						<TabsTrigger
+							value="testing"
+							className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						>
+							Testing
+						</TabsTrigger>
+					</TabsList>
 
-							{/* Generate Button */}
-							<Card>
-								<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant={"default"}>
-									{isLoading ? (
-										<>
-											<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
-											Generating Episode...
-										</>
-									) : (
-										<>
-											<Sparkles className="w-4 h-4 mr-2" />
-											Generate Episode
-										</>
-									)}
-								</Button>
-							</Card>
+					{/* Episode Generation Tab */}
+					<TabsContent value="episode-generation" className="space-y-6 mt-8">
+						<div className="flex gap-4 mb-4">
+							<Button variant={episodeMode === "generate" ? "default" : "outline"} onClick={() => setEpisodeMode("generate")}>
+								Generate Episode
+							</Button>
+							<Button variant={episodeMode === "upload" ? "default" : "outline"} onClick={() => setEpisodeMode("upload")}>
+								Upload MP3
+							</Button>
 						</div>
-					) : (
-						<form onSubmit={uploadEpisode} className="space-y-4">
-							{/* Step 1: Select Bundle (AdminSelector) */}
-							<AdminSelector type="bundle" description="Choose which curated bundle to upload an episode for" items={bundles} selectedId={selectedBundleId} onChange={setSelectedBundleId} step={1} />
 
-							{/* Step 2: Episode Details */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Stepper step={2} />
-										Episode Details
-									</CardTitle>
-									<CardDescription>Provide basic information for the episode</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-4 p-4">
-									<div>
-										<Label htmlFor="title">Episode Title *</Label>
-										<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
-									</div>
-									<div>
-										<Label htmlFor="description">Episode Description (Optional)</Label>
-										<Textarea
-											id="description"
-											value={episodeDescription}
-											onChange={e => setEpisodeDescription(e.target.value)}
-											placeholder="Brief description of this week's episode content..."
-											rows={3}
-										/>
-									</div>
-									<div>
-										<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
-										<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
-										<p className="text-xs text-muted-foreground mt-1">If not provided, the bundle's image will be used. Use direct image URLs for best results.</p>
-									</div>
-								</CardContent>
-							</Card>
+						{episodeMode === "generate" ? (
+							<div className="grid gap-6">
+								{/* Step 1: Select Bundle (AdminSelector) */}
+								<AdminSelector
+									type="bundle"
+									description="Choose which curated bundle to generate an episode for"
+									items={bundles}
+									selectedId={selectedBundleId}
+									onChange={setSelectedBundleId}
+									step={1}
+								/>
 
-							{/* Step 3: Upload Audio */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Stepper step={3} />
-										Upload Audio
-									</CardTitle>
-									<CardDescription>Choose how to provide the episode audio</CardDescription>
-								</CardHeader>
-								<CardContent className="p-4">
-									{/* Upload Method Toggle */}
-									<div className="mb-4">
-										<Label>Upload Method</Label>
-										<div className="flex gap-2 mt-2">
-											<Button variant="default" type="button" size="sm" onClick={() => setUploadMethod("file")}>
-												Upload File
-											</Button>
-											<Button type="button" variant={uploadMethod === "url" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("url")}>
-												Direct URL
-											</Button>
-										</div>
-									</div>
-
-									{/* Optional: Select standalone podcast when not targeting a bundle */}
-									<div className="mb-4">
-										<AdminSelector
-											type="podcast"
-											description="If you don’t select a bundle, choose a podcast to attach this episode to."
-											items={availablePodcasts.filter(p => p.is_active)}
-											selectedId={selectedUploadPodcastId}
-											onChange={setSelectedUploadPodcastId}
-											placeholder="Select a podcast (optional)"
-											step={2}
-										/>
-									</div>
-
-									{/* File Upload Option */}
-									{uploadMethod === "file" && (
+								{/* Step 2: Episode Details */}
+								<Card>
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2">
+											<Stepper step={2} />
+											Episode Details
+										</CardTitle>
+										<CardDescription>Provide basic information for the episode</CardDescription>
+									</CardHeader>
+									<CardContent className="space-y-4 p-4">
 										<div>
-											<Label htmlFor="mp3File">Audio File (MP3)</Label>
-											<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
-											{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
+											<Label htmlFor="title">Episode Title *</Label>
+											<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
 										</div>
-									)}
-
-									{/* URL Input Option */}
-									{uploadMethod === "url" && (
 										<div>
-											<Label htmlFor="audioUrl">Audio URL</Label>
-											<Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" />
-											<p className="text-xs text-muted-foreground mt-1">Provide a direct link to the audio file (MP3 recommended)</p>
+											<Label htmlFor="description">Episode Description (Optional)</Label>
+											<Textarea
+												id="description"
+												value={episodeDescription}
+												onChange={e => setEpisodeDescription(e.target.value)}
+												placeholder="Brief description of this week's episode content..."
+												rows={3}
+											/>
 										</div>
-									)}
-								</CardContent>
-							</Card>
+										<div>
+											<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
+											<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
+											<p className="text-xs text-muted-foreground mt-1">If not provided, the bundle's image will be used. Use direct image URLs for best results.</p>
+										</div>
+									</CardContent>
+								</Card>
 
-							{/* Upload Button */}
-							<Card className="flex items-center">
-								<CardContent>
-									<Button
-										type="submit"
-										disabled={!(selectedBundleId && episodeTitle && ((uploadMethod === "file" && mp3File) || (uploadMethod === "url" && audioUrl))) || isLoading}
-										className="w-full"
-										size="lg"
-										variant={"default"}
-									>
+								{/* Step 3: Add Sources */}
+								<Card>
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2">
+											<Stepper step={3} />
+											Add Episode Sources
+										</CardTitle>
+										<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
+									</CardHeader>
+									<CardContent className="space-y-4 p-4	">
+										{/* Add new source form */}
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<Label htmlFor="sourceName">Source Name</Label>
+												<Input id="sourceName" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} placeholder="e.g., Lex Fridman - AI Discussion" />
+											</div>
+											<div>
+												<Label htmlFor="sourceUrl">Source URL</Label>
+												<Input id="sourceUrl" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
+											</div>
+										</div>
+										<Button onClick={addSource} variant="outline" className="w-full">
+											<Plus className="w-4 h-4 mr-2" />
+											Add Source
+										</Button>
+
+										{/* Display added sources */}
+										{sources.length > 0 && (
+											<div className="space-y-2">
+												<h4 className="font-semibold">Added Sources ({sources.length})</h4>
+												{sources.map(source => (
+													<div key={source.id} className="flex items-center justify-between p-3 bg-muted-transparent rounded-lg">
+														<div>
+															<p className="font-medium">{source.name}</p>
+															<p className="text-sm text-muted-foreground truncate">{source.url}</p>
+														</div>
+														<Button onClick={() => removeSource(source.id)} variant="ghost" size="sm">
+															<Trash2 className="w-4 h-4" />
+														</Button>
+													</div>
+												))}
+											</div>
+										)}
+									</CardContent>
+								</Card>
+
+								{/* Generate Button */}
+								<Card>
+									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant={"default"}>
 										{isLoading ? (
 											<>
 												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
-												Uploading...
+												Generating Episode...
 											</>
 										) : (
 											<>
 												<Sparkles className="w-4 h-4 mr-2" />
-												Upload Episode
+												Generate Episode
 											</>
 										)}
 									</Button>
-								</CardContent>
-							</Card>
-						</form>
-					)}
-				</TabsContent>
+								</Card>
+							</div>
+						) : (
+							<form onSubmit={uploadEpisode} className="space-y-4">
+								{/* Step 1: Select Bundle (AdminSelector) */}
+								<AdminSelector type="bundle" description="Choose which curated bundle to upload an episode for" items={bundles} selectedId={selectedBundleId} onChange={setSelectedBundleId} step={1} />
 
-				{/* Bundle Management Tab */}
-				<TabsContent value="bundle-management" className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<FolderPlus className="w-5 h-5" />
-								Bundle Management
-							</CardTitle>
-							<CardDescription>Create new bundles or remove existing ones</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4 p-4">
-							<Button onClick={() => setShowCreateBundle(!showCreateBundle)} variant="outline" className="w-full">
-								<Plus className="w-4 h-4 mr-2" />
-								{showCreateBundle ? "Cancel" : "Create New Bundle"}
-							</Button>
-
-							{showCreateBundle && (
-								<div className="space-y-4 p-4 border rounded-lg bg-card">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								{/* Step 2: Episode Details */}
+								<Card>
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2">
+											<Stepper step={2} />
+											Episode Details
+										</CardTitle>
+										<CardDescription>Provide basic information for the episode</CardDescription>
+									</CardHeader>
+									<CardContent className="space-y-4 p-4">
 										<div>
-											<Label htmlFor="bundleName">Bundle Name *</Label>
-											<Input id="bundleName" value={newBundleName} onChange={e => setNewBundleName(e.target.value)} placeholder="e.g., Tech Weekly" />
+											<Label htmlFor="title">Episode Title *</Label>
+											<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} placeholder="e.g., Tech Weekly - January 15, 2024" />
 										</div>
 										<div>
-											<Label htmlFor="minPlan">Visibility</Label>
-											<select id="minPlan" className="w-full border rounded h-9 px-2 bg-background" value={newBundleMinPlan} onChange={e => setNewBundleMinPlan(e.target.value)}>
-												<option value="NONE">Free (All users)</option>
-												<option value="CASUAL_LISTENER">Tier 2 and 3</option>
-												<option value="CURATE_CONTROL">Tier 3 only</option>
-											</select>
-										</div>
-										<div>
-											<Label htmlFor="bundleImageUrl">Image URL (Optional)</Label>
-											<Input
-												id="bundleImageUrl"
-												value={newBundleImageUrl}
-												onChange={e => setNewBundleImageUrl(e.target.value)}
-												placeholder="https://images.unsplash.com/photo-... (direct image URL)"
+											<Label htmlFor="description">Episode Description (Optional)</Label>
+											<Textarea
+												id="description"
+												value={episodeDescription}
+												onChange={e => setEpisodeDescription(e.target.value)}
+												placeholder="Brief description of this week's episode content..."
+												rows={3}
 											/>
-											<p className="text-xs text-muted-foreground mt-1">Use direct image URLs (e.g., https://images.unsplash.com/photo-...)</p>
 										</div>
-									</div>
-
-									<div>
-										<Label htmlFor="bundleDescription">Bundle Description *</Label>
-										<Textarea
-											id="bundleDescription"
-											value={newBundleDescription}
-											onChange={e => setNewBundleDescription(e.target.value)}
-											placeholder="Describe what this bundle is about..."
-											rows={2}
-										/>
-									</div>
-
-									<div>
-										<Label>Select Podcasts *</Label>
-										<div className="mt-2 max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
-											{availablePodcasts
-												.filter(p => p.is_active)
-												.map(podcast => (
-													<div key={podcast.podcast_id} className="flex items-start space-x-2">
-														<Checkbox
-															id={`bundle-podcast-${podcast.podcast_id}`}
-															checked={selectedPodcastIds.includes(podcast.podcast_id)}
-															onCheckedChange={() => togglePodcastSelection(podcast.podcast_id)}
-														/>
-														<div className="flex-1">
-															<label htmlFor={`bundle-podcast-${podcast.podcast_id}`} className="text-sm font-medium cursor-pointer">
-																{podcast.name}
-															</label>
-															<p className="text-xs text-muted-foreground">{podcast.description}</p>
-															<Badge size="sm" variant="secondary" className="text-xs mt-1">
-																{podcast.category}
-															</Badge>
-														</div>
-													</div>
-												))}
+										<div>
+											<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
+											<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} placeholder="https://images.unsplash.com/photo-... (direct image URL)" />
+											<p className="text-xs text-muted-foreground mt-1">Provide a direct link to the audio file (MP3 recommended)</p>
 										</div>
-										<p className="text-xs text-muted-foreground mt-1">Selected: {selectedPodcastIds.length} podcasts</p>
-									</div>
+									</CardContent>
+								</Card>
 
-									<Button onClick={createBundle} disabled={isCreatingBundle} className="w-full" variant={"default"}>
-										{isCreatingBundle ? (
-											<>
-												<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-												Creating Bundle...
-											</>
-										) : (
-											<>
-												<Plus className="w-4 h-4 mr-2" />
-												Create Bundle
-											</>
-										)}
-									</Button>
-								</div>
-							)}
-						</CardContent>
-					</Card>
-
-					{/* Existing Bundles */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Existing Bundles ({bundles.length})</CardTitle>
-							<CardDescription>Manage your PODSLICE Bundles</CardDescription>
-						</CardHeader>
-						<CardContent className="p-4">
-							<div className="space-y-4">
-								{bundles.map(bundle => (
-									<div key={bundle.bundle_id} className="p-4 border rounded-lg">
-										<div className="flex items-start justify-between mb-2">
-											<div className="flex-1">
-												<h4 className="font-semibold">{bundle.name}</h4>
-												<p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
-												<div className="flex flex-wrap gap-1">
-													{bundle.podcasts.map(podcast => (
-														<Badge size="sm" key={podcast.podcast_id} variant="outline" className="text-xs">
-															{podcast.name}
-														</Badge>
-													))}
-												</div>
-												<div className="mt-2 flex items-center gap-2">
-													<Label className="text-xs">Visibility</Label>
-													<select
-														className="border rounded h-8 px-2 bg-background text-xs"
-														value={(bundle as { min_plan?: string }).min_plan || bundleMinPlanEdits[bundle.bundle_id] || "NONE"}
-														onChange={e => handleEditMinPlanChange(bundle.bundle_id, e.target.value)}
-													>
-														<option value="NONE">Free</option>
-														<option value="CASUAL_LISTENER">Tier 2+3</option>
-														<option value="CURATE_CONTROL">Tier 3</option>
-													</select>
-													<Button size="sm" variant="outline" disabled={isSavingBundleMinPlanId === bundle.bundle_id} onClick={() => saveBundleMinPlan(bundle.bundle_id)}>
-														{isSavingBundleMinPlanId === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : "Save"}
-													</Button>
-												</div>
+								{/* Step 3: Upload Audio */}
+								<Card>
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2">
+											<Stepper step={3} />
+											Upload Audio
+										</CardTitle>
+										<CardDescription>Choose how to provide the episode audio</CardDescription>
+									</CardHeader>
+									<CardContent className="p-4">
+										{/* Upload Method Toggle */}
+										<div className="mb-4">
+											<Label>Upload Method</Label>
+											<div className="flex gap-2 mt-2">
+												<Button variant="default" type="button" size="sm" onClick={() => setUploadMethod("file")}>
+													Upload File
+												</Button>
+												<Button type="button" variant={uploadMethod === "url" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("url")}>
+													Direct URL
+												</Button>
 											</div>
-											<Button
-												onClick={() => deleteBundle(bundle.bundle_id)}
-												disabled={isDeletingBundle === bundle.bundle_id}
-												variant="ghost"
-												size="sm"
-												className="text-destructive hover:text-destructive hover:bg-destructive/10"
-											>
-												{isDeletingBundle === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
-											</Button>
 										</div>
-									</div>
-								))}
-								{bundles.length === 0 && <p className="text-center text-muted-foreground py-8">No bundles created yet. Create your first bundle above.</p>}
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
 
-				{/* Podcast Management Tab */}
-				<TabsContent value="podcast-management" className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center justify-between">
-								<div className="flex items-center gap-2">
-									<Mic className="w-5 h-5" />
-									Podcast Management
-								</div>
-								<div className="flex gap-2">
-									<Button onClick={refreshPodcasts} variant="outline" size="sm">
-										Refresh
-									</Button>
-									<Button
-										onClick={async () => {
-											try {
-												const response = await fetch("/api/admin/fix-podcasts", { method: "POST" })
-												const result = await response.json()
-												if (result.success) {
-													toast.success(result.message)
-													refreshPodcasts()
-												} else {
-													toast.error("Failed to fix podcasts")
-												}
-											} catch (error) {
-												console.error("Error fixing podcasts:", error)
-												toast.error("Failed to fix podcasts")
-											}
-										}}
-										variant="outline"
-										size="sm"
-									>
-										Fix Global
-									</Button>
-								</div>
-							</CardTitle>
-							<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4 p-4">
-							<div className="p-4 bg-muted rounded-lg">
-								<h4 className="font-semibold mb-2">Create New Bundle</h4>
-								<p className="text-sm text-muted-foreground mb-4">Create a new bundle to group related podcasts together.</p>
-							</div>
-							<Button
-								onClick={() => {
-									resetPodcastForm()
-									setShowCreatePodcast(!showCreatePodcast)
-								}}
-								variant="outline"
-								className="w-full"
-							>
-								<Plus className="w-4 h-4 mr-2" />
-								{showCreatePodcast ? "Cancel" : "Create New Podcast"}
-							</Button>
+										{/* Optional: Select standalone podcast when not targeting a bundle */}
+										<div className="mb-4">
+											<AdminSelector
+												type="podcast"
+												description="If you don’t select a bundle, choose a podcast to attach this episode to."
+												items={availablePodcasts.filter(p => p.is_active)}
+												selectedId={selectedUploadPodcastId}
+												onChange={setSelectedUploadPodcastId}
+												placeholder="Select a podcast (optional)"
+												step={2}
+											/>
+										</div>
 
-							{showCreatePodcast && (
-								<div className="space-y-4 p-4 border rounded-lg bg-background">
-									<div className="flex items-center justify-between mb-4">
-										<h4 className="font-semibold">{editingPodcast ? "Edit Podcast" : "Create New Podcast"}</h4>
-										{editingPodcast && (
-											<Button onClick={resetPodcastForm} variant="ghost" size="sm">
-												<X className="w-4 h-4" />
-											</Button>
+										{/* File Upload Option */}
+										{uploadMethod === "file" && (
+											<div>
+												<Label htmlFor="mp3File">Audio File (MP3)</Label>
+												<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
+												{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
+											</div>
 										)}
-									</div>
 
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label htmlFor="podcastName">Podcast Name *</Label>
-											<Input id="podcastName" value={newPodcastName} onChange={e => setNewPodcastName(e.target.value)} placeholder="e.g., Lex Fridman Podcast" />
-										</div>
-										<div>
-											<Label htmlFor="podcastCategory">Category *</Label>
-											<Input id="podcastCategory" value={newPodcastCategory} onChange={e => setNewPodcastCategory(e.target.value)} placeholder="e.g., Technology, Health, Comedy, etc." />
-										</div>
-									</div>
-
-									<div>
-										<Label htmlFor="podcastUrl">Podcast URL *</Label>
-										<Input id="podcastUrl" value={newPodcastUrl} onChange={e => setNewPodcastUrl(e.target.value)} placeholder="https://www.youtube.com/@example" />
-									</div>
-
-									<div>
-										<Label htmlFor="podcastImageUrl">Image URL (Optional)</Label>
-										<Input id="podcastImageUrl" value={newPodcastImageUrl} onChange={e => setNewPodcastImageUrl(e.target.value)} placeholder="https://images.unsplash.com/..." />
-									</div>
-
-									<div>
-										<Label htmlFor="podcastDescription">Description *</Label>
-										<Textarea
-											id="podcastDescription"
-											value={newPodcastDescription}
-											onChange={e => setNewPodcastDescription(e.target.value)}
-											placeholder="Brief description of this podcast..."
-											rows={3}
-										/>
-									</div>
-
-									<Button onClick={editingPodcast ? updatePodcast : createPodcast} disabled={isCreatingPodcast || isUpdatingPodcast} className="w-full" variant={"default"}>
-										{isCreatingPodcast || isUpdatingPodcast ? (
-											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
-												{editingPodcast ? "Updating..." : "Creating..."}
-											</>
-										) : editingPodcast ? (
-											<>
-												<Edit className="w-4 h-4 mr-2" />
-												Update Podcast
-											</>
-										) : (
-											<>
-												<Plus className="w-4 h-4 mr-2" />
-												Create Podcast
-											</>
+										{/* URL Input Option */}
+										{uploadMethod === "url" && (
+											<div>
+												<Label htmlFor="audioUrl">Audio URL</Label>
+												<Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" />
+												<p className="text-xs text-muted-foreground mt-1">Provide a direct link to the audio file (MP3 recommended)</p>
+											</div>
 										)}
-									</Button>
-								</div>
-							)}
-						</CardContent>
-					</Card>
+									</CardContent>
+								</Card>
 
-					{/* Existing Podcasts by Category */}
-					{categories.map((category, index) => (
-						<Card key={`category-${category}-${index}-${podcastsByCategory[category].length}`}>
+								{/* Upload Button */}
+								<Card className="flex items-center">
+									<CardContent>
+										<Button
+											type="submit"
+											disabled={!(selectedBundleId && episodeTitle && ((uploadMethod === "file" && mp3File) || (uploadMethod === "url" && audioUrl))) || isLoading}
+											className="w-full"
+											size="lg"
+											variant={"default"}
+										>
+											{isLoading ? (
+												<>
+													<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+													Uploading...
+												</>
+											) : (
+												<>
+													<Sparkles className="w-4 h-4 mr-2" />
+													Upload Episode
+												</>
+											)}
+										</Button>
+									</CardContent>
+								</Card>
+							</form>
+						)}
+					</TabsContent>
+
+					{/* Bundle Management Tab */}
+					<TabsContent value="bundle-management" className="space-y-6">
+						<Card>
 							<CardHeader>
-								<CardTitle className="flex items-center justify-between">
-									<span>
-										{category} Podcasts ({podcastsByCategory[category].length})
-									</span>
-									<Badge size="sm" variant="outline">
-										{category}
-									</Badge>
+								<CardTitle className="flex items-center gap-2">
+									<FolderPlus className="w-5 h-5" />
+									Bundle Management
 								</CardTitle>
+								<CardDescription>Create new bundles or remove existing ones</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4 p-4">
+								<Button onClick={() => setShowCreateBundle(!showCreateBundle)} variant="outline" className="w-full">
+									<Plus className="w-4 h-4 mr-2" />
+									{showCreateBundle ? "Cancel" : "Create New Bundle"}
+								</Button>
+
+								{showCreateBundle && (
+									<div className="space-y-4 p-4 border rounded-lg bg-card">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<Label htmlFor="bundleName">Bundle Name *</Label>
+												<Input id="bundleName" value={newBundleName} onChange={e => setNewBundleName(e.target.value)} placeholder="e.g., Tech Weekly" />
+											</div>
+											<div>
+												<Label htmlFor="minPlan">Visibility</Label>
+												<select id="minPlan" className="w-full border rounded h-9 px-2 bg-background" value={newBundleMinPlan} onChange={e => setNewBundleMinPlan(e.target.value)}>
+													<option value="NONE">Free (All users)</option>
+													<option value="CASUAL_LISTENER">Tier 2 and 3</option>
+													<option value="CURATE_CONTROL">Tier 3 only</option>
+												</select>
+											</div>
+											<div>
+												<Label htmlFor="bundleImageUrl">Image URL (Optional)</Label>
+												<Input
+													id="bundleImageUrl"
+													value={newBundleImageUrl}
+													onChange={e => setNewBundleImageUrl(e.target.value)}
+													placeholder="https://images.unsplash.com/photo-... (direct image URL)"
+												/>
+												<p className="text-xs text-muted-foreground mt-1">Use direct image URLs (e.g., https://images.unsplash.com/photo-...)</p>
+											</div>
+										</div>
+
+										<div>
+											<Label htmlFor="bundleDescription">Bundle Description *</Label>
+											<Textarea
+												id="bundleDescription"
+												value={newBundleDescription}
+												onChange={e => setNewBundleDescription(e.target.value)}
+												placeholder="Describe what this bundle is about..."
+												rows={2}
+											/>
+										</div>
+
+										<div>
+											<Label>Select Podcasts *</Label>
+											<div className="mt-2 max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
+												{availablePodcasts
+													.filter(p => p.is_active)
+													.map(podcast => (
+														<div key={podcast.podcast_id} className="flex items-start space-x-2">
+															<Checkbox
+																id={`bundle-podcast-${podcast.podcast_id}`}
+																checked={selectedPodcastIds.includes(podcast.podcast_id)}
+																onCheckedChange={() => togglePodcastSelection(podcast.podcast_id)}
+															/>
+															<div className="flex-1">
+																<label htmlFor={`bundle-podcast-${podcast.podcast_id}`} className="text-sm font-medium cursor-pointer">
+																	{podcast.name}
+																</label>
+																<p className="text-xs text-muted-foreground">{podcast.description}</p>
+																<Badge size="sm" variant="secondary" className="text-xs mt-1">
+																	{podcast.category}
+																</Badge>
+															</div>
+														</div>
+													))}
+											</div>
+											<p className="text-xs text-muted-foreground mt-1">Selected: {selectedPodcastIds.length} podcasts</p>
+										</div>
+
+										<Button onClick={createBundle} disabled={isCreatingBundle} className="w-full" variant={"default"}>
+											{isCreatingBundle ? (
+												<>
+													<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+													Creating Bundle...
+												</>
+											) : (
+												<>
+													<Plus className="w-4 h-4 mr-2" />
+													Create Bundle
+												</>
+											)}
+										</Button>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+
+						{/* Existing Bundles */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Existing Bundles ({bundles.length})</CardTitle>
+								<CardDescription>Manage your PODSLICE Bundles</CardDescription>
 							</CardHeader>
 							<CardContent className="p-4">
-								<div className="space-y-3">
-									{podcastsByCategory[category].map(podcast => (
-										<div key={podcast.podcast_id} className="flex bg-sub-card items-start justify-between p-3 border border-lines-light shadow-lg rounded-lg">
-											<div className="flex-1">
-												<div className="flex items-center gap-2 mb-1">
-													<h4 className="font-medium">{podcast.name}</h4>
-													<Badge size="sm" variant={podcast.is_active ? "default" : "secondary"}>
-														{podcast.is_active ? "Active" : "Inactive"}
-													</Badge>
+								<div className="space-y-4">
+									{bundles.map(bundle => (
+										<div key={bundle.bundle_id} className="p-4 border rounded-lg">
+											<div className="flex items-start justify-between mb-2">
+												<div className="flex-1">
+													<h4 className="font-semibold">{bundle.name}</h4>
+													<p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
+													<div className="flex flex-wrap gap-1">
+														{bundle.podcasts.map(podcast => (
+															<Badge size="sm" key={podcast.podcast_id} variant="outline" className="text-xs">
+																{podcast.name}
+															</Badge>
+														))}
+													</div>
+													<div className="mt-2 flex items-center gap-2">
+														<Label className="text-xs">Visibility</Label>
+														<select
+															className="border rounded h-8 px-2 bg-background text-xs"
+															value={(bundle as { min_plan?: string }).min_plan || bundleMinPlanEdits[bundle.bundle_id] || "NONE"}
+															onChange={e => handleEditMinPlanChange(bundle.bundle_id, e.target.value)}
+														>
+															<option value="NONE">Free</option>
+															<option value="CASUAL_LISTENER">Tier 2+3</option>
+															<option value="CURATE_CONTROL">Tier 3</option>
+														</select>
+														<Button size="sm" variant="outline" disabled={isSavingBundleMinPlanId === bundle.bundle_id} onClick={() => saveBundleMinPlan(bundle.bundle_id)}>
+															{isSavingBundleMinPlanId === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : "Save"}
+														</Button>
+													</div>
 												</div>
-
-												<Link
-													href={podcast.url}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-sm font-bold truncate text-secondary/80 hover:underline truncate block py-2 w-full max-w-[300px]"
-												>
-													{podcast.url}
-												</Link>
-											</div>
-											<div className="flex items-center gap-2 ml-4">
-												<Button onClick={() => togglePodcastActive(podcast)} variant="ghost" size="sm" title={podcast.is_active ? "Deactivate" : "Activate"}>
-													{podcast.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-												</Button>
-												<Button onClick={() => startEditPodcast(podcast)} variant="ghost" size="sm" title="Edit">
-													<Edit className="w-4 h-4" />
-												</Button>
 												<Button
-													onClick={() => deletePodcast(podcast.podcast_id)}
-													disabled={isDeletingPodcast === podcast.podcast_id}
+													onClick={() => deleteBundle(bundle.bundle_id)}
+													disabled={isDeletingBundle === bundle.bundle_id}
 													variant="ghost"
 													size="sm"
 													className="text-destructive hover:text-destructive hover:bg-destructive/10"
-													title="Delete"
 												>
-													{isDeletingPodcast === podcast.podcast_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
+													{isDeletingBundle === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
 												</Button>
 											</div>
 										</div>
 									))}
-									{podcastsByCategory[category].length === 0 && <p className="text-center text-muted-foreground py-4">No {category.toLowerCase()} podcasts yet.</p>}
+									{bundles.length === 0 && <p className="text-center text-muted-foreground py-8">No bundles created yet. Create your first bundle above.</p>}
 								</div>
 							</CardContent>
 						</Card>
-					))}
-				</TabsContent>
+					</TabsContent>
 
-				{/* Testing Tab */}
-				<TabsContent value="testing" className="space-y-6">
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Sparkles className="w-5 h-5" />
-								Notification Testing
-							</CardTitle>
-							<CardDescription>Test the notification system by creating sample notifications</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4 p-4">
-							<div className="p-4 bg-muted rounded-lg">
-								<h4 className="font-semibold mb-2">Test Notification System</h4>
-								<p className="text-sm text-muted-foreground mb-4">This will create a test notification that you can see in the notification bell and notifications page.</p>
+					{/* Podcast Management Tab */}
+					<TabsContent value="podcast-management" className="space-y-6">
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center justify-between">
+									<div className="flex items-center gap-2">
+										<Mic className="w-5 h-5" />
+										Podcast Management
+									</div>
+									<div className="flex gap-2">
+										<Button onClick={refreshPodcasts} variant="outline" size="sm">
+											Refresh
+										</Button>
+										<Button
+											onClick={async () => {
+												try {
+													const response = await fetch("/api/admin/fix-podcasts", { method: "POST" })
+													const result = await response.json()
+													if (result.success) {
+														toast.success(result.message)
+														refreshPodcasts()
+													} else {
+														toast.error("Failed to fix podcasts")
+													}
+												} catch (error) {
+													console.error("Error fixing podcasts:", error)
+													toast.error("Failed to fix podcasts")
+												}
+											}}
+											variant="outline"
+											size="sm"
+										>
+											Fix Global
+										</Button>
+									</div>
+								</CardTitle>
+								<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4 p-4">
+								<div className="p-4 bg-muted rounded-lg">
+									<h4 className="font-semibold mb-2">Create New Bundle</h4>
+									<p className="text-sm text-muted-foreground mb-4">Create a new bundle to group related podcasts together.</p>
+								</div>
 								<Button
-									onClick={async () => {
-										try {
-											const response = await fetch("/api/notifications/test", {
-												method: "POST",
-											})
-											if (!response.ok) {
-												throw new Error("Failed to create test notification")
-											}
-											toast.success("Test notification created! Check your notification bell.")
-										} catch (error) {
-											console.error("Error creating test notification:", error)
-											toast.error("Failed to create test notification")
-										}
-									}}
-									variant="outline"
-									className="w-full mb-2"
-								>
-									<Sparkles className="w-4 h-4 mr-2" />
-									Create Test Notification
-								</Button>
-								<Button
-									onClick={async () => {
-										try {
-											const response = await fetch("/api/notifications/verify-email-config")
-											if (!response.ok) {
-												throw new Error("Failed to verify email config")
-											}
-											const result = await response.json()
-											if (result.success) {
-												toast.success("✅ Email configuration verified successfully!")
-											} else {
-												toast.error(`❌ Email config error: ${result.error}`)
-												console.error("Email config details:", result)
-											}
-										} catch (error) {
-											console.error("Error verifying email config:", error)
-											toast.error("Failed to verify email configuration")
-										}
-									}}
-									variant="outline"
-									className="w-full mb-2"
-								>
-									<Sparkles className="w-4 h-4 mr-2" />
-									Verify Email Config
-								</Button>
-								<Button
-									onClick={async () => {
-										try {
-											const response = await fetch("/api/notifications/test-email", {
-												method: "POST",
-											})
-											if (!response.ok) {
-												throw new Error("Failed to send test email")
-											}
-											toast.success("Test email sent! Check your email inbox.")
-										} catch (error) {
-											console.error("Error sending test email:", error)
-											toast.error("Failed to send test email")
-										}
+									onClick={() => {
+										resetPodcastForm()
+										setShowCreatePodcast(!showCreatePodcast)
 									}}
 									variant="outline"
 									className="w-full"
 								>
-									<Sparkles className="w-4 h-4 mr-2" />
-									Send Test Email
+									<Plus className="w-4 h-4 mr-2" />
+									{showCreatePodcast ? "Cancel" : "Create New Podcast"}
 								</Button>
-							</div>
-						</CardContent>
-					</Card>
-				</TabsContent>
-			</Tabs>
+
+								{showCreatePodcast && (
+									<div className="space-y-4 p-4 border rounded-lg bg-background">
+										<div className="flex items-center justify-between mb-4">
+											<h4 className="font-semibold">{editingPodcast ? "Edit Podcast" : "Create New Podcast"}</h4>
+											{editingPodcast && (
+												<Button onClick={resetPodcastForm} variant="ghost" size="sm">
+													<X className="w-4 h-4" />
+												</Button>
+											)}
+										</div>
+
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<Label htmlFor="podcastName">Podcast Name *</Label>
+												<Input id="podcastName" value={newPodcastName} onChange={e => setNewPodcastName(e.target.value)} placeholder="e.g., Lex Fridman Podcast" />
+											</div>
+											<div>
+												<Label htmlFor="podcastCategory">Category *</Label>
+												<Input id="podcastCategory" value={newPodcastCategory} onChange={e => setNewPodcastCategory(e.target.value)} placeholder="e.g., Technology, Health, Comedy, etc." />
+											</div>
+										</div>
+
+										<div>
+											<Label htmlFor="podcastUrl">Podcast URL *</Label>
+											<Input id="podcastUrl" value={newPodcastUrl} onChange={e => setNewPodcastUrl(e.target.value)} placeholder="https://www.youtube.com/@example" />
+										</div>
+
+										<div>
+											<Label htmlFor="podcastImageUrl">Image URL (Optional)</Label>
+											<Input id="podcastImageUrl" value={newPodcastImageUrl} onChange={e => setNewPodcastImageUrl(e.target.value)} placeholder="https://images.unsplash.com/..." />
+										</div>
+
+										<div>
+											<Label htmlFor="podcastDescription">Description *</Label>
+											<Textarea
+												id="podcastDescription"
+												value={newPodcastDescription}
+												onChange={e => setNewPodcastDescription(e.target.value)}
+												placeholder="Brief description of this podcast..."
+												rows={3}
+											/>
+										</div>
+
+										<Button onClick={editingPodcast ? updatePodcast : createPodcast} disabled={isCreatingPodcast || isUpdatingPodcast} className="w-full" variant={"default"}>
+											{isCreatingPodcast || isUpdatingPodcast ? (
+												<>
+													<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+													{editingPodcast ? "Updating..." : "Creating..."}
+												</>
+											) : editingPodcast ? (
+												<>
+													<Edit className="w-4 h-4 mr-2" />
+													Update Podcast
+												</>
+											) : (
+												<>
+													<Plus className="w-4 h-4 mr-2" />
+													Create Podcast
+												</>
+											)}
+										</Button>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+
+						{/* Existing Podcasts by Category */}
+						{categories.map((category, index) => (
+							<Card key={`category-${category}-${index}-${podcastsByCategory[category].length}`}>
+								<CardHeader>
+									<CardTitle className="flex items-center justify-between">
+										<span>
+											{category} Podcasts ({podcastsByCategory[category].length})
+										</span>
+										<Badge size="sm" variant="outline">
+											{category}
+										</Badge>
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="p-4">
+									<div className="space-y-3">
+										{podcastsByCategory[category].map(podcast => (
+											<div key={podcast.podcast_id} className="flex bg-sub-card items-start justify-between p-3 border border-lines-light shadow-lg rounded-lg">
+												<div className="flex-1">
+													<div className="flex items-center gap-2 mb-1">
+														<h4 className="font-medium">{podcast.name}</h4>
+														<Badge size="sm" variant={podcast.is_active ? "default" : "secondary"}>
+															{podcast.is_active ? "Active" : "Inactive"}
+														</Badge>
+													</div>
+
+													<Link
+														href={podcast.url}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-sm font-bold truncate text-secondary/80 hover:underline truncate block py-2 w-full max-w-[300px]"
+													>
+														{podcast.url}
+													</Link>
+												</div>
+												<div className="flex items-center gap-2 ml-4">
+													<Button onClick={() => togglePodcastActive(podcast)} variant="ghost" size="sm" title={podcast.is_active ? "Deactivate" : "Activate"}>
+														{podcast.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+													</Button>
+													<Button onClick={() => startEditPodcast(podcast)} variant="ghost" size="sm" title="Edit">
+														<Edit className="w-4 h-4" />
+													</Button>
+													<Button
+														onClick={() => deletePodcast(podcast.podcast_id)}
+														disabled={isDeletingPodcast === podcast.podcast_id}
+														variant="ghost"
+														size="sm"
+														className="text-destructive hover:text-destructive hover:bg-destructive/10"
+														title="Delete"
+													>
+														{isDeletingPodcast === podcast.podcast_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
+													</Button>
+												</div>
+											</div>
+										))}
+										{podcastsByCategory[category].length === 0 && <p className="text-center text-muted-foreground py-4">No {category.toLowerCase()} podcasts yet.</p>}
+									</div>
+								</CardContent>
+							</Card>
+						))}
+					</TabsContent>
+
+					{/* Testing Tab */}
+					<TabsContent value="testing" className="space-y-6">
+						<Card>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Sparkles className="w-5 h-5" />
+									Notification Testing
+								</CardTitle>
+								<CardDescription>Test the notification system by creating sample notifications</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-4 p-4">
+								<div className="p-4 bg-muted rounded-lg">
+									<h4 className="font-semibold mb-2">Test Notification System</h4>
+									<p className="text-sm text-muted-foreground mb-4">This will create a test notification that you can see in the notification bell and notifications page.</p>
+									<Button
+										onClick={async () => {
+											try {
+												const response = await fetch("/api/notifications/test", {
+													method: "POST",
+												})
+												if (!response.ok) {
+													throw new Error("Failed to create test notification")
+												}
+												toast.success("Test notification created! Check your notification bell.")
+											} catch (error) {
+												console.error("Error creating test notification:", error)
+												toast.error("Failed to create test notification")
+											}
+										}}
+										variant="outline"
+										className="w-full mb-2"
+									>
+										<Sparkles className="w-4 h-4 mr-2" />
+										Create Test Notification
+									</Button>
+									<Button
+										onClick={async () => {
+											try {
+												const response = await fetch("/api/notifications/verify-email-config")
+												if (!response.ok) {
+													throw new Error("Failed to verify email config")
+												}
+												const result = await response.json()
+												if (result.success) {
+													toast.success("✅ Email configuration verified successfully!")
+												} else {
+													toast.error(`❌ Email config error: ${result.error}`)
+													console.error("Email config details:", result)
+												}
+											} catch (error) {
+												console.error("Error verifying email config:", error)
+												toast.error("Failed to verify email configuration")
+											}
+										}}
+										variant="outline"
+										className="w-full mb-2"
+									>
+										<Sparkles className="w-4 h-4 mr-2" />
+										Verify Email Config
+									</Button>
+									<Button
+										onClick={async () => {
+											try {
+												const response = await fetch("/api/notifications/test-email", {
+													method: "POST",
+												})
+												if (!response.ok) {
+													throw new Error("Failed to send test email")
+												}
+												toast.success("Test email sent! Check your email inbox.")
+											} catch (error) {
+												console.error("Error sending test email:", error)
+												toast.error("Failed to send test email")
+											}
+										}}
+										variant="outline"
+										className="w-full"
+									>
+										<Sparkles className="w-4 h-4 mr-2" />
+										Send Test Email
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					</TabsContent>
+				</Tabs>
+			</div>
 		</div>
 	)
 }
