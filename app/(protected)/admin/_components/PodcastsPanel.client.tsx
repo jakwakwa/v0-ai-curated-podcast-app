@@ -72,9 +72,23 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 
 	const saveEdit = () => {
 		if (!editingPodcastId) return
+		const id = editingPodcastId
+		const prevSnapshot = optimistic[id]
 		startTransition(async () => {
+			// Optimistically update the item in-place
+			setOptimistic(prev => ({
+				...prev,
+				[id]: {
+					...(prev[id] || {}),
+					name: editForm.name,
+					url: editForm.url,
+					description: editForm.description,
+					image_url: editForm.image_url,
+					category: editForm.category,
+				},
+			}))
 			try {
-				await updatePodcastAction(editingPodcastId, {
+				await updatePodcastAction(id, {
 					...(editForm.name ? { name: editForm.name } : {}),
 					...(editForm.description ? { description: editForm.description } : {}),
 					...(editForm.url ? { url: editForm.url } : {}),
@@ -84,6 +98,12 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 				setEditOpen(false)
 				router.refresh()
 			} catch (e) {
+				// Revert on error
+				setOptimistic(prev => {
+					if (prevSnapshot) return { ...prev, [id]: prevSnapshot }
+					const { [id]: _removed, ...rest } = prev
+					return rest
+				})
 				console.error(e)
 			}
 		})

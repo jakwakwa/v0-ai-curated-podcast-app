@@ -24,6 +24,7 @@ export default function BundlesPanelClient({
 	const [selectedPodcastIds, setSelectedPodcastIds] = useState<string[]>([])
 	const [newBundleName, setNewBundleName] = useState("")
 	const [newBundleDescription, setNewBundleDescription] = useState("")
+	const [bundleOptimistic, setBundleOptimistic] = useState<Record<string, { min_plan?: string }>>({})
 
 	const togglePodcastSelection = (id: string) => {
 		setSelectedPodcastIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
@@ -63,9 +64,25 @@ export default function BundlesPanelClient({
 		if (!editingBundleId) return
 		setIsSavingEdit(true)
 		try {
-			await updateBundleVisibilityAction(editingBundleId, editingMinPlan)
+			const id = editingBundleId
+			// Optimistically apply the new visibility
+			setBundleOptimistic(prev => ({
+				...prev,
+				[id]: { ...(prev[id] || {}), min_plan: editingMinPlan },
+			}))
+			await updateBundleVisibilityAction(id, editingMinPlan)
 			setEditOpen(false)
 		} catch (e) {
+			// Revert on error
+			if (editingBundleId) {
+				const id = editingBundleId
+				const prevSnapshot = bundleOptimistic[id]
+				setBundleOptimistic(prev => {
+					if (prevSnapshot) return { ...prev, [id]: prevSnapshot }
+					const { [id]: _removed, ...rest } = prev
+					return rest
+				})
+			}
 			console.error(e)
 		} finally {
 			setIsSavingEdit(false)
@@ -142,7 +159,11 @@ export default function BundlesPanelClient({
 									}}
 								>
 									<DialogTrigger asChild>
-										<Button variant="ghost" size="sm" onClick={() => openEditVisibility(bundle.bundle_id, (bundle as { min_plan?: string }).min_plan)}>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => openEditVisibility(bundle.bundle_id, (bundleOptimistic[bundle.bundle_id]?.min_plan ?? (bundle as { min_plan?: string }).min_plan) || "NONE")}
+										>
 											Edit visibility
 										</Button>
 									</DialogTrigger>

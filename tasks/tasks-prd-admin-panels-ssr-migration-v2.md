@@ -39,6 +39,7 @@
 - `tests/episodes-api-derivation.test.ts` - Existing tests for episodes API behavior.
 - `tests/flags.test.ts` - Unit tests for `lib/flags.ts`.
 - `tests/admin-authorization-smoke.test.ts` - Smoke tests for admin vs non-admin access to `admin/check`, `admin/bundles`, and `admin/podcasts` APIs.
+- `vitest.config.ts` - Vitest config; resolves `@/` path alias for tests.
 
 ### Notes
 
@@ -68,7 +69,7 @@
     - Episodes: keep API for generation and upload (long-running, file I/O, safe GCS init)
   - [x] 3.2 Implement Server Actions in server panels for identified simple mutations ("use server"), reusing Prisma and existing validation (Bundles implemented; Podcasts added)
   - [x] 3.3 Update client panels to call Server Actions (keep `generate-bundle-episode` and `upload-episode` via APIs) — Bundles complete; Podcasts create/update/toggle/delete wired
-  - [ ] 3.4 Optional: Add optimistic UI for simple mutations where safe
+  - [x] 3.4 Optional: Add optimistic UI for simple mutations where safe
 
 - [x] 4.0 Verify and enforce admin authorization across pages, Server Components, Server Actions, and API routes
   - [x] 4.1 Add admin checks to server panels where missing (`BundlesPanel.server.tsx`, `PodcastsPanel.server.tsx`)
@@ -82,6 +83,6 @@
 
 - [ ] 6.0 Tests and quality gates: add/adjust tests, ensure `pnpm build` and `pnpm lint` pass, and validate no regressions
   - [x] 6.1 Add/adjust tests for server-side reads and server actions (at least one per panel)
-  - [ ] 6.2 Run full test suite and fix failures
+  - [x] 6.2 Run full test suite and fix failures
   - [ ] 6.3 Run `pnpm lint` and `pnpm build`; fix issues
   - [ ] 6.4 Prepare a brief migration notes update and verify feature flags behavior in local and CI
