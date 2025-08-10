@@ -75,10 +75,10 @@
   - [x] 4.2 Protect `app/api/admin/test/route.ts` with `requireAdminMiddleware`
   - [x] 4.3 Smoke test access patterns for admin vs non-admin users
 
-- [ ] 5.0 Legacy cleanup: retire `components/admin-components/**` after replacing usages; resolve `collections/[id]` dependency
+- [x] 5.0 Legacy cleanup: retire `components/admin-components/**` after replacing usages; resolve `collections/[id]` dependency
   - [x] 5.1 Rehome `components/admin-components/source-list*` to a non-admin location (e.g., `components/data-components/`) and update imports in `collections/[id]/page.tsx`
-  - [ ] 5.2 Remove `components/admin-components/**` once no references remain
-  - [ ] 5.3 Remove obsolete docs references to CSS modules if any remain relevant
+  - [x] 5.2 Remove `components/admin-components/**` once no references remain
+  - [x] 5.3 Remove obsolete docs references to CSS modules if any remain relevant
 
 - [ ] 6.0 Tests and quality gates: add/adjust tests, ensure `pnpm build` and `pnpm lint` pass, and validate no regressions
   - [ ] 6.1 Add/adjust tests for server-side reads and server actions (at least one per panel)
