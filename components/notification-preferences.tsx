@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import ComponentSpinner from "@/components/ui/component-spinner"
 import DateIndicator from "@/components/ui/date-indicator"
 import { Separator } from "@/components/ui/separator"
-import { SubmitBtn } from "@/components/ui/submit-btn"
+// import { SubmitBtn } from "@/components/ui/submit-btn"
 import { useNotificationStore } from "@/lib/stores/notification-store"
 
 type NotificationSettingsProps = {
@@ -120,7 +120,9 @@ export function NotificationPreferences() {
 					</div>
 
 					{/* Save Button */}
-					<SubmitBtn isUpdating={isUpdating} handleSaveAll={handleSaveAll} />
+					<Button onClick={handleSaveAll} disabled={isUpdating} variant={"default"}>
+						{isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save All"}
+					</Button>
 				</CardContent>
 			</Card>
 

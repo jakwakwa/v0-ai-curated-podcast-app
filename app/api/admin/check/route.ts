@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "@/lib/admin-middleware"
+import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
 
 export async function GET() {
 	try {

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
+import { createBundleAction, updateBundleVisibilityAction } from "./bundles.actions"
 
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
@@ -35,19 +36,21 @@ export default function BundlesPanelClient({
 	const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false)
 
 	const createBundle = async () => {
-		const response = await fetch("/api/admin/bundles", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ name: newBundleName.trim(), description: newBundleDescription.trim(), podcast_ids: selectedPodcastIds, min_plan: minPlan }),
-		})
-		if (!response.ok) {
-			console.error("Failed to create bundle")
-			return
+		const form = new FormData()
+		form.set("name", newBundleName.trim())
+		form.set("description", newBundleDescription.trim())
+		form.set("min_plan", minPlan)
+		selectedPodcastIds.forEach(id => form.append("podcast_ids", id))
+
+		try {
+			const result = await createBundleAction(form)
+			if (!result?.success) throw new Error("Failed to create bundle")
+			setNewBundleName("")
+			setNewBundleDescription("")
+			setSelectedPodcastIds([])
+		} catch (e) {
+			console.error(e)
 		}
-		// No local list refresh here; rely on page refresh or SWR in a future pass
-		setNewBundleName("")
-		setNewBundleDescription("")
-		setSelectedPodcastIds([])
 	}
 
 	const openEditVisibility = (bundleId: string, currentMinPlan: string | undefined) => {
@@ -60,12 +63,10 @@ export default function BundlesPanelClient({
 		if (!editingBundleId) return
 		setIsSavingEdit(true)
 		try {
-			await fetch("/api/admin/bundles", {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ bundle_id: editingBundleId, min_plan: editingMinPlan }),
-			})
+			await updateBundleVisibilityAction(editingBundleId, editingMinPlan)
 			setEditOpen(false)
+		} catch (e) {
+			console.error(e)
 		} finally {
 			setIsSavingEdit(false)
 		}

@@ -1,7 +1,9 @@
+import { requireAdmin } from "@/lib/admin"
 import type { Bundle, Podcast } from "@/lib/types"
 import BundlesPanelClient from "./BundlesPanel.client"
 
 export default async function BundlesPanel() {
+	await requireAdmin()
 	// Fetch via API to inherit gating/admin bypass and shaped podcasts
 	const [bundlesRes, podcastsRes] = await Promise.all([fetch(`/api/curated-bundles`, { cache: "no-store" }), fetch(`/api/curated-podcasts`, { cache: "no-store" })])
 

@@ -2,8 +2,10 @@
 
 - `app/(protected)/admin/_components/BundlesPanel.server.tsx` - Server panel for Bundles; server-side reads and data shaping.
 - `app/(protected)/admin/_components/BundlesPanel.client.tsx` - Client panel for Bundles; interactivity and mutations.
+- `app/(protected)/admin/_components/bundles.actions.ts` - Server Actions for bundles (create, update visibility, membership, delete).
 - `app/(protected)/admin/_components/PodcastsPanel.server.tsx` - Server panel for Podcasts; server-side reads.
-- `app/(protected)/admin/_components/PodcastsPanel.client.tsx` - Client panel for Podcasts; interactivity.
+- `app/(protected)/admin/_components/PodcastsPanel.client.tsx` - Client panel for Podcasts; interactivity (toggle/delete wired to actions).
+- `app/(protected)/admin/_components/podcasts.actions.ts` - Server Actions for podcasts (create, update/toggle, delete).
 - `app/(protected)/admin/_components/EpisodeGenerationPanel.server.tsx` - Server panel for Episodes; server-side reads.
 - `app/(protected)/admin/_components/EpisodeGenerationPanel.client.tsx` - Client panel for Episodes; generation/upload flows.
 - `app/(protected)/admin/_components/stepper.tsx` - Episode flow stepper (UI only).
@@ -34,6 +36,7 @@
 - `tests/curated-bundles-api.test.ts` - Existing tests for curated bundles API.
 - `tests/episodes-api-derivation.test.ts` - Existing tests for episodes API behavior.
 - `tests/flags.test.ts` - Unit tests for `lib/flags.ts`.
+- `tests/admin-authorization-smoke.test.ts` - Smoke tests for admin vs non-admin access to `admin/check`, `admin/bundles`, and `admin/podcasts` APIs.
 
 ### Notes
 
@@ -56,16 +59,19 @@
   - [x] 2.3 Document `.env` usage for flags and add sensible defaults for local dev
   - [x] 2.4 Add minimal unit tests for `lib/flags.ts`
 
-- [ ] 3.0 Migrate simple admin mutations to Server Actions; keep complex/long-running via API routes
-  - [ ] 3.1 Identify simple mutations per panel (e.g., Bundles: create, update visibility; Podcasts: create/update/toggle active)
-  - [ ] 3.2 Implement Server Actions in server panels for identified simple mutations ("use server"), reusing Prisma and existing validation
-  - [ ] 3.3 Update client panels to call Server Actions (keep `generate-bundle-episode` and `upload-episode` via APIs)
+- [x] 3.0 Migrate simple admin mutations to Server Actions; keep complex/long-running via API routes
+  - [x] 3.1 Identify simple mutations per panel (e.g., Bundles: create, update visibility; Podcasts: create/update/toggle active)
+    - Bundles (candidates for Server Actions): create bundle; update `min_plan`; replace podcasts membership; delete bundle (guard checks stay server-side)
+    - Podcasts (candidates for Server Actions): create; update fields; toggle `is_active`; delete (with usage guard)
+    - Episodes: keep API for generation and upload (long-running, file I/O, safe GCS init)
+  - [x] 3.2 Implement Server Actions in server panels for identified simple mutations ("use server"), reusing Prisma and existing validation (Bundles implemented; Podcasts added)
+  - [x] 3.3 Update client panels to call Server Actions (keep `generate-bundle-episode` and `upload-episode` via APIs) — Bundles complete; Podcasts create/update/toggle/delete wired
   - [ ] 3.4 Optional: Add optimistic UI for simple mutations where safe
 
-- [ ] 4.0 Verify and enforce admin authorization across pages, Server Components, Server Actions, and API routes
-  - [ ] 4.1 Confirm all `app/api/admin/**` routes call `requireAdminMiddleware`; add where missing
-  - [ ] 4.2 Add server-side guard usage notes or wrapper to prevent accidental exposure in Server Actions
-  - [ ] 4.3 Smoke test access patterns for admin vs non-admin users
+- [x] 4.0 Verify and enforce admin authorization across pages, Server Components, Server Actions, and API routes
+  - [x] 4.1 Add admin checks to server panels where missing (`BundlesPanel.server.tsx`, `PodcastsPanel.server.tsx`)
+  - [x] 4.2 Protect `app/api/admin/test/route.ts` with `requireAdminMiddleware`
+  - [x] 4.3 Smoke test access patterns for admin vs non-admin users
 
 - [ ] 5.0 Legacy cleanup: retire `components/admin-components/**` after replacing usages; resolve `collections/[id]` dependency
   - [ ] 5.1 Rehome `components/admin-components/source-list*` to a non-admin location (e.g., `components/data-components/`) and update imports in `collections/[id]/page.tsx`

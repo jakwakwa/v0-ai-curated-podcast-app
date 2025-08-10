@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server"
 import { PlanGate } from "@prisma/client"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "@/lib/admin-middleware"
-import { prisma } from "@/lib/prisma"
+import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
+import { prisma } from "../../../../lib/prisma"
 
 export async function GET() {
 	try {
