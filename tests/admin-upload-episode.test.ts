@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { POST as uploadEpisode } from "@/app/api/admin/upload-episode/route"
-import { prisma } from "@/lib/prisma"
+import { POST as uploadEpisode } from "../app/api/admin/upload-episode/route"
+import { prisma } from "../lib/prisma"
 import { createBundle, createPodcast } from "./factories"
 import { resetDb } from "./test-db"
 
@@ -16,6 +16,15 @@ describe("admin upload creates podcast-centric episodes", () => {
 	beforeEach(async () => {
 		await resetDb()
 		globalThis.__mockUserId = "admin-user"
+		// Ensure admin user exists so requireAdminMiddleware passes
+		await prisma.user.create({
+			data: {
+				user_id: "admin-user",
+				email: "admin@test.com",
+				password: "x",
+				is_admin: true,
+			},
+		})
 	})
 
 	it("uses bundle’s first podcast when bundleId is provided and does not set bundle_id", async () => {

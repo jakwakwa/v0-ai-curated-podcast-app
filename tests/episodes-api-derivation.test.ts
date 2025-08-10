@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { GET } from "@/app/api/episodes/route"
-import { prisma } from "@/lib/prisma"
+import { GET } from "../app/api/episodes/route"
+import { prisma } from "../lib/prisma"
 import { createBundle, createPodcast, createUser } from "./factories"
 import { resetDb } from "./test-db"
 

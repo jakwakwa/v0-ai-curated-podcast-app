@@ -2,6 +2,7 @@ import "dotenv/config"
 import fs from "node:fs"
 import { config as loadEnv } from "dotenv"
 import "@testing-library/jest-dom"
+import { vi } from "vitest"
 
 // Load .env.test if present
 if (fs.existsSync(".env.test")) {
@@ -32,4 +33,15 @@ const originalLog = console.log
 console.log = (...args: any[]) => {
 	if (silence.some(s => String(args[0] ?? "").includes(s))) return
 	originalLog(...args)
+}
+
+// Mock Clerk server auth by default to avoid importing the real module in route handlers
+vi.mock("@clerk/nextjs/server", () => ({
+	auth: vi.fn(async () => ({ userId: globalThis.__mockUserId ?? "test-user" })),
+	currentUser: vi.fn(async () => ({ id: globalThis.__mockUserId ?? "test-user", emailAddresses: [] })),
+}))
+
+declare global {
+	// eslint-disable-next-line no-var
+	var __mockUserId: string | null | undefined
 }

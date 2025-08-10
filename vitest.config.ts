@@ -9,14 +9,21 @@ export default defineConfig({
 		environment: "node",
 		globals: true,
 		setupFiles: ["./tests/setup.ts"],
-		coverage: { provider: "v8" },
-		pool: "threads",
+		 coverage: { provider: "v8" },
+		 pool: "threads",
+		 poolOptions: {
+			 threads: { singleThread: true },
+		 },
 	},
 	// Avoid loading project PostCSS config during tests
 	css: { postcss: {} },
 	resolve: {
-		alias: {
-			"@": path.join(rootDir, "."),
-		},
+		alias: [
+			// Map @/xxx → <repoRoot>/xxx
+			{ find: /^@\//, replacement: path.join(rootDir, "/") },
+		],
+		conditions: ["import", "module", "browser", "default"],
+		mainFields: ["module", "main"],
 	},
+	plugins: [],
 })

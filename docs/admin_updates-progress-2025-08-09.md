@@ -32,6 +32,16 @@
   - `PATCH` accepts `min_plan` and atomically replaces `bundle_podcast` relationships.
   - `POST` returns created bundle with relations (normalized shape).
 
+- Testing & Validation (new)
+  - Added Vitest-based test environment with project-specific configuration.
+  - Implemented DB reset helper compatible with shared DBs (DELETE fallback).
+  - Global mocks for `@clerk/nextjs/server` to enable API route testing.
+  - Wrote podcast-centric derivation tests:
+    - Admin upload creates episodes with `podcast_id` and no `bundle_id`.
+    - Curated bundles API returns podcasts + gating; admin bypass validated.
+    - Episodes API derives visibility from selected bundle podcasts + user’s profile episodes.
+  - Stabilized imports by mapping `@/` to repo root for Vitest and replacing brittle aliases with relative imports where necessary.
+
 - Prior (already in place):
   - `prisma/schema.prisma`: `PlanGate` enum + `Bundle.min_plan`; migration completed.
   - Podcast-centric episode flow in `inngest/gemini-tts.ts` and `app/api/admin/upload-episode/route.ts`.
@@ -50,5 +60,7 @@
 
 ### Notes
 - Build was not run per instruction. The last local fixes addressed prior TS errors in the episode generation panel and removed unused `@ts-expect-error` annotations.
+
+- Test suite now passes end-to-end against test DB; use `pnpm test:db:deploy` then `pnpm test`.
 
 

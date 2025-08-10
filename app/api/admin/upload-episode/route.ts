@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server"
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "@/lib/admin-middleware"
-import { prisma } from "@/lib/prisma"
-import { withUploadTimeout } from "@/lib/utils"
+import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
+import { prisma } from "../../../../lib/prisma"
+import { withUploadTimeout } from "../../../../lib/utils"
 
 // Force this API route to be dynamic since it uses auth()
 // export const dynamic = "force-dynamic"
@@ -14,54 +14,50 @@ export const maxDuration = 300 // 5 minutes for file uploads
 let _storageUploader: Storage | undefined
 
 function looksLikeJson(value: string | undefined): boolean {
-    if (!value) return false
-    const trimmed = value.trim()
-    return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
+	if (!value) return false
+	const trimmed = value.trim()
+	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
 }
 
 function getUploaderRaw(): string | undefined {
-    return (
-        process.env.GCS_UPLOADER_KEY_JSON ||
-        process.env.GCS_UPLOADER_KEY ||
-        process.env.GCS_UPLOADER_KEY_PATH
-    )
+	return process.env.GCS_UPLOADER_KEY_JSON || process.env.GCS_UPLOADER_KEY || process.env.GCS_UPLOADER_KEY_PATH
 }
 
 function getStorageUploader(): Storage {
-    if (_storageUploader) return _storageUploader
-    const raw = getUploaderRaw()
-    if (!raw) {
-        // Do not leak env var names or values beyond this message
-        throw new Error("Google Cloud credentials for uploader are not configured")
-    }
-    try {
-        if (looksLikeJson(raw)) {
-            _storageUploader = new Storage({ credentials: JSON.parse(raw) })
-        } else {
-            _storageUploader = new Storage({ keyFilename: raw })
-        }
-        return _storageUploader
-    } catch (err) {
-        throw new Error("Failed to initialize Google Cloud Storage uploader")
-    }
+	if (_storageUploader) return _storageUploader
+	const raw = getUploaderRaw()
+	if (!raw) {
+		// Do not leak env var names or values beyond this message
+		throw new Error("Google Cloud credentials for uploader are not configured")
+	}
+	try {
+		if (looksLikeJson(raw)) {
+			_storageUploader = new Storage({ credentials: JSON.parse(raw) })
+		} else {
+			_storageUploader = new Storage({ keyFilename: raw })
+		}
+		return _storageUploader
+	} catch (_err) {
+		throw new Error("Failed to initialize Google Cloud Storage uploader")
+	}
 }
 
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
 	try {
-        const storage = getStorageUploader()
-        const [exists] = await storage.bucket(bucketName).exists()
+		const storage = getStorageUploader()
+		const [exists] = await storage.bucket(bucketName).exists()
 
 		if (!exists) {
 			console.error("ERROR: Bucket does not exist:", bucketName)
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
 
-        await withUploadTimeout(storage.bucket(bucketName).file(destinationFileName).save(data))
+		await withUploadTimeout(storage.bucket(bucketName).file(destinationFileName).save(data))
 		return { success: true, fileName: destinationFileName }
-	} catch (error) {
-        console.error("Upload error")
-        // Avoid leaking sensitive path/JSON in error messages
-        throw new Error("Failed to upload content")
+	} catch (_error) {
+		console.error("Upload error")
+		// Avoid leaking sensitive path/JSON in error messages
+		throw new Error("Failed to upload content")
 	}
 }
 
@@ -81,13 +77,13 @@ export async function POST(request: Request) {
 		}
 
 		const formData = await request.formData()
-        const bundleId = (formData.get("bundleId") as string) || ""
+		const bundleId = (formData.get("bundleId") as string) || ""
 		const title = formData.get("title") as string
 		const description = formData.get("description") as string
 		const image_url = formData.get("image_url") as string | null
 		const file = formData.get("file") as File
 		const audioUrl = formData.get("audioUrl") as string | null
-        const providedPodcastId = (formData.get("podcastId") as string) || ""
+		const providedPodcastId = (formData.get("podcastId") as string) || ""
 
 		console.log("Upload episode request:", {
 			bundleId,
@@ -100,7 +96,7 @@ export async function POST(request: Request) {
 		})
 
 		// Validate that either file or audioUrl is provided
-        if (!(title && (file || audioUrl))) {
+		if (!(title && (file || audioUrl))) {
 			console.log("Validation failed:", {
 				title: !!title,
 				file: !!file,
@@ -114,13 +110,13 @@ export async function POST(request: Request) {
 			)
 		}
 
-        // Optional bundle context
-        const bundle = bundleId
-            ? await prisma.bundle.findUnique({
-                where: { bundle_id: bundleId },
-                include: { bundle_podcast: { include: { podcast: true } } },
-            })
-            : null
+		// Optional bundle context
+		const bundle = bundleId
+			? await prisma.bundle.findUnique({
+					where: { bundle_id: bundleId },
+					include: { bundle_podcast: { include: { podcast: true } } },
+				})
+			: null
 
 		let finalAudioUrl: string
 
@@ -152,32 +148,32 @@ export async function POST(request: Request) {
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
 		// Use the first podcast from the bundle as the podcast reference
-        const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
-        const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
+		const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
+		const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
 
-        if (!finalPodcastId) {
-            return NextResponse.json({ message: "podcastId is required when no bundle is provided" }, { status: 400 })
-        }
+		if (!finalPodcastId) {
+			return NextResponse.json({ message: "podcastId is required when no bundle is provided" }, { status: 400 })
+		}
 
 		console.log("Creating episode with:", {
 			title,
 			audioUrl: finalAudioUrl,
-            bundleId: bundleId || undefined,
-            podcastId: finalPodcastId,
-            hasFirstPodcast: !!firstPodcast,
+			bundleId: bundleId || undefined,
+			podcastId: finalPodcastId,
+			hasFirstPodcast: !!firstPodcast,
 		})
 
-        const episode = await prisma.episode.create({
+		const episode = await prisma.episode.create({
 			data: {
 				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				title,
 				description: description || "",
 				audio_url: finalAudioUrl,
-                image_url: image_url || bundle?.image_url || null,
+				image_url: image_url || bundle?.image_url || null,
 				published_at: new Date(),
 				week_nr: currentWeek,
-                // No bundle_id: episodes are podcast-centric
-                podcast_id: finalPodcastId,
+				// No bundle_id: episodes are podcast-centric
+				podcast_id: finalPodcastId,
 			},
 		})
 

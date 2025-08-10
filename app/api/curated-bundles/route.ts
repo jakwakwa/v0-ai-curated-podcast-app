@@ -2,12 +2,13 @@ import { auth } from "@clerk/nextjs/server"
 import { type NextRequest, NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
-import { prisma } from "@/lib/prisma"
+
+import { prisma } from "../../../lib/prisma"
 
 function resolveAllowedGates(plan: string | null | undefined): Array<"NONE" | "CASUAL_LISTENER" | "CURATE_CONTROL"> {
-    if (plan === "curate_control") return ["NONE", "CASUAL_LISTENER", "CURATE_CONTROL"]
-    if (plan === "casual_listener") return ["NONE", "CASUAL_LISTENER"]
-    return ["NONE"]
+	if (plan === "curate_control") return ["NONE", "CASUAL_LISTENER", "CURATE_CONTROL"]
+	if (plan === "casual_listener") return ["NONE", "CASUAL_LISTENER"]
+	return ["NONE"]
 }
 
 export async function GET(_request: NextRequest) {
@@ -18,20 +19,20 @@ export async function GET(_request: NextRequest) {
 			return NextResponse.json([])
 		}
 
-        const { userId } = await auth()
-        let plan: string | null = null
-        if (userId) {
-            const sub = await prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } })
-            plan = sub?.plan_type ?? null
-            // Admin bypass: treat admin as highest plan
-            const user = await prisma.user.findUnique({ where: { user_id: userId }, select: { is_admin: true } })
-            if (user?.is_admin) {
-                plan = "curate_control"
-            }
-        }
-        const allowedGates = resolveAllowedGates(plan)
+		const { userId } = await auth()
+		let plan: string | null = null
+		if (userId) {
+			const sub = await prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } })
+			plan = sub?.plan_type ?? null
+			// Admin bypass: treat admin as highest plan
+			const user = await prisma.user.findUnique({ where: { user_id: userId }, select: { is_admin: true } })
+			if (user?.is_admin) {
+				plan = "curate_control"
+			}
+		}
+		const allowedGates = resolveAllowedGates(plan)
 
-        // Get all active bundles (return locked ones too)
+		// Get all active bundles (return locked ones too)
 		const bundles = await prisma.bundle.findMany({
 			where: { is_active: true },
 			include: {
@@ -44,21 +45,21 @@ export async function GET(_request: NextRequest) {
 			orderBy: { created_at: "desc" },
 		})
 
-        // Transform with gating info
-        const transformedBundles = bundles.map(bundle => {
-            // @ts-ignore - min_plan exists on Bundle model
-            const gate = (bundle as any).min_plan as "NONE" | "CASUAL_LISTENER" | "CURATE_CONTROL" | undefined
-            const canInteract = gate ? allowedGates.includes(gate) : true
-            const lockReason = canInteract ? null : "This bundle requires a higher plan."
-            return {
-                ...bundle,
-                podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
-                canInteract,
-                lockReason,
-            }
-        })
+		// Transform with gating info
+		const transformedBundles = bundles.map(bundle => {
+			// @ts-ignore - min_plan exists on Bundle model
+			const gate = (bundle as any).min_plan as "NONE" | "CASUAL_LISTENER" | "CURATE_CONTROL" | undefined
+			const canInteract = gate ? allowedGates.includes(gate) : true
+			const lockReason = canInteract ? null : "This bundle requires a higher plan."
+			return {
+				...bundle,
+				podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
+				canInteract,
+				lockReason,
+			}
+		})
 
-        return NextResponse.json(transformedBundles, { headers: { "Cache-Control": "no-store" } })
+		return NextResponse.json(transformedBundles, { headers: { "Cache-Control": "no-store" } })
 	} catch (error) {
 		console.error("[CURATED_BUNDLES_GET]", error)
 		// Return empty array instead of error during build or if database schema is not ready

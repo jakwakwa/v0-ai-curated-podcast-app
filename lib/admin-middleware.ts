@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { isAdmin } from "@/lib/admin"
+import { isAdmin } from "./admin"
 
 export async function requireAdminMiddleware() {
 	try {

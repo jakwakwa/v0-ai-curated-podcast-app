@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "../lib/prisma"
 
 export async function createUser(overrides: Partial<Parameters<typeof prisma.user.create>[0]["data"]> = {}) {
 	return prisma.user.create({

@@ -32,7 +32,8 @@
         "./store/*",
         "./config/*",
         "./prisma/*",
-        "./scripts/*"
+        "./scripts/*",
+				"./tests/*"
       ],
       "components/ui/*": [
         "./components/ui/*",

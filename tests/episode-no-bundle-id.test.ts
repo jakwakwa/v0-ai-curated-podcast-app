@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "../lib/prisma"
 import { createPodcast } from "./factories"
 import { resetDb } from "./test-db"
 
