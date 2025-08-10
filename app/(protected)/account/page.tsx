@@ -43,7 +43,7 @@ export default function AccountSettingsPage() {
 				</div>
 
 				<Tabs defaultValue="profile" className="space-y-6">
-					<TabsList className="grid w-full grid-cols-4 bg-card border border-[var(--color-border)] h-14">
+					<TabsList className="grid w-full grid-cols-4 bg-background py-2  border border-[var(--color-border)]">
 						<TabsTrigger
 							value="profile"
 							className="data-[state=active]:bg-[#000]/50 data-[state=active]:text-[var(--color-button-secondary-foreground)] text-foreground hover:bg-secondary hover:text-foreground h-12"

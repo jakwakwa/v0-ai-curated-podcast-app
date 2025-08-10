@@ -36,7 +36,7 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
 		// Always include home/dashboard as the first item
 		const breadcrumbs: BreadcrumbItem[] = [
 			{
-				label: "Home",
+				label: "PODSLICE.AI",
 				href: "/dashboard",
 			},
 		]

@@ -164,7 +164,7 @@ function Sidebar({
 					data-sidebar="sidebar"
 					data-slot="sidebar"
 					data-mobile="true"
-					className="bg-[#00000000] text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
+					className="bg-[oklch(14.67 44.94 294.66)text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
 					style={
 						{
 							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -209,7 +209,7 @@ function Sidebar({
 					// Adjust the padding for floating and inset variants.
 					variant === "floating" || variant === "inset"
 						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r-b-light border-r-[1px solid] group-data-[side=right]:border-l",
+						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r-[#0A0B0D] border-r-[1px solid] group-data-[side=right]:border-l shadow-inset shadow-l-lg",
 					className
 				)}
 				{...props}

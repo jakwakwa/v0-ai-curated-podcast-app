@@ -12,8 +12,8 @@ import { prisma } from "../lib/prisma"
 import { inngest } from "./client"
 
 type SourceWithTranscript = Omit<PodcastModel, "created_at"> & {
-    createdAt: string
-    transcript: string
+	createdAt: string
+	transcript: string
 }
 
 type AdminSourceData = {
@@ -74,7 +74,7 @@ function initStorageClients(): { storageUploader: Storage; storageReader: Storag
             console.log("Initializing Storage clients (JSON credentials)")
             storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw) })
             storageReader = new Storage({ credentials: JSON.parse(readerRaw) })
-        } else {
+	} else {
             console.log("Initializing Storage clients (key file paths)")
             storageUploader = new Storage({ keyFilename: uploaderRaw })
             storageReader = new Storage({ keyFilename: readerRaw })
@@ -94,7 +94,7 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
         const bucketName = ensureBucketName()
         console.log(`Uploading to bucket: ${bucketName}`)
 
-        const [exists] = await storageUploader.bucket(bucketName).exists()
+		const [exists] = await storageUploader.bucket(bucketName).exists()
 
 		if (!exists) {
 			console.error("ERROR: Bucket does not exist:", bucketName)
@@ -115,11 +115,11 @@ async function _readContentFromBucket(fileName: string): Promise<Buffer> {
     try {
         const { storageReader } = initStorageClients()
         const bucketName = ensureBucketName()
-        const [fileBuffer] = await storageReader.bucket(bucketName).file(fileName).download()
+		const [fileBuffer] = await storageReader.bucket(bucketName).file(fileName).download()
 		return fileBuffer
     } catch {
         throw new Error("Failed to read content")
-    }
+	}
 }
 
 const googleAI = createGoogleGenerativeAI({ fetch: global.fetch })
@@ -605,7 +605,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			// Use the first podcast from the bundle as the podcast reference
 			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
 
-            const episode = await prisma.episode.create({
+			const episode = await prisma.episode.create({
 				data: {
 					episode_id: randomUUID(),
 					title: episodeTitle,

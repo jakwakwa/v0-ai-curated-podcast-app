@@ -31,4 +31,6 @@ const Body = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography
 
 const Muted = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography variant="muted" as="p" {...props} />
 
+const _Span = (props: Omit<TypographyComponent, "variant" | "as">) => <Typography variant="muted" as="span" {...props} />
+
 export { Typography, H1, H2, H3, H4, H5, Body, Muted }

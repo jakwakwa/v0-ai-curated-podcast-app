@@ -20,14 +20,14 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] bg-background backdrop-blur-md ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0">
 					<div className="flex items-center gap-2 px-2 md:px-4">
 						{/* @ts-ignore */}
-						<SidebarTrigger className="-ml-1" />
+						<SidebarTrigger className="ml-2" />
 						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
 						<DynamicBreadcrumb />
 					</div>
 				</header>
 
-				<main className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-1 md:px-12 mt-12 md:mt-12 mb-20 ${state === "expanded" ? "w-full" : "w-full"}`}>
-					<div className="w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-8 min-h-screen">{children}</div>
+				<main className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-0 md:px-12 mt-8 md:mt-14 mb-20 ${state === "expanded" ? "w-full" : "w-full"}`}>
+					<div className="w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-2 md:px-8 min-h-screen">{children}</div>
 				</main>
 			</SidebarInset>
 		</>

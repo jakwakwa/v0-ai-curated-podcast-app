@@ -10,92 +10,225 @@ Your Prisma schema uses `@map` directives to map camelCase field names to snake_
 
 ### ✅ CORRECT Field Names (Use These)
 
-#### Episode Model Relations
-```typescript
-// Episode relations
-userProfile: UserCurationProfile?  // ✅ CORRECT (camelCase)
-bundle: Bundle?                    // ✅ CORRECT (camelCase)
+```prisma
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
 
-// Database field names (in where clauses)
-user_id: string                    // ✅ CORRECT (snake_case)
-profile_id: string                 // ✅ CORRECT (snake_case)
-bundle_id: string                  // ✅ CORRECT (snake_case)
-podcast_id: string                 // ✅ CORRECT (snake_case)
-```
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-#### Bundle Model Relations
-```typescript
-// Bundle relations  
-bundle_podcast: BundlePodcast[]    // ✅ CORRECT (snake_case)
-user_curation_profile: UserCurationProfile[] // ✅ CORRECT (snake_case)
+model User {
+  user_id                String               @id @default(cuid()) @map("user_id")
+  name                   String?              @map("name")
+  email                  String               @unique @map("email")
+  password               String               @map("password")
+  image                  String?              @map("image")
+  email_verified         DateTime?            @map("email_verified")
+  is_admin               Boolean              @default(false) @map("is_admin")
+  email_notifications    Boolean              @default(true) @map("email_notifications")
+  in_app_notifications   Boolean              @default(true) @map("in_app_notifications")
+  created_at             DateTime             @default(now()) @map("created_at")
+  updated_at             DateTime             @updatedAt @map("updated_at")
+  paystack_customer_id   String?              @unique @map("paystack_customer_id")
+  paddle_customer_id     String?              @unique @map("paddle_customer_id")
+  ownedBundles           Bundle[]
+  feedback               EpisodeFeedback[]
+  notifications          Notification[]
+  ownedPodcasts          Podcast[]
+  subscriptions          Subscription[]
+  userCurationProfile    UserCurationProfile?
 
-// Database field names
-bundle_id: string                  // ✅ CORRECT
-owner_user_id: string              // ✅ CORRECT
-```
+  @@map("user")
+}
 
-#### UserCurationProfile Model Relations
-```typescript
-// UserCurationProfile relations
-selectedBundle: Bundle?            // ✅ CORRECT (camelCase)
-user: User                         // ✅ CORRECT (camelCase)
+/// ───────────────────────────────────
+/// UNIFIED PODCAST CATALOG
+/// ───────────────────────────────────
+model Podcast {
+  podcast_id    String           @id @default(uuid()) @map("podcast_id")
+  name          String           @map("name")
+  description   String?          @map("description")
+  url           String           @unique @map("url")
+  image_url     String?          @map("image_url")
+  category      String?          @map("category")
+  is_active     Boolean          @default(true) @map("is_active")
+  owner_user_id String?          @map("owner_user_id")
+  created_at    DateTime         @default(now()) @map("created_at")
+  bundle_podcast BundlePodcast[]
+  episodes      Episode[]
+  ownerUser     User?            @relation(fields: [owner_user_id], references: [user_id])
+  profile_podcast ProfilePodcast[]
 
-// Database field names
-profile_id: string                 // ✅ CORRECT
-user_id: string                    // ✅ CORRECT
-selected_bundle_id: string         // ✅ CORRECT selected_bundle_id: // ✅ CORRECT
+  @@index([owner_user_id])
+  @@index([is_active])
+  @@map("podcast")
+}
 
-```
+/// ───────────────────────────────────
+/// UNIFIED EPISODE TABLE
+/// ───────────────────────────────────
+model Episode {
+  episode_id    String               @id @default(uuid()) @map("episode_id")
+  podcast_id    String               @map("podcast_id")
+  profile_id    String?              @map("profile_id")
+  bundle_id     String?              @map("bundle_id")
+  title         String               @map("title")
+  description   String?              @map("description")
+  audio_url     String               @map("audio_url")
+  image_url     String?              @map("image_url")
+  published_at  DateTime?            @map("published_at")
+  week_nr       DateTime?            @map("week_nr")
+  created_at    DateTime             @default(now()) @map("created_at")
+  bundle        Bundle?              @relation(fields: [bundle_id], references: [bundle_id])
+  podcast       Podcast              @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
+  userProfile   UserCurationProfile? @relation(fields: [profile_id], references: [profile_id])
+  feedback      EpisodeFeedback[]
 
-### ❌ WRONG Field Names (Never Use These)
-```typescript
-// ❌ WRONG - Don't use these
-user_profile: UserCurationProfile?
-selected_bundle: Bundle?
-bundlePodcast: BundlePodcast[]
-userProfile: UserCurationProfile?  // This is correct for Episode model
-```
+  @@index([podcast_id, week_nr], map: "episode_podcast_week_idx")
+  @@index([published_at])
+  @@index([profile_id], map: "episode_profile_idx")
+  @@index([bundle_id], map: "episode_bundle_idx")
+  @@map("episode")
+}
 
-### Correct API Query Patterns
+/// ───────────────────────────────────
+/// BUNDLES (static or user-custom)
+/// ───────────────────────────────────
+model Bundle {
+  bundle_id     String                @id @default(uuid()) @map("bundle_id")
+  name          String                @map("name")
+  description   String?               @map("description")
+  image_url     String?               @map("image_url")
+  is_static     Boolean               @default(true) @map("is_static")
+  is_active     Boolean               @default(true) @map("is_active")
+  owner_user_id String?               @map("owner_user_id")
+  min_plan      PlanGate              @default(NONE) @map("min_plan")
+  created_at    DateTime              @default(now()) @map("created_at")
+  ownerUser     User?                 @relation(fields: [owner_user_id], references: [user_id])
+  bundle_podcast BundlePodcast[]
+  episodes      Episode[]
+  user_curation_profile UserCurationProfile[]
 
-#### Episode Query Pattern
-```typescript
-const episodes = await prisma.episode.findMany({
-  where: {
-    OR: [
-      { userProfile: { user_id: userId } },           // ✅ CORRECT
-      {
-        bundle: {
-          user_curation_profile: {                    // ✅ CORRECT
-            some: { user_id: userId },
-          },
-        },
-      },
-    ],
-  },
-  include: {
-    podcast: true,
-    userProfile: {                                    // ✅ CORRECT
-      include: {
-        selectedBundle: {                             // ✅ CORRECT
-          include: {
-            bundle_podcast: {                         // ✅ CORRECT
-              include: { podcast: true },
-            },
-          },
-        },
-      },
-    },
-    bundle: {                                         // ✅ CORRECT
-      include: {
-        bundle_podcast: {                             // ✅ CORRECT
-          include: { podcast: true },
-        },
-      },
-    },
-  },
-  orderBy: { created_at: "desc" },                   // ✅ CORRECT
-})
+  @@index([is_static, is_active], map: "bundle_static_active_idx")
+  @@index([owner_user_id], map: "bundle_owner_idx")
+  @@map("bundle")
+}
+
+/// Junction table: Bundle ↔ Podcast
+model BundlePodcast {
+  bundle_id  String  @map("bundle_id")
+  podcast_id String  @map("podcast_id")
+  bundle     Bundle  @relation(fields: [bundle_id], references: [bundle_id], onDelete: Cascade)
+  podcast    Podcast @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
+
+  @@id([bundle_id, podcast_id])
+  @@map("bundle_podcast")
+}
+
+/// ───────────────────────────────────
+/// USER CURATION PROFILES
+/// ───────────────────────────────────
+model UserCurationProfile {
+  profile_id            String           @id @default(uuid()) @map("profile_id")
+  user_id               String           @unique @map("user_id")
+  name                  String           @map("name")
+  status                String           @default("Draft") @map("status")
+  audio_url             String?          @map("audio_url")
+  image_url             String?          @map("image_url")
+  created_at            DateTime         @default(now()) @map("created_at")
+  updated_at            DateTime         @updatedAt @map("updated_at")
+  generated_at          DateTime?        @map("generated_at")
+  last_generation_date  DateTime?        @map("last_generation_date")
+  next_generation_date  DateTime?        @map("next_generation_date")
+  is_active             Boolean          @default(true) @map("is_active")
+  is_bundle_selection   Boolean          @default(false) @map("is_bundle_selection")
+  selected_bundle_id    String?          @map("selected_bundle_id")
+  episodes              Episode[]
+  profile_podcast       ProfilePodcast[]
+  selectedBundle        Bundle?          @relation(fields: [selected_bundle_id], references: [bundle_id])
+  user                  User             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("user_curation_profile")
+}
+
+/// Junction table: UserCurationProfile ↔ Podcast
+model ProfilePodcast {
+  profile_id String              @map("profile_id")
+  podcast_id String              @map("podcast_id")
+  podcast    Podcast             @relation(fields: [podcast_id], references: [podcast_id], onDelete: Cascade)
+  profile    UserCurationProfile @relation(fields: [profile_id], references: [profile_id], onDelete: Cascade)
+
+  @@id([profile_id, podcast_id])
+  @@map("profile_podcast")
+}
+
+/// ───────────────────────────────────
+/// SUPPORTING MODELS (unchanged logic)
+/// ───────────────────────────────────
+model Notification {
+  notification_id String   @id @default(uuid()) @map("notification_id")
+  user_id         String   @map("user_id")
+  type            String   @map("type")
+  message         String   @map("message")
+  is_read         Boolean  @default(false) @map("is_read")
+  created_at      DateTime @default(now()) @map("created_at")
+  user            User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("notification")
+}
+
+model Subscription {
+  subscription_id            String    @id @default(uuid()) @map("subscription_id")
+  user_id                    String    @map("user_id")
+  paystack_subscription_code String?   @unique @map("paystack_subscription_code")
+  paystack_plan_code         String?   @map("paystack_plan_code")
+  paddle_subscription_id     String?   @unique @map("paddle_subscription_id")
+  paddle_price_id            String?   @map("paddle_price_id")
+  plan_type                  String    @default("casual_listener") @map("plan_type")
+  status                     String    @default("trialing") @map("status")
+  current_period_start       DateTime? @map("current_period_start")
+  current_period_end         DateTime? @map("current_period_end")
+  trial_start                DateTime? @map("trial_start")
+  trial_end                  DateTime? @map("trial_end")
+  canceled_at                DateTime? @map("canceled_at")
+  cancel_at_period_end       Boolean   @default(false) @map("cancel_at_period_end")
+  created_at                 DateTime  @default(now()) @map("created_at")
+  updated_at                 DateTime  @updatedAt @map("updated_at")
+  user                       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("subscription")
+}
+
+model EpisodeFeedback {
+  feedback_id String         @id @default(uuid()) @map("feedback_id")
+  user_id     String         @map("user_id")
+  episode_id  String         @map("episode_id")
+  rating      FeedbackRating @map("rating")
+  created_at  DateTime       @default(now()) @map("created_at")
+  updated_at  DateTime       @updatedAt @map("updated_at")
+  episode     Episode        @relation(fields: [episode_id], references: [episode_id], onDelete: Cascade)
+  user        User           @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@unique([user_id, episode_id])
+  @@map("episode_feedback")
+}
+
+enum FeedbackRating {
+  THUMBS_UP
+  THUMBS_DOWN
+  NEUTRAL
+}
+
+/// Access gate for curated bundles
+enum PlanGate {
+  NONE            /// Free (all users)
+  CASUAL_LISTENER /// Tier 2 and Tier 3
+  CURATE_CONTROL  /// Tier 3 only
+}
 ```
 
 ---

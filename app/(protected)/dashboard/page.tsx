@@ -12,7 +12,6 @@ import UserFeedSelector from "@/components/features/user-feed-selector"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { PageHeader } from "@/components/ui/page-header"
@@ -92,7 +91,7 @@ export default function Page() {
 		setPlayingEpisodeId(null)
 	}, [])
 
-	const handleRefreshData = async () => {
+	const _handleRefreshData = async () => {
 		await refreshData()
 	}
 
@@ -122,24 +121,13 @@ export default function Page() {
 	}
 
 	return (
-		<div className="container mx-auto pb-12 w-full pt-12 px-2 md:px-4">
-			<Card variant="glass" className="flex flex-col pb-12 w-full px-2 md:px-4">
-				<div className="flex items-center justify-between w-full pt-8 pb-0 px-2 md:px-4">
-					<div className="flex items-center gap-4">
-						<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
-					</div>
-					<Button variant="ghost" className="flex items-center gap-2" size="xs" onClick={handleRefreshData} disabled={isLoading}>
-						{isLoading ? (
-							<AppSpinner size="xs" />
-						) : (
-							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-							</svg>
-						)}
-						Refresh Episodes
-					</Button>
-				</div>
-				<div className="flex flex-col px-2 md:px-4 mx-auto w-full md:gap-3 md:flex-col-reverse lg:flex-row">
+		<div className="mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+			{/* MAIN CONTAINER */}
+
+			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
+
+			<Card variant="glass" className="flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+				<div className="flex flex-col px-2 md:px-2 mx-auto w-full gap-4 md:flex-col-reverse lg:flex-row">
 					<div className="w-full  md:w-full  md:min-w-[280px] md:max-w-[300px] ">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
@@ -157,7 +145,7 @@ export default function Page() {
 						)}
 					</div>
 
-					<div className="w-100 min-w-none max-w-screen md:min-w-[700px] md:max-w-[700px]">
+					<div className="w-full min-w-none max-w-screen md:min-w-[700px]">
 						{combinedEpisodes.length === 0 ? (
 							<EmptyStateCard
 								title="No Episodes Found"

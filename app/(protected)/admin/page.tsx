@@ -1,6 +1,7 @@
 "use client"
 
 import { Edit, Eye, EyeOff, FolderPlus, Mic, Plus, Sparkles, Trash2, X } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -11,13 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// removed Select imports; using AdminSelector for selections
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import EpisodeGenerationPanel from "./_components/EpisodeGenerationPanel.server"
-import BundlesPanel from "./_components/BundlesPanel.server"
-import PodcastsPanel from "./_components/PodcastsPanel.server"
 import type { Bundle, Podcast } from "@/lib/types"
+import AdminSelector from "./_components/AdminSelector"
+import Stepper from "./_components/stepper"
 
 interface EpisodeSource {
 	id: string
@@ -36,13 +36,14 @@ interface AdminGenerationRequest {
 
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
+type BundleWithMeta = BundleWithPodcasts & { canInteract?: boolean; lockReason?: string | null; min_plan?: string }
 
 export default function AdminPage() {
 	const router = useRouter()
 	const [adminStatus, setAdminStatus] = useState<boolean | null>(null)
 	const [isCheckingAdmin, setIsCheckingAdmin] = useState(true)
 
-	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([])
+	const [bundles, setBundles] = useState<BundleWithMeta[]>([])
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
 	const [episodeTitle, setEpisodeTitle] = useState<string>("")
 	const [episodeDescription, setEpisodeDescription] = useState<string>("")
@@ -59,16 +60,20 @@ export default function AdminPage() {
 	const [audioUrl, setAudioUrl] = useState<string>("")
 	const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file")
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
+	const [selectedUploadPodcastId, setSelectedUploadPodcastId] = useState<string>("")
 
 	// Bundle management state
 	const [showCreateBundle, setShowCreateBundle] = useState(false)
 	const [newBundleName, setNewBundleName] = useState<string>("")
 	const [newBundleDescription, setNewBundleDescription] = useState<string>("")
 	const [newBundleImageUrl, setNewBundleImageUrl] = useState<string>("")
+	const [newBundleMinPlan, setNewBundleMinPlan] = useState<string>("NONE")
 	const [availablePodcasts, setAvailablePodcasts] = useState<Podcast[]>([])
 	const [selectedPodcastIds, setSelectedPodcastIds] = useState<string[]>([])
 	const [isCreatingBundle, setIsCreatingBundle] = useState(false)
 	const [isDeletingBundle, setIsDeletingBundle] = useState<string | null>(null)
+	const [bundleMinPlanEdits, setBundleMinPlanEdits] = useState<Record<string, string>>({})
+	const [isSavingBundleMinPlanId, setIsSavingBundleMinPlanId] = useState<string | null>(null)
 
 	// Podcast management state
 	const [showCreatePodcast, setShowCreatePodcast] = useState(false)
@@ -234,15 +239,16 @@ export default function AdminPage() {
 	const uploadEpisode = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		// Validate based on upload method
+		// Validate based on upload method and ensure either bundle or podcast is provided
+		const hasTarget = !!(selectedBundleId || selectedUploadPodcastId)
 		if (uploadMethod === "file") {
-			if (!(mp3File && selectedBundleId && episodeTitle)) {
-				toast.error("Please fill all required fields and select a file.")
+			if (!(mp3File && episodeTitle && hasTarget)) {
+				toast.error("Please provide title, a file, and select a bundle or podcast.")
 				return
 			}
 		} else {
-			if (!(audioUrl && selectedBundleId && episodeTitle)) {
-				toast.error("Please fill all required fields and provide an audio URL.")
+			if (!(audioUrl && episodeTitle && hasTarget)) {
+				toast.error("Please provide title, an audio URL, and select a bundle or podcast.")
 				return
 			}
 		}
@@ -262,6 +268,11 @@ export default function AdminPage() {
 			formData.append("audioUrl", audioUrl.trim())
 		}
 
+		// Optional podcast target when not using a bundle
+		if (selectedUploadPodcastId) {
+			formData.append("podcastId", selectedUploadPodcastId)
+		}
+
 		setIsLoading(true)
 		try {
 			const response = await fetch("/api/admin/upload-episode", {
@@ -279,6 +290,7 @@ export default function AdminPage() {
 			setEpisodeImageUrl("")
 			setMp3File(null)
 			setAudioUrl("")
+			setSelectedUploadPodcastId("")
 			if (fileInputRef.current) fileInputRef.current.value = ""
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
@@ -306,7 +318,7 @@ export default function AdminPage() {
 		setIsCreatingBundle(true)
 
 		try {
-            const response = await fetch("/api/admin/bundles", {
+			const response = await fetch("/api/admin/bundles", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -314,6 +326,7 @@ export default function AdminPage() {
 					description: newBundleDescription.trim(),
 					image_url: newBundleImageUrl.trim() || null,
 					podcast_ids: selectedPodcastIds,
+					min_plan: newBundleMinPlan,
 				}),
 			})
 
@@ -322,23 +335,23 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to create bundle")
 			}
 
-            const result = await response.json()
-            const returned = result?.bundle ?? result
-            const shaped = (returned && Array.isArray(returned.podcasts))
-                ? returned
-                : {
-                    ...returned,
-                    podcasts: Array.isArray(returned?.bundle_podcast)
-                        ? returned.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast)
-                        : [],
-                  }
-            setBundles([...bundles, shaped])
+			const result = await response.json()
+			const returned = result?.bundle ?? result
+			const shaped =
+				returned && Array.isArray(returned.podcasts)
+					? returned
+					: {
+							...returned,
+							podcasts: Array.isArray(returned?.bundle_podcast) ? returned.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast) : [],
+						}
+			setBundles([...bundles, shaped])
 			toast.success("Bundle created successfully!")
 
 			// Reset form
 			setNewBundleName("")
 			setNewBundleDescription("")
 			setNewBundleImageUrl("")
+			setNewBundleMinPlan("NONE")
 			setSelectedPodcastIds([])
 			setShowCreateBundle(false)
 		} catch (error) {
@@ -385,6 +398,32 @@ export default function AdminPage() {
 		setSelectedPodcastIds(prev => (prev.includes(podcastId) ? prev.filter(id => id !== podcastId) : [...prev, podcastId]))
 	}
 
+	const handleEditMinPlanChange = (bundleId: string, value: string) => {
+		setBundleMinPlanEdits(prev => ({ ...prev, [bundleId]: value }))
+	}
+
+	const saveBundleMinPlan = async (bundleId: string) => {
+		const plan = bundleMinPlanEdits[bundleId] || "NONE"
+		setIsSavingBundleMinPlanId(bundleId)
+		try {
+			const resp = await fetch("/api/admin/bundles", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ bundle_id: bundleId, min_plan: plan }),
+			})
+			if (!resp.ok) {
+				const err = await resp.json().catch(() => ({}))
+				throw new Error(err.message || "Failed to update visibility")
+			}
+			await fetchBundles()
+			toast.success("Visibility updated")
+		} catch (e) {
+			toast.error(e instanceof Error ? e.message : "Failed to update visibility")
+		} finally {
+			setIsSavingBundleMinPlanId(null)
+		}
+	}
+
 	// Podcast management functions
 	const resetPodcastForm = () => {
 		setNewPodcastName("")
@@ -425,7 +464,7 @@ export default function AdminPage() {
 		setIsCreatingPodcast(true)
 
 		try {
-            const response = await fetch("/api/admin/podcasts", {
+			const response = await fetch("/api/admin/podcasts", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -442,12 +481,12 @@ export default function AdminPage() {
 				throw new Error(error.message || "Failed to create podcast")
 			}
 
-            const apiResult = await response.json()
-            const newPodcast = apiResult?.podcast ?? apiResult
-            console.log("New podcast created:", newPodcast)
+			const apiResult = await response.json()
+			const newPodcast = apiResult?.podcast ?? apiResult
+			console.log("New podcast created:", newPodcast)
 			console.log("Current availablePodcasts count:", availablePodcasts.length)
 			setAvailablePodcasts(prev => {
-                const updated = [...prev, newPodcast]
+				const updated = [...prev, newPodcast]
 				console.log("Updated availablePodcasts count:", updated.length)
 				return updated
 			})
@@ -593,7 +632,7 @@ export default function AdminPage() {
 		)
 	}
 
-	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
+	// selected bundle details are rendered via AdminSelector component
 
 	// Group podcasts by category dynamically
 	const podcastsByCategory = availablePodcasts.reduce(
@@ -624,11 +663,11 @@ export default function AdminPage() {
 				</div>
 			</div>
 
-			<Tabs defaultValue="episode-generation" className="space-y-6">
-				<TabsList className="grid w-full grid-cols-4 bg-[var(--color-card-neutral)] border border-[var(--color-border)] h-12">
+			<Tabs defaultValue="episode-generation" className="m-0">
+				<TabsList className="grid w-full grid-cols-4">
 					<TabsTrigger
 						value="episode-generation"
-						className="data-[state=active]:bg-[var(--color-button-secondary-bg)] data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] hover:text-foreground"
+						className="data-[state=active]:bg-glass data-[state=active]:text-[var(--color-button-secondary-foreground)] text-muted-foreground hover:bg-[var(--color-accent)] rounded-[0px] hover:text-foreground"
 					>
 						Episode Generation
 					</TabsTrigger>
@@ -665,50 +704,14 @@ export default function AdminPage() {
 
 					{episodeMode === "generate" ? (
 						<div className="grid gap-6">
-							{/* Step 1: Select Bundle */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
-										Select Bundle
-									</CardTitle>
-									<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
-								</CardHeader>
-								<CardContent className="p-4">
-									<Select onValueChange={setSelectedBundleId}>
-										<SelectTrigger className="select-custom-trigger hover:select-custom-content-hover	">
-											<SelectValue placeholder="Select a bundle..." />
-										</SelectTrigger>
-										<SelectContent className="select-custom-content">
-											{bundles.map(bundle => (
-												<SelectItem className="select-custom-item" key={bundle.bundle_id} value={bundle.bundle_id}>
-													{bundle.name} ({bundle.podcasts.length} shows)
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-
-									{selectedBundle && (
-										<div className="mt-4 p-4 bg-muted rounded-lg">
-											<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
-											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
-											<div className="flex flex-wrap gap-2">
-												{selectedBundle.podcasts.map(podcast => (
-													<Badge size="sm" key={podcast.podcast_id} variant="outline">
-														{podcast.name}
-													</Badge>
-												))}
-											</div>
-										</div>
-									)}
-								</CardContent>
-							</Card>
+							{/* Step 1: Select Bundle (AdminSelector) */}
+							<AdminSelector type="bundle" description="Choose which curated bundle to generate an episode for" items={bundles} selectedId={selectedBundleId} onChange={setSelectedBundleId} step={1} />
 
 							{/* Step 2: Episode Details */}
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+										<Stepper step={"2"} />
 										Episode Details
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
@@ -740,7 +743,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+										<Stepper step={"3"} />
 										Add Episode Sources
 									</CardTitle>
 									<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
@@ -767,7 +770,7 @@ export default function AdminPage() {
 										<div className="space-y-2">
 											<h4 className="font-semibold">Added Sources ({sources.length})</h4>
 											{sources.map(source => (
-												<div key={source.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+												<div key={source.id} className="flex items-center justify-between p-3 bg-muted-transparent rounded-lg">
 													<div>
 														<p className="font-medium">{source.name}</p>
 														<p className="text-sm text-muted-foreground truncate">{source.url}</p>
@@ -801,50 +804,14 @@ export default function AdminPage() {
 						</div>
 					) : (
 						<form onSubmit={uploadEpisode} className="space-y-4">
-							{/* Step 1: Select Bundle */}
-							<Card>
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
-										Select Bundle
-									</CardTitle>
-									<CardDescription>Choose which curated bundle to upload an episode for</CardDescription>
-								</CardHeader>
-								<CardContent className="p-4">
-									<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
-										<SelectTrigger>
-											<SelectValue placeholder="Select a bundle..." />
-										</SelectTrigger>
-										<SelectContent>
-											{bundles.map(bundle => (
-												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
-													{bundle.name} ({bundle.podcasts.length} shows)
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-
-									{selectedBundle && (
-										<div className="mt-4 p-4 bg-muted rounded-lg">
-											<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
-											<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
-											<div className="flex flex-wrap gap-2">
-												{selectedBundle.podcasts.map(podcast => (
-													<Badge size="sm" key={podcast.podcast_id} variant="outline">
-														{podcast.name}
-													</Badge>
-												))}
-											</div>
-										</div>
-									)}
-								</CardContent>
-							</Card>
+							{/* Step 1: Select Bundle (AdminSelector) */}
+							<AdminSelector type="bundle" description="Choose which curated bundle to upload an episode for" items={bundles} selectedId={selectedBundleId} onChange={setSelectedBundleId} step={1} />
 
 							{/* Step 2: Episode Details */}
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+										<Stepper step={"2"} />
 										Episode Details
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
@@ -876,7 +843,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<span className="bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+										<Stepper step={"3"} />
 										Upload Audio
 									</CardTitle>
 									<CardDescription>Choose how to provide the episode audio</CardDescription>
@@ -893,6 +860,19 @@ export default function AdminPage() {
 												Direct URL
 											</Button>
 										</div>
+									</div>
+
+									{/* Optional: Select standalone podcast when not targeting a bundle */}
+									<div className="mb-4">
+										<AdminSelector
+											type="podcast"
+											description="If you don’t select a bundle, choose a podcast to attach this episode to."
+											items={availablePodcasts.filter(p => p.is_active)}
+											selectedId={selectedUploadPodcastId}
+											onChange={setSelectedUploadPodcastId}
+											placeholder="Select a podcast (optional)"
+											step={2}
+										/>
 									</div>
 
 									{/* File Upload Option */}
@@ -965,6 +945,14 @@ export default function AdminPage() {
 										<div>
 											<Label htmlFor="bundleName">Bundle Name *</Label>
 											<Input id="bundleName" value={newBundleName} onChange={e => setNewBundleName(e.target.value)} placeholder="e.g., Tech Weekly" />
+										</div>
+										<div>
+											<Label htmlFor="minPlan">Visibility</Label>
+											<select id="minPlan" className="w-full border rounded h-9 px-2 bg-background" value={newBundleMinPlan} onChange={e => setNewBundleMinPlan(e.target.value)}>
+												<option value="NONE">Free (All users)</option>
+												<option value="CASUAL_LISTENER">Tier 2 and 3</option>
+												<option value="CURATE_CONTROL">Tier 3 only</option>
+											</select>
 										</div>
 										<div>
 											<Label htmlFor="bundleImageUrl">Image URL (Optional)</Label>
@@ -1054,6 +1042,21 @@ export default function AdminPage() {
 															{podcast.name}
 														</Badge>
 													))}
+												</div>
+												<div className="mt-2 flex items-center gap-2">
+													<Label className="text-xs">Visibility</Label>
+													<select
+														className="border rounded h-8 px-2 bg-background text-xs"
+														value={(bundle as { min_plan?: string }).min_plan || bundleMinPlanEdits[bundle.bundle_id] || "NONE"}
+														onChange={e => handleEditMinPlanChange(bundle.bundle_id, e.target.value)}
+													>
+														<option value="NONE">Free</option>
+														<option value="CASUAL_LISTENER">Tier 2+3</option>
+														<option value="CURATE_CONTROL">Tier 3</option>
+													</select>
+													<Button size="sm" variant="outline" disabled={isSavingBundleMinPlanId === bundle.bundle_id} onClick={() => saveBundleMinPlan(bundle.bundle_id)}>
+														{isSavingBundleMinPlanId === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : "Save"}
+													</Button>
 												</div>
 											</div>
 											<Button
@@ -1211,7 +1214,7 @@ export default function AdminPage() {
 							<CardContent className="p-4">
 								<div className="space-y-3">
 									{podcastsByCategory[category].map(podcast => (
-										<div key={podcast.podcast_id} className="flex items-start justify-between p-3 border rounded-lg">
+										<div key={podcast.podcast_id} className="flex bg-sub-card items-start justify-between p-3 border border-lines-light shadow-lg rounded-lg">
 											<div className="flex-1">
 												<div className="flex items-center gap-2 mb-1">
 													<h4 className="font-medium">{podcast.name}</h4>
@@ -1219,10 +1222,15 @@ export default function AdminPage() {
 														{podcast.is_active ? "Active" : "Inactive"}
 													</Badge>
 												</div>
-												<p className="text-sm text-muted-foreground mb-2">{podcast.description}</p>
-												<a href={podcast.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate block">
+
+												<Link
+													href={podcast.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-sm font-bold truncate text-secondary/80 hover:underline truncate block py-2 w-full max-w-[300px]"
+												>
 													{podcast.url}
-												</a>
+												</Link>
 											</div>
 											<div className="flex items-center gap-2 ml-4">
 												<Button onClick={() => togglePodcastActive(podcast)} variant="ghost" size="sm" title={podcast.is_active ? "Deactivate" : "Activate"}>

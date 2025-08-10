@@ -18,9 +18,9 @@
     padding: 0.85rem 2rem;
     border-radius: 15px;
     box-shadow: 1px 2px 3px 1px #0e0e0c;
-    
+
     transition: all 200ms ease-in;
-    
+
     }
 
 .heroBtn:hover {
@@ -79,6 +79,7 @@
 }
 
 .heroContainer {
+
     max-width: 100%;
     margin: 0 auto;
     width: 100%;
@@ -127,7 +128,7 @@
     margin-left: auto;
     margin-top: 2.5rem;
     margin-right: auto;
-    
+
 }
 
 .heroTitle {
@@ -233,7 +234,7 @@
 
 /* CTA Section */
 .ctaSection {
-      
+
     padding: 0rem 0rem;
     background: oklch(var(--card));
 }
@@ -296,7 +297,7 @@
     border-radius: 25px !important;
     padding: 1.5rem;
     width: 100%;
-    max-width: 700px;
+    max-width: 500px;
     margin: 0 auto;
     margin-bottom: 3rem;
     backdrop-filter: blur(10px);
@@ -491,7 +492,7 @@
     margin-right: auto;
     padding:0;
     min-width: 360px;
- 
+
 }
 
 .heroButton {
@@ -505,7 +506,7 @@
     padding: 4rem 0;
     padding-bottom: 8rem;
     width: 100%;
-    
+
     background: var(--background-glass);
 }
 
@@ -685,20 +686,23 @@
 }
 
 .heroSubtitleSlogan {
- 
+
     font-weight: 800;
     color: #d46b4e !important;
-    background-image: linear-gradient(45deg, #e65ca3, #f5bea9 50%, #ec1f22 100%) !important;
+    background-image: linear-gradient(45deg, #E88089EF, #DAC47D 50%, #8E56E6CC 100%) !important;
     background-clip: text;
     margin-bottom: 1.5rem;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+		display: block;
 }
 
 .heroSubtitle,
 .heroSubtitleSlogan {
     font-weight: 600 !important;
-    font-size: 1.7rem !important;
+    font-size: 2rem !important;
+
+
     }
 
 .howItWorksContainer {
@@ -738,13 +742,13 @@
 @media (min-width: 768px) {
     .howItWorksGrid {
         grid-template-columns: repeat(4, 1fr);
-    } 
-    
+    }
+
     .heroSubtitleSlogan {
     font-weight: 600 !important;
     font-size: 1.7rem !important;
     }
-    
+
 }
 
 @media (min-width: 1024px) {
@@ -752,7 +756,7 @@
         max-width: 80rem !important;
         width: 100% !important;
     }
-    
+
     .heroSubtitleSlogan {
     font-weight: 600 !important;
     font-size: 1.7rem !important;
@@ -839,6 +843,7 @@
     margin-bottom: 1rem;
 }
 
+
 .testimonialsDescription {
     font-size: 1.25rem;
     color: oklch(var(--muted-foreground));
@@ -851,10 +856,14 @@
     gap: 2rem;
 }
 
+
+
+
 @media (min-width: 340px) {
     .testimonialsGrid {
         grid-template-columns: repeat(1, 1fr);
     }
+
 
     .heroSection {
         padding: 1rem;
@@ -868,11 +877,13 @@
         width: 100vw !important;
     }
 
+
     .heroDescription {
-        font-size: 1rem;
+        font-size: 1.2rem;
         width: 100%;
         max-width: 100vw;
-        margin: 0 auto;
+				line-height: 1.3;
+        margin: 10px auto;
         text-align: left;
     }
 
@@ -935,7 +946,7 @@
     max-width: 80rem !important;
     margin: 0 auto;
     padding: 0 1rem;
-    
+
 }
 
 .pricingHeader {
@@ -1010,10 +1021,10 @@
     .heroTitle,
     .heroDescription,
     .heroSubtitle {
-        
+
 
         margin-left: 0;
-        padding: 0 1.5rem;
+        padding: 0.5rem 2.5rem;
         width: 100%;
         margin: 0 auto;
         padding-right: 1rem;
@@ -1046,42 +1057,20 @@
 
 @media (min-width: 768px) {
 
-    .heroSubtitleSlogan {
-        font-size: 2.55rem;
-    }
+
 
 
     .heroSubtitle {
-        font-size: 3.75rem !important;
 
-        margin: 0 auto !important;
+
+        margin: 0 auto;
         text-align: center !important;
-        padding: 0 1rem !important;
-    }
-    
-    .featuresTitle,
-    .howItWorksTitle,
-    .testimonialsTitle,
-    .pricingTitle,
-    .ctaTitle {
-        font-size: 2rem !important;
+        padding: 0 2rem;
     }
 
-    
-    .featuresDescription,
-    .howItWorksDescription,
-    .testimonialsDescription,
-    .pricingDescription,
-    .ctaDescription,
-    .featuresDescription {
-        font-size: 1.2rem !important;
-        margin-top: 1rem;
-        margin-bottom: 2rem !important;
-        padding-bottom: 2rem !important;
-    }
-    
+
     .heroDescription {
-         font-size: 1.2rem !important;
+         font-size: 1rem !important;
         }
 
 
@@ -1122,13 +1111,36 @@
     }
 
 
+		.heroTitle > img,
+		.heroTitle {
+
+			max-width: 150px;
+			width: 100vw;
+			padding: 0 !important;
+			margin: 0 auto !important;
+			margin-bottom: 3%;
+		}
+
+
+
+
+		.heroSubtitle,
+    .heroSubtitleSlogan {
+        font-size: 4.5rem !important;
+				line-height: 4.8rem;
+		}
+		.heroDescription {
+				text-align: center;
+				max-width: 700px;
+				font-size: 1.3rem !important;
+		}
 
 
 
 }
 
 
-@media (min-width: 1024px) {
+@media (max-width: 1024px) {
 
 
     .heroSubtitle,
@@ -1136,9 +1148,9 @@
     .howItWorksTitle,
     .testimonialsTitle,
     .pricingTitle {
-        font-size: 3.75rem;
+        font-size: 2.75rem ;
         text-align: center;
-           line-height: 1.3rem;
+           line-height: 4.5rem;
     }
 
     .heroSection {
@@ -1151,20 +1163,20 @@
         margin-bottom: 2rem !important;
         margin-top: 4rem !important;
         }
-    
+
     .heroSubtitle,
     .heroSubtitleSlogan {
         line-height: 3.9rem !important;
          font-weight: 600 !important;
-         font-size: 3.7rem !important;
+         font-size: 1.7rem !important;
     }
-    
+
     .heroDescription {
         max-width: 60vw;
         text-align: center;
         }
 
-    
+
     .howItWorksSection,
     .testimonialsSection,
     .ctaSection{
@@ -1192,7 +1204,7 @@
         padding: 6rem 0rem !important;
         padding-bottom: 0rem !important;
     }
-    
+
        .featuresDescription {
         font-size: 1.2rem !important;
         margin-top: 1rem;
@@ -1206,16 +1218,16 @@
     .pricingTitle {
         line-height: 1.3rem;
         text-align: center;
-      
+
     }
-    
+
     .ctaSection {
-     
+
         margin-top: 0 !important;
         overflow: hidden;
         }
 
-  
+
     .featuresDescription,
     .howItWorksDescription,
     .testimonialsDescription,
@@ -1223,20 +1235,20 @@
     .ctaDescription {
         max-width: 650px;
         text-align: center;
-        font-size: 1.2rem;
+        font-size: 1rem;
         margin-bottom: 4rem;
     }
-    
+
     .featuresTitle,
     .howItWorksTitle,
     .testimonialsTitle,
     .pricingTitle {
-           line-height: 1.3rem;
+           line-height: 2.8rem;
         text-align: center;
-        font-size: 2.5rem;
+        font-size: 1.8rem;
     }
 
-        
+
     .featuresButton,
     .howItWorksButton,
     .testimonialsButton,
@@ -1245,6 +1257,6 @@
         font-size: 1.5rem;
         padding: 1.75rem 12rem;
         margin-top: 4rem;
-        
+
     }
 }

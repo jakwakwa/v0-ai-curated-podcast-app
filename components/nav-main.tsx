@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "@/components/ui/sidebar"
+import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 
 export function NavMain({
@@ -21,7 +21,6 @@ export function NavMain({
 
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel>Navigation</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item, index) => (
 					<div key={item.title}>
@@ -36,6 +35,7 @@ export function NavMain({
 						</SidebarMenuItem>
 					</div>
 				))}
+				<SidebarSeparator className="my-2" />
 			</SidebarMenu>
 		</SidebarGroup>
 	)

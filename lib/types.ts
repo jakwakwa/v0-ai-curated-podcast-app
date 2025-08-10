@@ -1,5 +1,5 @@
-// Import Prisma namespace types only
-import type { Prisma } from "@prisma/client"
+// Import Prisma types
+import type { Prisma, FeedbackRating as PrismaFeedbackRating } from "@prisma/client"
 
 // Base scalar model shapes derived from Prisma payloads (compatible with Prisma v6)
 export type User = Prisma.$UserPayload["scalars"]
@@ -12,7 +12,7 @@ export type ProfilePodcast = Prisma.$ProfilePodcastPayload["scalars"]
 export type Notification = Prisma.$NotificationPayload["scalars"]
 export type Subscription = Prisma.$SubscriptionPayload["scalars"]
 export type EpisodeFeedback = Prisma.$EpisodeFeedbackPayload["scalars"]
-export type FeedbackRating = Prisma.FeedbackRating
+export type FeedbackRating = PrismaFeedbackRating
 
 // Custom types that combine Prisma types with relations
 export type UserCurationProfileWithRelations = UserCurationProfile & {
