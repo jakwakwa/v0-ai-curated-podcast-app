@@ -31,7 +31,9 @@
 - `lib/flags.ts` - Feature flags utility for `ADMIN_PANELS_V2_*`.
 - `docs/admin_updates-progress-2025-08-09.md` - Documentation for admin panel flags and usage.
 - `components/admin-components/` - Legacy admin UI to retire (e.g., `source-list.tsx`, `source-list-item.tsx`).
-- `app/(protected)/collections/[id]/page.tsx` - Current non-admin usage of `components/admin-components/source-list` to be considered before full removal.
+- `components/data-components/source-list.tsx` - Rehomed non-admin Source list.
+- `components/data-components/source-list-item.tsx` - Rehomed non-admin Source list item.
+- `app/(protected)/collections/[id]/page.tsx` - Uses rehomed source list component.
 - `tests/admin-upload-episode.test.ts` - Existing tests touching admin upload API.
 - `tests/curated-bundles-api.test.ts` - Existing tests for curated bundles API.
 - `tests/episodes-api-derivation.test.ts` - Existing tests for episodes API behavior.
@@ -74,7 +76,7 @@
   - [x] 4.3 Smoke test access patterns for admin vs non-admin users
 
 - [ ] 5.0 Legacy cleanup: retire `components/admin-components/**` after replacing usages; resolve `collections/[id]` dependency
-  - [ ] 5.1 Rehome `components/admin-components/source-list*` to a non-admin location (e.g., `components/data-components/`) and update imports in `collections/[id]/page.tsx`
+  - [x] 5.1 Rehome `components/admin-components/source-list*` to a non-admin location (e.g., `components/data-components/`) and update imports in `collections/[id]/page.tsx`
   - [ ] 5.2 Remove `components/admin-components/**` once no references remain
   - [ ] 5.3 Remove obsolete docs references to CSS modules if any remain relevant
 

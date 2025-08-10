@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import ComponentSpinner from "@/components/ui/component-spinner"
 import DateIndicator from "@/components/ui/date-indicator"
 import { Separator } from "@/components/ui/separator"
-import { SubmitBtn } from "@/components/ui/submit-btn"
+import SubmitBtn from "@/components/ui/submit-btn"
 import { useNotificationStore } from "@/lib/stores/notification-store"
 
 type NotificationSettingsProps = {
