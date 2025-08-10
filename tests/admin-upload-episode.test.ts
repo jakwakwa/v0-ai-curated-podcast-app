@@ -37,7 +37,7 @@ describe("admin upload creates podcast-centric episodes", () => {
 		fd.set("title", "Ep")
 		fd.set("audioUrl", "https://cdn/foo.mp3")
 
-		const req = new Request("http://test.local", { method: "POST", body: fd as any })
+		const req = new Request("http://test.local", { method: "POST", body: fd as unknown as BodyInit })
 		const res = await uploadEpisode(req)
 		const body = await res.json()
 
@@ -53,7 +53,7 @@ describe("admin upload creates podcast-centric episodes", () => {
 		fd.set("podcastId", p.podcast_id)
 		fd.set("audioUrl", "https://cdn/bar.mp3")
 
-		const req = new Request("http://test.local", { method: "POST", body: fd as any })
+		const req = new Request("http://test.local", { method: "POST", body: fd as unknown as BodyInit })
 		const res = await uploadEpisode(req)
 		const body = await res.json()
 

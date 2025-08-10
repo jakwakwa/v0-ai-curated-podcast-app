@@ -35,7 +35,7 @@ describe("episodes API derivation", () => {
 
 		const res = await GET(new Request("http://test.local"))
 		const data = await res.json()
-		const ids = data.map((e: any) => e.episode_id)
+		const ids = (data as Array<{ episode_id: string }>).map(e => e.episode_id)
 
 		expect(ids).toContain(epA.episode_id) // in selected bundle via pA
 		expect(ids).not.toContain(epB.episode_id) // not in selected bundle

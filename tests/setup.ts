@@ -30,7 +30,7 @@ if (!/test|_test|\bqa\b/i.test(process.env.DATABASE_URL)) {
 // Silence noisy logs in tests
 const silence = ["Episodes API:", "Upload episode request:", "[CURATED_BUNDLES_GET]", "Initializing Storage clients"]
 const originalLog = console.log
-console.log = (...args: any[]) => {
+console.log = (...args: unknown[]) => {
 	if (silence.some(s => String(args[0] ?? "").includes(s))) return
 	originalLog(...args)
 }

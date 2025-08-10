@@ -3,12 +3,16 @@ import { type NextRequest, NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
+import type { Prisma } from "@prisma/client"
+import { PlanGate as PlanGateEnum } from "@prisma/client"
 import { prisma } from "../../../lib/prisma"
 
-function resolveAllowedGates(plan: string | null | undefined): Array<"NONE" | "CASUAL_LISTENER" | "CURATE_CONTROL"> {
-	if (plan === "curate_control") return ["NONE", "CASUAL_LISTENER", "CURATE_CONTROL"]
-	if (plan === "casual_listener") return ["NONE", "CASUAL_LISTENER"]
-	return ["NONE"]
+type BundleWithPodcasts = Prisma.BundleGetPayload<{ include: { bundle_podcast: { include: { podcast: true } } } }>
+
+function resolveAllowedGates(plan: string | null | undefined): PlanGateEnum[] {
+	if (plan === "curate_control") return [PlanGateEnum.NONE, PlanGateEnum.CASUAL_LISTENER, PlanGateEnum.CURATE_CONTROL]
+	if (plan === "casual_listener") return [PlanGateEnum.NONE, PlanGateEnum.CASUAL_LISTENER]
+	return [PlanGateEnum.NONE]
 }
 
 export async function GET(_request: NextRequest) {
@@ -33,7 +37,7 @@ export async function GET(_request: NextRequest) {
 		const allowedGates = resolveAllowedGates(plan)
 
 		// Get all active bundles (return locked ones too)
-		const bundles = await prisma.bundle.findMany({
+		const bundles: BundleWithPodcasts[] = await prisma.bundle.findMany({
 			where: { is_active: true },
 			include: {
 				bundle_podcast: {
@@ -47,9 +51,8 @@ export async function GET(_request: NextRequest) {
 
 		// Transform with gating info
 		const transformedBundles = bundles.map(bundle => {
-			// @ts-ignore - min_plan exists on Bundle model
-			const gate = (bundle as any).min_plan as "NONE" | "CASUAL_LISTENER" | "CURATE_CONTROL" | undefined
-			const canInteract = gate ? allowedGates.includes(gate) : true
+			const gate = bundle.min_plan
+			const canInteract = allowedGates.includes(gate)
 			const lockReason = canInteract ? null : "This bundle requires a higher plan."
 			return {
 				...bundle,

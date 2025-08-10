@@ -91,6 +91,11 @@
     ".ctsx",
     ".mjs",
     ".mts",
-    "node_modules"
+    "node_modules",
+		".next",
+    "tests",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "vitest.config.ts"
   ]
 }

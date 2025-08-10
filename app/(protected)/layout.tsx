@@ -8,7 +8,6 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
-import { StoreInitializer } from "../store-initializer"
 
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 	const { state } = useSidebar()
@@ -106,7 +105,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	// No auth check needed here - middleware handles all protection
 	return (
 		<SidebarProvider>
-			<StoreInitializer />
 			<ProtectedLayoutInner>{children}</ProtectedLayoutInner>
 
 			{/* Global audio player - always on top */}

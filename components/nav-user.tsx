@@ -1,13 +1,12 @@
 "use client"
 
 import { useAuth, useClerk } from "@clerk/nextjs"
-import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, Settings, Shield, UserCircleIcon } from "lucide-react"
+import { LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
-// CSS module migrated to Tailwind classes
 
 export function NavUser({
 	user,
@@ -108,24 +107,39 @@ export function NavUser({
 									Personalized Feed Management
 								</Link>
 							</DropdownMenuItem>
+							{/* TODO: Add Subscription back When:
+							- subscription tab functional,
+							- paddle is fully functional,
 							<DropdownMenuItem asChild>
 								<Link href="/subscription">
 									<CreditCardIcon />
 									Subscription
 								</Link>
 							</DropdownMenuItem>
+							*/}
+							{/* TODO: Add Notifications back When:
+							- notifications tab functional,
+							- paddle is fully functional,
 							<DropdownMenuItem asChild>
 								<Link href="/notifications">
 									<BellIcon />
 									Notifications
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
+							*/}
+							{/* TODO: Add Account Settings back When:
+							- paddle implementation is ready,
+							- security tab functional,
+							- profile tab functional,
+							- notifications tab functional,
+							- subscription tab functional,
+							- paddle is fully documented,
+							{/* <DropdownMenuItem asChild>
 								<Link href="/account">
 									<Settings />
 									Account Settings
 								</Link>
-							</DropdownMenuItem>
+							</DropdownMenuItem> */}
 						</DropdownMenuGroup>
 						{isAdmin && (
 							<>
@@ -134,7 +148,7 @@ export function NavUser({
 									<DropdownMenuItem asChild>
 										<Link href="/admin">
 											<Shield className="h-4 w-4" />
-											Content Configuration
+											Admin Portal (Restricted Access)
 										</Link>
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
@@ -146,7 +160,7 @@ export function NavUser({
 								try {
 									await signOut({ redirectUrl: "/" })
 								} catch {
-									// console.error("Sign out failed:", error);
+									console.error("Sign out failed from nav-user.tsx, try again")
 								}
 							}}
 						>

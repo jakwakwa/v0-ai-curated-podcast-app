@@ -252,7 +252,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					<Card>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
-								<Stepper step={"2"} /> Episode Details
+								<Stepper step={2} /> Episode Details
 							</CardTitle>
 							<CardDescription>Provide basic information for the episode</CardDescription>
 						</CardHeader>
@@ -327,7 +327,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 										Uploading...
 									</>
 								) : (
-									<>Upload Episode</>
+									"Upload Episode"
 								)}
 							</Button>
 						</CardContent>

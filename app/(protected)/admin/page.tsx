@@ -692,7 +692,7 @@ export default function AdminPage() {
 				</TabsList>
 
 				{/* Episode Generation Tab */}
-				<TabsContent value="episode-generation" className="space-y-6">
+				<TabsContent value="episode-generation" className="space-y-6 mt-8">
 					<div className="flex gap-4 mb-4">
 						<Button variant={episodeMode === "generate" ? "default" : "outline"} onClick={() => setEpisodeMode("generate")}>
 							Generate Episode
@@ -711,7 +711,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Stepper step={"2"} />
+										<Stepper step={2} />
 										Episode Details
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
@@ -743,7 +743,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Stepper step={"3"} />
+										<Stepper step={3} />
 										Add Episode Sources
 									</CardTitle>
 									<CardDescription>Add YouTube videos or other sources for each show in the bundle</CardDescription>
@@ -811,7 +811,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Stepper step={"2"} />
+										<Stepper step={2} />
 										Episode Details
 									</CardTitle>
 									<CardDescription>Provide basic information for the episode</CardDescription>
@@ -843,7 +843,7 @@ export default function AdminPage() {
 							<Card>
 								<CardHeader>
 									<CardTitle className="flex items-center gap-2">
-										<Stepper step={"3"} />
+										<Stepper step={3} />
 										Upload Audio
 									</CardTitle>
 									<CardDescription>Choose how to provide the episode audio</CardDescription>
@@ -853,7 +853,7 @@ export default function AdminPage() {
 									<div className="mb-4">
 										<Label>Upload Method</Label>
 										<div className="flex gap-2 mt-2">
-											<Button type="button" variant={uploadMethod === "file" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("file")}>
+											<Button variant="default" type="button" size="sm" onClick={() => setUploadMethod("file")}>
 												Upload File
 											</Button>
 											<Button type="button" variant={uploadMethod === "url" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("url")}>
@@ -896,8 +896,8 @@ export default function AdminPage() {
 							</Card>
 
 							{/* Upload Button */}
-							<Card>
-								<CardContent className="pt-6 p-4">
+							<Card className="flex items-center">
+								<CardContent>
 									<Button
 										type="submit"
 										disabled={!(selectedBundleId && episodeTitle && ((uploadMethod === "file" && mp3File) || (uploadMethod === "url" && audioUrl))) || isLoading}

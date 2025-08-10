@@ -8,7 +8,6 @@ import { dark } from "@clerk/themes"
 import { Toaster } from "sonner"
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
 import { ClientProviders } from "./client-providers"
-import { StoreInitializer } from "./store-initializer"
 
 const workSans = Work_Sans({ subsets: ["latin"] })
 
@@ -54,7 +53,6 @@ export default function RootLayout({
 					}}
 				>
 					<ClientProviders>
-						<StoreInitializer />
 						{children}
 						<Toaster />
 

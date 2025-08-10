@@ -4,14 +4,14 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { Bundle, Podcast } from "@/lib/types"
-import Stepper from "./function Stepper({ step }: { step: numbe"
+import Stepper from "./stepper"
 
 type BundleWithMeta = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null; min_plan?: string }
 
 type BaseProps = {
 	description: string
 	placeholder?: string
-	step?: number | string
+	step: number
 	selectedId?: string
 	onChange: (id: string) => void
 }
@@ -36,7 +36,7 @@ export default function AdminSelector(props: AdminSelectorProps) {
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
-					<Stepper step={step as string} />
+					<Stepper step={step} />
 					Select {props.type}
 				</CardTitle>
 				<CardDescription>{description}</CardDescription>
@@ -62,15 +62,14 @@ export default function AdminSelector(props: AdminSelectorProps) {
 				</Select>
 
 				{selectedId && (
-					<div className="mt-4 p-4 bg-muted-transparent rounded-lg border-1 border-b-accent">
+					<div className="mt-4 p-4 bg-muted-transparent/50 rounded-xl outline-2 outline-secondary shadow-lg">
 						{isBundle
 							? (() => {
 									const bundle = (props.items as BundleWithMeta[]).find(b => b.bundle_id === selectedId)
 									if (!bundle) return null
 									return (
 										<div>
-											<h4 className="font-semibold mb-2">{bundle.name}</h4>
-											<p className="text-sm truncate pt-1 py-4 text-muted-foreground mb-3">{bundle.description}</p>
+											<h4 className="font-semibold mb-4">{bundle.name}</h4>
 											<div className="flex flex-wrap gap-2">
 												{bundle.podcasts.map(p => (
 													<Badge size="sm" key={p.podcast_id} variant="outline">
@@ -86,8 +85,7 @@ export default function AdminSelector(props: AdminSelectorProps) {
 									if (!podcast) return null
 									return (
 										<div>
-											<h4 className="font-semibold mb-2">{podcast.name}</h4>
-											<p className="text-sm truncate pt-1 py-4 text-muted-foreground mb-3">{podcast.description}</p>
+											<p className="font-semibold py-6">{podcast.name}</p>
 											{podcast.category && (
 												<Badge size="sm" variant="secondary" className="text-xs">
 													{podcast.category}

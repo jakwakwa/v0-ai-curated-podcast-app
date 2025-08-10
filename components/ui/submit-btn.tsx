@@ -11,4 +11,4 @@ function SubmitBtn({ isUpdating, handleSaveAll }: { isUpdating: boolean; handleS
 	)
 }
 
-export { SubmitBtn }
+export default SubmitBtn

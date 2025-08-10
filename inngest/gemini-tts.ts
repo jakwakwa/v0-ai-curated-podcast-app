@@ -6,9 +6,9 @@ import { generateText } from "ai"
 import mime from "mime"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "../config/ai"
-import type { Podcast as PodcastModel } from "../lib/types"
 import emailService from "../lib/email-service"
 import { prisma } from "../lib/prisma"
+import type { Podcast as PodcastModel } from "../lib/types"
 import { inngest } from "./client"
 
 type SourceWithTranscript = Omit<PodcastModel, "created_at"> & {
@@ -33,66 +33,65 @@ let storageUploader: Storage | undefined
 let storageReader: Storage | undefined
 
 function looksLikeJson(value: string | undefined): boolean {
-    if (!value) return false
-    const trimmed = value.trim()
-    return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
+	if (!value) return false
+	const trimmed = value.trim()
+	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
 }
 
 function getEnv(key: string): string | undefined {
-    return process.env[key]
+	return process.env[key]
 }
 
 function ensureBucketName(): string {
-    const name = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME
-    if (!name) {
-        throw new Error("GOOGLE_CLOUD_STORAGE_BUCKET_NAME is not set")
-    }
-    return name
+	const name = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME
+	if (!name) {
+		throw new Error("GOOGLE_CLOUD_STORAGE_BUCKET_NAME is not set")
+	}
+	return name
 }
 
 function initStorageClients(): { storageUploader: Storage; storageReader: Storage } {
-    if (storageUploader && storageReader) {
-        return { storageUploader, storageReader }
-    }
+	if (storageUploader && storageReader) {
+		return { storageUploader, storageReader }
+	}
 
-    const isDevelopment = process.env.NODE_ENV === "development" || !process.env.NODE_ENV
+	const isDevelopment = process.env.NODE_ENV === "development" || !process.env.NODE_ENV
 
-    // Accept multiple env var names to reduce configuration friction
-    const uploaderRaw =
-        getEnv("GCS_UPLOADER_KEY_JSON") ?? getEnv("GCS_UPLOADER_KEY") ?? getEnv("GCS_UPLOADER_KEY_PATH")
-    const readerRaw = getEnv("GCS_READER_KEY_JSON") ?? getEnv("GCS_READER_KEY") ?? getEnv("GCS_READER_KEY_PATH")
+	// Accept multiple env var names to reduce configuration friction
+	const uploaderRaw = getEnv("GCS_UPLOADER_KEY_JSON") ?? getEnv("GCS_UPLOADER_KEY") ?? getEnv("GCS_UPLOADER_KEY_PATH")
+	const readerRaw = getEnv("GCS_READER_KEY_JSON") ?? getEnv("GCS_READER_KEY") ?? getEnv("GCS_READER_KEY_PATH")
 
-    if (!uploaderRaw || !readerRaw) {
-        const missing: string[] = []
-        if (!uploaderRaw) missing.push("GCS_UPLOADER_KEY_JSON|GCS_UPLOADER_KEY|GCS_UPLOADER_KEY_PATH")
-        if (!readerRaw) missing.push("GCS_READER_KEY_JSON|GCS_READER_KEY|GCS_READER_KEY_PATH")
-        throw new Error(`Missing Google Cloud credentials: ${missing.join(", ")}`)
-    }
+	if (!(uploaderRaw && readerRaw)) {
+		const missing: string[] = []
+		if (!uploaderRaw) missing.push("GCS_UPLOADER_KEY_JSON|GCS_UPLOADER_KEY|GCS_UPLOADER_KEY_PATH")
+		if (!readerRaw) missing.push("GCS_READER_KEY_JSON|GCS_READER_KEY|GCS_READER_KEY_PATH")
+		throw new Error(`Missing Google Cloud credentials: ${missing.join(", ")}`)
+	}
 
-    try {
-        if (isDevelopment && looksLikeJson(uploaderRaw) && looksLikeJson(readerRaw)) {
-            console.log("Initializing Storage clients (JSON credentials)")
-            storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw) })
-            storageReader = new Storage({ credentials: JSON.parse(readerRaw) })
-	} else {
-            console.log("Initializing Storage clients (key file paths)")
-            storageUploader = new Storage({ keyFilename: uploaderRaw })
-            storageReader = new Storage({ keyFilename: readerRaw })
-        }
-        console.log("Storage clients initialized")
-    } catch {
-        // Do not leak credential contents or paths
-        throw new Error("Failed to initialize Google Cloud Storage clients")
-    }
+	try {
+		if (isDevelopment && looksLikeJson(uploaderRaw) && looksLikeJson(readerRaw)) {
+			console.log("Initializing Storage clients (JSON credentials)")
+			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw) })
+			storageReader = new Storage({ credentials: JSON.parse(readerRaw) })
+		} else {
+			console.log("Initializing Storage clients (key file paths)")
+			storageUploader = new Storage({ keyFilename: uploaderRaw })
+			storageReader = new Storage({ keyFilename: readerRaw })
+		}
+		console.log("Storage clients initialized")
+	} catch {
+		// Do not leak credential contents or paths
+		throw new Error("Failed to initialize Google Cloud Storage clients")
+	}
 
-    return { storageUploader: storageUploader!, storageReader: storageReader! }
+	return { storageUploader: storageUploader!, storageReader: storageReader! }
 }
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
-    try {
-        const { storageUploader } = initStorageClients()
-        const bucketName = ensureBucketName()
-        console.log(`Uploading to bucket: ${bucketName}`)
+	try {
+		const { storageUploader } = initStorageClients()
+		const bucketName = ensureBucketName()
+		console.log(`Uploading to bucket: ${bucketName}`)
 
 		const [exists] = await storageUploader.bucket(bucketName).exists()
 
@@ -101,24 +100,24 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 			throw new Error(`Bucket ${bucketName} does not exist`)
 		}
 
-        console.log("Bucket exists, uploading file…")
+		console.log("Bucket exists, uploading file…")
 		await storageUploader.bucket(bucketName).file(destinationFileName).save(data)
 		console.log("File uploaded successfully")
 		return { success: true, fileName: destinationFileName }
-    } catch {
-        // Avoid leaking internal error details
-        throw new Error("Failed to upload content")
-    }
+	} catch {
+		// Avoid leaking internal error details
+		throw new Error("Failed to upload content")
+	}
 }
 
 async function _readContentFromBucket(fileName: string): Promise<Buffer> {
-    try {
-        const { storageReader } = initStorageClients()
-        const bucketName = ensureBucketName()
+	try {
+		const { storageReader } = initStorageClients()
+		const bucketName = ensureBucketName()
 		const [fileBuffer] = await storageReader.bucket(bucketName).file(fileName).download()
 		return fileBuffer
-    } catch {
-        throw new Error("Failed to read content")
+	} catch {
+		throw new Error("Failed to read content")
 	}
 }
 
@@ -383,7 +382,7 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 				const audioBuffer = await generateAudioWithGeminiTTS(script)
 				const audioFileName = `podcasts/${collectionId}-${Date.now()}.wav`
 
-                const file = await uploadContentToBucket(audioBuffer, audioFileName)
+				const file = await uploadContentToBucket(audioBuffer, audioFileName)
 
 				if (file.success) {
 					return file.fileName
@@ -572,7 +571,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				const audioBuffer = await generateAudioWithGeminiTTS(script)
 				const audioFileName = `podcasts/${bundleId}-${Date.now()}.wav`
 
-                const file = await uploadContentToBucket(audioBuffer, audioFileName)
+				const file = await uploadContentToBucket(audioBuffer, audioFileName)
 
 				if (file.success) {
 					return file.fileName
@@ -614,8 +613,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 					image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
 					published_at: new Date(),
 					week_nr: currentWeek,
-                    // No bundle_id; episode is podcast-centric
-                    podcast_id: firstPodcast.podcast_id,
+					// No bundle_id; episode is podcast-centric
+					podcast_id: firstPodcast.podcast_id,
 				},
 			})
 			return episode

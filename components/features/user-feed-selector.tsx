@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useSubscriptionStore, useUserCurationProfileStore } from "@/lib/stores"
+import { useUserCurationProfileStore } from "@/lib/stores"
 import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
 import { Typography } from "../ui/typography"
 import { BundleList } from "./bundle-list"
@@ -25,7 +25,9 @@ function UserFeedSelectorWizard() {
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
 
 	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
-	const { canCreateUserCurationProfile, isTrialing, getRemainingTrialDays } = useSubscriptionStore()
+	const canCreateUserCurationProfile = () => true
+	const isTrialing = false
+	const getRemainingTrialDays = () => 0
 
 	// Check if user already has an active profile
 	useEffect(() => {
