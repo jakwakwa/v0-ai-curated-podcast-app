@@ -81,7 +81,7 @@
   - [x] 5.3 Remove obsolete docs references to CSS modules if any remain relevant
 
 - [ ] 6.0 Tests and quality gates: add/adjust tests, ensure `pnpm build` and `pnpm lint` pass, and validate no regressions
-  - [ ] 6.1 Add/adjust tests for server-side reads and server actions (at least one per panel)
+  - [x] 6.1 Add/adjust tests for server-side reads and server actions (at least one per panel)
   - [ ] 6.2 Run full test suite and fix failures
   - [ ] 6.3 Run `pnpm lint` and `pnpm build`; fix issues
   - [ ] 6.4 Prepare a brief migration notes update and verify feature flags behavior in local and CI
