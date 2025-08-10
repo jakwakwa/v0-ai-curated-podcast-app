@@ -1,0 +1,116 @@
+---
+alwaysApply: true
+---
+
+## Project Rules:
+
+description: Practical guide working in this Next.js App Router with consistent layout, data, types, and UI patterns.
+
+### Build new pages in the App Router
+
+- **Location and layout**: Place new authenticated pages under `app/(protected)/...` so they inherit the global sidebar and header from `app/(protected)/layout.tsx`. Use `app/page.tsx` and `app/(protected)/collections` as patterns.
+- **Thin pages**: Keep `page.tsx` minimal. Do data fetching in Server Components and push interactivity into child Client Components.
+- **Co-locate files**: Put `loading.tsx`, `error.tsx`, `route.ts`, and any `layout.tsx` alongside `page.tsx` where needed.
+- **Routing features**: Use route groups, parallel routes, and intercepting routes when needed. Place API handlers in `app/api/.../route.ts`.
+
+### Prisma Types usage
+- Use the exact field names from the schema (snake_case in `where` fields, camelCase relations) per the project rule.
+- Never add custom interfaces in pages; import types from [lib/types.ts](mdc:lib/types.ts).
+- Import types with `import type`.
+
+## Safe Google Cloud Storage initialization (uploads)
+- For upload routes (e.g., `app/api/admin/upload-episode/route.ts`), use lazy init and support JSON or path credentials.
+- Accept the first available of: `GCS_UPLOADER_KEY_JSON` | `GCS_UPLOADER_KEY` | `GCS_UPLOADER_KEY_PATH`.
+- Never print credentials or absolute paths in logs or errors.
+
+### Server page scaffold (default)
+
+```tsx
+// app/(protected)/example/page.tsx
+import type { Metadata } from "next";
+import { Suspense } from "react";
+
+export const revalidate = 3600; // Prefer ISR; switch to dynamic with no-store if needed
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Example", description: "Example page" };
+}
+
+async function fetchData() {
+  // Use built-in fetch with caching where possible
+  const res = await fetch("/api/example", { next: { revalidate } });
+  if (!res.ok) throw new Error("Failed to load");
+  return res.json();
+}
+
+export default async function Page() {
+  const dataPromise = fetchData();
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      {/* Prefer rendering Client Components for interactivity */}
+      {/* <ClientComponent data={await dataPromise} /> */}
+      <pre>{JSON.stringify(await dataPromise, null, 2)}</pre>
+    </Suspense>
+  );
+}
+```
+
+### Client component scaffold (for interactivity only)
+
+```tsx
+// app/(protected)/example/_components/client-component.tsx
+"use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+
+type Props = { label: string };
+
+export function ClientComponent({ label }: Props) {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <p>{label}: {count}</p>
+      <Button onClick={() => setCount((n) => n + 1)}>Increment</Button>
+    </div>
+  );
+}
+```
+
+### Data, types, and schema
+
+- **Server Components first**: Fetch on the server. Pass data to Client Components via props only when necessary.
+- **Caching**: Prefer `fetch(url, { next: { revalidate: <seconds> } })`. For fully dynamic content, use `import { unstable_noStore as noStore } from "next/cache"`.
+- **Parallel fetching**: Use `Promise.all` to fetch independent data concurrently.
+- **SEO**: Use `generateMetadata` in `layout.tsx` or `page.tsx` for dynamic SEO metadata.
+- **Types source of truth**: Do not hardcode interfaces in page files. Use Prisma-generated types from `lib/types.ts` and Prisma Client types.
+  - Example: `import type { Episode } from "@/lib/types"`.
+  - Always use `import type` for type-only imports.
+- **Schema field names**: Follow the exact field names defined in Prisma (see `prisma/schema.prisma`). Validate against existing route handlers under `app/api` before writing queries.
+
+### Route handlers and server actions
+
+- **API**: Place route handlers under `app/api/.../route.ts`. `GET` is static by default unless configured otherwise.
+- **Mutations**: Prefer Server Actions with the `"use server"` directive. In Client Components, use `useFormStatus`, `useFormState`, and `useOptimistic` for UX.
+
+### UI, styling, and assets
+
+- **UI kit**: Use existing shadcn/ui components like `Button`, `Input`.
+- **Styling**: Use CSS Modules. If you touch a file with Tailwind, replace classes incrementally with module CSS.
+- **Images**: Never use `<img>`. Always use Next.js `<Image />` with proper sizing.
+- **Accessibility**: Provide alt text, labels, and focus states.
+
+### Admin pages
+
+- Follow the patterns in the `admin-pages-structure` rule (thin pages, Server Components for data, Client for interactivity, safe initialization).
+
+### Ready-to-ship checklist
+
+- [ ] Page is under `app/(protected)/...` if it needs the authenticated layout
+- [ ] Server by default; Client Components only for interactivity
+- [ ] No hardcoded interfaces in page files; types imported from `lib/types.ts`
+- [ ] Uses `<Image />` and existing shadcn/ui components
+- [ ] Co-located `loading.tsx` and `error.tsx` where applicable
+- [ ] Uses `fetch` with `revalidate` or `noStore` for dynamic content
+- [ ] Parallelizes data fetching with `Promise.all` when useful
+- [ ] `pnpm build` and `pnpm lint` pass with no errors before commit
+```

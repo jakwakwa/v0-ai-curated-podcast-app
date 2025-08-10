@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 # Code Commits
 
 Tasks or fixes aren't considered "done" or

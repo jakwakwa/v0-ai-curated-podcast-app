@@ -35,5 +35,3 @@ next-env.d.ts
 .clerk/
 /.clerk/
 # /src/generated/prisma
-
-.cursor/rules/prisma-schema-updates.mdc
