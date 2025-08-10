@@ -85,4 +85,15 @@ NEXT_PUBLIC_ADMIN_PANELS_V2_EPISODES=1
 
 These flags only control link visibility in the dashboard. Actual admin routes remain protected and functional regardless of flags.
 
+---
+
+## Follow-up updates (cleanup and authorization)
+
+- Legacy cleanup: rehomed `components/admin-components/source-list*` to `components/data-components/source-list*` and updated `app/(protected)/collections/[id]/page.tsx` imports. The old files were removed.
+- Server/Client panels:
+  - Bundles panel uses Server Actions for create, visibility edit, membership replace, and delete.
+  - Podcasts panel wired to Server Actions for create, update, toggle active, and delete.
+- Admin authorization: added guards to `BundlesPanel.server.tsx`, `PodcastsPanel.server.tsx`, and protected `app/api/admin/test/route.ts`.
+- Tests: added `tests/admin-authorization-smoke.test.ts` to verify 403/200 responses for admin vs non-admin across admin endpoints.
+
 
