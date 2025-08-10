@@ -23,7 +23,7 @@
 
 - `app/(protected)/admin/_components/BundlesPanel.client.tsx`
   - Creation: includes Visibility selector (min_plan).
-  - New “Edit visibility” dialog on each bundle; PATCHes `min_plan` via `/api/admin/bundles`.
+  - New “Edit visibility” dialog on each bundle; now uses Server Action and applies optimistic `min_plan` update with revert-on-error.
 
 - `app/(protected)/admin/bundles/page.tsx`, `app/(protected)/admin/podcasts/page.tsx`
   - Removed unnecessary `@ts-expect-error` directives.
@@ -40,7 +40,7 @@
     - Admin upload creates episodes with `podcast_id` and no `bundle_id`.
     - Curated bundles API returns podcasts + gating; admin bypass validated.
     - Episodes API derives visibility from selected bundle podcasts + user’s profile episodes.
-  - Stabilized imports by mapping `@/` to repo root for Vitest and replacing brittle aliases with relative imports where necessary.
+  - Stabilized imports by mapping `@/` to repo root for Vitest (see `vitest.config.ts`), ensuring tests can import `@/lib/*`.
 
 - Prior (already in place):
   - `prisma/schema.prisma`: `PlanGate` enum + `Bundle.min_plan`; migration completed.
@@ -56,6 +56,7 @@
 ### Pending / Next
 - Audit and update any remaining bundle selectors to respect `canInteract`.
 - Optional: Make upgrade/lock copy configurable via admin or config source.
+- Verify feature flags in CI and document `.env` examples for local/testing.
 - Continue migrating older admin logic into server/client panel pattern where applicable.
 
 ### Notes
