@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import styles from "@/styles/new-landing-page.module.css"
+import styles from "@/styles/landing-page-content.module.css"
 
 interface LandingAudioPlayerProps {
 	title: string
