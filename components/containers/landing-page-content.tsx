@@ -1,9 +1,8 @@
 "use client"
 
-import { UilArrowRight, UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
+import { UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { CheckCircle } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import LandingAudioPlayer from "@/components/demo/landing-audio-player"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import styles from "@/styles/landing-page-content.module.css"
 import { LandingPageHeader } from "../layout/LandingPageHeader"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import { HomePageBackground } from "./home-page-background"
 
 // Hardcoded subscription tiers for landing page
 const SUBSCRIPTION_TIERS = [
@@ -103,6 +103,7 @@ export default function LandingPageContent() {
 
 	return (
 		<div className={styles.container}>
+			<HomePageBackground />
 			<LandingPageHeader />
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
@@ -114,15 +115,19 @@ export default function LandingPageContent() {
 				/>
 				<div className={styles.heroContainer}>
 					<div className={styles.heroContent}>
-						<motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
-							<Image className="mx-auto" src={"/logo.png"} width={400} height={200} alt="logo" />
+						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="currentColor" />
+							</svg>
+							Coming Soon - Revolutionary AI Audio Processing
+						</motion.div>
+						<motion.h1 className={styles.heroHeading} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
+							Cut the chatter.
+							<br />
+							<span className={styles.heroHeadingHighlight}>Keep the insight.</span>
 						</motion.h1>
-						<motion.p className={styles.heroSubtitle} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
-							Cut the chatter.<span className={styles.heroSubtitleSlogan}>Keep the insight.</span>
-						</motion.p>
-						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}>
+						<motion.p className={styles.heroDescription} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}>
 							Tired of sifting through hours of podcasts for that one golden nugget? Podslice.ai transforms chaotic audio into crystal-clear, actionable knowledge with remarkably human AI voices.
-							Reclaim hours each week by getting instant access to key takeaways—no more hunting through rambling conversations for the insights that actually matter.
 						</motion.p>
 					</div>
 					<motion.div
@@ -278,38 +283,19 @@ export default function LandingPageContent() {
 				</div>
 			</section>
 
-			{/* CTA Section */}
-			<section className={styles.ctaSection}>
-				<motion.div className={styles.ctaContainer} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-					<div className={styles.ctaContent}>
-						<h2 className={styles.ctaTitle}>Ready to Cut Through the Noise?</h2>
-						<p className={styles.ctaDescription}>
-							Join thousands of users who are already saving time and getting more value from their content. Start your free trial today and discover focused content that respects your time.
-						</p>
-						<motion.div className="flex flex-col sm:flex-row gap-4 justify-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
-							<Link href="/sign-up">
-								<motion.div
-									whileHover={{
-										scale: 1.05,
-										boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
-									}}
-									whileTap={{ scale: 0.95 }}
-								>
-									<Button
-										size="lg"
-										variant="default"
-										className="text-lg px-4 md:px-8 py-6 bg-radial-gradient-secondary items-center hover:bg-radial-gradient-secondary/80 hover:scale-105 transition-all duration-200 ease-in-out"
-									>
-										<motion.span className="flex items-center" initial={{ x: 0 }} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 400 }}>
-											Start Free Trial
-											<UilArrowRight className={styles.arrowIcon} />
-										</motion.span>
-									</Button>
-								</motion.div>
-							</Link>
-						</motion.div>
+			{/* Waitlist Form (hero inline style) */}
+			<section>
+				<form className={styles.waitlistForm}>
+					<div className={styles.waitlistInput}>
+						<input className={styles.waitlistInputField} type="email" placeholder="Enter your email for early access" />
 					</div>
-				</motion.div>
+					<button className={styles.waitlistButton} type="button">
+						Join Waitlist
+						<svg className={styles.arrowIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M13 5l7 7-7 7M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+						</svg>
+					</button>
+				</form>
 			</section>
 
 			{/* Footer */}
