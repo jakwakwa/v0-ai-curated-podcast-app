@@ -16,16 +16,16 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 
 	return (
 		<div className="flex flex-col gap-8 p-0 w-full md:w-[100%]">
-			<div className="space-y-8 w-full">
+			<div className="w-full">
 				{/* Profile Card - using default variant */}
 				{showProfileCard && (
-					<Card variant="default" className="mb-4">
+					<Card variant="bundle" className="bg-primary-card mb-4">
 						<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
 							<CardTitle className="text-custom-h4 text-left font-semibold tracking-tight mt-2 mb-2">Personalized Feed</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<Typography className="font-sans mt-0 text-xl font-bold tracking-tight">{userCurationProfile?.name}</Typography>
-							<p className="mt-2 mb-4">Status: {userCurationProfile?.status}</p>
+							<Typography className="font-sans text-primary/90 mt-0 font-bold tracking-tight">{userCurationProfile?.name}</Typography>
+							{/* <p className="mt-2 mb-4 text-sm">Status: {userCurationProfile?.status}</p> */}
 						</CardContent>
 					</Card>
 				)}
@@ -34,9 +34,9 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 				{showBundleCard && userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 					<Card variant="bundle" className="bg-primary-card">
 						<CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="w-full text-xl font-semibold tracking-tight">
-								<span className="text-custom-md text-accent"> {userCurationProfile.selectedBundle.name} Bundle</span>
-							</CardTitle>
+							<Typography as="p" variant={"h5"} className="w-full text-xl tracking-tight">
+								<span className=" text-secondary-foreground"> {userCurationProfile.selectedBundle.name}</span>
+							</Typography>
 						</CardHeader>
 						<CardContent>
 							{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (

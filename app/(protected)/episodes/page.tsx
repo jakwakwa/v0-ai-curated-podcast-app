@@ -59,12 +59,14 @@ export default function EpisodesPage() {
 	}
 
 	return (
-		<div className="wrapper">
+		<div className="wrapper w-full">
 			<PageHeader title="Weekly Episodes" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
 
 			{isLoading ? (
-				<div className="flex items-center justify-center min-h-[400px]">
-					<AppSpinner size="lg" label="Loading episodes..." />
+				<div className="p-8 mx-auto">
+					<div className="flex items-center justify-center min-h-[400px]">
+						<AppSpinner variant={"wave"} size="lg" label="Loading Podslice Episodes..." />
+					</div>
 				</div>
 			) : error ? (
 				<div className="max-w-2xl mx-auto mt-8">

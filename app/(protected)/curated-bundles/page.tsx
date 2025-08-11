@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageHeader } from "@/components/ui/page-header"
-import { Body, Typography } from "@/components/ui/typography"
+import { Typography } from "@/components/ui/typography"
 import { prisma } from "@/lib/prisma"
 import type { Bundle, Podcast } from "@/lib/types"
 
@@ -75,7 +75,7 @@ export default async function CuratedBundlesPage() {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-1 mb-0">
 					{curatedBundles.map(bundle => (
 						<Card key={bundle.bundle_id} className="h-auto flex flex-col max-h-[500px] bg-card" variant="bundle">
-							<CardHeader className="px-6 pb-2 pt-4 border-b border-border">
+							<CardHeader className="px-6 pb-2 pt-4">
 								<div className="w-full flex flex-col gap-3">
 									<div className="flex flex-col gap-3">
 										<CardTitle className="text-[1.2rem] text-secondary-foreground font-bold my-2 leading-8 tracking-tight leading-tight mb-0 truncate">{bundle.name}</CardTitle>
@@ -97,9 +97,8 @@ export default async function CuratedBundlesPage() {
 								</div>
 							</CardHeader>
 
-							<CardContent className="py-1 px-4 mx-auto overflow-y-auto">
-								<Body className="text-2xl font-inter text-accent-foreground italic font-semibold leading-8 h-auto tracking-tight mb-4">Included:</Body>
-								<ul className="list-none p-0 m-0 flex flex-col rounded-xl bg-[#000]/50 max-h-[20rem] overflow-y-auto">
+							<CardContent className="py-1 px-1 mx-auto overflow-y-auto">
+								<ul className="list-none p-0 m-0 flex flex-col rounded-xl bg-[#000]/30 max-h-[20rem] overflow-y-auto">
 									{bundle.podcasts.map((podcast: Podcast) => (
 										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-2 md:px-4 w-full border-1 border-dark/10  rounded-lg">
 											<div className="w-full flex flex-col gap-1">

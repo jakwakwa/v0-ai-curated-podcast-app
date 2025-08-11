@@ -97,11 +97,9 @@ export default function Page() {
 
 	if (isLoading) {
 		return (
-			<div className="h-screen w-full flex items-center justify-center p-6">
-				<div className="flex flex-col items-center justify-center min-h-[400px] w-full">
-					<div className="flex items-center justify-center w-full">
-						<AppSpinner size="lg" label="Loading dashboard..." />
-					</div>
+			<div className="p-8 mx-auto">
+				<div className="flex items-center justify-center min-h-[400px]">
+					<AppSpinner variant={"wave"} size="lg" label="Generating your personal Podslice Hub..." />
 				</div>
 			</div>
 		)
@@ -127,8 +125,8 @@ export default function Page() {
 			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
 			<Card variant="glass" className="flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
-				<div className="flex flex-col px-2 md:px-2 mx-auto w-full gap-4 md:flex-col-reverse lg:flex-row">
-					<div className="w-full  md:w-full  md:min-w-[280px] md:max-w-[300px] ">
+				<div className="flex flex-col lg:flex-row gap-6">
+					<div className="w-full  md:w-full">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
 						) : (

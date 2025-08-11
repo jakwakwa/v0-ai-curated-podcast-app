@@ -5,11 +5,11 @@ export const typographyVariants = cva("", {
 	variants: {
 		variant: {
 			h1: "font-heading font-normal text-foreground-muted",
-			h2: "font-heading font-bold leading-[1.5] text-foreground",
-			h3: "font-heading font-normal text-secondary-foreground my-4",
-			h4: "font-sans text-md",
-			h5: "font-sans text-h5 uppercase font-semibold text-foreground",
-			body: "font-sans text-body text-[10px]",
+			h2: "font-heading font-bold leading-[2.5] text-foreground",
+			h3: "font-heading font-normal text-secondary-foreground my-4 leading-[3]",
+			h4: "font-sans",
+			h5: "font-sans uppercase font-semibold text-foreground leading-[4px]",
+			body: "font-sans text-body text-[10px] leading-[2]",
 			muted: "text-[var(--text-body-sm)] text-muted-foreground",
 			link: "text-[var(--text-body-sm)] text-link",
 			label: "text-[var(--text-body-sm)] text-label",
@@ -22,7 +22,7 @@ export const typographyVariants = cva("", {
 export const cardVariants = cva("rounded-3xl px-3 border transition-all duration-200", {
 	variants: {
 		variant: {
-			default: "border bg-card text-card-foreground",
+			default: "border bg-card-alt text-card-foreground",
 			glass: "bg-cardglass",
 			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
 			bundle: "border bg-dialog-bg shadow-lg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-md border-[#2D2C38] border-b-none backdrop-blur-md hover:-translate-y-0.5 pb-4",
