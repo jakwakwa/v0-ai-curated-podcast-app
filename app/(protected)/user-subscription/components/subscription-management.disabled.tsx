@@ -10,9 +10,7 @@ export function SubscriptionManagement() {
 
 	const formatDate = (date: Date | null) => {
 		if (!date) return ""
-		return new Intl.DateTimeFormat("en-US", {
-			dateStyle: "medium",
-		}).format(date)
+		return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(date)
 	}
 
 	const getPlanDetails = () => {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth, useClerk } from "@clerk/nextjs"
-import { LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
+import { Bell, CreditCard, LogOutIcon, MoreVerticalIcon, Settings, Shield, UserCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -21,6 +21,18 @@ export function NavUser({
 	const { signOut } = useClerk()
 	const { isLoaded, isSignedIn } = useAuth()
 	const [isAdmin, setIsAdmin] = useState(false)
+
+	// Compute Clerk Account Portal direct link with redirect
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+	let accountPortalUrl: string | null = null
+	try {
+		if (appUrl) {
+			const parsed = new URL(appUrl)
+			accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`
+		}
+	} catch {
+		accountPortalUrl = null
+	}
 
 	// Generate initials from user name
 	const getInitials = (name: string) => {
@@ -102,44 +114,30 @@ export function NavUser({
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
 							<DropdownMenuItem asChild>
+								<Link href="/notification-preferences">
+									<Bell className="h-4 w-4" />
+									Notification Preferences
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link href="/user-subscription">
+									<CreditCard className="h-4 w-4" />
+									Subscription
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link href={accountPortalUrl ?? "/"}>
+									<Settings className="h-4 w-4" />
+									Account & Security (Clerk)
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
 								<Link href="/curation-profile-management">
 									<UserCircleIcon />
 									Personalized Feed Management
 								</Link>
 							</DropdownMenuItem>
-							{/* TODO: Add Subscription back When:
-							- subscription tab functional,
-							- paddle is fully functional,
-							<DropdownMenuItem asChild>
-								<Link href="/subscription">
-									<CreditCardIcon />
-									Subscription
-								</Link>
-							</DropdownMenuItem>
-							*/}
-							{/* TODO: Add Notifications back When:
-							- notifications tab functional,
-							- paddle is fully functional,
-							<DropdownMenuItem asChild>
-								<Link href="/notifications">
-									<BellIcon />
-									Notifications
-								</Link>
-							</DropdownMenuItem>
-							*/}
-							{/* TODO: Add Account Settings back When:
-							- paddle implementation is ready,
-							- security tab functional,
-							- profile tab functional,
-							- notifications tab functional,
-							- subscription tab functional,
-							- paddle is fully documented,
-							{/* <DropdownMenuItem asChild>
-								<Link href="/account">
-									<Settings />
-									Account Settings
-								</Link>
-							</DropdownMenuItem> */}
+							{/* legacy account menu items removed in favor of dedicated routes and Clerk portal */}
 						</DropdownMenuGroup>
 						{isAdmin && (
 							<>

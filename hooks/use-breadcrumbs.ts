@@ -16,9 +16,8 @@ const routeLabels: Record<string, string> = {
 	episodes: "Weekly Episodes",
 	"curated-bundles": "Bundles",
 	"curation-profile-management": "Personal Feed",
-	account: "Account Settings",
-	notifications: "Notifications",
-	subscription: "Subscription",
+	"notification-preferences": "Notifications",
+	"user-subscription": "Subscription",
 	admin: "Admin Panel",
 	collections: "Collections",
 }

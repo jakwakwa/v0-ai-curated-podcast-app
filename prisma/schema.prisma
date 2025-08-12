@@ -20,7 +20,6 @@ model User {
   in_app_notifications   Boolean              @default(true) @map("in_app_notifications")
   created_at             DateTime             @default(now()) @map("created_at")
   updated_at             DateTime             @updatedAt @map("updated_at")
-  paystack_customer_id   String?              @unique @map("paystack_customer_id")
   paddle_customer_id     String?              @unique @map("paddle_customer_id")
   ownedBundles           Bundle[]
   feedback               EpisodeFeedback[]
@@ -171,8 +170,6 @@ model Notification {
 model Subscription {
   subscription_id            String    @id @default(uuid()) @map("subscription_id")
   user_id                    String    @map("user_id")
-  paystack_subscription_code String?   @unique @map("paystack_subscription_code")
-  paystack_plan_code         String?   @map("paystack_plan_code")
   paddle_subscription_id     String?   @unique @map("paddle_subscription_id")
   paddle_price_id            String?   @map("paddle_price_id")
   plan_type                  String    @default("casual_listener") @map("plan_type")
