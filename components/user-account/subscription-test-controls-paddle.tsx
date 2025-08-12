@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useShallow } from "zustand/shallow"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,11 +9,13 @@ import { PAYMENT_CONFIG } from "@/config/ai"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export function SubscriptionTestControlsPaddle() {
-	const { setSubscription, subscription } = useSubscriptionStore(state => ({
-		setSubscription: state.setSubscription,
-		subscription: state.subscription,
-	}))
-	const [isVisible, setIsVisible] = useState(false)
+	const { setSubscription, subscription } = useSubscriptionStore(
+		useShallow(state => ({
+			setSubscription: state.setSubscription,
+			subscription: state.subscription,
+		}))
+	)
+	const [isVisible, setIsVisible] = useState(true)
 
 	// Mock subscription states for testing
 	const mockSubscriptions = {

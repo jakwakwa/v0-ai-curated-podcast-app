@@ -11,6 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Typography } from "@/components/ui/typography"
 import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 
+interface SubscriptionInfo {
+	plan_type: string
+	status: string
+}
+
 // CSS module migrated to Tailwind classes
 
 const _formatDate = (date: Date | null | undefined) => {
@@ -22,19 +27,22 @@ export default function CurationProfileManagementPage() {
 	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
 	const [_episodes, setEpisodes] = useState<Episode[]>([])
 	const [_bundleEpisodes, setBundleEpisodes] = useState<Episode[]>([])
+	const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const fetchAndUpdateData = useCallback(async () => {
 		try {
 			// Fetch user curation profile and episodes in parallel
-			const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
+			const [profileResponse, episodesResponse, subscriptionResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes"), fetch("/api/subscription")])
 
 			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null
 			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : []
+			const fetchedSubscription = subscriptionResponse.ok ? await subscriptionResponse.json() : null
 
 			setUserCurationProfile(fetchedProfile)
 			setEpisodes(fetchedEpisodes)
+			setSubscription(fetchedSubscription)
 
 			// Get bundle episodes if user has a bundle selection
 			let bundleEpisodesList: Episode[] = []
@@ -139,10 +147,14 @@ export default function CurationProfileManagementPage() {
 										<span className="font-medium">{_episodes.length || 0 + (userCurationProfile?.selectedBundle?.episodes?.length || 0)}</span>
 									</div>
 									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-2">
+										<span className="text-foreground/80 text-xs">Plan Tier:</span>
+										<span className="font-medium capitalize">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
+									</div>
+									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full bg-muted-foreground/10 py-4 px-2">
 										<span className="text-foreground/80 text-xs">Member Since:</span>
 										<span className="text-xs opacity-[0.5]">{_formatDate(userCurationProfile?.created_at)}</span>
 									</div>
-									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full bg-muted-foreground/10 py-4 px-2">
+									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-2">
 										<span className="text-foreground/80 text-xs">Updated:</span>
 										<span className="text-xs opacity-[0.5]">{_formatDate(userCurationProfile?.updated_at)}</span>
 									</div>

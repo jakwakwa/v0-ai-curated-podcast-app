@@ -21,6 +21,7 @@
         "lint:fix": "biome lint --write .",
         "start": "next start",
         "seed": "tsx scripts/seed.mjs",
+        "seed:personas": "tsx scripts/seed-test-users.ts",
         "inngest": "inngest dev",
         "format": "biome format --write .",
         "format:fix": "biome format --write . && biome lint --write .",

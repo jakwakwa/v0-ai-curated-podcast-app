@@ -35,6 +35,7 @@ export async function GET(_request: NextRequest) {
 			}
 		}
 		const allowedGates = resolveAllowedGates(plan)
+		console.log(`[CURATED_BUNDLES_GET] UserID: ${userId}, Plan: ${plan}, Allowed Gates: ${allowedGates.join(", ")}`)
 
 		// Get all active bundles (return locked ones too)
 		const bundles: BundleWithPodcasts[] = await prisma.bundle.findMany({
@@ -54,6 +55,9 @@ export async function GET(_request: NextRequest) {
 			const gate = bundle.min_plan
 			const canInteract = allowedGates.includes(gate)
 			const lockReason = canInteract ? null : "This bundle requires a higher plan."
+
+			console.log(`[CURATED_BUNDLES_GET] Bundle: "${bundle.name}" (ID: ${bundle.bundle_id}), Min Plan: ${gate}, User Plan: ${plan}, Can Interact: ${canInteract}`)
+
 			return {
 				...bundle,
 				podcasts: bundle.bundle_podcast.map(bp => bp.podcast),

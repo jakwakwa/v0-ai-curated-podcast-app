@@ -52,80 +52,53 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 		}
 
 		const body = await request.json()
-        const { name, isBundleSelection, selectedBundleId, sourceUrls } = body
+		const { name, status, selected_bundle_id } = body
 
-		// biome-ignore lint/complexity/useSimplifiedLogicExpression: checking that at least one field is provided
-		if (!name && !isBundleSelection && !selectedBundleId && !sourceUrls) {
+		const hasUpdateData = name || status || selected_bundle_id
+		if (!hasUpdateData) {
 			return NextResponse.json({ error: "No update data provided" }, { status: 400 })
 		}
 
-		// Fetch the existing user curation profile to check ownership
-		const existingUserCurationProfile = await prisma.userCurationProfile.findUnique({
-			where: { profile_id: id },
+		const existingProfile = await prisma.userCurationProfile.findUnique({
+			where: { profile_id: id, user_id: userId },
 		})
 
-		if (!existingUserCurationProfile) {
-			return NextResponse.json({ error: "User Curation Profile not found" }, { status: 404 })
+		if (!existingProfile) {
+			return NextResponse.json({ error: "User Curation Profile not found or unauthorized" }, { status: 404 })
 		}
 
-		if (existingUserCurationProfile.user_id !== userId) {
-			return NextResponse.json({ error: "Unauthorized - User ID mismatch" }, { status: 403 })
-		}
-		// TODO: Fix no explicit any
-		// biome-ignore lint/suspicious/noImplicitAnyLet: <FIX LATER>
-		let updatedUserCurationProfile
+		const dataToUpdate: {
+			name?: string
+			status?: string
+			selected_bundle_id?: string
+			is_bundle_selection?: boolean
+		} = {}
 
-		if (isBundleSelection !== undefined) {
-			// If changing to bundle selection
-            if (isBundleSelection && selectedBundleId) {
-                // Gate check: ensure user's plan meets bundle min_plan
-                const [bundle, sub] = await Promise.all([
-                    prisma.bundle.findUnique({ where: { bundle_id: selectedBundleId } }),
-                    prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } }),
-                ])
-                if (!bundle) {
-                    return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
-                }
-                const plan = sub?.plan_type ?? null
-                const gate = bundle.min_plan
-                const allowed = gate === "NONE" || (gate === "CASUAL_LISTENER" && (plan === "casual_listener" || plan === "curate_control")) || (gate === "CURATE_CONTROL" && plan === "curate_control")
-                if (!allowed) {
-                    return NextResponse.json({ error: "Bundle requires a higher plan", requiredPlan: gate }, { status: 403 })
-                }
-				updatedUserCurationProfile = await prisma.userCurationProfile.update({
-					where: { profile_id: id },
-					data: {
-						name: name || existingUserCurationProfile.name,
-						is_bundle_selection: true,
-						selected_bundle_id: selectedBundleId,
-					},
-				})
-			} else if (!isBundleSelection) {
-				// If changing to custom selection
-				updatedUserCurationProfile = await prisma.userCurationProfile.update({
-					where: { profile_id: id },
-					data: {
-						name: name || existingUserCurationProfile.name,
-						is_bundle_selection: false,
-						selected_bundle_id: null,
-					},
-				})
+		if (name) dataToUpdate.name = name
+		if (status) dataToUpdate.status = status
+
+		if (selected_bundle_id) {
+			const [bundle, sub] = await Promise.all([
+				prisma.bundle.findUnique({ where: { bundle_id: selected_bundle_id } }),
+				prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } }),
+			])
+			if (!bundle) {
+				return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
 			}
-		} else if (sourceUrls) {
-			// Update sources for a custom user curation profile
-			// Note: Sources functionality has been temporarily disabled during migration
-			updatedUserCurationProfile = await prisma.userCurationProfile.update({
-				where: { profile_id: id },
-				data: {
-					name: name || existingUserCurationProfile.name,
-				},
-			})
-		} else if (name) {
-			updatedUserCurationProfile = await prisma.userCurationProfile.update({
-				where: { profile_id: id },
-				data: { name: name },
-			})
+			const plan = sub?.plan_type ?? null
+			const gate = bundle.min_plan
+			const allowed = gate === "NONE" || (gate === "CASUAL_LISTENER" && (plan === "casual_listener" || plan === "curate_control")) || (gate === "CURATE_CONTROL" && plan === "curate_control")
+			if (!allowed) {
+				return NextResponse.json({ error: "Bundle requires a higher plan", requiredPlan: gate }, { status: 403 })
+			}
+			dataToUpdate.selected_bundle_id = selected_bundle_id
+			dataToUpdate.is_bundle_selection = true
 		}
+
+		const updatedUserCurationProfile = await prisma.userCurationProfile.update({
+			where: { profile_id: id },
+			data: dataToUpdate,
+		})
 
 		return NextResponse.json(updatedUserCurationProfile)
 	} catch (error: unknown) {

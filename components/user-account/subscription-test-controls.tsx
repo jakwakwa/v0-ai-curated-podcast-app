@@ -1,7 +1,7 @@
 "use client"
 
-import { PAYMENT_CONFIG } from "@/config/ai"
 import dynamic from "next/dynamic"
+import { PAYMENT_CONFIG } from "@/config/ai"
 
 // Dynamically import the test control components
 const PaystackControls = dynamic(() => import("./subscription-test-controls.paystack.disabled").then(mod => mod.SubscriptionTestControls), { ssr: false })

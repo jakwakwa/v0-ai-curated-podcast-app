@@ -6,6 +6,7 @@ import { ProfileManagement } from "@/components/features/profile-management"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NotificationPreferences } from "@/components/user-account/notification-preferences"
 import { SecuritySettings } from "@/components/user-account/security-settings"
+import { SubscriptionTestControls } from "@/components/user-account/subscription-test-controls"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export default function AccountSettingsPage() {
@@ -88,7 +89,7 @@ export default function AccountSettingsPage() {
 								<h3 className="font-semibold mb-2">Current Plan</h3>
 								<p className="text-sm text-muted-foreground">{subscriptionLoading ? "Loading..." : getCurrentPlanName()}</p>
 							</div>
-							{/* <SubscriptionTestControls /> */}
+							<SubscriptionTestControls />
 						</div>
 					</TabsContent>
 				</Tabs>
