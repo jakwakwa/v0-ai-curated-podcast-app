@@ -39,7 +39,7 @@
     --color-secondary-dark: oklch(0.34 0.054 193.04);
 
 		--color-muted-transparent: oklch(0 0 0 / 0.34);
-    --color-muted: oklch(0.18 0.01 285.79);
+    --color-muted: oklch(0.38 0.03 284.85 / 0.13);
 		--color-items: oklch(0.39 0.07 229.78 / 0.4);
     --color-muted-dark: oklch(0.16 0.01 224.04 / 0.95);
     --color-muted-foreground: oklch(0.86 0.01 255.48 / 0.46);
@@ -77,7 +77,7 @@
     --color-popover: oklch(0.21 0.01 297.14);
     --color-popover-foreground: oklch(0.985 0 0);
     --color-primary: oklch(0.79 0.0306 248.22 / 0.98);
-    --color-muted: oklch(0.25 0.04 189.64);
+
 
     /* Accent colors for selection states */
     --color-accent-selection: var(--color-accent);
@@ -373,9 +373,9 @@ button {
     font-weight: 500;
     letter-spacing: 0.025em;
 		border-radius: 0.8rem;
-    padding: 2.1rem 10rem !important;
+    padding: 2.1rem 1rem !important;
     transition: all 0.2s ease-in-out;
-		max-width: 270px;
+		max-width: 290px;
 		width: auto	;
 		padding: 10px 15px !important;
 		/* border-radius: 12px; */
@@ -415,23 +415,23 @@ label {
 
 input,
 textarea {
-  font-size: var(--text-md);
+  font-size: 0.8rem !important;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 400;
   display: flex;
   align-items: center;
   justify-content: center;
   letter-spacing: 0.025em;
-  padding: 1.2rem 1rem !important;
+  padding: 0.8rem 0.7rem !important;
   border: 1px solid var(--color-border);
   border-radius: 0.375rem;
   border-radius: 12px;
 	height: auto;
-	color: oklch(0.21 0.01 303.65);
-  box-shadow: inset -1px 1px 3px 1px #09090A82, inset 0px 6px 3px 1px #18181A4A;
+	color: oklch(0.92 0.01 17.34 / 0.72);
+  box-shadow: inset -1px 1px 0px 1px #09090A82, inset 0px 2px 4px 1px #12121596;
   /* padding-top: 1.425rem !important; */
   /* padding-bottom: 1.425rem !important; */
-  background-color: oklch(0.53 0.03 282.95 / 0.19);
+  background-color: oklch(0.2 0 0 / 0.56);
   transition: all 0.2s ease-in-out;
 }
 
@@ -505,6 +505,14 @@ textarea {
         box-shadow: var(--shadow-sm) !important;
         transition: all 0.2s ease-in-out;
     }
+
+		.bg-primary {
+			background-color: #0CBA58A8 !important;
+		}
+
+		.bg-secondary {
+			background-color: hsla(256.26 100% 79.02% / 0.74) !important;
+		}
 
     .select-custom-trigger {
         color: #ffffff !important;

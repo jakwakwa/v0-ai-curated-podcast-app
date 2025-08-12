@@ -179,7 +179,7 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 								<div className="flex-1">
 									<div className="flex items-center gap-2 mb-1">
 										<h4 className="font-medium">{p.name}</h4>
-										<Badge size="sm" variant={p.is_active ? "default" : "secondary"}>
+										<Badge size="sm" variant={p.is_active ? "default" : "default"}>
 											{p.is_active ? "Active" : "Inactive"}
 										</Badge>
 									</div>

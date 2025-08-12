@@ -652,10 +652,6 @@ export default function AdminPage() {
 	)
 	const categories = Object.keys(podcastsByCategory).sort()
 
-	console.log("Available podcasts:", availablePodcasts.length)
-	console.log("Categories:", categories)
-	console.log("Podcasts by category:", podcastsByCategory)
-
 	return (
 		<div className="container mx-auto p-6 max-w-6xl">
 			<div className="mb-8">
@@ -1097,7 +1093,7 @@ export default function AdminPage() {
 															<option value="CURATE_CONTROL">Tier 3</option>
 														</select>
 														<Button size="sm" variant="outline" disabled={isSavingBundleMinPlanId === bundle.bundle_id} onClick={() => saveBundleMinPlan(bundle.bundle_id)}>
-															{isSavingBundleMinPlanId === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : "Save"}
+															{isSavingBundleMinPlanId === bundle.bundle_id ? <AppSpinner size="sm" variant="dots" /> : "Save"}
 														</Button>
 													</div>
 												</div>
@@ -1108,7 +1104,7 @@ export default function AdminPage() {
 													size="sm"
 													className="text-destructive hover:text-destructive hover:bg-destructive/10"
 												>
-													{isDeletingBundle === bundle.bundle_id ? <AppSpinner size="sm" variant="simple" /> : <Trash2 className="w-4 h-4" />}
+													{isDeletingBundle === bundle.bundle_id ? <AppSpinner size="sm" variant="dots" /> : <Trash2 className="w-4 h-4" />}
 												</Button>
 											</div>
 										</div>
@@ -1158,7 +1154,7 @@ export default function AdminPage() {
 								<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-4 p-4">
-								<div className="p-4 bg-muted rounded-lg">
+								<div className="p-4 bg-muted rounded-lg border-1 border-[#000]">
 									<h4 className="font-semibold mb-2">Create New Bundle</h4>
 									<p className="text-sm text-muted-foreground mb-4">Create a new bundle to group related podcasts together.</p>
 								</div>
@@ -1175,7 +1171,7 @@ export default function AdminPage() {
 								</Button>
 
 								{showCreatePodcast && (
-									<div className="space-y-4 p-4 border rounded-lg bg-background">
+									<div className="space-y-4 p-8 border border-[#5814D0BB] rounded-lg bg-background">
 										<div className="flex items-center justify-between mb-4">
 											<h4 className="font-semibold">{editingPodcast ? "Edit Podcast" : "Create New Podcast"}</h4>
 											{editingPodcast && (
