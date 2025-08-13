@@ -5,10 +5,11 @@ import { Storage } from "@google-cloud/storage"
 import { generateText } from "ai"
 import mime from "mime"
 import { YoutubeTranscript } from "youtube-transcript"
-import { aiConfig } from "../config/ai"
-import emailService from "../lib/email-service"
-import { prisma } from "../lib/prisma"
-import type { Podcast as PodcastModel } from "../lib/types"
+import { aiConfig } from "@/config/ai"
+import emailService from "@/lib/email-service"
+import { prisma } from "@/lib/prisma"
+import type { Podcast as PodcastModel } from "@/lib/types"
+import { getEnv } from "@/utils/helpers"
 import { inngest } from "./client"
 
 type SourceWithTranscript = Omit<PodcastModel, "created_at"> & {
@@ -36,10 +37,6 @@ function looksLikeJson(value: string | undefined): boolean {
 	if (!value) return false
 	const trimmed = value.trim()
 	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function getEnv(key: string): string | undefined {
-	return process.env[key]
 }
 
 function ensureBucketName(): string {

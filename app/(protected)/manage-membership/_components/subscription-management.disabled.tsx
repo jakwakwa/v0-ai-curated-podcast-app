@@ -2,8 +2,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PADDLE_PRODUCTS } from "@/lib/paddle"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
-import { PADDLE_PRODUCTS } from "@/src/lib/paddle"
 
 export function SubscriptionManagement() {
 	const { status, plan, trialEndsAt, cancelAtPeriodEnd, nextBillDate, isLoading, error, cancelSubscription, resumeSubscription, updatePaymentMethod, updateSubscription } = useSubscriptionStore()
@@ -15,16 +15,25 @@ export function SubscriptionManagement() {
 
 	const getPlanDetails = () => {
 		switch (plan) {
+			case "free_slice":
+				return {
+					plan_id: "free_slice",
+					price: "",
+					price_id: "",
+					features: ["Advanced Curation", "Priority Recommendations", "Custom Playlists", "14-day Trial"],
+				}
 			case "casual_listener":
 				return {
-					name: "Casual Listener",
-					price: "$6.95/month",
+					plan_id: "Casual Listener",
+					// price: "$6.95/month",
+					price_id: "",
 					features: ["AI-Curated Podcasts", "Basic Recommendations", "14-day Trial"],
 				}
 			case "curate_control":
 				return {
-					name: "Curate & Control",
-					price: "$10.00/month",
+					plan_id: "Curate Control",
+					// price: "$6.95/month",
+					price_id: "",
 					features: ["Advanced Curation", "Priority Recommendations", "Custom Playlists", "14-day Trial"],
 				}
 			default:
@@ -50,6 +59,9 @@ export function SubscriptionManagement() {
 					<CardDescription>Choose a plan to get started</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
+					<Button onClick={() => updateSubscription(PADDLE_PRODUCTS.FREE_SLICE)} className="w-full" variant="default">
+						Subscribe to Free Slice
+					</Button>
 					<Button onClick={() => updateSubscription(PADDLE_PRODUCTS.CASUAL_LISTENER)} className="w-full" variant="default">
 						Subscribe to Casual Listener
 					</Button>

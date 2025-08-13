@@ -209,7 +209,8 @@ enum FeedbackRating {
 
 /// Access gate for curated bundles
 enum PlanGate {
-  NONE            /// Free (all users)
-  CASUAL_LISTENER /// Tier 2 and Tier 3
-  CURATE_CONTROL  /// Tier 3 only
+  NONE
+  CASUAL_LISTENER
+  CURATE_CONTROL
+  FREE_SLICE
 }

@@ -1,14 +1,10 @@
 import { initializePaddle as initPaddle } from "@paddle/paddle-js"
-
-export const PADDLE_PRODUCTS = {
-	CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
-	CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
-} as const
+import { getEnv } from "@/utils/helpers"
 
 export const initializePaddle = async () => {
 	const paddle = await initPaddle({
-		environment: process.env.NODE_ENV === "production" ? "production" : "sandbox",
-		token: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || "",
+		environment: getEnv("NODE_ENV") === "production" ? "production" : "sandbox",
+		token: getEnv("NEXT_PUBLIC_PADDLE_CLIENT_TOKEN") || "",
 	})
 
 	return paddle

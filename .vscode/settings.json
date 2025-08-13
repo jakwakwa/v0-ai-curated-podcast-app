@@ -34,5 +34,19 @@
       "source.organizeImports.biome": "explicit",
       "source.fixAll.biome": "explicit"
     }
-  }
+  },
+  "terminal.integrated.fontFamily": "\"MesloLGS NF\", Meslo, mono",
+  "workbench.preferredHighContrastColorTheme": "Vira Ocean High Contrast",
+  "viraTheme.contrastedTabs": true,
+  "workbench.preferredDarkColorTheme": "Vira Ocean High Contrast",
+  "workbench.colorTheme": "Vira Carbon",
+  "workbench.preferredLightColorTheme": "Vira Palenight High Contrast",
+  "workbench.preferredHighContrastLightColorTheme": "Vira Palenight High Contrast",
+  "terminal.integrated.minimumContrastRatio": 1,
+  "window.autoDetectColorScheme": true,
+  "task.autoDetect": "off",
+  "gradle.autoDetect": "off",
+  "workbench.fontAliasing": "antialiased",
+	"workbench.activityBar.orientation": "vertical",
+
 }

@@ -24,9 +24,20 @@ export function NavUser({
 
 	// Compute Clerk Account Portal direct link with redirect
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+	const clerkPortalBase = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_PORTAL_URL || null
+	const redirectOverride = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_REDIRECT_URL || null
 	let accountPortalUrl: string | null = null
 	try {
-		if (appUrl) {
+		// Prefer explicitly configured Clerk Account Portal base (e.g. https://<hash>.accounts.dev/user)
+		if (clerkPortalBase) {
+			// Determine redirect target: explicit override first, then app origin
+			const redirectTarget = redirectOverride || (appUrl ? new URL(appUrl).origin : "")
+			if (redirectTarget) {
+				const base = clerkPortalBase.replace(/\/$/, "")
+				accountPortalUrl = `${base}?redirect_url=${encodeURIComponent(redirectTarget)}`
+			}
+		} else if (appUrl) {
+			// Fallback to accounts.<hostname>/account using app origin
 			const parsed = new URL(appUrl)
 			accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`
 		}

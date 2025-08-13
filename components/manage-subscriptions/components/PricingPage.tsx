@@ -1,6 +1,6 @@
 import type React from "react"
 import { Button } from "@/components/ui/button"
-import { openCheckout, PADDLE_PRODUCTS } from "../lib/paddle"
+import { openCheckout } from "@/lib/paddle"
 
 const PricingPage: React.FC = () => {
 	const handleSubscribe = async (priceId: string) => {

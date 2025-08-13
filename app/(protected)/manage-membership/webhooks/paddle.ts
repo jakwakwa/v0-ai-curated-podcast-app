@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { getTransaction } from "../../../server/paddle"
+import { getTransaction } from "@/lib/paddle-server/paddle"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== "POST") {
