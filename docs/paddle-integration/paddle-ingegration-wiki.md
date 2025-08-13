@@ -87,7 +87,7 @@ The application supports dynamic switching between payment providers. Configure 
 export const PAYMENT_CONFIG = {
   // Payment provider selection
   ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || 'paystack',
-  
+
   // Feature flags
   ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === 'true',
   ENABLE_PAYSTACK: process.env.NEXT_PUBLIC_ENABLE_PAYSTACK === 'true',
@@ -156,20 +156,20 @@ The integration includes several key components:
 
 ```typescript
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
-import { PADDLE_PRODUCTS } from "@/src/lib/paddle"
+import { PADDLE_PRODUCT } from "@/src/lib/paddle"
 
 function SubscriptionComponent() {
-  const { 
-    status, 
-    plan, 
+  const {
+    status,
+    plan,
     trialEndsAt,
-    cancelAtPeriodEnd, 
+    cancelAtPeriodEnd,
     updateSubscription,
-    cancelSubscription 
+    cancelSubscription
   } = useSubscriptionStore()
 
   const handleUpgrade = async () => {
-    await updateSubscription(PADDLE_PRODUCTS.CURATE_CONTROL)
+    await updateSubscription(PADDLE_PRODUCT_PLAN.CURATE_CONTROL)
   }
 
   return (
@@ -228,13 +228,13 @@ NEXT_PUBLIC_ENABLE_PAYSTACK=true
 async function migrateUser(userId: string) {
   // Create Paddle customer
   const paddleCustomer = await createPaddleCustomer(userId)
-  
+
   // Update user record
   await prisma.user.update({
     where: { user_id: userId },
     data: { paddle_customer_id: paddleCustomer.id }
   })
-  
+
   // Migrate subscription if exists
   if (existingPaystackSubscription) {
     await migrateToPaddleSubscription(userId)
@@ -339,7 +339,7 @@ const paddle = await initPaddle({...})
 // ❌ Before
 const transaction = await paddle.Checkout.create({...})
 
-// ✅ After  
+// ✅ After
 paddle.Checkout.open({...})
 ```
 
@@ -466,7 +466,7 @@ setSubscription(mockSubscriptions.trial)
 
 ### Integration Checklist
 - [x] ✅ Paddle.js SDK integrated
-- [x] ✅ TypeScript types properly defined  
+- [x] ✅ TypeScript types properly defined
 - [x] ✅ Zustand store implemented
 - [x] ✅ UI components created
 - [x] ✅ Test controls working

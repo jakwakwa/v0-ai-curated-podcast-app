@@ -1,1 +1,1 @@
-export { PricingPage } from "./_page-containers/manage-plan-landing-page"
+export { ManagPlanLandingPage } from "./_page-containers/manage-plan-landing-page"

@@ -10,6 +10,7 @@ const prisma = new PrismaClient()
 // 1. admin@test.com
 // 2. premium@test.com
 // 3. casual@test.com
+// 4. free@test.com (Free Slice)
 //
 // You can set any password you like for them in the Clerk dashboard.
 
@@ -95,7 +96,44 @@ async function main() {
 	})
 	console.log("✓ Created/updated premium user and subscription:", premiumUser.email)
 
-	// --- 3. Casual User (Casual Listener) ---
+	// --- 3. Free Slice User (Free Slice) ---
+	const freeUser = await prisma.user.upsert({
+		where: { email: "free@test.com" },
+		update: {},
+		create: {
+			email: "free@test.com",
+			name: "Free Slice User",
+			password: "password_placeholder",
+		},
+	})
+
+	await prisma.subscription.deleteMany({ where: { user_id: freeUser.user_id } })
+	await prisma.subscription.create({
+		data: {
+			user_id: freeUser.user_id,
+			plan_type: "free_slice",
+			status: "active",
+			current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+		},
+	})
+
+	await prisma.userCurationProfile.upsert({
+		where: { user_id: freeUser.user_id },
+		update: {
+			name: "Free Slice Feed",
+			is_bundle_selection: true,
+			selected_bundle_id: freeBundle!.bundle_id,
+		},
+		create: {
+			user_id: freeUser.user_id,
+			name: "Free Slice Feed",
+			is_bundle_selection: true,
+			selected_bundle_id: freeBundle!.bundle_id,
+		},
+	})
+	console.log("✓ Created/updated free slice user and subscription:", freeUser.email)
+
+	// --- 4. Casual User (Casual Listener) ---
 	const casualUser = await prisma.user.upsert({
 		where: { email: "casual@test.com" },
 		update: {},

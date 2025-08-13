@@ -1,3 +1,4 @@
+import { PlanGate, type Prisma } from "@prisma/client"
 import { AlertCircle, Lock } from "lucide-react"
 import { unstable_noStore as noStore } from "next/cache"
 import Link from "next/link"
@@ -9,20 +10,35 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Typography } from "@/components/ui/typography"
 import { prisma } from "@/lib/prisma"
 import type { Bundle, Podcast } from "@/lib/types"
+import { CuratedBundlesFilters } from "./_components/filters.client"
 
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
 export const dynamic = "force-dynamic"
 
-export default async function CuratedBundlesPage() {
+export default async function CuratedBundlesPage({ searchParams }: { searchParams?: { q?: string; min_plan?: string } }) {
 	noStore()
 
 	let curatedBundles: BundleWithPodcasts[] = []
 	let error: string | null = null
 
 	try {
+		const q = searchParams?.q?.toString().trim()
+		const minPlanParam = searchParams?.min_plan?.toString().trim()
+		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined
+
+		const where: Prisma.BundleWhereInput = {
+			is_active: true,
+			...(q
+				? {
+						OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
+					}
+				: {}),
+			...(minPlanFilter ? { min_plan: PlanGate[minPlanFilter] } : {}),
+		}
+
 		const bundles = await prisma.bundle.findMany({
-			where: { is_active: true },
+			where,
 			include: {
 				bundle_podcast: { include: { podcast: true } },
 			},
@@ -43,6 +59,9 @@ export default async function CuratedBundlesPage() {
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."
 			/>
+
+			{/* Filters */}
+			<CuratedBundlesFilters />
 
 			{!!error && (
 				<div className="max-w-2xl mx-auto mt-8">

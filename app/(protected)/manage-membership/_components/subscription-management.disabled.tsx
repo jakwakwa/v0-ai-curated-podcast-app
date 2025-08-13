@@ -2,7 +2,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PADDLE_PRODUCTS } from "@/lib/paddle"
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export function SubscriptionManagement() {
@@ -59,14 +58,17 @@ export function SubscriptionManagement() {
 					<CardDescription>Choose a plan to get started</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<Button onClick={() => updateSubscription(PADDLE_PRODUCTS.FREE_SLICE)} className="w-full" variant="default">
+					{/* MAP OVER PADDLE_PRODUCT_PLAN */}
+					<Button
+						onClick={() => {
+							console.error("Subscription button disabled and need to function handler")
+							// updateSubscription()
+							// PADDLE_PRODUCT_PLAN.pricePlan.CASUAL_LISTENER
+						}}
+						className="w-full"
+						variant="default"
+					>
 						Subscribe to Free Slice
-					</Button>
-					<Button onClick={() => updateSubscription(PADDLE_PRODUCTS.CASUAL_LISTENER)} className="w-full" variant="default">
-						Subscribe to Casual Listener
-					</Button>
-					<Button onClick={() => updateSubscription(PADDLE_PRODUCTS.CURATE_CONTROL)} className="w-full" variant="outline">
-						Subscribe to Curate & Control
 					</Button>
 
 					<div className="pt-4 border-t">

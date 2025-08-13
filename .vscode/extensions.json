@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "biomejs.biome",
-        "alexdauenhauer.catppuccin-noctis-icons"
+        "alexdauenhauer.catppuccin-noctis-icons",
+        "prisma.prisma"
     ]
 }

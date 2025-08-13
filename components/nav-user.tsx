@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth, useClerk } from "@clerk/nextjs"
-import { Bell, CreditCard, LogOutIcon, MoreVerticalIcon, Settings, Shield, UserCircleIcon } from "lucide-react"
+import { Bell, CreditCard, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -26,7 +26,7 @@ export function NavUser({
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
 	const clerkPortalBase = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_PORTAL_URL || null
 	const redirectOverride = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_REDIRECT_URL || null
-	let accountPortalUrl: string | null = null
+	let _accountPortalUrl: string | null = null
 	try {
 		// Prefer explicitly configured Clerk Account Portal base (e.g. https://<hash>.accounts.dev/user)
 		if (clerkPortalBase) {
@@ -34,15 +34,15 @@ export function NavUser({
 			const redirectTarget = redirectOverride || (appUrl ? new URL(appUrl).origin : "")
 			if (redirectTarget) {
 				const base = clerkPortalBase.replace(/\/$/, "")
-				accountPortalUrl = `${base}?redirect_url=${encodeURIComponent(redirectTarget)}`
+				_accountPortalUrl = `${base}?redirect_url=${encodeURIComponent(redirectTarget)}`
 			}
 		} else if (appUrl) {
 			// Fallback to accounts.<hostname>/account using app origin
 			const parsed = new URL(appUrl)
-			accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`
+			_accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`
 		}
 	} catch {
-		accountPortalUrl = null
+		_accountPortalUrl = null
 	}
 
 	// Generate initials from user name
@@ -131,15 +131,9 @@ export function NavUser({
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
-								<Link href="/user-subscription">
+								<Link href="/manage-membership">
 									<CreditCard className="h-4 w-4" />
 									Subscription
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link href={accountPortalUrl ?? "/"}>
-									<Settings className="h-4 w-4" />
-									Account & Security (Clerk)
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
@@ -148,7 +142,6 @@ export function NavUser({
 									Personalized Feed Management
 								</Link>
 							</DropdownMenuItem>
-							{/* legacy account menu items removed in favor of dedicated routes and Clerk portal */}
 						</DropdownMenuGroup>
 						{isAdmin && (
 							<>
