@@ -101,3 +101,14 @@ export interface IBillingFrequency {
 	priceSuffix: string
 }
 
+export type PaddleCheckoutCompletedData = {
+	transaction_id: string
+	status: string
+	customer: {
+		id: string
+	}
+	items: {
+		price_id: string
+	}[]
+}
+

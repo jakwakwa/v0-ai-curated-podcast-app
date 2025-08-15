@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { PRICING_TIER } from "@/config/paddle-config"
@@ -10,13 +11,21 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export function SubscriptionView() {
 	const { subscription, setSubscription } = useSubscriptionStore(useShallow(state => ({ subscription: state.subscription, setSubscription: state.setSubscription })))
-	const [_isSubmitting, setIsSubmitting] = useState(false)
+	const [_isSubmitting, _setIsSubmitting] = useState(false)
+	const [isSyncing, setIsSyncing] = useState(false)
 
 	useEffect(() => {
 		const fetchSubscription = async () => {
 			try {
 				const res = await fetch("/api/account/subscription", { cache: "no-store" })
 				if (!res.ok) return
+
+				// Handle 204 No Content case (no subscription found)
+				if (res.status === 204) {
+					setSubscription(null)
+					return
+				}
+
 				const data = await res.json()
 				setSubscription(data)
 			} catch { }
@@ -24,19 +33,46 @@ export function SubscriptionView() {
 		fetchSubscription()
 	}, [setSubscription])
 
-	const _syncMembership = async (action: "update" | "cancel") => {
-		setIsSubmitting(true)
+	const syncMembership = async () => {
+		setIsSyncing(true)
 		try {
-			const res = await fetch("/api/account/subscription/portal", {
+			console.log("Starting subscription sync...")
+
+			// First try to sync with Paddle
+			const syncRes = await fetch("/api/account/subscription/sync", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ action }),
 			})
-			if (!res.ok) return
-			const { url } = await res.json()
-			if (url) window.location.href = url
+
+			if (syncRes.ok) {
+				const syncData = await syncRes.json()
+				console.log("Sync successful:", syncData)
+			} else {
+				const syncError = await syncRes.json()
+				console.log("Sync endpoint error:", syncError)
+			}
+
+			// Then fetch the updated subscription data
+			const res = await fetch("/api/account/subscription", { cache: "no-store" })
+			if (!res.ok) {
+				console.error("Failed to fetch subscription after sync:", res.status, res.statusText)
+				return
+			}
+
+			// Handle 204 No Content case (no subscription found)
+			if (res.status === 204) {
+				console.log("No subscription found after sync")
+				setSubscription(null)
+				return
+			}
+
+			const data = await res.json()
+			console.log("Subscription data after sync:", data)
+			setSubscription(data)
+		} catch (error) {
+			console.error("Failed to sync membership:", error)
 		} finally {
-			setIsSubmitting(false)
+			setIsSyncing(false)
 		}
 	}
 
@@ -62,7 +98,11 @@ export function SubscriptionView() {
 					<div className="flex gap-2"></div>
 				</div>
 			</CardContent>
-			<CardFooter className="p-0 pt-4"></CardFooter>
+			<CardFooter className="p-0 pt-4">
+				<Button onClick={syncMembership} variant="outline" size="sm" disabled={isSyncing} className="w-full">
+					{isSyncing ? "Syncing..." : "Sync My Membership"}
+				</Button>
+			</CardFooter>
 		</Card>
 	)
 }

@@ -13,7 +13,7 @@ const PRICING_TIER: PlanTier[] = [
 	{
 		priceId: "pri_01k2q1zyfjje86nzvx2ze2gy6k",
 		planId: "FREE_SLICE",
-		productTitle: "Advanced Curator",
+		productTitle: "Free Slice (30 day trial)",
 		icon: "/assets/icons/price-tiers/free-icon.svg",
 		description: "Starting out",
 		features: ["Basic Weekly Recommendations"],

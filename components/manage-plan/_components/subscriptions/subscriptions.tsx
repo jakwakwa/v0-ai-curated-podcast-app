@@ -2,7 +2,7 @@
 
 import { SubscriptionView } from "./views/subscription-view"
 
-export async function Subscriptions() {
+export function Subscriptions() {
 	// const { data: subscriptions } = await getSubscriptions()
 
 	// if (subscriptions) {

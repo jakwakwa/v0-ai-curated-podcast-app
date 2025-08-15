@@ -16,6 +16,13 @@ const ManagPlanLandingPage: React.FC = () => {
 		try {
 			const res = await fetch("/api/account/subscription", { cache: "no-store" })
 			if (!res.ok) return
+
+			// Handle 204 No Content case (no subscription found)
+			if (res.status === 204) {
+				setSubscription(null)
+				return
+			}
+
 			const data = await res.json()
 			setSubscription(data)
 		} catch (err) {

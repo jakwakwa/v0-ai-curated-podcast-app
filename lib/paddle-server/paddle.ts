@@ -61,6 +61,13 @@ export async function getTransaction(transactionId: string) {
 	})
 }
 
+export async function getSubscriptionsByCustomer(customerId: string) {
+	return paddleApiRequest({
+		method: "GET",
+		path: `/customers/${customerId}/subscriptions`,
+	})
+}
+
 export async function createCustomerPortalSession(customerId: string, subscriptionIds?: string[]) {
 	const body: Record<string, unknown> = {}
 	if (subscriptionIds && subscriptionIds.length > 0) {
