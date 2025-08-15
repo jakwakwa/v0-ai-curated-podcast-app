@@ -12,7 +12,7 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 export function SubscriptionView() {
 	const { subscription, setSubscription } = useSubscriptionStore(useShallow(state => ({ subscription: state.subscription, setSubscription: state.setSubscription })))
 	const [_isSubmitting, _setIsSubmitting] = useState(false)
-	const [isSyncing, setIsSyncing] = useState(false)
+	const [_isSyncing, setIsSyncing] = useState(false)
 
 	useEffect(() => {
 		const fetchSubscription = async () => {
@@ -33,7 +33,7 @@ export function SubscriptionView() {
 		fetchSubscription()
 	}, [setSubscription])
 
-	const syncMembership = async () => {
+	const _syncMembership = async () => {
 		setIsSyncing(true)
 		try {
 			console.log("Starting subscription sync...")
@@ -99,8 +99,8 @@ export function SubscriptionView() {
 				</div>
 			</CardContent>
 			<CardFooter className="p-0 pt-4">
-				<Button onClick={syncMembership} variant="outline" size="sm" disabled={isSyncing} className="w-full">
-					{isSyncing ? "Syncing..." : "Sync My Membership"}
+				<Button variant="outline" size="sm" disabled className="w-full">
+					Checkout-controlled sync only
 				</Button>
 			</CardFooter>
 		</Card>

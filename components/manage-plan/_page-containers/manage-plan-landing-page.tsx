@@ -59,7 +59,11 @@ const ManagPlanLandingPage: React.FC = () => {
 		<div className="w-full max-w-7xl flex flex-col gap-6">
 			<Subscriptions />
 			<div className="flex w-full flex-row gap-12 ">
-				<PricingPlans onCheckoutCompleted={syncSubscription} paddleProductPlan={PRICING_TIER} />
+				<PricingPlans
+					onCheckoutCompleted={syncSubscription}
+					onCheckoutClosed={fetchSubscription}
+					paddleProductPlan={PRICING_TIER}
+				/>
 			</div>
 		</div>
 	)

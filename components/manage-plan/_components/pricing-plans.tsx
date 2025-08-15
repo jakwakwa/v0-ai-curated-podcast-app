@@ -23,6 +23,7 @@ import Link from "next/link"
 type IPricingPlanProps = {
 	paddleProductPlan: PlanTier[]
 	onCheckoutCompleted: (data: PaddleCheckoutCompletedData) => void
+	\tonCheckoutClosed?: () => void
 }
 interface IPriceProps {
 	loading: boolean
@@ -73,7 +74,7 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 
 // --- Main Pricing Plans Component ---
 
-export function PricingPlans({ paddleProductPlan, onCheckoutCompleted }: IPricingPlanProps) {
+export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckoutClosed }: IPricingPlanProps) {
 	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
 	const [frequency, setFrequency] = useState<IBillingFrequency>({ value: 'month', label: 'Monthly', priceSuffix: 'per user/month' });
 	const [paddle, setPaddle] = useState<Paddle>();
@@ -94,9 +95,13 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted }: IPricin
 		initializePaddle({
 			environment: process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox",
 			token: clientToken,
-			eventCallback: (data: { name: string; data: PaddleCheckoutCompletedData }) => {
-				if (data.name === "checkout.completed") {
+			eventCallback: (data: { name: string; data?: PaddleCheckoutCompletedData }) => {
+				if (data.name === "checkout.completed" && data.data) {
 					onCheckoutCompleted(data.data as PaddleCheckoutCompletedData);
+				}
+				if (data.name === "checkout.closed") {
+					// Ensure membership state refresh when checkout is closed
+					onCheckoutClosed?.();
 				}
 			}
 		} as unknown as InitializePaddleOptions).then(
