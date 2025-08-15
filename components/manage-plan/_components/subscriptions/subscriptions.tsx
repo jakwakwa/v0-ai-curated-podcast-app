@@ -4,14 +4,14 @@
 // import { SubscriptionErrorView } from "@/components/dashboard/subscriptions/views/subscription-error-view"
 // import { getSubscriptions } from "@/utils/paddle/get-subscriptions"
 
-import { NoSubscriptionView } from "./views/no-subscription-view"
+import { SubscriptionView } from "./views/subscription-view"
 
 export async function Subscriptions() {
 	// const { data: subscriptions } = await getSubscriptions()
 
 	// if (subscriptions) {
 
-	return <NoSubscriptionView />
+	return <SubscriptionView />
 }
 // }
 // return <SubscriptionErrorView />

@@ -203,7 +203,6 @@ export type TextareaProps = VariantProps<typeof textareaVariants>
 export type SelectProps = VariantProps<typeof selectVariants>
 export type LabelProps = VariantProps<typeof labelVariants>
 export type SwitchProps = VariantProps<typeof switchVariants>
-export type CheckboxProps = VariantProps<typeof checkboxVariants>
 export type BadgeProps = VariantProps<typeof badgeVariants>
 // Spinner variants - loading indicators with animations
 export const spinnerVariants = cva("", {

@@ -1,5 +1,3 @@
-import type { PaddleSubscription } from "@/lib/stores/subscription-store-paddlejs"
-
 const PADDLE_API_URL = "https://api.paddle.com"
 
 interface PaddleApiOptions {
@@ -34,6 +32,10 @@ export async function getSubscription(subscriptionId: string) {
 	})
 }
 
+export async function getPortalSession(subscriptionId: string) {
+	return getSubscription(subscriptionId)
+}
+
 export async function cancelSubscription(subscriptionId: string) {
 	return paddleApiRequest({
 		method: "PATCH",
@@ -44,7 +46,7 @@ export async function cancelSubscription(subscriptionId: string) {
 	})
 }
 
-export async function updateSubscription(subscriptionId: string, updateData: PaddleSubscription) {
+export async function updateSubscription(subscriptionId: string, updateData: { items: Array<{ price_id: string; quantity: number }>; proration_billing_mode?: "immediate" | "next_billing_period" }) {
 	return paddleApiRequest({
 		method: "PATCH",
 		path: `/subscriptions/${subscriptionId}`,
@@ -56,5 +58,17 @@ export async function getTransaction(transactionId: string) {
 	return paddleApiRequest({
 		method: "GET",
 		path: `/transactions/${transactionId}`,
+	})
+}
+
+export async function createCustomerPortalSession(customerId: string, subscriptionIds?: string[]) {
+	const body: Record<string, unknown> = {}
+	if (subscriptionIds && subscriptionIds.length > 0) {
+		body.subscription_ids = subscriptionIds
+	}
+	return paddleApiRequest({
+		method: "POST",
+		path: `/customers/${customerId}/portal-sessions`,
+		body,
 	})
 }
