@@ -1,7 +1,7 @@
 "use client"
-import type { Paddle } from "@paddle/paddle-js"
+
 import { CircleCheck } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { ReactElement, ReactEventHandler, useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -10,114 +10,54 @@ import { PRICING_TIER } from "@/config/paddle-config"
 import { usePaddlePrices } from "@/hooks/use-paddle-Prices"
 import type { IBillingFrequency, PlanTier } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { initializePaddle, InitializePaddleOptions, Paddle } from "@paddle/paddle-js";
+import { PriceTitle } from "./pricing/price-title"
+import Link from "next/link"
 
-type IFPricingPlanProps = {
+type IPricingPlanProps = {
 	paddleProductPlan: PlanTier[]
 }
-
-function PricingPlans({ paddleProductPlan }: IFPricingPlanProps) {
-	const [paddle, setPaddle] = useState<Paddle | undefined>(undefined)
-	const { prices, loading } = usePaddlePrices(paddle, "United States")
-
-	const clientToken = useMemo(() => process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN, [])
-
-	useEffect(() => {
-		let isMounted = true
-			; (async () => {
-				try {
-					const { default: Paddle } = await import("@paddle/paddle-js")
-					if (!clientToken) return
-					const p = await Paddle.initialize({ token: clientToken })
-					if (isMounted) setPaddle(p)
-				} catch { }
-			})()
-		return () => {
-			isMounted = false
-		}
-	}, [clientToken])
-
-	const openCheckout = async (priceId: string) => {
-		if (!paddle) return
-		try {
-			await paddle.Checkout.open({ items: [{ priceId, quantity: 1 }] })
-		} catch { }
-	}
-
-	return (
-		<>
-			{paddleProductPlan?.map(plan => (
-				<Card key={plan.priceId} className="w-full flex flex-col max-w-[300px]">
-					<div className="border-1 border-[#99999946] rounded-lg shadow-sm divide-y divide-gray-200">
-						<div className="p-6">
-							<div>
-								<h2 className="text-2xl font-semibold text-foreground-secondary">{plan.productTitle}</h2>
-							</div>
-							<div className={"px-8 text-[16px] leading-[24px]"}>{plan.description}</div>
-							<span className="text-4xl font-extrabold text-accent">{loading ? "--" : prices[plan.priceId] ?? "--"}</span>
-							<span className="text-base font-medium text-gray-500">/month</span>
-							<div className={"px-8"}>
-								<Separator className={"bg-border"} />
-							</div>
-							<div className={"px-8 mt-8"}>
-								<Button className={"w-full"} variant={"secondary"} disabled={!paddle} onClick={() => openCheckout(plan.priceId)}>
-									{paddle ? "Subscribe with Paddle" : "Paddle unavailable"}
-								</Button>
-							</div>
-						</div>
-					</div>
-				</Card>
-			))}
-		</>
-	)
-}
-
-export { PricingPlans }
-
-interface Props {
+interface IPriceProps {
 	loading: boolean
-	frequency: IBillingFrequency
-	priceMap: Record<string, string>
-}
-
-export function PriceCards({ loading, frequency, priceMap }: Props) {
-	const _billingFrequency = { value: "month", label: "Monthly", priceSuffix: "per user/month" }
-	return (
-		<div className="isolate mx-auto grid grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-			{PRICING_TIER?.map(tier => (
-				<Card key={tier.planId} className={cn("rounded-lg bg-background/70 backdrop-blur-[6px] overflow-hidden")}>
-					<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
-						<CardTitle>{!tier ? tier : "not implemented"}</CardTitle>
-						<PriceAmount loading={loading} tier={tier} priceMap={priceMap} value={frequency.value} priceSuffix={frequency.priceSuffix} frequency={frequency} />
-
-						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
-					</div>
-					<div className={"px-8 mt-8"}>
-						<Button className={"w-full"} variant={"secondary"} disabled={!paddle} onClick={() => openCheckout(tier.priceId)}>
-							Subscribe
-						</Button>
-					</div>
-					<FeaturesList tier={tier} loading={loading} frequency={frequency} priceMap={priceMap} value={""} priceSuffix={""} />
-				</Card>
-			))}
-		</div>
-	)
-}
-
-interface Props {
-	loading: boolean
-	tier: PlanTier
 	value: string
 	priceSuffix: string
 }
 
-export function PriceAmount({ loading, priceSuffix, tier, value }: Props) {
+interface IFeatureListProps {
+	tier: PlanTier
+	loading: boolean
+}
+
+export function FeatureList({ tier, loading }: IFeatureListProps) {
+	return (
+		<div className="mt-6 flex flex-col px-8">
+			{loading ? (
+				<Skeleton className="h-[96px] w-full bg-border" />
+			) : (
+				<ul className={"p-8 flex flex-col gap-4"}>
+					{tier.features.map((feature: string) => (
+						<li key={feature} className="flex gap-x-3">
+							<CircleCheck className={"h-6 w-6 text-muted-foreground"} />
+							<span className={"text-base"}>{feature}</span>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	)
+}
+
+
+
+
+export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 	return (
 		<div className="mt-6 flex flex-col px-8">
 			{loading ? (
 				<Skeleton className="h-[96px] w-full bg-border" />
 			) : (
 				<>
-					{/* <div className={cn("text-[80px] leading-[96px] tracking-[-1.6px] font-medium")}>{priceMap[tier.priceId[Number(value)]].replace(/\.00$/, "")}</div> */}
+					<div className={cn("text-[80px] leading-[96px] tracking-[-1.6px] font-medium")}>{value.replace(/\.00$/, "")}</div>
 					<div className={cn("font-medium leading-[12px] text-[12px]")}>{priceSuffix}</div>
 				</>
 			)}
@@ -125,19 +65,126 @@ export function PriceAmount({ loading, priceSuffix, tier, value }: Props) {
 	)
 }
 
-interface Props {
-	tier: PlanTier
-}
 
-export function FeaturesList({ tier }: Props) {
+function PricingPlans({ paddleProductPlan }: IPricingPlanProps) {
+
+	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
+	const [frequency, setFrequency] = useState<IBillingFrequency>({ value: 'month', label: 'Monthly', priceSuffix: 'per user/month' });
+	const [paddle, setPaddle] = useState<Paddle>();
+	const { prices, loading } = usePaddlePrices(paddle, "USD");
+	const [checkoutPlan, setCheckoutPlan] = useState<{ priceId: string }>();
+
+	// example freeslice define items
+
+
+	useEffect(() => {
+		initializePaddle({
+			environment: process.env.PADDLE_ENV!, // e.g., "sandbox" or "production"
+			token: process.env.PADDLE_CLIENT_TOKEN!,
+			seller: Number(process.env.PADDLE_SELLER_ID),
+		} as unknown as InitializePaddleOptions).then(
+			(paddleInstance: Paddle | undefined) => {
+				if (paddleInstance) {
+					setPaddle(paddleInstance);
+				}
+			}
+		);
+	}, []);
+
+	let customerInfo = {
+		email: "sam@example.com",
+		address: {
+			countryCode: "US",
+			postalCode: "10021"
+		}
+	};
+
+	const openPaddleCheckout = (e: ReactEventHandler, id: string) => {
+		e.preventDefault()
+
+		setCheckoutPlan(id)
+		return paddle?.Checkout.open({
+			items:
+				[{
+					priceId: checkoutPlan?.priceId,
+					quantity: 1
+				}]
+			,
+			customer: customer
+		});
+	};
+
 	return (
-		<ul className={"p-8 flex flex-col gap-4"}>
-			{tier.features.map((feature: string) => (
-				<li key={feature} className="flex gap-x-3">
-					<CircleCheck className={"h-6 w-6 text-muted-foreground"} />
-					<span className={"text-base"}>{feature}</span>
-				</li>
+		<>
+			{paddleProductPlan?.map(tier => (
+
+				<div key={tier.priceId} className={cn('rounded-lg bg-background/70 backdrop-blur-[6px] overflow-hidden')}>
+					<div className={cn('flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border')}>
+
+						<PriceTitle tier={tier} />
+						<PriceAmount
+							loading={loading}
+							value={frequency.value}
+							priceSuffix={frequency.priceSuffix}
+						/>
+						<div className={'px-8'}>
+							<Separator className={'bg-border'} />
+						</div>
+						<div className={'px-8 text-[16px] leading-[24px]'}>{tier.description}</div>
+					</div>
+					<div className={'px-8 mt-8'}>
+
+						<Button onClick={(e) => openPaddleCheckout(e, tier.priceId)} className={'w-full'} variant={'secondary'} asChild={true}>
+							Get started
+						</Button>
+					</div>
+					<FeatureList tier={tier} loading={loading} />
+				</div>
+
 			))}
-		</ul>
+		</>
 	)
 }
+
+export { PricingPlans }
+
+
+interface Props {
+	loading: boolean
+	frequency: IBillingFrequency
+	priceId: string
+}
+
+export function PriceCards({ loading, frequency, priceId }: Props) {
+	let customerInfo = {
+		email: "sam@example.com",
+		address: {
+			countryCode: "US",
+			postalCode: "10021"
+		}
+	};
+	const [paddle, setPaddle] = useState<Paddle | undefined>(undefined);
+
+
+
+	return (
+		<div className="isolate mx-auto grid grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+			{PRICING_TIER?.map(tier => (
+				<Card key={tier.planId} className={cn("rounded-lg bg-background/70 backdrop-blur-[6px] overflow-hidden")}>
+					<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
+						<CardTitle>{!tier ? tier : "not implemented"}</CardTitle>
+
+						{/* PRiCE AMOUNT */}
+						<div className={cn("text-[80px] leading-[96px] tracking-[-1.6px] font-medium")}>{frequency.value.replace(/\.00$/, "")}</div>
+						<div className={cn("font-medium leading-[12px] text-[12px]")}>{frequency.priceSuffix}</div>
+
+						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
+					</div>
+
+					<FeatureList tier={tier} loading={loading} />
+				</Card>
+			))}
+		</div>
+	)
+}
+

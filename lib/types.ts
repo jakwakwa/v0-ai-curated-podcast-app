@@ -100,3 +100,4 @@ export interface IBillingFrequency {
 	label: string
 	priceSuffix: string
 }
+

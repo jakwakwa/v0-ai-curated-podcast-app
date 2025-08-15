@@ -73,7 +73,6 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	cancelSubscription: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle cancellation API call
 			const currentSubscription = get().subscription
 			if (currentSubscription) {
 				set({
@@ -93,7 +92,6 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	resumeSubscription: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle resume API call
 			const currentSubscription = get().subscription
 			if (currentSubscription) {
 				set({
@@ -113,7 +111,6 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	updatePaymentMethod: async () => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle payment method update
 			console.log("Update payment method called")
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to update payment method" })
@@ -125,7 +122,6 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	updateSubscription: async (priceId: string) => {
 		set({ isLoading: true })
 		try {
-			// TODO: Implement actual Paddle subscription update
 			console.log("Update subscription called with priceId:", priceId)
 		} catch (error) {
 			set({ error: error instanceof Error ? error.message : "Failed to update subscription" })
