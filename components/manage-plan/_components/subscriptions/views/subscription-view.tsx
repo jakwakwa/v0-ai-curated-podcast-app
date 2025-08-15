@@ -13,6 +13,7 @@ export function SubscriptionView() {
 	const { subscription, setSubscription } = useSubscriptionStore(useShallow(state => ({ subscription: state.subscription, setSubscription: state.setSubscription })))
 	const [_isSubmitting, _setIsSubmitting] = useState(false)
 	const [_isSyncing, setIsSyncing] = useState(false)
+	const [isForceSyncing, setIsForceSyncing] = useState(false)
 
 	useEffect(() => {
 		const fetchSubscription = async () => {
@@ -76,6 +77,29 @@ export function SubscriptionView() {
 		}
 	}
 
+	const syncPaddleWithDb = async () => {
+		setIsForceSyncing(true)
+		try {
+			const res = await fetch("/api/account/subscription/sync-paddle", { method: "POST" })
+			if (!res.ok) {
+				try {
+					const err = await res.json()
+					console.error("Force sync failed:", err)
+				} catch { }
+				return
+			}
+			const after = await fetch("/api/account/subscription", { cache: "no-store" })
+			if (after.ok && after.status !== 204) {
+				const data = await after.json()
+				setSubscription(data)
+			}
+		} catch (e) {
+			console.error("Error during force sync:", e)
+		} finally {
+			setIsForceSyncing(false)
+		}
+	}
+
 	const currentPlan = PRICING_TIER.find(p => p.priceId === subscription?.paddle_price_id)
 
 	return (
@@ -99,8 +123,8 @@ export function SubscriptionView() {
 				</div>
 			</CardContent>
 			<CardFooter className="p-0 pt-4">
-				<Button variant="outline" size="sm" disabled className="w-full">
-					Checkout-controlled sync only
+				<Button onClick={syncPaddleWithDb} variant="outline" size="sm" disabled={isForceSyncing} className="w-full">
+					{isForceSyncing ? "Syncing from Paddle..." : "Force Sync from Paddle"}
 				</Button>
 			</CardFooter>
 		</Card>

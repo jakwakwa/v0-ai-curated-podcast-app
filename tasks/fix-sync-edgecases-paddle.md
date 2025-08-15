@@ -58,3 +58,9 @@ When working with task lists, the AI must:
 - [PaddleJS Methods](https://developer.paddle.com/paddlejs/methods/paddle-checkout-updatecheckout)
 
 
+
+## Relevant Files
+
+- `app/api/account/subscription/sync-paddle/route.ts`: New route to sync subscription data from Paddle to DB for edge cases.
+- `components/manage-plan/_components/subscriptions/views/subscription-view.tsx`: Adds "Force Sync from Paddle" button and calls the sync route.
+- `components/manage-plan/_components/pricing-plans.tsx`: Prop type includes optional `onCheckoutClosed` for checkout lifecycle handling.

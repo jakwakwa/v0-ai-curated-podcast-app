@@ -23,7 +23,7 @@ import Link from "next/link"
 type IPricingPlanProps = {
 	paddleProductPlan: PlanTier[]
 	onCheckoutCompleted: (data: PaddleCheckoutCompletedData) => void
-	\tonCheckoutClosed?: () => void
+	onCheckoutClosed?: () => void
 }
 interface IPriceProps {
 	loading: boolean
