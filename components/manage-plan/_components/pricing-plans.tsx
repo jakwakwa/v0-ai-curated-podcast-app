@@ -1,8 +1,7 @@
 "use client"
 import type { Paddle } from "@paddle/paddle-js"
 import { CircleCheck } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -17,18 +16,33 @@ type IFPricingPlanProps = {
 }
 
 function PricingPlans({ paddleProductPlan }: IFPricingPlanProps) {
-	// TODO: We only use monthly billing. so we can actually remove billingfrequency
-	// const [_frequency, _setFrequency] = useState<IBillingFrequency>(BillingFrequency[0])
-	const [paddle, _setPaddle] = useState<Paddle | undefined>(undefined)
-	//  TODO:
-
+	const [paddle, setPaddle] = useState<Paddle | undefined>(undefined)
 	const { prices, loading } = usePaddlePrices(paddle, "United States")
 
+	const clientToken = useMemo(() => process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN, [])
+
 	useEffect(() => {
-		console.log("click")
-		console.log(loading)
-	}, [loading])
-	const _handleSub = (_param: string) => { }
+		let isMounted = true
+			; (async () => {
+				try {
+					const { default: Paddle } = await import("@paddle/paddle-js")
+					if (!clientToken) return
+					const p = await Paddle.initialize({ token: clientToken })
+					if (isMounted) setPaddle(p)
+				} catch { }
+			})()
+		return () => {
+			isMounted = false
+		}
+	}, [clientToken])
+
+	const openCheckout = async (priceId: string) => {
+		if (!paddle) return
+		try {
+			await paddle.Checkout.open({ items: [{ priceId, quantity: 1 }] })
+		} catch { }
+	}
+
 	return (
 		<>
 			{paddleProductPlan?.map(plan => (
@@ -39,20 +53,16 @@ function PricingPlans({ paddleProductPlan }: IFPricingPlanProps) {
 								<h2 className="text-2xl font-semibold text-foreground-secondary">{plan.productTitle}</h2>
 							</div>
 							<div className={"px-8 text-[16px] leading-[24px]"}>{plan.description}</div>
-							<span className="text-4xl font-extrabold text-accent">{prices[0]}</span>
+							<span className="text-4xl font-extrabold text-accent">{loading ? "--" : prices[plan.priceId] ?? "--"}</span>
 							<span className="text-base font-medium text-gray-500">/month</span>
 							<div className={"px-8"}>
 								<Separator className={"bg-border"} />
 							</div>
 							<div className={"px-8 mt-8"}>
-								<Button className={"w-full"} variant={"secondary"} asChild={true}>
-									{/* <Link href={`/checkout/${tier.priceId}`}>started</Link> */}
+								<Button className={"w-full"} variant={"secondary"} disabled={!paddle} onClick={() => openCheckout(plan.priceId)}>
+									{paddle ? "Subscribe with Paddle" : "Paddle unavailable"}
 								</Button>
 							</div>
-							{/* <Button variant="secondary" onClick={} className="mt-8 block w-full text-white rounded-md py-2 px-4 hover:bg-blue-700">
-								Subscribe Now
-							</Button> */}
-							{/* <FeaturesList tier={plan} loading={loading} priceMap={plan} value={""} priceSuffix={""} /> */}
 						</div>
 					</div>
 				</Card>
@@ -82,8 +92,8 @@ export function PriceCards({ loading, frequency, priceMap }: Props) {
 						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
 					</div>
 					<div className={"px-8 mt-8"}>
-						<Button className={"w-full"} variant={"secondary"} asChild={true}>
-							<Link href={`/checkout/${tier.priceId}`}>started</Link>
+						<Button className={"w-full"} variant={"secondary"} disabled={!paddle} onClick={() => openCheckout(tier.priceId)}>
+							Subscribe
 						</Button>
 					</div>
 					<FeaturesList tier={tier} loading={loading} frequency={frequency} priceMap={priceMap} value={""} priceSuffix={""} />
