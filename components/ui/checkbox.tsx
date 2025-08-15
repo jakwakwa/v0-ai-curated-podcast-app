@@ -1,21 +1,26 @@
 "use client"
 
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import type { VariantProps } from "class-variance-authority"
-import { Check } from "lucide-react"
-import * as React from "react"
-import { checkboxVariants } from "@/lib/component-variants"
+import { CheckIcon } from "lucide-react"
+import type * as React from "react"
+
 import { cn } from "@/lib/utils"
 
-interface CheckboxComponentProps extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, VariantProps<typeof checkboxVariants> {}
+function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
+	return (
+		<CheckboxPrimitive.Root
+			data-slot="checkbox"
+			className={cn(
+				"flex size-[25px] appearance-none items-center justify-center rounded shadow-[0_2px_10px] shadow-secondary outline-2 outline-secondary hover:bg-violet3 focus:shadow-[0_0_0_2px_var(--color-primary)]",
+				className
+			)}
+			{...props}
+		>
+			<CheckboxPrimitive.Indicator data-slot="checkbox-indicator" className="flex items-center justify-center text-current transition-none">
+				<CheckIcon size="14" color="turquoise" />
+			</CheckboxPrimitive.Indicator>
+		</CheckboxPrimitive.Root>
+	)
+}
 
-const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, CheckboxComponentProps>(({ className, size, ...props }, ref) => (
-	<CheckboxPrimitive.Root ref={ref} className={cn(checkboxVariants({ size }), className)} {...props}>
-		<CheckboxPrimitive.Indicator className="flex items-center justify-center text-current">
-			<Check className="h-4 w-4" />
-		</CheckboxPrimitive.Indicator>
-	</CheckboxPrimitive.Root>
-))
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
-
-export { Checkbox, type CheckboxComponentProps }
+export { Checkbox }

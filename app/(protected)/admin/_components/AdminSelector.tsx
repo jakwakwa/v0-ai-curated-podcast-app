@@ -39,14 +39,14 @@ export default function AdminSelector(props: AdminSelectorProps) {
 					<Stepper step={step} />
 					Select {props.type}
 				</CardTitle>
-				<CardDescription>{description}</CardDescription>
+				<CardDescription>{description}-*</CardDescription>
 			</CardHeader>
-			<CardContent className="p-4">
+			<CardContent className="p-4 bg-cardglass border-noe border-dar rounded-lg">
 				<Select value={selectedId} onValueChange={onChange}>
 					<SelectTrigger className="w-full max-w-[400px]">
 						<SelectValue placeholder={placeholder ?? `Select a ${props.type}...`} />
 					</SelectTrigger>
-					<SelectContent className="h-full min-h-[180px] max-h-[600px] bg-muted-dark text-bord-light border-bord-light overflow-y-auto">
+					<SelectContent className="bg-glass h-full min-h-[180px] max-h-[600px] bg-dark text-bord-light border-1 border-dark outline-none overflow-y-auto">
 						{isBundle
 							? (props.items as BundleWithMeta[]).map(bundle => (
 									<SelectItem key={bundle.bundle_id} value={bundle.bundle_id} disabled={bundle.canInteract === false}>
@@ -62,7 +62,7 @@ export default function AdminSelector(props: AdminSelectorProps) {
 				</Select>
 
 				{selectedId && (
-					<div className="mt-4 p-4 bg-muted-transparent/50 rounded-xl outline-2 outline-secondary shadow-lg">
+					<div className="border-light focus-visible:border-2  mt-4 p-4 bg-muted-transparent/50 rounded-xl outline-2 outline-secondary shadow-lg outline-1 outline-[#97D6A6]">
 						{isBundle
 							? (() => {
 									const bundle = (props.items as BundleWithMeta[]).find(b => b.bundle_id === selectedId)

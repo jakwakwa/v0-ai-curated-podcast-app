@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { PaymentsContent } from "@/components/manage-plan/_components/payments/payments-content"
+
 import { LoadingScreen } from "@/components/ui/loading-screen"
 import { PageHeader } from "@/components/ui/page-header"
 
@@ -8,7 +8,7 @@ export default async function PaymentsPage() {
 		<main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-8">
 			<PageHeader title="Payments" />
 			<Suspense fallback={<LoadingScreen />}>
-				<PaymentsContent subscriptionId={""} />
+				{/* <PaymentsContent subscriptionId={""} /> */}
 			</Suspense>
 		</main>
 	)

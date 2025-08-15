@@ -13,7 +13,6 @@ type PlanOption = {
 }
 
 const planOptions: PlanOption[] = [
-	{ value: "", label: "All plans" },
 	{ value: "NONE", label: "None" },
 	{ value: "FREE_SLICE", label: "Free Slice" },
 	{ value: "CASUAL_LISTENER", label: "Casual Listener" },

@@ -117,7 +117,7 @@ export default function BundlesPanelClient({
 					</div>
 					<div>
 						<Label>Select Podcasts</Label>
-						<div className="mt-2 max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
+						<div className="mt-2 h-auto max-h-200 overflow-y-auto border rounded-lg p-3 space-y-2">
 							{availablePodcasts.map((p: Podcast) => (
 								<div key={p.podcast_id} className="flex items-start space-x-2">
 									<Checkbox id={`pod-${p.podcast_id}`} checked={selectedPodcastIds.includes(p.podcast_id)} onCheckedChange={() => togglePodcastSelection(p.podcast_id)} />

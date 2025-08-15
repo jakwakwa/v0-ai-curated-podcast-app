@@ -1,52 +1,51 @@
 {
-  "editor.defaultFormatter": "biomejs.biome",
-  "editor.formatOnSave": true,
-
-  "biome.lspBin": "biome",
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-      "source.organizeImports.biome": "explicit",
-      "source.fixAll.biome": "explicit"
-    }
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-      "source.organizeImports.biome": "explicit",
-      "source.fixAll.biome": "explicit"
-    }
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-      "source.organizeImports.biome": "explicit",
-      "source.fixAll.biome": "explicit"
-    }
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "quickfix.biome": "explicit",
-      "source.organizeImports.biome": "explicit",
-      "source.fixAll.biome": "explicit"
-    }
-  },
-  "terminal.integrated.fontFamily": "\"MesloLGS NF\", Meslo, mono",
-  "workbench.preferredHighContrastColorTheme": "Vira Ocean High Contrast",
-  "viraTheme.contrastedTabs": true,
-  "workbench.preferredDarkColorTheme": "Vira Ocean High Contrast",
-  "workbench.colorTheme": "Vira Carbon",
-  "workbench.preferredLightColorTheme": "Vira Palenight High Contrast",
-  "workbench.preferredHighContrastLightColorTheme": "Vira Palenight High Contrast",
-  "terminal.integrated.minimumContrastRatio": 1,
-  "window.autoDetectColorScheme": true,
-  "task.autoDetect": "off",
-  "gradle.autoDetect": "off",
-  "workbench.fontAliasing": "antialiased",
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true,
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"terminal.integrated.fontFamily": "\"MesloLGS NF\", Meslo, mono",
+	"workbench.preferredHighContrastColorTheme": "Vira Ocean High Contrast",
+	"viraTheme.contrastedTabs": true,
+	"workbench.preferredDarkColorTheme": "Vira Ocean High Contrast",
+	"workbench.colorTheme": "Vira Carbon",
+	"workbench.preferredLightColorTheme": "Vira Palenight High Contrast",
+	"workbench.preferredHighContrastLightColorTheme": "Vira Palenight High Contrast",
+	"terminal.integrated.minimumContrastRatio": 1,
+	"window.autoDetectColorScheme": true,
+	"task.autoDetect": "off",
+	"gradle.autoDetect": "off",
+	"workbench.fontAliasing": "antialiased",
 	"workbench.activityBar.orientation": "vertical",
-
+	"biome.enabled": true,
+	"biome.configurationPath": "biome.json",
 }

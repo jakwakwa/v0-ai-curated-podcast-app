@@ -1,13 +1,14 @@
+import { ClerkProvider } from "@clerk/nextjs"
+import { dark } from "@clerk/themes"
+import { Theme } from "@radix-ui/themes"
 import type { Metadata } from "next"
 import { Work_Sans } from "next/font/google"
 import type React from "react"
-import "./globals.css"
-
-import { ClerkProvider } from "@clerk/nextjs"
-import { dark } from "@clerk/themes"
 import { Toaster } from "sonner"
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
 import { ClientProviders } from "./client-providers"
+
+import "./globals.css"
 
 const workSans = Work_Sans({ subsets: ["latin"] })
 
@@ -46,6 +47,7 @@ export default function RootLayout({
 			</head>
 			<body className={`${workSans.className}`}>
 				<GlobalProgressBar />
+
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
@@ -53,10 +55,12 @@ export default function RootLayout({
 					}}
 				>
 					<ClientProviders>
-						{children}
-						<Toaster />
+						<Theme accentColor="teal" grayColor="slate" radius="large" scaling="90%">
+							{children}
+							<Toaster />
 
-						{/* Global Footer for Terms and Privacy */}
+							{/* Global Footer for Terms and Privacy */}
+						</Theme>
 					</ClientProviders>
 				</ClerkProvider>
 			</body>

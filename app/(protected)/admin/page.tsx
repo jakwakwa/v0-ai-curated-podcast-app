@@ -1021,11 +1021,12 @@ export default function AdminPage() {
 												{availablePodcasts
 													.filter(p => p.is_active)
 													.map(podcast => (
-														<div key={podcast.podcast_id} className="flex items-start space-x-2">
+														<div key={podcast.podcast_id} className="flex items-start w-full">
 															<Checkbox
 																id={`bundle-podcast-${podcast.podcast_id}`}
 																checked={selectedPodcastIds.includes(podcast.podcast_id)}
 																onCheckedChange={() => togglePodcastSelection(podcast.podcast_id)}
+																className="bg-input"
 															/>
 															<div className="flex-1">
 																<label htmlFor={`bundle-podcast-${podcast.podcast_id}`} className="text-sm font-medium cursor-pointer">
@@ -1084,11 +1085,12 @@ export default function AdminPage() {
 													<div className="mt-2 flex items-center gap-2">
 														<Label className="text-xs">Visibility</Label>
 														<select
-															className="border rounded h-8 px-2 bg-background text-xs"
+															className="border rounded h-8 px-2 bg-card text-xs"
 															value={(bundle as { min_plan?: string }).min_plan || bundleMinPlanEdits[bundle.bundle_id] || "NONE"}
 															onChange={e => handleEditMinPlanChange(bundle.bundle_id, e.target.value)}
 														>
 															<option value="NONE">Free</option>
+															<option value="FREE_SLICE">Free Slice</option>
 															<option value="CASUAL_LISTENER">Tier 2+3</option>
 															<option value="CURATE_CONTROL">Tier 3</option>
 														</select>

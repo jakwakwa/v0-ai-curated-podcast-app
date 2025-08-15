@@ -1,19 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SuccessPageGradients } from "@/components/gradients/success-page-gradients";
-import { PoweredByPaddle } from "@/components/home/footer/powered-by-paddle";
 import { Button } from "@/components/ui/button";
-import "../../../styles/checkout.css";
-import { createClient } from "@/utils/supabase/server";
+import { PoweredByPaddle } from "@/components/manage-plan/_components/powered-by-paddle";
 
 export default async function SuccessPage() {
-	const supabase = await createClient();
-	const { data } = await supabase.auth.getUser();
+
 
 	return (
 		<main>
 			<div className={"relative h-screen overflow-hidden"}>
-				<SuccessPageGradients />
+
 				<div
 					className={"absolute inset-0 px-6 flex items-center justify-center"}
 				>
@@ -36,11 +32,11 @@ export default async function SuccessPage() {
 							Success! Your payment is complete, and you’re all set.
 						</p>
 						<Button variant={"secondary"} asChild={true}>
-							{data.user ? (
-								<Link href={"/dashboard"}>Go to Dashboard</Link>
-							) : (
-								<Link href={"/"}>Go to Home</Link>
-							)}
+
+							<Link href={"/dashboard"}>Go to Dashboard</Link>
+
+							<Link href={"/"}>Go to Home</Link>
+
 						</Button>
 					</div>
 				</div>

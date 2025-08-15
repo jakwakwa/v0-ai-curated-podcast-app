@@ -1,6 +1,7 @@
 import Head from "next/head"
 import type React from "react"
-import { PricingPage } from "@/components/manage-plan"
+import { ManagPlanLandingPage } from "./manage-plan-landing-page"
+// import { PricingPage } from "@/components/manage-plan"
 
 const PricingPlanLinkPage: React.FC = () => {
 	return (
@@ -9,7 +10,7 @@ const PricingPlanLinkPage: React.FC = () => {
 				<title>Choose Your Plan - PodSlice</title>
 				<script src="https://cdn.paddle.com/paddle/paddle.js"></script>
 			</Head>
-			<PricingPage />
+			<PricingPlanLinkPage />
 		</>
 	)
 }
@@ -21,7 +22,7 @@ const CheckoutLinkPage: React.FC = () => {
 				<title>Checkout Your Plan - PodSlice.ai</title>
 				<script src="https://cdn.paddle.com/paddle/paddle.js"></script>
 			</Head>
-			<PricingPage />
+			<ManagPlanLandingPage />
 		</>
 	)
 }

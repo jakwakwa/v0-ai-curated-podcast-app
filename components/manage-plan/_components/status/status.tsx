@@ -1,5 +1,5 @@
 import { Check, CircleMinus, Clock4, Pause, SquarePen } from 'lucide-react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface Props {
   status: string;

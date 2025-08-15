@@ -112,10 +112,10 @@ export const selectVariants = cva("", {
 	variants: {
 		trigger: {
 			default:
-				"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-[oklch(0.30_0.1388_290.83/0.48)] border-[var(--color-form-border)] px-3 py-2 text-sm text-[var(--color-form-input-text)] shadow-xs outline-none transition-all duration-200 data-[placeholder]:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50",
+				"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-[oklch(0.30_0.1388_290.83/0.28)] border-[var(--color-form-border)] px-3 py-2 text-sm text-[var(--color-form-input-text)] shadow-xs outline-none transition-all duration-200 data-[placeholder]:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50",
 		},
 		content: {
-			default: "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+			default: "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-background text-foreground shadow-md animate-in fade-in-0 zoom-in-95",
 		},
 	},
 	defaultVariants: {
@@ -140,32 +140,15 @@ export const labelVariants = cva("text-sm font-medium text-[var(--color-form-inp
 
 // Switch variants - toggle component styling
 export const switchVariants = cva(
-	"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+	"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ",
 	{
 		variants: {
 			variant: {
-				default: "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+				default: "data-[state=checked]:bg-secondary data-[state=unchecked]:bg-input",
 			},
 		},
 		defaultVariants: {
 			variant: "default",
-		},
-	}
-)
-
-// Checkbox variants - checkbox component styling
-export const checkboxVariants = cva(
-	"peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-	{
-		variants: {
-			size: {
-				default: "h-4 w-4",
-				sm: "h-3 w-3",
-				lg: "h-5 w-5",
-			},
-		},
-		defaultVariants: {
-			size: "default",
 		},
 	}
 )

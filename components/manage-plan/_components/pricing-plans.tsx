@@ -28,7 +28,7 @@ function PricingPlans({ paddleProductPlan }: IFPricingPlanProps) {
 		console.log("click")
 		console.log(loading)
 	}, [loading])
-	const _handleSub = (_param: string) => {}
+	const _handleSub = (_param: string) => { }
 	return (
 		<>
 			{paddleProductPlan?.map(plan => (
@@ -77,7 +77,7 @@ export function PriceCards({ loading, frequency, priceMap }: Props) {
 				<Card key={tier.planId} className={cn("rounded-lg bg-background/70 backdrop-blur-[6px] overflow-hidden")}>
 					<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
 						<CardTitle>{!tier ? tier : "not implemented"}</CardTitle>
-						<PriceAmount loading={loading} tier={tier} priceMap={priceMap} value={frequency.value} priceSuffix={frequency.priceSuffix} frequency={"monthly"} />
+						<PriceAmount loading={loading} tier={tier} priceMap={priceMap} value={frequency.value} priceSuffix={frequency.priceSuffix} frequency={frequency} />
 
 						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
 					</div>
@@ -96,19 +96,18 @@ export function PriceCards({ loading, frequency, priceMap }: Props) {
 interface Props {
 	loading: boolean
 	tier: PlanTier
-	priceMap: Record<string, string>
 	value: string
 	priceSuffix: string
 }
 
-export function PriceAmount({ loading, priceMap, priceSuffix, tier, value }: Props) {
+export function PriceAmount({ loading, priceSuffix, tier, value }: Props) {
 	return (
 		<div className="mt-6 flex flex-col px-8">
 			{loading ? (
 				<Skeleton className="h-[96px] w-full bg-border" />
 			) : (
 				<>
-					<div className={cn("text-[80px] leading-[96px] tracking-[-1.6px] font-medium")}>{priceMap[tier.priceId[Number(value)]].replace(/\.00$/, "")}</div>
+					{/* <div className={cn("text-[80px] leading-[96px] tracking-[-1.6px] font-medium")}>{priceMap[tier.priceId[Number(value)]].replace(/\.00$/, "")}</div> */}
 					<div className={cn("font-medium leading-[12px] text-[12px]")}>{priceSuffix}</div>
 				</>
 			)}
