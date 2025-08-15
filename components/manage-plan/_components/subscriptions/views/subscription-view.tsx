@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { PRICING_TIER } from "@/config/paddle-config"
@@ -11,7 +10,7 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 
 export function SubscriptionView() {
 	const { subscription, setSubscription } = useSubscriptionStore(useShallow(state => ({ subscription: state.subscription, setSubscription: state.setSubscription })))
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [_isSubmitting, setIsSubmitting] = useState(false)
 
 	useEffect(() => {
 		const fetchSubscription = async () => {
@@ -25,7 +24,7 @@ export function SubscriptionView() {
 		fetchSubscription()
 	}, [setSubscription])
 
-	const openPortal = async (action: "update" | "cancel") => {
+	const _syncMembership = async (action: "update" | "cancel") => {
 		setIsSubmitting(true)
 		try {
 			const res = await fetch("/api/account/subscription/portal", {
@@ -60,14 +59,7 @@ export function SubscriptionView() {
 				<Separator className="my-2" />
 				<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 					<div className="text-sm text-muted-foreground">Manage your subscription in Paddle</div>
-					<div className="flex gap-2">
-						<Button variant="outline" disabled={isSubmitting} onClick={() => openPortal("update")}>
-							Change / Manage Plan
-						</Button>
-						<Button variant="outline" disabled={isSubmitting} onClick={() => openPortal("cancel")}>
-							Cancel Plan
-						</Button>
-					</div>
+					<div className="flex gap-2"></div>
 				</div>
 			</CardContent>
 			<CardFooter className="p-0 pt-4"></CardFooter>

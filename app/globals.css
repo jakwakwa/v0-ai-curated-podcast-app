@@ -255,7 +255,7 @@
 	/* CORE BASE THEME */
 	--color-foreground: var(--foreground);
 	--color-foreground-muted: var(--foreground-muted);
-	--background: oklch(0.23 0.01 277.95);
+
 
 
 	--card: rgba(29, 41, 11, 1);
@@ -280,7 +280,7 @@
 	--accent-foreground: var(--accent-light);
 	--accent-background: var(--accent-dark);
 	--accent-bg: var(--accent-dark);
-
+	--background: rgba(41 12 89 / 0.54);
 	--muted: rgba(36, 44, 54, 1);
 	--muted-foreground: rgba(146, 156, 170, 1);
 
@@ -691,7 +691,7 @@ textarea {
 		flex-direction: row !important;
 
 		justify-content: center !important;
-		align-items: ;
+		align-items: center;
 		max-height: 40px;
 		padding: 0.2rem 1rem !important;
 	}
