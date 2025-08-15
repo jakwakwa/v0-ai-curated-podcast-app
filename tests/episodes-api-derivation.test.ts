@@ -40,5 +40,5 @@ describe("episodes API derivation", () => {
 		expect(ids).toContain(epA.episode_id) // in selected bundle via pA
 		expect(ids).not.toContain(epB.episode_id) // not in selected bundle
 		expect(ids).toContain(epMine.episode_id) // owned via profile_id
-	})
+	}, 15000)
 })

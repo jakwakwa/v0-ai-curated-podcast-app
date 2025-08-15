@@ -18,14 +18,29 @@ export async function POST() {
 
 		// Query Paddle for subscriptions tied to this customer
 		const paddleResponse = await getSubscriptionsByCustomer(user.paddle_customer_id)
-		const subscriptions = Array.isArray(paddleResponse?.data) ? paddleResponse.data : Array.isArray(paddleResponse) ? paddleResponse : []
+		const subscriptions: unknown[] = Array.isArray(paddleResponse?.data) ? paddleResponse.data : Array.isArray(paddleResponse) ? paddleResponse : []
 
 		if (!subscriptions || subscriptions.length === 0) {
 			return NextResponse.json({ message: "No subscriptions found for this Paddle customer" }, { status: 200 })
 		}
 
 		// Prefer active, then trialing, otherwise first entry
-		const preferred = subscriptions.find((s: any) => s?.status === "active") ?? subscriptions.find((s: any) => s?.status === "trialing") ?? subscriptions[0]
+		type PaddleSubscriptionItem = {
+			id?: string
+			subscription_id?: string
+			status?: string
+			items?: Array<{ price?: { id?: string }; price_id?: string }>
+			current_billing_period?: { starts_at?: string; ends_at?: string }
+			started_at?: string
+			next_billed_at?: string
+			trial_end_at?: string
+			canceled_at?: string
+			cancel_at_end?: boolean
+			cancel_at_period_end?: boolean
+		}
+
+		const typedSubs = subscriptions as PaddleSubscriptionItem[]
+		const preferred = typedSubs.find(s => s?.status === "active") ?? typedSubs.find(s => s?.status === "trialing") ?? typedSubs[0]
 
 		const externalId: string | null = preferred?.id ?? preferred?.subscription_id ?? null
 		const priceId: string | null = preferred?.items?.[0]?.price?.id ?? preferred?.items?.[0]?.price_id ?? null
@@ -44,7 +59,7 @@ export async function POST() {
 		const canceled_at: Date | null = preferred?.canceled_at ? new Date(preferred.canceled_at) : null
 		const cancel_at_period_end: boolean = Boolean(preferred?.cancel_at_end || preferred?.cancel_at_period_end)
 
-		let synced
+		let synced: unknown
 		if (externalId) {
 			synced = await prisma.subscription.upsert({
 				where: { paddle_subscription_id: externalId },

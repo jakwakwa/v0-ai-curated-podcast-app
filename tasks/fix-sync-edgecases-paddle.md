@@ -4,11 +4,11 @@
 
 # Task List to process
 
-- [ ] 1.0 Seperate sync logic and functions
+- [x] 1.0 Seperate sync logic and functions
   - [x] 1.1 Make sure `syncMembership` reverts to handle ONLY the checkout flow ONLY when "checkout buttons" listen for checkout.open() checkout.close() to sync members
-  - [ ] 1.2 Create a new `syncPaddleWithDb` function whuch is used for any edge cases (where a user has a paid subscription but its not synced to our database) using any appropriate paddlejs event. Do a web search to get updated information as your knowlegde might be currently outdated before creating this new function.
-  - [ ] 1.3 Run `pnpm lint` and resolve any linting errors.
-  - [ ] 1.4 Run all `vitest` tests (`pnpm test`) and ensure they pass. Update existing tests or add new ones as necessary to cover the new sync functions with checkout and user data
+  - [x] 1.2 Create a new `syncPaddleWithDb` function whuch is used for any edge cases (where a user has a paid subscription but its not synced to our database) using any appropriate paddlejs event. Do a web search to get updated information as your knowlegde might be currently outdated before creating this new function.
+  - [x] 1.3 Run `pnpm lint` and resolve any linting errors.
+  - [x] 1.4 Run all `vitest` tests (`pnpm test`) and ensure they pass. Update existing tests or add new ones as necessary to cover the new sync functions with checkout and user data
 
 
 ## Task List Management

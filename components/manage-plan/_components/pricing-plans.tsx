@@ -3,19 +3,15 @@
 import { CircleCheck } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-// NOTE: PRICING_TIER, usePaddlePrices, etc., should be imported from their respective files if they are not in this one.
-// For this example, we assume they are.
-import { PRICING_TIER } from "@/config/paddle-config"
 import { usePaddlePrices } from "@/hooks/use-paddle-Prices"
 
 import type { IBillingFrequency, PaddleCheckoutCompletedData, PlanTier } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { initializePaddle, InitializePaddleOptions, Paddle } from "@paddle/paddle-js";
+import { initializePaddle, type InitializePaddleOptions, type Paddle } from "@paddle/paddle-js";
 import { PriceTitle } from "./pricing/price-title"
-import Link from "next/link"
 
 
 // --- Component Props and Interfaces ---
@@ -76,7 +72,7 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 
 export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckoutClosed }: IPricingPlanProps) {
 	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
-	const [frequency, setFrequency] = useState<IBillingFrequency>({ value: 'month', label: 'Monthly', priceSuffix: 'per user/month' });
+	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: 'month', label: 'Monthly', priceSuffix: 'per user/month' });
 	const [paddle, setPaddle] = useState<Paddle>();
 
 	// Call the custom hook to get prices and loading state.
@@ -114,9 +110,9 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 			// Log any errors during initialization to prevent uncaught promises
 			console.error("Failed to initialize Paddle:", error);
 		});
-	}, []); // Empty dependency array ensures this runs only once
+	}, [onCheckoutCompleted, onCheckoutClosed]);
 
-	let customerInfo = {
+	const customerInfo = {
 		email: "sam@example.com",
 	};
 
