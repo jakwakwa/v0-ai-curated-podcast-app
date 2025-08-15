@@ -1,4 +1,5 @@
-const PADDLE_API_URL = "https://api.paddle.com"
+const isSandboxEnv = (process.env.NEXT_PUBLIC_PADDLE_ENV || process.env.PADDLE_ENV || "").toLowerCase() === "sandbox" || (process.env.PADDLE_API_KEY || "").includes("sdbx")
+const PADDLE_API_URL = isSandboxEnv ? "https://sandbox-api.paddle.com" : "https://api.paddle.com"
 
 interface PaddleApiOptions {
 	method: string
@@ -19,7 +20,12 @@ export async function paddleApiRequest({ method, path, body }: PaddleApiOptions)
 	})
 
 	if (!response.ok) {
-		throw new Error(`Paddle API error: ${response.statusText}`)
+		let details = ""
+		try {
+			const text = await response.text()
+			details = text
+		} catch {}
+		throw new Error(`Paddle API error: ${response.status} ${response.statusText}${details ? ` - ${details}` : ""}`)
 	}
 
 	return response.json()
@@ -62,9 +68,10 @@ export async function getTransaction(transactionId: string) {
 }
 
 export async function getSubscriptionsByCustomer(customerId: string) {
+	// Paddle Billing API lists subscriptions via query param, not nested path
 	return paddleApiRequest({
 		method: "GET",
-		path: `/customers/${customerId}/subscriptions`,
+		path: `/subscriptions?customer_id=${encodeURIComponent(customerId)}`,
 	})
 }
 

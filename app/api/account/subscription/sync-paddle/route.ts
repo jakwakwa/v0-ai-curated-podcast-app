@@ -103,7 +103,8 @@ export async function POST() {
 
 		return NextResponse.json({ message: "Subscription synced from Paddle", subscription: synced })
 	} catch (error) {
-		console.error("[SUBSCRIPTION_SYNC_PADDLE]", error)
-		return NextResponse.json({ error: "Failed to sync subscription from Paddle" }, { status: 500 })
+		const message = error instanceof Error ? error.message : "Unknown error"
+		console.error("[SUBSCRIPTION_SYNC_PADDLE]", message)
+		return NextResponse.json({ error: message }, { status: 500 })
 	}
 }
