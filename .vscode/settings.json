@@ -36,7 +36,7 @@
 	"terminal.integrated.fontFamily": "\"MesloLGS NF\", Meslo, mono",
 	"workbench.preferredHighContrastColorTheme": "Vira Ocean High Contrast",
 	"viraTheme.contrastedTabs": true,
-	"workbench.preferredDarkColorTheme": "Vira Ocean High Contrast",
+	"workbench.preferredDarkColorTheme": "Default Light+",
 	"workbench.colorTheme": "Vira Carbon",
 	"workbench.preferredLightColorTheme": "Vira Palenight High Contrast",
 	"workbench.preferredHighContrastLightColorTheme": "Vira Palenight High Contrast",
@@ -48,4 +48,8 @@
 	"workbench.activityBar.orientation": "vertical",
 	"biome.enabled": true,
 	"biome.configurationPath": "biome.json",
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
+	"prisma.scriptRunner": "pnpm",
 }

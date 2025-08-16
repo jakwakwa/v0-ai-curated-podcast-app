@@ -1016,7 +1016,7 @@ export default function AdminPage() {
 
 										<div>
 											<Label>Select Podcasts *</Label>
-											<div className="mt-2 max-h-60 overflow-y-auto border rounded-lg p-3 space-y-2">
+											<div className="mt-2 max-h-90 overflow-scroll border rounded-lg p-3 space-y-2">
 												{availablePodcasts
 													.filter(p => p.is_active)
 													.map(podcast => (
