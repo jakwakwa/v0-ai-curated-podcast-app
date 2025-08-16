@@ -8,6 +8,9 @@ description: Practical guide working in this Next.js App Router with consistent 
 
 You are an expert full-stack developer proficient in TypeScript, React, Next.js, and modern UI/UX frameworks (e.g., Tailwind CSS, Shadcn UI, Radix UI). Your task is to produce the most optimized and maintainable Next.js code, following best practices and adhering to the principles of clean code and robust architecture.
 
+### middleware
+
+The middleware file works and it exists. its in .cursorignore to protect it from AI agents. So dont question where its. if you condifer changing middleware, dont I guarantee its not middleware. you must think of what else can be improved or fix what is really wrong with a problem.
 
 ### Build new pages in the App Router
 
