@@ -100,14 +100,19 @@ export const useEpisodesStore = create<EpisodesState>()(
 				try {
 					set({ isLoading: true, error: null })
 
-					// Fetch fresh data
-					const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
-
-					if (!(profileResponse.ok && episodesResponse.ok)) {
-						throw new Error("Failed to refresh data")
+					// Fetch profile first, then episodes (since episodes depend on profile)
+					const profileResponse = await fetch("/api/user-curation-profiles")
+					if (!profileResponse.ok) {
+						throw new Error("Failed to fetch user curation profile")
 					}
+					const fetchedProfile = await profileResponse.json()
 
-					const [fetchedProfile, fetchedEpisodes] = await Promise.all([profileResponse.json(), episodesResponse.json()])
+					// Now fetch episodes with the updated profile
+					const episodesResponse = await fetch("/api/episodes")
+					if (!episodesResponse.ok) {
+						throw new Error("Failed to fetch episodes")
+					}
+					const fetchedEpisodes = await episodesResponse.json()
 
 					// Process episodes
 					const combined: CombinedEpisode[] = fetchedEpisodes.map((ep: Episode) => ({

@@ -17,8 +17,7 @@ const prisma = new PrismaClient()
 async function main() {
 	console.log("🌱 Starting to seed the database with test users...")
 
-	// --- Upsert Bundles (to ensure they exist for profiles) ---
-	// Manually upserting because `name` is not a unique field on the Bundle model.
+	// Create bundles with different access levels
 	let freeBundle = await prisma.bundle.findFirst({
 		where: { name: "Free Slice Weekly" },
 	})
@@ -28,6 +27,32 @@ async function main() {
 				name: "Free Slice Weekly",
 				description: "A weekly selection of our favorite free podcasts.",
 				min_plan: "NONE",
+			},
+		})
+	}
+
+	let freeSliceBundle = await prisma.bundle.findFirst({
+		where: { name: "Free Slice Plus" },
+	})
+	if (!freeSliceBundle) {
+		freeSliceBundle = await prisma.bundle.create({
+			data: {
+				name: "Free Slice Plus",
+				description: "Enhanced selection for Free Slice subscribers.",
+				min_plan: "FREE_SLICE",
+			},
+		})
+	}
+
+	let casualBundle = await prisma.bundle.findFirst({
+		where: { name: "Casual Listener Collection" },
+	})
+	if (!casualBundle) {
+		casualBundle = await prisma.bundle.create({
+			data: {
+				name: "Casual Listener Collection",
+				description: "Curated collection for Casual Listener subscribers.",
+				min_plan: "CASUAL_LISTENER",
 			},
 		})
 	}

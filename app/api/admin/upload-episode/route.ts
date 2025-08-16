@@ -143,16 +143,16 @@ export async function POST(request: Request) {
 			finalAudioUrl = audioUrl!
 		}
 
-		// Create episode in DB following the same pattern as the admin generation function
+		// Create episode in DB and enforce membership linking in a single transaction
 		const currentWeek = new Date()
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
-		// Use the first podcast from the bundle as the podcast reference
+		// Use the first podcast from the bundle as the podcast reference when not explicitly provided
 		const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
 		const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
 
 		if (!finalPodcastId) {
-			return NextResponse.json({ message: "podcastId is required when no bundle is provided" }, { status: 400 })
+			return NextResponse.json({ message: "podcastId is required, or the selected bundle must include at least one podcast" }, { status: 400 })
 		}
 
 		console.log("Creating episode with:", {
@@ -163,19 +163,33 @@ export async function POST(request: Request) {
 			hasFirstPodcast: !!firstPodcast,
 		})
 
-		const episode = await prisma.episode.create({
-			data: {
-				episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-				title,
-				description: description || "",
-				audio_url: finalAudioUrl,
-				image_url: image_url || bundle?.image_url || null,
-				published_at: new Date(),
-				week_nr: currentWeek,
-				// No bundle_id: episodes are podcast-centric
-				podcast_id: finalPodcastId,
-			},
-		})
+		const txResults = await prisma.$transaction([
+			// Ensure bundle↔podcast membership exists for visibility rules
+			...(bundleId
+				? [
+						prisma.bundlePodcast.createMany({
+							data: [{ bundle_id: bundleId, podcast_id: finalPodcastId }],
+							skipDuplicates: true,
+						}),
+					]
+				: []),
+			// Create the episode with both podcast_id and bundle_id (bundle_id is for diagnostics only; reads remain membership-based)
+			prisma.episode.create({
+				data: {
+					episode_id: `episode_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+					title,
+					description: description || "",
+					audio_url: finalAudioUrl,
+					image_url: image_url || bundle?.image_url || null,
+					published_at: new Date(),
+					week_nr: currentWeek,
+					bundle_id: bundleId || null,
+					podcast_id: finalPodcastId,
+				},
+			}),
+		])
+
+		const episode = txResults[txResults.length - 1] as Awaited<ReturnType<typeof prisma.episode.create>>
 
 		console.log("Episode created successfully:", episode.episode_id)
 

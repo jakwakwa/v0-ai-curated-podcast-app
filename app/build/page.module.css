@@ -1,6 +1,0 @@
-/* This file has been migrated to use Tailwind classes directly in the component */
-/* Layout classes now use:
-   - Container: flex flex-col
-   - Main: flex flex-1 items-center justify-center p-4
-   - Content: w-full max-w-[92rem]
-*/

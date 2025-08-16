@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 
 export default function EpisodesAdminPage() {
 	return (
-		<div className="container mx-auto w-screen">
+		<div className=" mx-auto w-full">
 			<h1 className="text-2xl font-semibold">Episode Generation</h1>
 			<Suspense fallback={<div>Loading episodes…</div>}>
 				<EpisodeGenerationPanel />

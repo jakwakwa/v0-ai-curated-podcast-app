@@ -1,9 +1,34 @@
 import { auth } from "@clerk/nextjs/server"
+import { PlanGate } from "@prisma/client"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
 interface RouteParams {
 	params: Promise<{ id: string }>
+}
+
+// Plan gate validation function - same as in main route
+function resolveAllowedGates(plan: string | null | undefined): PlanGate[] {
+	const normalized = (plan || "").toString().trim().toLowerCase()
+
+	// Implement hierarchical access model:
+	// NONE = only NONE access
+	// FREE_SLICE = NONE + FREE_SLICE access
+	// CASUAL = NONE + FREE_SLICE + CASUAL access
+	// CURATE_CONTROL = ALL access (NONE + FREE_SLICE + CASUAL + CURATE_CONTROL)
+
+	// Handle various plan type formats that might be stored in the database
+	if (normalized === "curate_control" || normalized === "curate control") {
+		return [PlanGate.NONE, PlanGate.FREE_SLICE, PlanGate.CASUAL_LISTENER, PlanGate.CURATE_CONTROL]
+	}
+	if (normalized === "casual_listener" || normalized === "casual listener" || normalized === "casual") {
+		return [PlanGate.NONE, PlanGate.FREE_SLICE, PlanGate.CASUAL_LISTENER]
+	}
+	if (normalized === "free_slice" || normalized === "free slice" || normalized === "free" || normalized === "freeslice") {
+		return [PlanGate.NONE, PlanGate.FREE_SLICE]
+	}
+	// Default: NONE plan or no plan
+	return [PlanGate.NONE]
 }
 
 export async function GET(_request: Request, { params }: RouteParams) {
@@ -87,7 +112,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 			}
 			const plan = sub?.plan_type ?? null
 			const gate = bundle.min_plan
-			const allowed = gate === "NONE" || (gate === "CASUAL_LISTENER" && (plan === "casual_listener" || plan === "curate_control")) || (gate === "CURATE_CONTROL" && plan === "curate_control")
+
+			// Use the same hierarchical access model
+			const allowedGates = resolveAllowedGates(plan)
+			const allowed = allowedGates.some(allowedGate => allowedGate === gate)
+
 			if (!allowed) {
 				return NextResponse.json({ error: "Bundle requires a higher plan", requiredPlan: gate }, { status: 403 })
 			}

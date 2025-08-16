@@ -601,20 +601,26 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			// Use the first podcast from the bundle as the podcast reference
 			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
 
-			const episode = await prisma.episode.create({
-				data: {
-					episode_id: randomUUID(),
-					title: episodeTitle,
-					description: episodeDescription || script,
-					audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
-					image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
-					published_at: new Date(),
-					week_nr: currentWeek,
-					// No bundle_id; episode is podcast-centric
-					podcast_id: firstPodcast.podcast_id,
-				},
-			})
-			return episode
+			const txResults = await prisma.$transaction([
+				prisma.bundlePodcast.createMany({
+					data: [{ bundle_id: bundleId, podcast_id: firstPodcast.podcast_id }],
+					skipDuplicates: true,
+				}),
+				prisma.episode.create({
+					data: {
+						episode_id: randomUUID(),
+						title: episodeTitle,
+						description: episodeDescription || script,
+						audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+						image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
+						published_at: new Date(),
+						week_nr: currentWeek,
+						bundle_id: bundleId, // diagnostics only; reads remain membership-based
+						podcast_id: firstPodcast.podcast_id,
+					},
+				}),
+			])
+			return txResults[txResults.length - 1] as Awaited<ReturnType<typeof prisma.episode.create>>
 		})
 
 		// Send notifications to users who have this bundle selected

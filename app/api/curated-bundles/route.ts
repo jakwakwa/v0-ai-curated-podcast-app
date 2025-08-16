@@ -10,8 +10,25 @@ import { prisma } from "../../../lib/prisma"
 type BundleWithPodcasts = Prisma.BundleGetPayload<{ include: { bundle_podcast: { include: { podcast: true } } } }>
 
 function resolveAllowedGates(plan: string | null | undefined): PlanGateEnum[] {
-	if (plan === "curate_control") return [PlanGateEnum.NONE, PlanGateEnum.CASUAL_LISTENER, PlanGateEnum.CURATE_CONTROL]
-	if (plan === "casual_listener") return [PlanGateEnum.NONE, PlanGateEnum.CASUAL_LISTENER]
+	const normalized = (plan || "").toString().trim().toLowerCase()
+
+	// Implement hierarchical access model:
+	// NONE = only NONE access
+	// FREE_SLICE = NONE + FREE_SLICE access
+	// CASUAL = NONE + FREE_SLICE + CASUAL access
+	// CURATE_CONTROL = ALL access (NONE + FREE_SLICE + CASUAL + CURATE_CONTROL)
+
+	// Handle various plan type formats that might be stored in the database
+	if (normalized === "curate_control" || normalized === "curate control") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE, PlanGateEnum.CASUAL_LISTENER, PlanGateEnum.CURATE_CONTROL]
+	}
+	if (normalized === "casual_listener" || normalized === "casual listener" || normalized === "casual") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE, PlanGateEnum.CASUAL_LISTENER]
+	}
+	if (normalized === "free_slice" || normalized === "free slice" || normalized === "free" || normalized === "freeslice") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE]
+	}
+	// Default: NONE plan or no plan
 	return [PlanGateEnum.NONE]
 }
 
@@ -35,7 +52,6 @@ export async function GET(_request: NextRequest) {
 			}
 		}
 		const allowedGates = resolveAllowedGates(plan)
-		console.log(`[CURATED_BUNDLES_GET] UserID: ${userId}, Plan: ${plan}, Allowed Gates: ${allowedGates.join(", ")}`)
 
 		// Get all active bundles (return locked ones too)
 		const bundles: BundleWithPodcasts[] = await prisma.bundle.findMany({
@@ -53,10 +69,9 @@ export async function GET(_request: NextRequest) {
 		// Transform with gating info
 		const transformedBundles = bundles.map(bundle => {
 			const gate = bundle.min_plan
-			const canInteract = allowedGates.includes(gate)
+			// Ensure we're comparing the same types - convert both to strings for comparison
+			const canInteract = allowedGates.some(allowedGate => allowedGate === gate)
 			const lockReason = canInteract ? null : "This bundle requires a higher plan."
-
-			console.log(`[CURATED_BUNDLES_GET] Bundle: "${bundle.name}" (ID: ${bundle.bundle_id}), Min Plan: ${gate}, User Plan: ${plan}, Can Interact: ${canInteract}`)
 
 			return {
 				...bundle,

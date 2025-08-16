@@ -11,7 +11,7 @@ export default function SignUpPage() {
 				background: "oklch(var(--background))",
 			}}
 		>
-			<SignUp afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard" />
+			<SignUp />
 		</div>
 	)
 }

@@ -6,30 +6,31 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { usePlanGatesStore } from "@/lib/stores/plan-gates-store"
 
 type PlanOption = {
 	value: string
 	label: string
 }
 
-const planOptions: PlanOption[] = [
-	{ value: "NONE", label: "None" },
-	{ value: "FREE_SLICE", label: "Free Slice" },
-	{ value: "CASUAL_LISTENER", label: "Casual Listener" },
-	{ value: "CURATE_CONTROL", label: "Curate Control" },
-]
+const planOptionsFallback: PlanOption[] = [{ value: "NONE", label: "None" }]
 
 export function CuratedBundlesFilters() {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const [isPending, startTransition] = useTransition()
+	const { options, loaded, load } = usePlanGatesStore()
 
 	const initialQuery = searchParams.get("q") ?? ""
 	const initialPlan = searchParams.get("min_plan") ?? ""
 
 	const [query, setQuery] = useState(initialQuery)
 	const [plan, setPlan] = useState(initialPlan)
+
+	useEffect(() => {
+		load()
+	}, [load])
 
 	useEffect(() => {
 		setQuery(initialQuery)
@@ -68,7 +69,8 @@ export function CuratedBundlesFilters() {
 		})
 	}, [pathname, router])
 
-	const selectedLabel = useMemo(() => planOptions.find(p => p.value === plan)?.label ?? "All plans", [plan])
+	const currentOptions = loaded ? (options as PlanOption[]) : planOptionsFallback
+	const selectedLabel = useMemo(() => currentOptions.find(p => p.value === plan)?.label ?? "All plans", [plan, currentOptions])
 
 	return (
 		<form onSubmit={onSubmit} className="mt-4 mb-6">
@@ -82,7 +84,7 @@ export function CuratedBundlesFilters() {
 							<SelectValue placeholder="All plans">{selectedLabel}</SelectValue>
 						</SelectTrigger>
 						<SelectContent>
-							{planOptions.map(option => (
+							{currentOptions.map(option => (
 								<SelectItem key={option.value || "ALL"} value={option.value}>
 									{option.label}
 								</SelectItem>

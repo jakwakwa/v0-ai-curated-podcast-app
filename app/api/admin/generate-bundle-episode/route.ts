@@ -45,13 +45,19 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
 		}
 
-		// Validate that the bundle exists
+		// Validate that the bundle exists (and fetch podcasts)
 		const bundle = await prisma.bundle.findUnique({
 			where: { bundle_id: bundleId },
+			include: { bundle_podcast: true },
 		})
 
 		if (!bundle) {
 			return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
+		}
+
+		// Ensure membership is present for the first selected source's chosen podcast id if provided via future UI (defensive, no-op today)
+		if (bundle && bundle.bundle_podcast.length === 0) {
+			// No-op here because sources do not carry podcast_id; membership is handled in the worker using the selected podcast
 		}
 
 		// Send event to Inngest for background processing

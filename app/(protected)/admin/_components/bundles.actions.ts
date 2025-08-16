@@ -21,7 +21,8 @@ function toArray(value: FormDataEntryValue | FormDataEntryValue[] | null): strin
 function parseMinPlan(input: unknown): PlanGate | undefined {
 	if (typeof input !== "string") return undefined
 	const normalized = input.trim().toUpperCase()
-	if (normalized === "NONE" || normalized === "CASUAL_LISTENER" || normalized === "CURATE_CONTROL") {
+	const all = Object.keys(PlanGate) as (keyof typeof PlanGate)[]
+	if (all.includes(normalized as keyof typeof PlanGate)) {
 		return PlanGate[normalized as keyof typeof PlanGate]
 	}
 	return undefined
@@ -42,7 +43,7 @@ export async function createBundleAction(formData: FormData) {
 
 	if (!name) throw new Error("Bundle name is required")
 	if (!description) throw new Error("Bundle description is required")
-	if (podcastIds.length === 0) throw new Error("Select at least one podcast")
+	// Do NOT require podcasts; bundles can be created empty and linked later
 
 	const created = await prisma.bundle.create({
 		data: {
@@ -52,7 +53,7 @@ export async function createBundleAction(formData: FormData) {
 			image_url: imageUrl,
 			is_static: true,
 			is_active: true,
-			owner_user_id: userId,
+			owner_user_id: null, // Admin-created bundles are global; avoid FK dependency on local user row
 			...(minPlan ? { min_plan: minPlan } : {}),
 		},
 	})
