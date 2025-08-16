@@ -68,12 +68,12 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-	background: url('/assets/background/grid-bg.svg') no-repeat;
+	background: url('/assets/background/grid-bg.svg') no-repeat, url('/assets/background/grain-blur.svg') no-repeat, url('/assets/background/grain-bg.svg') ;
   /* Layered subtle gradients */
-  background-size: 110% 110%, 110% 110%, 110% 110%, 100% 100%;
+  background-size: 110% 110%, 210% 210%, 110% 110%, 100% 100%;
   animation: heroGradientShift 5s ease-in-out infinite alternate;
 	filter: blur(0.4px);
-  mix-blend-mode: luminosity;
+  mix-blend-mode: multiply, multiply;
 }
 
 @keyframes heroGradientShift {

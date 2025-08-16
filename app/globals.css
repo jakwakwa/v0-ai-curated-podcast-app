@@ -13,7 +13,7 @@
 
 	/* --color-sidebar-border: oklch(0 0 0); */
 	/* --color-primary: oklch(0 0 0); */
-	/* --color-background: oklch(0.17 0.0578 297.53 / 0.72); */
+
 
 	/* --color-card-foreground: oklch(0.98 0.01 189.83 / 0.72); */
 	/* --color-popover: oklch(0.27 0.13 292.29); */
@@ -239,7 +239,7 @@
 	--accent-gradient-start: hsla(120, 87%, 81%, 0.896);
 	--accent-gradient-start-hsl: 120, 87%, 81%, 0.896;
 
-	--color-sidebar: #0A090AD2;
+	--color-sidebar: #0D0D15F4;
 	--tw-border: 1px solid #000;
 	--shadow-sm: 1px 2px 2px 1px #000;
 
@@ -255,7 +255,8 @@
 	/* CORE BASE THEME */
 	--color-foreground: var(--foreground);
 	--color-foreground-muted: var(--foreground-muted);
-
+		/* MAIN BG  */
+		--background: #0A090EF9;
 
 
 	--card: rgba(29, 41, 11, 1);
@@ -280,7 +281,7 @@
 	--accent-foreground: var(--accent-light);
 	--accent-background: var(--accent-dark);
 	--accent-bg: var(--accent-dark);
-	--background: rgba(41 12 89 / 0.54);
+
 	--muted: rgba(36, 44, 54, 1);
 	--muted-foreground: rgba(146, 156, 170, 1);
 
@@ -893,9 +894,9 @@ textarea {
 }
 
 @layer utilities {
-	.backdrop-blur-md {
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
+	.backdrop-blur-sm {
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
 	}
 
 
@@ -1069,8 +1070,26 @@ textarea {
 		/* background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 24, 51, .6), rgba(78, 38, 120, 0.3)) !important; */
 
 	}
+
+	.main-layouts {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: url('/assets/background/grid-bg.svg') no-repeat, url('/assets/background/grain-bg.svg') no-repeat, url('/assets/background/grain-blur.svg') no-repeat;
+		background-position: 0% 0%, 0% 0%, 0% 100%;
+		/* Layered subtle gradients */
+		background-size: 80% 80%, 80% 80%, 110% 110%;
+		/* animation: heroGradientShift 10s ease-in-out infinite alternate; */
+		filter: blur(0.3px);
+		mix-blend-mode: multiply, screen;
+	}
 }
 
+/* @keyframes heroGradientShift {
+  0% { background-position: 0% 0%, 100% 0%, 100% 100%, 50% 50%; }
+  50% { background-position: 10% 10%, 90% 5%, 85% 90%, 50% 50%; }
+  100% { background-position: 15% 5%, 85% 10%, 80% 85%, 50% 50%; }
+} */
 /* Animations */
 @keyframes loading-animation {
 
@@ -1124,6 +1143,11 @@ textarea {
 
 		font-family: 'Work Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif !important;
 		font-weight: 300;
+
+
+
+
+
 		background-size: cover;
 		background-repeat: no-repeat;
 		background-attachment: fixed;
