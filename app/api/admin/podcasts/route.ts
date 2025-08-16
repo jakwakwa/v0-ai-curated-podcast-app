@@ -15,7 +15,7 @@ export async function GET() {
 		const { userId } = await auth()
 
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
 		// Get all podcasts
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 		const { name, description, url, imageUrl, category } = body
 
 		if (!(name && url)) {
-			return new NextResponse("Name and URL are required", { status: 400 })
+			return NextResponse.json({ error: "Name and URL are required" }, { status: 400 })
 		}
 
 		// Create podcast
@@ -79,7 +79,7 @@ export async function PATCH(request: Request) {
 		const { userId } = await auth()
 
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
 		// Check if user is admin
@@ -92,7 +92,7 @@ export async function PATCH(request: Request) {
 		const { id, name, description, url, image_url, category, is_active } = body
 
 		if (!id) {
-			return new NextResponse("Podcast ID is required", { status: 400 })
+			return NextResponse.json({ error: "Podcast ID is required" }, { status: 400 })
 		}
 
 		// Check if podcast exists
@@ -101,7 +101,7 @@ export async function PATCH(request: Request) {
 		})
 
 		if (!existingPodcast) {
-			return new NextResponse("Podcast not found", { status: 404 })
+			return NextResponse.json({ error: "Podcast not found" }, { status: 400 })
 		}
 
 		// Allow any category - no validation needed
@@ -116,7 +116,7 @@ export async function PATCH(request: Request) {
 			})
 
 			if (conflictingPodcast) {
-				return new NextResponse("Another podcast with this name or URL already exists", { status: 400 })
+				return NextResponse.json({ error: "Another podcast with this name or URL already exists" }, { status: 400 })
 			}
 		}
 
@@ -136,7 +136,7 @@ export async function PATCH(request: Request) {
 		return NextResponse.json(updatedPodcast)
 	} catch (error) {
 		console.error("[ADMIN_PODCASTS_PATCH]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
 }
 
@@ -146,7 +146,7 @@ export async function DELETE(request: Request) {
 		const { userId } = await auth()
 
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
 		// Check if user is admin
@@ -159,7 +159,7 @@ export async function DELETE(request: Request) {
 		const podcastId = searchParams.get("id")
 
 		if (!podcastId) {
-			return new NextResponse("Podcast ID is required", { status: 400 })
+			return NextResponse.json({ error: "Podcast ID is required" }, { status: 400 })
 		}
 
 		// Check if podcast exists
@@ -181,14 +181,14 @@ export async function DELETE(request: Request) {
 		})
 
 		if (!podcast) {
-			return new NextResponse("Podcast not found", { status: 404 })
+			return NextResponse.json({ error: "Podcast not found" }, { status: 400 })
 		}
 
 		// Check if podcast is being used in any active bundles with active user profiles
 		const activeUsage = podcast.bundle_podcast.some((bp: { bundle: { user_curation_profile: unknown[] } }) => bp.bundle.user_curation_profile.length > 0)
 
 		if (activeUsage) {
-			return new NextResponse("Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead.", { status: 400 })
+			return NextResponse.json({ error: "Cannot delete podcast - it is currently being used in bundles with active user profiles. Consider deactivating instead." }, { status: 400 })
 		}
 
 		// Delete bundle-podcast relationships first
@@ -204,6 +204,6 @@ export async function DELETE(request: Request) {
 		return NextResponse.json({ success: true })
 	} catch (error) {
 		console.error("[ADMIN_PODCASTS_DELETE]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
 }

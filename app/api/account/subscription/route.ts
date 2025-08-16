@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getSubscriptionsByCustomer } from "@/lib/paddle-server/paddle"
@@ -36,7 +36,27 @@ export async function POST(request: Request) {
 		if (!priceId) {
 			return NextResponse.json({ error: "Missing price_id in request" }, { status: 400 })
 		}
-		await prisma.user.update({ where: { user_id: userId }, data: { paddle_customer_id: customer.id } })
+
+		// Ensure a local user record exists and attach Paddle customer id (minimal requirements to save subscription)
+		try {
+			const clerk = await currentUser()
+			await prisma.user.upsert({
+				where: { user_id: userId },
+				update: { paddle_customer_id: customer.id },
+				create: {
+					user_id: userId,
+					name: clerk?.fullName || clerk?.firstName || "Unknown",
+					email: clerk?.emailAddresses?.[0]?.emailAddress || `unknown+${userId}@example.com`,
+					password: "clerk_managed",
+					image: clerk?.imageUrl || null,
+					email_verified: clerk?.emailAddresses?.[0]?.verification?.status === "verified" ? new Date() : null,
+					paddle_customer_id: customer.id,
+				},
+			})
+		} catch (ensureUserErr) {
+			// If user upsert fails for any reason, do not block subscription creation unnecessarily
+			console.error("[SUBSCRIPTION_POST] Failed to ensure user exists:", ensureUserErr)
+		}
 
 		// Attempt enrichment with Paddle subscription period dates
 		let current_period_start: Date | null = null
@@ -70,10 +90,19 @@ export async function POST(request: Request) {
 			}
 		} catch {}
 
-		const newSubscription = await prisma.subscription.create({
-			data: {
+		// Be idempotent: upsert by unique paddle_subscription_id (fall back to transaction_id if Paddle sub id is missing)
+		const uniqueExternalId = externalSubscriptionId || transaction_id
+		const newSubscription = await prisma.subscription.upsert({
+			where: { paddle_subscription_id: uniqueExternalId },
+			create: {
 				user_id: userId,
-				paddle_subscription_id: externalSubscriptionId || transaction_id,
+				paddle_subscription_id: uniqueExternalId,
+				paddle_price_id: priceId,
+				status: "active",
+				current_period_start,
+				current_period_end,
+			},
+			update: {
 				paddle_price_id: priceId,
 				status: "active",
 				current_period_start,

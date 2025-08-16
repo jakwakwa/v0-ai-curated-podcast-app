@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-// removed Select imports; using AdminSelector for selections
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { getAdminPanelsFlags } from "@/lib/flags"
@@ -220,7 +219,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to generate episode")
+				throw new Error(error.error || "Failed to generate episode")
 			}
 
 			await response.json()
@@ -285,7 +284,7 @@ export default function AdminPage() {
 			})
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to upload episode")
+				throw new Error(error.error || "Failed to upload episode")
 			}
 			toast.success("Episode uploaded successfully!")
 			setSelectedBundleId("")
@@ -336,7 +335,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to create bundle")
+				throw new Error(error.error || "Failed to create bundle")
 			}
 
 			const result = await response.json()
@@ -345,9 +344,9 @@ export default function AdminPage() {
 				returned && Array.isArray(returned.podcasts)
 					? returned
 					: {
-							...returned,
-							podcasts: Array.isArray(returned?.bundle_podcast) ? returned.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast) : [],
-						}
+						...returned,
+						podcasts: Array.isArray(returned?.bundle_podcast) ? returned.bundle_podcast.map((bp: { podcast: unknown }) => bp.podcast) : [],
+					}
 			setBundles([...bundles, shaped])
 			toast.success("Bundle created successfully!")
 
@@ -380,7 +379,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to delete bundle")
+				throw new Error(error.error || "Failed to delete bundle")
 			}
 
 			setBundles(bundles.filter(b => b.bundle_id !== bundleId))
@@ -417,7 +416,7 @@ export default function AdminPage() {
 			})
 			if (!resp.ok) {
 				const err = await resp.json().catch(() => ({}))
-				throw new Error(err.message || "Failed to update visibility")
+				throw new Error(err.error || "Failed to update visibility")
 			}
 			await fetchBundles()
 			toast.success("Visibility updated")
@@ -482,7 +481,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to create podcast")
+				throw new Error(error.error || "Failed to create podcast")
 			}
 
 			const apiResult = await response.json()
@@ -540,7 +539,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to update podcast")
+				throw new Error(error.error || "Failed to update podcast")
 			}
 
 			const updatedPodcast = await response.json()
@@ -569,7 +568,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to delete podcast")
+				throw new Error(error.error || "Failed to delete podcast")
 			}
 
 			setAvailablePodcasts(availablePodcasts.filter(p => p.podcast_id !== podcastId))
@@ -595,7 +594,7 @@ export default function AdminPage() {
 
 			if (!response.ok) {
 				const error = await response.json()
-				throw new Error(error.message || "Failed to update podcast")
+				throw new Error(error.error || "Failed to update podcast")
 			}
 
 			const updatedPodcast = await response.json()

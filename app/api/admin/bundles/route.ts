@@ -118,7 +118,7 @@ export async function PATCH(request: Request) {
 
 		// Ensure bundle exists
 		const existing = await prisma.bundle.findUnique({ where: { bundle_id: bundleId } })
-		if (!existing) return new NextResponse("Bundle not found", { status: 404 })
+		if (!existing) return NextResponse.json({ error: "Bundle not found" }, { status: 400 })
 
 		// Replace membership atomically and update min_plan if provided
 		const tx: Array<
@@ -147,7 +147,7 @@ export async function PATCH(request: Request) {
 		return NextResponse.json({ success: true, bundle: updated })
 	} catch (error) {
 		console.error("[ADMIN_BUNDLES_PATCH]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
 }
 
@@ -157,7 +157,7 @@ export async function DELETE(request: Request) {
 		const { userId } = await auth()
 
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
 		// Check if user is admin
@@ -170,7 +170,7 @@ export async function DELETE(request: Request) {
 		const bundleId = searchParams.get("id")
 
 		if (!bundleId) {
-			return new NextResponse("Bundle ID is required", { status: 400 })
+			return NextResponse.json({ error: "Bundle ID is required" }, { status: 400 })
 		}
 
 		// Check if bundle exists and is not being used by any active user profiles
@@ -184,11 +184,11 @@ export async function DELETE(request: Request) {
 		})
 
 		if (!bundle) {
-			return new NextResponse("Bundle not found", { status: 404 })
+			return NextResponse.json({ error: "Bundle not found" }, { status: 400 })
 		}
 
 		if (bundle.user_curation_profile.length > 0) {
-			return new NextResponse("Cannot delete bundle - it is currently being used by active user profiles", { status: 400 })
+			return NextResponse.json({ error: "Cannot delete bundle - it is currently being used by active user profiles" }, { status: 400 })
 		}
 
 		// Delete bundle-podcast relationships first
@@ -209,6 +209,6 @@ export async function DELETE(request: Request) {
 		return NextResponse.json({ success: true })
 	} catch (error) {
 		console.error("[ADMIN_BUNDLES_DELETE]", error)
-		return new NextResponse("Internal Error", { status: 500 })
+		return NextResponse.json({ error: "Internal Error" }, { status: 500 })
 	}
 }
