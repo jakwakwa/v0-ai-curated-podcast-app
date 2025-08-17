@@ -1,16 +1,15 @@
-import { SiteHeader } from "@/components/site-header"
-import { SidebarProvider } from "@/components/ui/sidebar-ui"
-import styles from "./layout.module.css"
+// import { SidebarProvider } from "@/components/ui/sidebar"
+// import { SiteHeader } from "@/components/ui/site-header"
+// CSS module migrated to Tailwind classes
+
+import { AppSpinner } from "@/components/ui/app-spinner"
 
 export default function Loading() {
 	return (
-		<SidebarProvider>
-			<SiteHeader />
-			<div className={styles.progressLoader}>
-				<div className={styles.progressBar}>
-					<div className={styles.progressFill} />
-				</div>
+		<div className="p-8 mx-auto">
+			<div className="flex items-center justify-center min-h-[400px]">
+				<AppSpinner variant={"wave"} size="lg" />
 			</div>
-		</SidebarProvider>
+		</div>
 	)
 }

@@ -7,7 +7,20 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.md", "**/*.tsx", "!**/.cursor/**", "!**/.next/**", "!**/node_modules/**", "!**/google-cloud-sdk/**", "!**/gcs/**", "!**/globals.d.ts", "!**/prisma/app/generated/**"]
+		"includes": [
+			"**/*.js",
+			"**/*.jsx",
+			"**/*.ts",
+			"**/*.md",
+			"**/*.tsx",
+			"!**/.cursor/**",
+			"!**/.next/**",
+			"!**/node_modules/**",
+			"!**/google-cloud-sdk/**",
+			"!**/gcs/**",
+			"**/globals.d.ts",
+			"!**/prisma/app/generated/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -42,16 +55,28 @@
 				"useArrowFunction": "error"
 			},
 			"correctness": {
-				"noUnusedVariables": "error",
-				"noUnusedFunctionParameters": "error",
+				"noUnusedVariables": {
+					"level": "error",
+					"fix": "safe"
+				},
+				"noUnusedFunctionParameters": {
+					"level": "error",
+					"fix": "safe"
+				},
 				"noUndeclaredVariables": "error",
 				"useExhaustiveDependencies": "warn",
 				"useHookAtTopLevel": "error",
-				"noUnusedImports": "error",
+				"noUnusedImports": {
+					"level": "error",
+					"fix": "safe"
+				},
 				"noUnreachable": "error",
 				"noConstAssign": "error",
 				"noConstantCondition": "error",
-				"noUnusedLabels": "error",
+				"noUnusedLabels": {
+					"level": "error",
+					"fix": "safe"
+				},
 				"noEmptyPattern": "error",
 				"noSelfAssign": "error",
 				"noSwitchDeclarations": "error",
@@ -71,7 +96,11 @@
 				"useTemplate": "error",
 				"useShorthandAssign": "error",
 				"useDefaultParameterLast": "error",
-				"useSingleVarDeclarator": "error"
+				"useSingleVarDeclarator": "error",
+				"useImportType": {
+					"level": "error",
+					"fix": "safe"
+				}
 			},
 			"suspicious": {
 				"noExplicitAny": "error",
@@ -97,13 +126,9 @@
 				"noSparseArray": "error",
 				"noConsole": {
 					"options": {
-						"allow": [
-							"assert",
-							"error",
-							"warn"
-						]
+						"allow": ["assert", "error", "warn"]
 					},
-					"fix": "unsafe"
+					"fix": "safe"
 				}
 			},
 			"performance": {
@@ -119,7 +144,7 @@
 			"trailingCommas": "es5",
 			"semicolons": "asNeeded",
 			"arrowParentheses": "asNeeded",
-			"bracketSameLine": false,
+			"bracketSameLine": true,
 			"quoteStyle": "double",
 			"attributePosition": "auto",
 			"bracketSpacing": true

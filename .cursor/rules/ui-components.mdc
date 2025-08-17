@@ -1,9 +1,6 @@
 ---
-description: Always try to re-use existing ui components
-globs:
-alwaysApply: true
+alwaysApply: false
 ---
-
 # When building new code That requires ui jsx based components
 
 - use exisiting added shadcn/ui components

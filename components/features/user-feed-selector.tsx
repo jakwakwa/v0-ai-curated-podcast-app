@@ -1,0 +1,284 @@
+"use client"
+
+import type { Podcast, UserCurationProfile } from "@prisma/client"
+import { ArrowLeft, CheckCircle } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { AppSpinner } from "@/components/ui/app-spinner"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useUserCurationProfileStore } from "@/lib/stores"
+import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
+import { Typography } from "../ui/typography"
+import { BundleList } from "./bundle-list"
+
+function UserFeedSelectorWizard() {
+	const [step, setStep] = useState(1)
+	const [userCurationProfileName, setUserCurationProfileName] = useState("")
+	const [isBundleSelection, setIsBundleSelection] = useState(false)
+	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(undefined)
+	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([])
+	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
+	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
+
+	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
+	const canCreateUserCurationProfile = () => true
+	const isTrialing = false
+	const getRemainingTrialDays = () => 0
+
+	// Check if user already has an active profile
+	useEffect(() => {
+		const checkExistingProfile = async () => {
+			try {
+				const response = await fetch("/api/user-curation-profiles")
+				if (response.ok) {
+					const profile = await response.json()
+					setExistingProfile(profile)
+				}
+			} catch {
+				// Silently handle profile check errors
+			} finally {
+				setIsCheckingProfile(false)
+			}
+		}
+
+		checkExistingProfile()
+	}, [])
+
+	const handleCreateUserCurationProfile = async () => {
+		if (!canCreateUserCurationProfile()) {
+			const message = isTrialing
+				? `You can only create one Personalized Feed during your trial period. Remaining trial days: ${getRemainingTrialDays()}.`
+				: "You need an active subscription to create a Personalized Feed."
+			toast.error(message)
+			return
+		}
+
+		let data: { name: string; isBundleSelection: boolean; selectedBundleId?: string; selectedPodcasts?: string[] }
+
+		if (isBundleSelection) {
+			if (!selectedBundleId) {
+				toast.error("Please select a bundle.")
+				return
+			}
+			data = {
+				name: userCurationProfileName,
+				isBundleSelection: true,
+				selectedBundleId: selectedBundleId,
+			}
+		} else {
+			if (selectedPodcasts.length === 0) {
+				toast.error("Please select at least one podcast for your custom Personalized Feed.")
+				return
+			}
+			data = {
+				name: userCurationProfileName,
+				isBundleSelection: false,
+				selectedPodcasts: selectedPodcasts.map(p => p.podcast_id),
+			}
+		}
+
+		await createUserCurationProfile(data)
+		if (!error) {
+			toast.success("Personalized Feed created successfully!")
+			setStep(1)
+			setUserCurationProfileName("")
+			setIsBundleSelection(false)
+			setSelectedBundleId(undefined)
+			setSelectedPodcasts([])
+		}
+	}
+
+	// Show loading state while checking for existing profile
+	if (isCheckingProfile) {
+		return (
+			<div className="max-w-[300px] md:max-w-[1200px] mx-auto p-8 md:p-4">
+				<div className="text-center py-12">
+					<AppSpinner size="lg" label="Checking your profile status..." />
+				</div>
+			</div>
+		)
+	}
+
+	// Show message if user already has an active profile
+	if (existingProfile) {
+		return (
+			<div className="max-w-[300px] md:max-w-[1200px] mx-auto p-8 md:p-4">
+				<Card className="w-full mx-auto">
+					<CardHeader className="text-center">
+						<div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+							<CheckCircle className="w-8 h-8 text-green-600" />
+						</div>
+						<CardTitle className="text-2xl">You Already Have a Profile</CardTitle>
+						<CardDescription className="text-lg">
+							You already have an active Personalized Feed: <strong>{existingProfile.name}</strong>
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="text-center space-y-4">
+						<Typography variant="body" className="text-muted-foreground max-w-md mx-auto">
+							You can only have one active Personalized Feed at a time. You can edit your existing profile or deactivate it to create a new one.
+						</Typography>
+						<div className="flex flex-col sm:flex-row gap-3 justify-center">
+							<Link href="/dashboard">
+								<Button variant="default" className="w-full sm:w-auto">
+									<ArrowLeft className="w-4 h-4 mr-2" />
+									Go to Dashboard
+								</Button>
+							</Link>
+							<Link href="/curation-profile-management">
+								<Button variant="default" className="w-full sm:w-auto">
+									Manage Profile
+								</Button>
+							</Link>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		)
+	}
+
+	return (
+		<div className="flex flex-col gap-0 justify-center items-center w-full px-0">
+			{/* Step 1: Choose User Curation Profile Type */}
+			{step === 1 && (
+				<div className="w-full">
+					<Card className="w-full" variant="bundle">
+						<CardHeader>
+							<CardTitle className="text-primary w-full inline-block">PODSLICE Bundles</CardTitle>
+							<CardDescription>
+								<Typography className="text-primary w-full" variant="body" as="span">
+									Choose from pre-selected bundles.
+								</Typography>
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="flex flex-col gap-2">
+							<Button
+								onClick={() => {
+									setIsBundleSelection(true)
+									setStep(2)
+								}}
+								variant="default"
+								size="bundles"
+								className="w-full min-h-12 h-auto"
+							>
+								Choose from pre-selected bundles
+							</Button>
+							<Button
+								onClick={() => {
+									setIsBundleSelection(false)
+									setStep(2)
+								}}
+								variant="default"
+								className="w-full h-auto"
+							>
+								<div className="flex flex-col gap-2 w-full items-start px-2 md:px-4 py-2">
+									<Typography className="text-primary w-full inline-block" variant="h4" as="h4">
+										Custom Personalized Feed
+									</Typography>
+									<Typography className="text-primary w-full" variant="body" as="span">
+										Select up to 5 individual podcasts.
+									</Typography>
+								</div>
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
+			)}
+
+			{/* Step 2: Select Content */}
+			{step === 2 && (
+				<div className="w-full min-h-screen">
+					<Typography variant="h2" className="mb-2">
+						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
+					</Typography>
+					{isBundleSelection ? (
+						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} selectedBundleId={selectedBundleId} />
+					) : (
+						<CuratedPodcastList
+							onSelectPodcast={podcast => {
+								const isAlreadySelected = selectedPodcasts.some(p => p.podcast_id === podcast.podcast_id)
+								if (isAlreadySelected) {
+									setSelectedPodcasts(selectedPodcasts.filter(p => p.podcast_id !== podcast.podcast_id))
+								} else {
+									if (selectedPodcasts.length < 5) {
+										setSelectedPodcasts([...selectedPodcasts, podcast])
+									} else {
+										toast.info("You can select a maximum of 5 podcasts.")
+									}
+								}
+							}}
+							selectedPodcasts={selectedPodcasts}
+						/>
+					)}
+					<div className="flex justify-between mt-8 gap-4 flex-col md:flex-row">
+						<Button variant="default" onClick={() => setStep(1)}>
+							Back
+						</Button>
+						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
+							Next
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{/* Step 3: Review and Create */}
+			{step === 3 && (
+				<div className="w-full">
+					<Card className="w-full" variant="bundle">
+						<CardHeader>
+							<CardTitle className="text-primary w-full inline-block">Review Your Personalized Feed</CardTitle>
+							<CardDescription>
+								<Typography className="text-primary w-full" variant="body" as="span">
+									Personalized Feed Details
+								</Typography>
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="flex flex-col gap-6">
+							<div>
+								<Label htmlFor="userCurationProfileName" className="block text-sm font-medium mb-2">
+									Personalized Feed Name
+								</Label>
+								<Input
+									id="userCurationProfileName"
+									type="text"
+									value={userCurationProfileName}
+									onChange={e => setUserCurationProfileName(e.target.value)}
+									placeholder="Enter your profile name (e.g., My Daily Tech News)"
+								/>
+							</div>
+							<div className="p-6 border rounded-lg bg-secondary/10">
+								<Typography variant="h4" className="mb-4">
+									Selected Content:
+								</Typography>
+								{isBundleSelection && selectedBundleId ? (
+									<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
+								) : (
+									<ul className="space-y-2">
+										{selectedPodcasts.map(p => (
+											<li key={p.podcast_id} className="text-sm">
+												{p.name}
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+							<div className="flex flex-row gap-2">
+								<Button variant="outline" onClick={() => setStep(2)}>
+									Back
+								</Button>
+								<Button variant="default" onClick={handleCreateUserCurationProfile} disabled={isLoading || userCurationProfileName.trim() === ""}>
+									{isLoading ? <AppSpinner size="sm" label="Creating..." /> : "Create Personalized Feed"}
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			)}
+		</div>
+	)
+}
+
+export default UserFeedSelectorWizard

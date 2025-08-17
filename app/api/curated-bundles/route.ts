@@ -1,25 +1,60 @@
+import { auth } from "@clerk/nextjs/server"
 import { type NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
-// Time-based revalidation - cache for 1 hour
-export const revalidate = 3600
+import type { Prisma } from "@prisma/client"
+import { PlanGate as PlanGateEnum } from "@prisma/client"
+import { prisma } from "../../../lib/prisma"
+
+type BundleWithPodcasts = Prisma.BundleGetPayload<{ include: { bundle_podcast: { include: { podcast: true } } } }>
+
+function resolveAllowedGates(plan: string | null | undefined): PlanGateEnum[] {
+	const normalized = (plan || "").toString().trim().toLowerCase()
+
+	// Implement hierarchical access model:
+	// NONE = only NONE access
+	// FREE_SLICE = NONE + FREE_SLICE access
+	// CASUAL = NONE + FREE_SLICE + CASUAL access
+	// CURATE_CONTROL = ALL access (NONE + FREE_SLICE + CASUAL + CURATE_CONTROL)
+
+	// Handle various plan type formats that might be stored in the database
+	if (normalized === "curate_control" || normalized === "curate control") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE, PlanGateEnum.CASUAL_LISTENER, PlanGateEnum.CURATE_CONTROL]
+	}
+	if (normalized === "casual_listener" || normalized === "casual listener" || normalized === "casual") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE, PlanGateEnum.CASUAL_LISTENER]
+	}
+	if (normalized === "free_slice" || normalized === "free slice" || normalized === "free" || normalized === "freeslice") {
+		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE]
+	}
+	// Default: NONE plan or no plan
+	return [PlanGateEnum.NONE]
+}
 
 export async function GET(_request: NextRequest) {
 	try {
 		// Check if we're in a build environment
 		if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
 			console.log("[CURATED_BUNDLES_GET] Skipping during build - no DATABASE_URL")
-			return NextResponse.json([], {
-				headers: {
-					"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-				},
-			})
+			return NextResponse.json([])
 		}
 
-		// prisma is already imported
+		const { userId } = await auth()
+		let plan: string | null = null
+		if (userId) {
+			const sub = await prisma.subscription.findFirst({ where: { user_id: userId }, orderBy: { updated_at: "desc" } })
+			plan = sub?.plan_type ?? null
+			// Admin bypass: treat admin as highest plan
+			const user = await prisma.user.findUnique({ where: { user_id: userId }, select: { is_admin: true } })
+			if (user?.is_admin) {
+				plan = "curate_control"
+			}
+		}
+		const allowedGates = resolveAllowedGates(plan)
 
-		// Get all active bundles
-		const bundles = await prisma.bundle.findMany({
+		// Get all active bundles (return locked ones too)
+		const bundles: BundleWithPodcasts[] = await prisma.bundle.findMany({
 			where: { is_active: true },
 			include: {
 				bundle_podcast: {
@@ -31,28 +66,28 @@ export async function GET(_request: NextRequest) {
 			orderBy: { created_at: "desc" },
 		})
 
-		// Transform data for response
-		const transformedBundles = bundles.map((bundle) => ({
-			...bundle,
-			podcasts: bundle.bundle_podcast.map((bp) => bp.podcast),
-		}))
+		// Transform with gating info
+		const transformedBundles = bundles.map(bundle => {
+			const gate = bundle.min_plan
+			// Ensure we're comparing the same types - convert both to strings for comparison
+			const canInteract = allowedGates.some(allowedGate => allowedGate === gate)
+			const lockReason = canInteract ? null : "This bundle requires a higher plan."
 
-		// Add cache headers for better CDN caching
-		return NextResponse.json(transformedBundles, {
-			headers: {
-				"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-			},
+			return {
+				...bundle,
+				podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
+				canInteract,
+				lockReason,
+			}
 		})
+
+		return NextResponse.json(transformedBundles, { headers: { "Cache-Control": "no-store" } })
 	} catch (error) {
 		console.error("[CURATED_BUNDLES_GET]", error)
 		// Return empty array instead of error during build or if database schema is not ready
 		if (process.env.NODE_ENV === "production" || (error instanceof Error && error.message.includes("does not exist"))) {
 			console.log("[CURATED_BUNDLES_GET] Returning empty array due to database issue during build")
-			return NextResponse.json([], {
-				headers: {
-					"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-				},
-			})
+			return NextResponse.json([])
 		}
 		// Return more specific error message
 		const errorMessage = error instanceof Error ? error.message : "Unknown error"

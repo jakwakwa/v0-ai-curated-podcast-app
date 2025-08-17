@@ -1,61 +1,69 @@
-"use client"
-
-import { AlertCircle, Lock, RefreshCw } from "lucide-react"
-import Image from "next/image"
-import { useCallback, useEffect, useState } from "react"
+import { PlanGate, type Prisma } from "@prisma/client"
+import { AlertCircle, Lock } from "lucide-react"
+import { unstable_noStore as noStore } from "next/cache"
+import Link from "next/link"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHeader } from "@/components/ui/page-header"
+import { Typography } from "@/components/ui/typography"
+import { prisma } from "@/lib/prisma"
 import type { Bundle, Podcast } from "@/lib/types"
-import styles from "./page.module.css"
+import { CuratedBundlesFilters } from "./_components/filters.client"
 
-// Type for bundle with podcasts array from API
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
-// AKA PODSLICE BUNDLES
-export default function CuratedBundlesPage() {
-	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([])
-	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
+export const dynamic = "force-dynamic"
 
-	const fetchCuratedBundles = useCallback(async () => {
-		try {
-			setIsLoading(true)
-			setError(null)
+export default async function CuratedBundlesPage({ searchParams }: { searchParams?: { q?: string; min_plan?: string } }) {
+	noStore()
 
-			const response = await fetch("/api/curated-bundles")
-			if (!response.ok) {
-				throw new Error(`Failed to load PODSLICE Bundles. Server responded with status ${response.status}.`)
-			}
+	let curatedBundles: BundleWithPodcasts[] = []
+	let error: string | null = null
 
-			const data = await response.json()
-			setCuratedBundles(data)
-		} catch (error) {
-			console.error("Error fetching PODSLICE Bundles:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading PODSLICE Bundles.")
-		} finally {
-			setIsLoading(false)
+	try {
+		const q = searchParams?.q?.toString().trim()
+		const minPlanParam = searchParams?.min_plan?.toString().trim()
+		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined
+
+		const where: Prisma.BundleWhereInput = {
+			is_active: true,
+			...(q
+				? {
+					OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
+				}
+				: {}),
+			...(minPlanFilter ? { min_plan: PlanGate[minPlanFilter] } : {}),
 		}
-	}, [])
 
-	useEffect(() => {
-		fetchCuratedBundles()
-	}, [fetchCuratedBundles])
+		const bundles = await prisma.bundle.findMany({
+			where,
+			include: {
+				bundle_podcast: { include: { podcast: true } },
+			},
+			orderBy: { created_at: "desc" },
+		})
+
+		curatedBundles = bundles.map(b => ({
+			...(b as unknown as Bundle),
+			podcasts: b.bundle_podcast.map(bp => bp.podcast as unknown as Podcast),
+		}))
+	} catch (e) {
+		error = e instanceof Error ? e.message : "Failed to load PODSLICE Bundles."
+	}
 
 	return (
-		<div className=".container">
-			<div className="header">
-				<h1>PODSLICE Bundles</h1>
-				<p>Choose from our pre-curated podcast bundles. Each bundle contains 5 carefully selected shows and cannot be modified once selected.</p>
-			</div>
+		<div className="wrapper mt-4">
+			<PageHeader
+				title="Explore our Bundles"
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."
+			/>
 
-			{isLoading ? (
-				<div className={styles.loadingWrapper}>
-					<AppSpinner size="lg" label="Loading PODSLICE Bundles..." />
-				</div>
-			) : error ? (
+			{/* Filters */}
+			<CuratedBundlesFilters />
+
+			{!!error && (
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
@@ -63,58 +71,63 @@ export default function CuratedBundlesPage() {
 						<AlertDescription className="mt-2">{error}</AlertDescription>
 					</Alert>
 					<div className="mt-6 text-center">
-						<Button onClick={fetchCuratedBundles} variant="outline">
-							<RefreshCw className="h-4 w-4 mr-2" />
-							Try Again
+						<Button asChild variant="outline">
+							<Link href="/curated-bundles">Try Again</Link>
 						</Button>
 					</div>
 				</div>
-			) : curatedBundles.length === 0 ? (
+			)}
+			{curatedBundles.length === 0 ? (
 				<div className="max-w-2xl mx-auto mt-8">
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
 						<AlertTitle>No PODSLICE Bundles Available</AlertTitle>
 						<AlertDescription className="mt-2">There are no PODSLICE Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
 					</Alert>
-					<div className="mt-6 text-center">
-						<Button onClick={fetchCuratedBundles} variant="outline">
-							<RefreshCw className="h-4 w-4 mr-2" />
-							Refresh
+					{/* <div className="mt-6 text-center">
+						<Button asChild variant="default">
+							<Link href="/curated-bundles">Refresh</Link>
 						</Button>
-					</div>
+					</div> */}
 				</div>
 			) : (
-				<div className={styles.bundleGrid}>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-1 mb-0">
 					{curatedBundles.map(bundle => (
-						<Card key={bundle.bundle_id} className={styles.bundleCard}>
-							<CardHeader className={styles.cardHeader}>
-								<div className={styles.wrapper}>
-									<div className={styles.bundleInfo}>
-										<CardTitle className={styles.bundleTitle}>{bundle.name}</CardTitle>
-										<CardDescription className={styles.bundleDescription}>{bundle.description}</CardDescription>
-									</div>
-									<div className={styles.imgWrapper}>{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className={styles.bundleImg} fill />}</div>
+						<Card variant="bundle" key={bundle.bundle_id} className="h-auto flex flex-col max-h-[500px]" >
+							<CardHeader className="px-2 pb-2 pt-4">
+								<div className="w-full flex flex-col gap-3">
+									<div className="flex flex-col gap-3">
+										<CardTitle className="text-[0.85rem] text-secondary-foreground font-bold mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</CardTitle>
 
-									<div className={styles.bundleMeta}>
-										<Badge variant="outline" className={styles.podcastCount}>
-											{bundle.podcasts.length} Podcasts
+									</div>
+									{/* <div className="relative border-2 border-lines-light bg-black block rounded-lg overflow-hidden w-full h-24">
+										{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}
+									</div> */}
+
+									<div className="flex items-center justify-between text-custom-sm font-semibold pb-3">
+										<Badge variant="outline" size="sm" className="font-normal tracking-wide">
+											{bundle.podcasts.length} Shows
 										</Badge>
-										<div className={styles.lockedIndicator}>
-											<Lock size={12} />
-											<span>Fixed Selection</span>
+
+										<div className="flex items-center gap-2 text-sm font-normal tracking-wide">
+											<Lock size={8} />
+											<Typography className="text-xxs">Fixed Selection</Typography>
 										</div>
 									</div>
 								</div>
 							</CardHeader>
 
-							<CardContent className={styles.cardContent}>
-								<h4 className={styles.podcastListTitle}>Included Podcasts:</h4>
-								<ul className={styles.podcastList}>
-									{bundle.podcasts.map(podcast => (
-										<li key={podcast.podcast_id} className={styles.podcastItem}>
-											<div className={styles.podcastInfo}>
-												<span className={styles.podcastName}>{podcast.name}</span>
-												<p className={styles.podcastDescription}>{podcast.description}</p>
+							<CardContent className="bg-cardglass mx-auto shadow-sm rounded-md w-full p-3 m-0">
+								{/* <p className="text-[0.7rem] pb-4  leading-6 font-normal tracking-tight leading-[1] line-clamp-2 max-h-[3rem] truncate text-foreground/80 mb-0">{bundle.description}</p> */}
+								<p className="text-[0.7rem] pb-2  text-xxs leading-6 font-normal tracking-tight leading-[1] line-clamp-2 uppercase truncate text-foreground/80 mb-0">Included Shows</p>
+								<ul className="list-none p-0 m-0 flex flex-col max-h-[20rem] overflow-scroll">
+									{bundle.podcasts.slice(1).map((podcast: Podcast) => (
+										<li key={podcast.podcast_id} className="flex w-full justify-end gap-0 w-full">
+											<div className="w-full flex flex-col gap-0">
+												<Typography as="p" className="text-xs font-normal leading-normal tracking-tight my-0 px-0 mx-0 opacity-80">
+													{podcast.name}
+												</Typography>
+
 											</div>
 										</li>
 									))}

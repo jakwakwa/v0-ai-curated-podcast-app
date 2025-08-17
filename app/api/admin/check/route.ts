@@ -1,34 +1,30 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { isOrgAdmin } from "@/lib/organization-roles"
-import { prisma } from "@/lib/prisma"
-
-// Force this API route to be dynamic since it uses auth()
-export const dynamic = "force-dynamic"
+import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
 
 export async function GET() {
 	try {
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
 		const { userId } = await auth()
+
 		if (!userId) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const isAdmin = await isOrgAdmin()
-		if (!isAdmin) {
-			return new NextResponse("Forbidden", { status: 403 })
-		}
-
-		// Simple query to test Prisma Client
-		const userCount = await prisma.user.count()
-
 		return NextResponse.json({
-			status: "ok",
-			isAdmin: true,
-			userCount,
+			success: true,
+			message: "Admin access confirmed",
+			userId,
 			timestamp: new Date().toISOString(),
 		})
 	} catch (error) {
-		console.error("Error in /api/admin/check:", error)
-		return new NextResponse("Internal Server Error", { status: 500 })
+		console.error("Admin check error:", error)
+		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }

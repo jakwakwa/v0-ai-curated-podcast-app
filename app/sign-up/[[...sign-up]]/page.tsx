@@ -8,10 +8,10 @@ export default function SignUpPage() {
 				minHeight: "100vh",
 				alignItems: "center",
 				justifyContent: "center",
-				background: "hsl(var(--background))",
+				background: "oklch(var(--background))",
 			}}
 		>
-			<SignUp afterSignInUrl="/dashboard" afterSignUpUrl="/dashboard" />
+			<SignUp />
 		</div>
 	)
 }

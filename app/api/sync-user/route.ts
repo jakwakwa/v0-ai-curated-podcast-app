@@ -2,6 +2,9 @@ import { auth, currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// export const dynamic = "force-dynamic"
+export const maxDuration = 60 // 1 minute for user sync operations
+
 export async function POST() {
 	try {
 		// Get user from Clerk auth
@@ -17,18 +20,21 @@ export async function POST() {
 			return NextResponse.json({ error: "User not found in Clerk" }, { status: 404 })
 		}
 
-		// Check if user already exists in local database
-		const existingUser = await prisma.user.findUnique({
-			where: { user_id: userId },
+		// Check if a user record exists by id or by email (tolerate legacy rows)
+		const primaryEmail = clerkUser.emailAddresses[0]?.emailAddress || undefined
+		const existingUser = await prisma.user.findFirst({
+			where: {
+				OR: [{ user_id: userId }, ...(primaryEmail ? [{ email: primaryEmail }] : [])],
+			},
 		})
 
 		if (existingUser) {
 			// User exists - update their info in case it changed
 			const updatedUser = await prisma.user.update({
-				where: { user_id: userId },
+				where: { user_id: existingUser.user_id },
 				data: {
 					name: clerkUser.fullName || clerkUser.firstName || "Unknown",
-					email: clerkUser.emailAddresses[0]?.emailAddress || "unknown@example.com",
+					email: clerkUser.emailAddresses[0]?.emailAddress || existingUser.email,
 					image: clerkUser.imageUrl || null,
 					email_verified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
 					updated_at: new Date(),
@@ -42,18 +48,23 @@ export async function POST() {
 			})
 		}
 
-		// User doesn't exist - create new user record
-		const newUser = await prisma.user.create({
-			data: {
-				user_id: userId,
-				name: clerkUser.fullName || clerkUser.firstName || "Unknown",
-				email: clerkUser.emailAddresses[0]?.emailAddress || "unknown@example.com",
-				password: "clerk_managed", // Placeholder since Clerk manages auth
-				image: clerkUser.imageUrl || null,
-				email_verified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
-				updated_at: new Date(),
-			},
-		})
+		// User doesn't exist - create new user record (tolerate unique email race)
+		let newUser: Awaited<ReturnType<typeof prisma.user.create>> | undefined
+		try {
+			newUser = await prisma.user.create({
+				data: {
+					user_id: userId,
+					name: clerkUser.fullName || clerkUser.firstName || "Unknown",
+					email: clerkUser.emailAddresses[0]?.emailAddress || "unknown@example.com",
+					password: "clerk_managed", // Placeholder since Clerk manages auth
+					image: clerkUser.imageUrl || null,
+					email_verified: clerkUser.emailAddresses[0]?.verification?.status === "verified" ? new Date() : null,
+					updated_at: new Date(),
+				},
+			})
+		} catch {
+			return NextResponse.json({ message: "User already exists", isNew: false })
+		}
 
 		return NextResponse.json({
 			message: "User created successfully",

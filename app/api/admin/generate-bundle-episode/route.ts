@@ -1,11 +1,12 @@
-import type { NextRequest } from "next/server"
+import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { inngest } from "@/inngest/client"
-import { requireOrgAdmin } from "@/lib/organization-roles"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "@/lib/prisma"
 
 // Force this API route to be dynamic since it uses requireOrgAdmin() which calls auth()
-export const dynamic = 'force-dynamic'
+// export const dynamic = "force-dynamic"
+export const maxDuration = 60 // 1 minute should be enough for Inngest job dispatch
 
 interface EpisodeSource {
 	id: string
@@ -22,36 +23,54 @@ interface AdminGenerationRequest {
 	sources: EpisodeSource[]
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
 	try {
-		// Check admin permissions first
-		await requireOrgAdmin()
+		// First check admin status
+		const adminCheck = await requireAdminMiddleware()
+		if (adminCheck) {
+			return adminCheck // Return error response if not admin
+		}
+
+		// If we get here, user is admin
+		const { userId } = await auth()
+
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
 		const body: AdminGenerationRequest = await request.json()
 		const { bundleId, title, description, image_url, sources } = body
 
-		if (!((bundleId && title) && sources) || sources.length === 0) {
+		if (!(bundleId && title && sources) || sources.length === 0) {
 			return NextResponse.json({ error: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
 		}
 
-		// Validate that the bundle exists
+		// Validate that the bundle exists (and fetch podcasts)
 		const bundle = await prisma.bundle.findUnique({
 			where: { bundle_id: bundleId },
+			include: { bundle_podcast: true },
 		})
 
 		if (!bundle) {
 			return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
 		}
 
+		// Ensure membership is present for the first selected source's chosen podcast id if provided via future UI (defensive, no-op today)
+		if (bundle && bundle.bundle_podcast.length === 0) {
+			// No-op here because sources do not carry podcast_id; membership is handled in the worker using the selected podcast
+		}
+
 		// Send event to Inngest for background processing
 		await inngest.send({
-			name: "admin/generate-bundle-episode",
+			name: "podcast/admin-generate-gemini-tts.requested",
 			data: {
 				bundleId,
-				title,
-				description,
-				image_url,
-				sources,
+				episodeTitle: title,
+				episodeDescription: description,
+				adminCurationProfile: {
+					image_url,
+					sources,
+				},
 			},
 		})
 
@@ -62,12 +81,7 @@ export async function POST(request: NextRequest) {
 			title,
 		})
 	} catch (error) {
-		console.error("[ADMIN_GENERATE_BUNDLE_EPISODE]", error)
-
-		if (error instanceof Error && error.message.includes("admin role required")) {
-			return NextResponse.json({ error: "Admin access required" }, { status: 403 })
-		}
-
+		console.error("Admin generate bundle episode error:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })
 	}
 }

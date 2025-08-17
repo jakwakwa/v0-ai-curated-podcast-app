@@ -1,26 +1,45 @@
-import { type VariantProps, cva } from "class-variance-authority"
 import type * as React from "react"
-
+import { badgeVariants } from "@/lib/component-variants"
 import { cn } from "@/lib/utils"
 
-const badgeVariants = cva("inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
-	variants: {
-		variant: {
-			default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
-			secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-			destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-			outline: "text-foreground",
-		},
-	},
-	defaultVariants: {
-		variant: "default",
-	},
-})
+function Badge({
+	className,
+	variant = "default",
+	size = "sm",
+	...props
+}: { className?: string; variant: "default" | "secondary" | "destructive" | "outline" | "card" | "primarycard"; size: "sm" | "md" | "lg" | "xl" } & React.HTMLAttributes<HTMLDivElement>) {
+	/**
+	 * --------------------------------
+	 * JSDOC
+	 * --------------------------------
+	 * Component: Badge Primitive
+	 * Description: A badge component for displaying small labels or tags.
+	 * Props:
+	 *  - className: Additional CSS classes to apply to the badge.
+	 *  - variant: The visual style of the badge.
+	 *  - size: The size of the badge.
+	 *  - props: Additional props to pass to the div element.
+	 * Example: <Badge variant="default" size="sm">Default</Badge>
+	 *
+	 */
 
-interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+	if (size === "sm" && variant === "outline") {
+		return <div className={`text-[0.6rem] border-1 px-3 py-0 leading-normal border-[#FFFFFF7A] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+	}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-	return <div className={cn(badgeVariants({ variant }), className)} {...props} />
+	if (size === "md") {
+		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+	}
+
+	if (size === "lg") {
+		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+	}
+
+	if (size === "xl") {
+		return <div className={`text-custom-xs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+	}
+
+	return <div className={cn(badgeVariants({ variant, size }), className)} {...props} />
 }
 
-export { Badge, badgeVariants }
+export { Badge }

@@ -1,0 +1,23 @@
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import styles from "@/styles/landing-page-content.module.css"
+
+export function LandingPageHeader() {
+	return (
+		<header className={styles.landingHeader}>
+			<div className={styles.landingHeaderContainer}>
+				<Link href="/">
+					<Image src="/logo.png" width={120} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
+				</Link>
+				<nav className={styles.landingNav}>
+					<Link href="/login">
+						<Button variant="ghost" size="sm">
+							Sign In
+						</Button>
+					</Link>
+				</nav>
+			</div>
+		</header>
+	)
+}

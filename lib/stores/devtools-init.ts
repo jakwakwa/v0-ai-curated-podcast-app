@@ -3,7 +3,6 @@
  */
 
 import { useNotificationStore } from "./notification-store"
-import { useSubscriptionStore } from "./subscription-store"
 import { useUserCurationProfileStore } from "./user-curation-profile-store"
 
 /**
@@ -19,7 +18,7 @@ export const initializeStoresForDevTools = () => {
 
 	// Initialize stores by accessing their state
 	const notificationStore = useNotificationStore.getState()
-	const subscriptionStore = useSubscriptionStore.getState()
+	const subscriptionStore = null
 	const userCurationProfileStore = useUserCurationProfileStore.getState()
 
 	console.log("Notification Store initialized:", !!notificationStore)
@@ -34,12 +33,7 @@ export const initializeStoresForDevTools = () => {
 		console.error("❌ Notification store error:", error)
 	}
 
-	try {
-		useSubscriptionStore.getState().setError(null)
-		console.log("✅ Subscription store test action dispatched")
-	} catch (error) {
-		console.error("❌ Subscription store error:", error)
-	}
+	// subscription store disabled in this build
 
 	try {
 		useUserCurationProfileStore.getState().setUserCurationProfile(null)

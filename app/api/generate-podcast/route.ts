@@ -1,6 +1,9 @@
 import { revalidatePath } from "next/cache"
 import { NextResponse } from "next/server"
-import { inngest } from "../../../inngest/client"
+import { inngest } from "@/inngest/client"
+
+// export const dynamic = "force-dynamic"
+export const maxDuration = 60 // 1 minute for Inngest job dispatch
 
 export async function POST(request: Request) {
 	try {
@@ -12,7 +15,7 @@ export async function POST(request: Request) {
 		}
 
 		await inngest.send({
-			name: "podcast/generate.requested",
+			name: "podcast/generate-gemini-tts.requested",
 			data: {
 				collectionId,
 			},

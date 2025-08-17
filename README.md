@@ -6,7 +6,7 @@ Our advanced AI identifies and extracts the most valuable insights from hours of
 Experience remarkably natural AI voices that deliver insights with the clarity and nuance of human speech, making complex ideas easy to understand.
 Get immediate access to key takeaways without hunting through rambling conversations. Transform 3-hour podcasts into 5-minute insights.
 
-Be among the first to experience the future of podcast consumption.
+Be among the first to experience the future of podcast summaries
 
 ## Core Features
 
@@ -14,7 +14,7 @@ Be among the first to experience the future of podcast consumption.
 - **Type-Safe Database Access**: Data management with Prisma ORM and a PostgreSQL database.
 - **Curation Management**: Users can create "summaries" by selecting Podcast shows (Youtube show urls).
 - **Dedicated Build Workflow**: A focused, single-page interface for building and saving new podcast summaries.
-- **Podcast Dashboard**: A central hub to view saved bundles or custom bundles and previously generated summary episodes.
+- **Podcasts Dashboard**: A central hub to view saved bundles or custom bundles and previously generated summary episodes.
 - **Protected Routes**: Middleware ensures that only authenticated users can access the application's core features.
 
 ## Tech Stack

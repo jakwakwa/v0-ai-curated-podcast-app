@@ -1,0 +1,8 @@
+- Create `/notification-preferences` route rendering `components/user-account/notification-preferences`
+- Create `/user-subscription` route and move `app/(protected)/account/components/user-account/subscription-management.disabled.tsx` to `components/user-subscription/` and render it
+- Update `components/nav-user.tsx` menu: add links to `/notification-preferences`, `/user-subscription`, and Clerk Account Portal direct link with redirect_url back to app
+- Remove Paystack: delete `app/api/paystack/**`, `app/api/account/subscription/**` (paystack), `components/access-control.paystack.disabled.tsx`, `components/user-account/subscription-test-controls.paystack.disabled.tsx`, `prisma/migrations/20250728112225_paystack_integration/`, and Paystack config/refs in `config/ai.ts`
+- Preserve Paddle components: `components/user-account/subscription-test-controls-paddle.tsx`
+- Remove `/account` page and related profile/security stores and APIs: `lib/stores/profile-store.ts`, `lib/stores/security-store.ts`, `app/api/account/profile/**`, `app/api/account/security/**`
+- Run build/lint and resolve any references or imports
+

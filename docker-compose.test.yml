@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  db-test:
+    image: postgres:16-alpine
+    container_name: podslice-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: podslice
+      POSTGRES_PASSWORD: podslice
+      POSTGRES_DB: podslice_test
+    ports:
+      - "54329:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U podslice -d podslice_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db-test-data:/var/lib/postgresql/data
+
+volumes:
+  db-test-data:
+
+
