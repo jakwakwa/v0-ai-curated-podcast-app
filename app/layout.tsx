@@ -7,6 +7,7 @@ import type React from "react"
 import { Toaster } from "sonner"
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
 import { ClientProviders } from "./client-providers"
+import { Analytics } from '@vercel/analytics/next'
 
 import "./globals.css"
 
@@ -63,6 +64,7 @@ export default function RootLayout({
 						</Theme>
 					</ClientProviders>
 				</ClerkProvider>
+				<Analytics />
 			</body>
 		</html>
 	)

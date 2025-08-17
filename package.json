@@ -63,6 +63,7 @@
         "@stripe/stripe-js": "^7.8.0",
         "@tabler/icons-react": "^3.34.1",
         "@tailwindcss/postcss": "^4.1.11",
+        "@vercel/analytics": "^1.5.0",
         "ai": "latest",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
