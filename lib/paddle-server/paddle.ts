@@ -61,6 +61,10 @@ export async function updateSubscription(subscriptionId: string, updateData: { i
 }
 
 export async function getTransaction(transactionId: string) {
+	// Only allow alphanumeric, dash, and underscore in transactionId
+	if (!/^[a-zA-Z0-9_-]+$/.test(transactionId)) {
+		throw new Error("Invalid transactionId format");
+	}
 	return paddleApiRequest({
 		method: "GET",
 		path: `/transactions/${transactionId}`,
