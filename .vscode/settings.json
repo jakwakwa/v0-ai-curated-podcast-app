@@ -1,62 +1,55 @@
 {
-	"yaml.maxItemsComputed": 500,
-	"css.validate": false,
-	"less.validate": false,
-	"scss.validate": false,
-		"css.customData": [".vscode/css_custom_data.json"],
-	"terminal.integrated.shellIntegration.decorationsEnabled": true,
-	"terminal.integrated.shellIntegration.enabled": true,
-	"terminal.integrated.defaultProfile.linux": "zsh",
-	"terminal.integrated.defaultProfile.osx": "zsh",
-	"terminal.integrated.defaultProfile.windows": "zsh",
-	"terminal.integrated.profiles.linux": {
-		"zsh": {
-			"path": "zsh"
-		}
-	},
-	"terminal.integrated.profiles.osx": {
-		"zsh": {
-			"path": "/bin/zsh"
-		}
-	},
-	"editor.fontFamily": "Dank Mono",
-	"editor.fontSize": 12,
-	"editor.fontLigatures": true,
-	"editor.lineHeight": 1.7,
-	"editor.fontWeight": "800",
-	"terminal.integrated.fontFamily": "Dank Mono",
-	"terminal.integrated.fontSize": 11,
-	"terminal.integrated.fontLigatures": true,
-	"terminal.integrated.lineHeight": 1.2,
-	"terminal.integrated.fontWeight": "300",
-	"terminal.integrated.suggest.enabled": true,
-	"terminal.integrated.shellIntegration.environmentReporting": true,
-	"terminal.integrated.suggest.cdPath": "relative",
-	"terminal.integrated.suggest.inlineSuggestion": "off",
-	"terminal.integrated.suggest.runOnEnter": "never",
-	"terminal.integrated.detectLocale": "auto",
-	"terminal.integrated.wordSeparators": " ()[]{}'\"`─",
-	"terminal.integrated.localEchoLatencyThreshold": 2,
-	"terminal.integrated.enableFileLinks": "on",
-
-	"terminal.integrated.allowChords": false,
-	"terminal.integrated.gpuAcceleration": "off",
-	"terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
-	"terminal.integrated.tabs.focusMode": "singleClick",
-	"terminal.integrated.tabs.hideCondition": "singleGroup",
-	"terminal.integrated.tabs.location": "left",
-	"workbench.editor.tabSizingFixedMaxWidth": 70,
-	"workbench.editor.tabSizingFixedMinWidth": 40,
-	"editor.tabSize": 2,
-	"editor.renderWhitespace": "none",
-	"editor.insertSpaces": false,
-	"editor.wordWrap": "bounded",
-	"cursor.general.enableShadowWorkspace": false,
-	"cursor.windowSwitcher.sidebarHoverCollapsed": false,
-	"workbench.preferredDarkColorTheme": "Best Themes - Github Dark",
-	"window.autoDetectColorScheme": true,
-	"workbench.preferredLightColorTheme": "One Dark Pro",
-	"workbench.colorTheme": "Night Wolf (gray)",
 	"editor.defaultFormatter": "biomejs.biome",
-	"json.format.enable": false
+	"editor.formatOnSave": true,
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.codeActionsOnSave": {
+			"quickfix.biome": "explicit",
+			"source.organizeImports.biome": "explicit",
+			"source.fixAll.biome": "explicit"
+		}
+	},
+	"terminal.integrated.fontFamily": "\"MesloLGS NF\", Meslo, mono",
+	"workbench.preferredHighContrastColorTheme": "Vira Ocean High Contrast",
+	"viraTheme.contrastedTabs": true,
+	"workbench.preferredDarkColorTheme": "Vira Teal High Contrast",
+	"workbench.colorTheme": "Vira Carbon",
+	"workbench.preferredLightColorTheme": "Vira Palenight High Contrast",
+	"workbench.preferredHighContrastLightColorTheme": "Vira Palenight High Contrast",
+	"terminal.integrated.minimumContrastRatio": 1,
+	"window.autoDetectColorScheme": true,
+	"task.autoDetect": "off",
+	"gradle.autoDetect": "off",
+	"workbench.fontAliasing": "antialiased",
+	"workbench.activityBar.orientation": "vertical",
+	"biome.enabled": true,
+	"biome.configurationPath": "biome.json",
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
+	"prisma.scriptRunner": "pnpm",
 }

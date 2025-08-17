@@ -1,0 +1,61 @@
+---
+globs: *.test.ts,*.test.tsx
+alwaysApply: false
+---
+# Imports and Vitest Rules
+
+Use these rules to keep imports working consistently in both the Next.js app runtime and the Vitest test environment.
+
+## Core guidance
+
+- Prefer `@/` alias in application/runtime code only. For files that will be imported directly by tests (route handlers and server actions), use relative imports for internal modules.
+- In Vitest tests, always import project files using relative paths (e.g., `../app/api/.../route`, `../lib/prisma`). Do not use `@/` in tests.
+
+## Route handlers imported by tests
+
+Use relative paths instead, so Vitest resolves them without Next bundling:
+
+- Good:
+  - `import { requireAdminMiddleware } from "../../../../lib/admin-middleware"`
+  - `import { prisma } from "../../../../lib/prisma"`
+- Avoid:
+  - `import { requireAdminMiddleware } from "@/lib/admin-middleware"`
+  - `import { prisma } from "@/lib/prisma"`
+
+## Server actions imported by tests
+
+- Good:
+  - `import { requireAdmin } from "../../../../lib/admin"`
+  - `import { prisma } from "../../../../lib/prisma"`
+- Avoid:
+  - `import { requireAdmin } from "@/lib/admin"`
+  - `import { prisma } from "@/lib/prisma"`
+
+Using `@/` in server actions is fine for runtime, but tests import these files directly under Node. Relative paths are more reliable there.
+
+## Test files
+
+- Import application modules with relative paths:
+  - `import { GET as AdminBundlesGET } from "../app/api/admin/bundles/route"`
+  - `import { prisma } from "../lib/prisma"`
+- Do not use `@/` in tests, even though an alias exists in `vitest.config.ts`.
+
+## Clerk mocks (critical)
+
+Global setup (`tests/setup.ts`) provides a mock for `@clerk/nextjs/server` with both `auth` and `currentUser`.
+
+- Do NOT re-mock `@clerk/nextjs/server` in individual tests. If you must, include both exports:
+
+```ts
+import { vi } from "vitest"
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: vi.fn(async () => ({ userId: globalThis.__mockUserId })),
+  currentUser: vi.fn(async () => ({ id: globalThis.__mockUserId, emailAddresses: [] })),
+}))
+```
+
+Missing `currentUser` in a re-mock will cause runtime errors in admin checks.
+
+## Vitest alias note
+
+`vitest.config.ts` maps `@/` to the repo root for convenience. Despite this, tests should still use relative imports, and server routes/actions used by tests should import internal libs via relative paths to avoid edge cases in Node resolution.

@@ -1,0 +1,21 @@
+---
+alwaysApply: false
+---
+### Dos
+
+- Do organize routes and components in the `app` directory
+- Do leverage Server Components for data fetching
+- Do use Server Actions for form submissions
+- Do use `next/link` for internal routing and prefetching
+- Do implement loading states with `loading` files
+- Do optimize images with the `<Image />` component
+- Do separate server and client logic carefully
+
+### Donts
+
+- Dont mix the `pages` and `app` directories for routing
+- Dont fetch data in Client Components if it can be done on the server
+- Dont use `router.push` for form submissions when Server Actions are available
+- Never expose sensitive environment variables in client code
+- Dont import client-only modules into Server Components
+- Avoid using `next/router` in App Router projects

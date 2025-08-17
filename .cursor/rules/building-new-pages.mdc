@@ -1,7 +1,0 @@
----
-description: Rules for building @app/page.tsx
-globs:
-alwaysApply: false
----
-
-always use  or @app/layout.tsx to contain new pages. use @app/page/ and @app/collections as a guide and standard. This is so we have the sidebar and header at all times throughout the app.

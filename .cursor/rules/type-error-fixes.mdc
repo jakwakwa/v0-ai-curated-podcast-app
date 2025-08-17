@@ -1,9 +1,0 @@
----
-alwaysApply: true
----
-The problem: I kept fixing the hardcoded interfaces in the page files instead of using the Prisma-generated types from @types.ts. This is exactly what we're trying to avoid.
-What I should do: Remove all hardcoded interfaces from the page files and use only the Prisma-generated types from lib/types.ts.
-Let me fix this properly now by:
-Removing all hardcoded Episode and CombinedEpisode interfaces from the dashboard page
-Using only the Prisma-generated types from lib/types.ts
-Updating the code to work with the actual Prisma schema field names

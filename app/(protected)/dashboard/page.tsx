@@ -1,88 +1,60 @@
 "use client"
 
-import { AlertCircle, Play } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
-import { EditUserCurationProfileModal } from "@/components/edit-user-curation-profile-modal"
+import EditUserFeedModal from "@/components/edit-user-feed-modal"
+import EmptyStateCard from "@/components/empty-state-card"
+import { EpisodeList } from "@/components/episode-list"
+import { ProfileFeedCards } from "@/components/features/profile-feed-cards"
+import UserFeedSelector from "@/components/features/user-feed-selector"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import AudioPlayer from "@/components/ui/audio-player"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { UserCurationProfileCreationWizard } from "@/components/user-curation-profile-creation-wizard"
-import type { Bundle, Episode, Podcast, UserCurationProfile } from "@/lib/types"
-
+import { PageHeader } from "@/components/ui/page-header"
+import { Typography } from "@/components/ui/typography"
+import { useEpisodesStore } from "@/lib/stores/episodes-store"
+import type { Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
 import { useUserCurationProfileStore } from "./../../../lib/stores/user-curation-profile-store"
-import styles from "./page.module.css"
-
-// Type for UserCurationProfile with relations
-type UserCurationProfileWithRelations = UserCurationProfile & {
-	selectedBundle?: (Bundle & { podcasts: Podcast[]; episodes: Episode[] }) | null
-	episode: Episode[]
-}
-
-// Combined episode type for display - extending Prisma Episode with display type
-interface CombinedEpisode extends Episode {
-	type: "user" | "bundle"
-}
 
 export default function Page() {
-	const [userCurationProfile, setUserCurationProfile] = useState<UserCurationProfileWithRelations | null>(null)
-	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [bundleEpisodes, setBundleEpisodes] = useState<Episode[]>([])
-	const [combinedEpisodes, setCombinedEpisodes] = useState<CombinedEpisode[]>([])
-	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
 	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
 
-	const fetchAndUpdateData = useCallback(async () => {
-		try {
-			// Fetch user curation profile and episodes in parallel
-			const [profileResponse, episodesResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes")])
-
-			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null
-			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : []
-
-			setUserCurationProfile(fetchedProfile)
-
-			// Convert unified episodes to display format with type detection
-			const combined: CombinedEpisode[] = fetchedEpisodes.map((ep: Episode) => ({
-				...ep,
-				type: ep.bundle_id ? "bundle" : ("user" as const), // Determine type based on presence of bundle
-			}))
-
-			// Sort by published date (newest first)
-			combined.sort((a, b) => {
-				const dateA = a.published_at ? new Date(a.published_at).getTime() : 0
-				const dateB = b.published_at ? new Date(b.published_at).getTime() : 0
-				return dateB - dateA
-			})
-
-			setCombinedEpisodes(combined)
-			setEpisodes(fetchedEpisodes.filter((ep: Episode) => !ep.bundle_id)) // User episodes only
-			setBundleEpisodes(fetchedEpisodes.filter((ep: Episode) => ep.bundle_id)) // Bundle episodes only
-		} catch (error) {
-			console.error("Failed to fetch data:", error)
-		}
+	// Find the portal container on mount
+	useEffect(() => {
+		const container = document.getElementById("global-audio-player")
+		setPortalContainer(container)
 	}, [])
 
+	// Use the episodes store
+	const { combinedEpisodes, userCurationProfile, isLoading, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore()
+
+	// Fetch data on component mount
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				setIsLoading(true)
-				await fetchAndUpdateData()
+				await Promise.all([fetchEpisodes(), fetchUserCurationProfile()])
 			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : String(error)
 				toast.error(`Failed to load dashboard data: ${message}`)
-			} finally {
-				setIsLoading(false)
 			}
 		}
 
 		fetchData()
-	}, [fetchAndUpdateData])
+	}, [fetchEpisodes, fetchUserCurationProfile])
+
+	// Clear error when component unmounts
+	useEffect(() => {
+		return () => {
+			clearError()
+		}
+	}, [clearError])
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
 		if (!userCurationProfile) return
@@ -100,8 +72,8 @@ export default function Page() {
 				throw new Error(errorData.error || errorData.message || "Failed to update user curation profile")
 			}
 
-			// Refetch data after successful update to show new bundle selection
-			await fetchAndUpdateData()
+			// Refresh data after successful update
+			await refreshData()
 
 			toast.success("Personalized Feed updated successfully!")
 			setIsModalOpen(false)
@@ -111,215 +83,116 @@ export default function Page() {
 		}
 	}
 
-	const handlePlayEpisode = (episodeId: string) => {
-		console.log(episodeId)
+	const handlePlayEpisode = useCallback((episodeId: string) => {
 		setPlayingEpisodeId(episodeId)
-	}
+	}, [])
 
-	const handleClosePlayer = () => {
+	const handleClosePlayer = useCallback(() => {
 		setPlayingEpisodeId(null)
+	}, [])
+
+	const _handleRefreshData = async () => {
+		await refreshData()
 	}
 
 	if (isLoading) {
 		return (
-			<div className={styles.loadingContainer}>
-				<div className={styles.loadingWrapper}>
-					<AppSpinner size="lg" label="Loading dashboard..." />
+			<div className="p-8 mx-auto">
+				<div className="flex items-center justify-center min-h-[400px]">
+					<AppSpinner variant={"wave"} size="lg" label="Generating your personal Podslice Hub..." />
 				</div>
 			</div>
 		)
 	}
 
+	if (error) {
+		return (
+			<div className="container mx-auto p-6">
+				<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
+				<Alert>
+					<AlertCircle className="h-4 w-4" />
+					<AlertTitle>Error Loading Dashboard</AlertTitle>
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			</div>
+		)
+	}
+
 	return (
-		<>
-			<div className={styles.dashboardContainer}>
-				<div className="header">
-					<h1>Your Dashboard</h1>
-					<p>Overview of your episodes, selected bundles, feeds etc.</p>
-				</div>
-				<div className={styles.mainContainer}>
-					<div className={styles.contentWrapper}>
-						<div className={styles.profileSection}>
-							{userCurationProfile ? (
-								<div className={styles.gridContainer}>
-									<div className={styles.episodesSection}>
-										<Card className="mb-4">
-											<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<div className={styles.profileSectionTitle}>{userCurationProfile?.name}</div>
-												<p className={styles.profileSectionDescription}>Status: {userCurationProfile?.status}</p>
-											</CardContent>
-										</Card>
+		<div className="mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+			{/* MAIN CONTAINER */}
 
-										{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-											<Card>
-												<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-													<CardTitle className={styles.profileSectionHeader}>Selected Bundle</CardTitle>
-												</CardHeader>
-												<CardContent>
-													<div className={styles.profileSectionTitle}>{userCurationProfile.selectedBundle.name}</div>
-													<p className={styles.profileSectionDescription}>{userCurationProfile.selectedBundle.description}</p>
+			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-													{userCurationProfile.selectedBundle.podcasts && userCurationProfile.selectedBundle.podcasts.length > 0 && (
-														<div>
-															<p className={styles.profileSectionHeader}>Podcasts:</p>
-															<ul className="list-disc pl-5 text-muted-foreground">
-																{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
-																	<li className={styles.profileSectionDescription} key={podcast.podcast_id}>
-																		{podcast.name}
-																	</li>
-																)) || <li className={styles.profileSectionDescription}>No podcasts loaded</li>}
-															</ul>
-														</div>
-													)}
+			<Card variant="glass" className="flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+				<div className="flex flex-col lg:flex-row gap-6">
+					<div className="w-full  md:w-full">
+						{userCurationProfile ? (
+							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
+						) : (
+							<EmptyStateCard
+								title="No Personalized Feed Found"
+								message={{
+									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									notificationTitle: "No Personalized Feed Found",
+									notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									selectStateActionText: "Create Personalized Feed",
+								}}
+								selectStateAction={() => setIsCreateWizardOpen(true)}
+							/>
+						)}
+					</div>
 
-													{userCurationProfile.selectedBundle.episodes && userCurationProfile.selectedBundle.episodes.length > 0 && (
-														<div>
-															<p className={styles.profileSectionHeader}>Bundle Episodes:</p>
-															<ul className="list-disc pl-5 text-muted-foreground">
-																{userCurationProfile.selectedBundle.episodes.map(episode => (
-																	<li className={styles.profileSectionDescription} key={episode.episode_id}>
-																		{episode.title} - {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}
-																	</li>
-																))}
-															</ul>
-														</div>
-													)}
-												</CardContent>
-											</Card>
-										)}
-									</div>
-								</div>
-							) : (
-								<div className="px-0 lg:px-0 w-full">
-									<div className="max-w-2xl md:max-w-full mt-0 w-full">
-										<Card>
-											<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-												<CardTitle className={styles.profileSectionHeader}>Current Personalized Feed</CardTitle>
-												{/* <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-													Edit
-												</Button> */}
-											</CardHeader>
-											<CardContent>
-												<Alert>
-													<AlertCircle className="h-4 w-4" />
-													<AlertTitle>No Personalized Feed Found</AlertTitle>
-													<AlertDescription className={styles.profileSectionDescription}>It looks like you haven't created a Personalized Feed yet. Start by creating one!</AlertDescription>
-												</Alert>
-												<div className="mt-6 text-center">
-													<Button onClick={() => setIsCreateWizardOpen(true)}>Create Personalized Feed</Button>
-												</div>
-											</CardContent>
-										</Card>
-
-										{/*  */}
-
-										{/*  */}
-									</div>
-									{/*  */}
-								</div>
-							)}
-						</div>
-						{/* END PRFIE */}
-						<div className={styles.episodesSection}>
-							{/*  */}
-							{combinedEpisodes.length === 0 ? (
-								<Card>
-									<CardHeader>
-										<CardTitle>Weekly Episodes</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<Alert>
-											<AlertCircle className="h-4 w-4" />
-											<AlertTitle>No Episodes Available</AlertTitle>
-											<AlertDescription className={styles.profileSectionDescription}>
-												{userCurationProfile
-													? "Your profile hasn't generated any episodes yet. Episodes are created weekly."
-													: "Create a Personalized Feed or select a bundle to start seeing episodes here."}
-											</AlertDescription>
-										</Alert>
-									</CardContent>
-								</Card>
-								//
-							) : (
-								<div className="space-y-6">
-									<div className={styles.episodesHeader}>
-										<h2 className={styles.episodesTitle}>Weekly Episode</h2>
-										<div className={styles.episodesSummary}>
-											<span>Total: {combinedEpisodes.length}</span>
-											<span>Custom: {episodes.length}</span>
-											<span>Bundle: {bundleEpisodes.length}</span>
-										</div>
-									</div>
-
-									<div className={styles.episodesList}>
-										{combinedEpisodes.map(episode => (
-											<Card key={episode.episode_id} className="episodeCard">
-												<CardContent>
-													<div className={styles.episodeContent}>
-														<div className={styles.episodeInfo}>
-															<div className={styles.episodeHeader}>
-																<h3 className={styles.episodeTitle}>{episode.title}</h3>
-																<span className={`${styles.episodeType} ${episode.type === "bundle" ? styles.episodeTypeBundle : styles.episodeTypeCustom}`}>
-																	{episode.type === "bundle" ? "Bundle" : "Custom"}
-																</span>
-															</div>
-															<div className={styles.playButtonContainer}>
-																<Button onClick={() => handlePlayEpisode(episode.episode_id)} variant="outline" size="sm" className="episodePlayButton">
-																	<Play className={styles.playIcon} />
-																	Play Episode
-																</Button>
-															</div>
-															{episode.description && <p className="episodeDescription">{episode.description}</p>}
-															<p className="episodeDate">Published: {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : "N/A"}</p>
-														</div>
-														{episode.audio_url && playingEpisodeId === episode.episode_id && (
-															<div className={styles.episodeAudio}>
-																<AudioPlayer episode={episode} onClose={handleClosePlayer} />
-															</div>
-														)}
-													</div>
-												</CardContent>
-											</Card>
-										))}
-									</div>
-								</div>
-							)}
-						</div>
-
-						{/* END EPISODE SECTION */}
+					<div className="w-full min-w-none max-w-screen md:min-w-[700px]">
+						{combinedEpisodes.length === 0 ? (
+							<EmptyStateCard
+								title="No Episodes Found"
+								message={{
+									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									notificationTitle: "No Episodes Found",
+									notificationDescription: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
+									selectStateActionText: "Create Personalized Feed",
+								}}
+							/>
+						) : (
+							<EpisodeList episodes={combinedEpisodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
+						)}
 					</div>
 				</div>
-			</div>
-			{userCurationProfile && (
-				<EditUserCurationProfileModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-					collection={userCurationProfile as UserCurationProfileWithRelations}
-					onSave={handleSaveUserCurationProfile}
-				/>
-			)}
+				{userCurationProfile && (
+					<EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile as UserCurationProfileWithRelations} onSave={handleSaveUserCurationProfile} />
+				)}
 
-			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Personalized Feed Builder</DialogTitle>
-					</DialogHeader>
-					<UserCurationProfileCreationWizardWrapper
-						onSuccess={async () => {
-							setIsCreateWizardOpen(false)
-							await fetchAndUpdateData()
-						}}
-					/>
-				</DialogContent>
-			</Dialog>
-		</>
+				<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
+					<DialogContent className="w-full overflow-y-auto px-8">
+						<DialogHeader>
+							<DialogTitle>
+								<Typography variant="h3">Personalized Feed Builder</Typography>
+							</DialogTitle>
+						</DialogHeader>
+						<UserFeedWizardWrapper
+							onSuccess={async () => {
+								setIsCreateWizardOpen(false)
+								await refreshData()
+							}}
+						/>
+					</DialogContent>
+				</Dialog>
+				{/* Portal audio player to global container */}
+				{playingEpisodeId &&
+					portalContainer &&
+					createPortal(
+						<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
+							<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={combinedEpisodes} onClose={handleClosePlayer} />
+						</div>,
+						portalContainer
+					)}
+			</Card>
+		</div>
 	)
 }
 
-function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
+function UserFeedWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
 	// Use a local state to track if the profile was created
 	const { userCurationProfile } = useUserCurationProfileStore()
 	const [hasCreated, setHasCreated] = useState(false)
@@ -331,5 +204,19 @@ function UserCurationProfileCreationWizardWrapper({ onSuccess }: { onSuccess: ()
 		}
 	}, [userCurationProfile, hasCreated, onSuccess])
 
-	return <UserCurationProfileCreationWizard />
+	return <UserFeedSelector />
+}
+
+function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
+	// Force fresh lookup of episode to avoid caching issues
+	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+
+	// biome-ignore lint/complexity/useOptionalChain: <keep>
+	if (!(currentEpisode && currentEpisode.audio_url)) {
+		// Don't render anything - let the parent handle the conditional rendering
+		// This prevents the player from "hiding" when switching between episodes
+		return null
+	}
+
+	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

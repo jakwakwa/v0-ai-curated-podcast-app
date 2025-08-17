@@ -1,84 +1,115 @@
 import { RefreshCw } from "lucide-react"
+import { type SpinnerProps, spinnerVariants } from "@/lib/component-variants"
 import { cn } from "@/lib/utils"
-import styles from "./app-spinner.module.css"
 
-export type SpinnerSize = "sm" | "md" | "lg"
-export type SpinnerColor = "default" | "primary" | "secondary" | "success" | "warning" | "danger"
-export type SpinnerVariant = "default" | "simple" | "gradient" | "wave" | "dots" | "spinner"
-export type SpinnerLabelColor = "default" | "primary" | "secondary" | "success" | "warning" | "danger"
-
-export interface AppSpinnerProps {
+export interface AppSpinnerProps extends SpinnerProps {
 	/** Optional label text to display below the spinner */
 	label?: string
-	/** Size of the spinner */
-	size?: SpinnerSize
-	/** Color theme of the spinner */
-	color?: SpinnerColor
-	/** Visual variant of the spinner */
-	variant?: SpinnerVariant
 	/** Color theme of the label text */
-	labelColor?: SpinnerLabelColor
-	/** Custom class names for different parts */
-	classNames?: Partial<Record<"base" | "wrapper" | "circle2" | "dots" | "spinnerBars" | "label", string>>
+	labelColor?: "default" | "primary" | "secondary" | "success" | "warning" | "danger"
 	/** Additional className for the base wrapper */
 	className?: string
 }
 
-export function AppSpinner({ label, size = "md", color = "primary", variant = "default", labelColor = "default", classNames, className }: AppSpinnerProps) {
+export function AppSpinner({ label, size = "md", color = "primary", variant = "default", labelColor = "default", className }: AppSpinnerProps) {
+	const getLabelColorClass = (labelColor: string) => {
+		switch (labelColor) {
+			case "primary":
+				return "text-primary text-left"
+			case "secondary":
+				return "text-secondary"
+			case "success":
+				return "text-green-500"
+			case "warning":
+				return "text-yellow-500"
+			case "danger":
+				return "text-destructive"
+			default:
+				return "text-muted-foreground"
+		}
+	}
+
 	const renderSpinner = () => {
-		const spinnerClasses = cn(styles.spinner, styles[size], styles[color], styles[variant], classNames?.circle2)
+		const baseClasses = cn(spinnerVariants({ size, color, variant }))
 
 		switch (variant) {
 			case "simple":
 				return (
-					<div className={cn(styles.simple, spinnerClasses)}>
-						<div className={styles.simpleCircle} />
+					<div className={cn("relative", baseClasses)}>
+						<div className="w-screen h-full border-2 border-transparent border-t-current rounded-full animate-spin" />
 					</div>
 				)
 
 			case "gradient":
 				return (
-					<div className={cn(styles.gradient, spinnerClasses)}>
-						<div className={styles.gradientCircle} />
+					<div className={cn("relative", baseClasses)}>
+						<div
+							className="w-screen h-full border-2 border-transparent rounded-full animate-spin bg-gradient-conic from-transparent via-current to-transparent"
+							style={{ background: "conic-gradient(from 0deg, transparent, currentColor, transparent)" }}
+						/>
+						<div className="absolute inset-0.5 bg-background rounded-full" />
 					</div>
 				)
 
 			case "wave":
 				return (
-					<div className={cn(styles.wave, spinnerClasses)}>
+					<div className={cn("flex gap-1 items-center", baseClasses)}>
 						{[...Array(5)].map((_, i) => (
-							<div key={i} className={styles.waveDot} />
+							<div
+								key={i}
+								className="w-1 h-1 bg-current rounded-full animate-pulse"
+								style={{
+									animationDelay: `${i * 0.16}s`,
+									animationDuration: ".8s",
+									animationIterationCount: "infinite",
+								}}
+							/>
 						))}
 					</div>
 				)
 
 			case "dots":
 				return (
-					<div className={cn(styles.dots, spinnerClasses, classNames?.dots)}>
+					<div className={cn("flex gap-1 items-center", baseClasses)}>
 						{[...Array(3)].map((_, i) => (
-							<div key={i} className={styles.dot} />
+							<div
+								key={i}
+								className="w-2 h-2 bg-current rounded-full animate-bounce"
+								style={{
+									animationDelay: `${i * 0.16}s`,
+									animationDuration: "1.4s",
+								}}
+							/>
 						))}
 					</div>
 				)
 
 			case "spinner":
 				return (
-					<div className={cn(styles.spinnerBars, spinnerClasses, classNames?.spinnerBars)}>
+					<div className={cn("relative", baseClasses)}>
 						{[...Array(12)].map((_, i) => (
-							<div key={i} className={styles.bar} />
+							<div
+								key={i}
+								className="absolute w-0.5 h-1/4 bg-current rounded-sm left-1/2 top-1/2 origin-bottom animate-pulse"
+								style={{
+									transform: `rotate(${i * 30}deg) translate(-50%)`,
+									animationDelay: `${i * 0.1}s`,
+									animationDuration: "1.2s",
+								}}
+							/>
 						))}
 					</div>
 				)
 
 			default:
-				return <RefreshCw className={cn(styles.defaultIcon, spinnerClasses)} />
+				return <RefreshCw className={baseClasses} />
 		}
 	}
 
 	return (
-		<div className={cn(styles.base, classNames?.base, className)}>
-			<div className={cn(styles.wrapper, classNames?.wrapper)}>{renderSpinner()}</div>
-			{label && <span className={cn(styles.label, styles[`label${labelColor.charAt(0).toUpperCase() + labelColor.slice(1)}` as keyof typeof styles], classNames?.label)}>{label}</span>}
+		<div className={cn("flex flex-col items-center justify-center gap-3", className)}>
+			<div className="flex items-center justify-center">{renderSpinner()}</div>
+			{label && <span className={cn("text-sm text-center mt-2", getLabelColorClass(labelColor))}>{label}</span>}
 		</div>
 	)
 }

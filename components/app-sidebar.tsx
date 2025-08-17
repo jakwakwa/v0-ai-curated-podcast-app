@@ -1,133 +1,73 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { BookOpen, ChevronRight, House, Library } from "lucide-react"
+import { IconInnerShadowTop } from "@tabler/icons-react"
+import { Home, Info, Play, Radio, Settings } from "lucide-react"
+import Link from "next/link"
 import type * as React from "react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	SidebarRail,
-} from "@/components/ui/sidebar-ui"
-import styles from "./app-sidebar.module.css"
-import { NavUser } from "./nav-user"
-
-interface SidebarNavItem {
-	title: string
-	url: string
-	isActive?: boolean
-}
-
-interface SidebarNavGroup {
-	title: string
-	url: string
-	icon?: React.ReactNode
-	items: SidebarNavItem[]
-}
-
-// This is sample data.
-const data = {
-	versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-	navMain: [
-		{
-			title: "Getting Started",
-			url: "#",
-			icon: <BookOpen className="h-4 w-4 mr-1" />,
-			items: [
-				{
-					title: "Dashboard",
-					url: "/dashboard",
-				},
-				{
-					title: "About PODSLICE",
-					url: "/about",
-				},
-			],
-		},
-		{
-			title: "Your Library",
-			url: "#",
-			icon: <Library className="h-4 w-4 mr-1" />,
-			items: [
-				{
-					title: "Weekly Episodes",
-					url: "/collections/weekly-episodes",
-				},
-				{
-					title: "Personalized Feeds",
-					url: "/curation-profile-management",
-				},
-				{
-					title: "Active PODSLICE Bundles",
-					url: "/curated-bundles",
-				},
-			],
-		},
-	] as SidebarNavGroup[], // Apply the new type to navMain
-}
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useUser()
 
+	// Prepare user data for NavUser component
+	const userData = {
+		name: user?.fullName || user?.firstName || "User",
+		email: user?.emailAddresses?.[0]?.emailAddress || "user@example.com",
+		avatar: user?.imageUrl || "/placeholder-user.jpg",
+	}
+
+	// Navigation items
+	const navItems = [
+		{
+			title: "Dashboard",
+			url: "/dashboard",
+			icon: Home,
+		},
+		{
+			title: "About Podslice",
+			url: "/about",
+			icon: Info,
+		},
+		{
+			title: "Weekly Episodes",
+			url: "/episodes",
+			icon: Play,
+			separator: true,
+		},
+		{
+			title: "Bundles",
+			url: "/curated-bundles",
+			icon: Radio,
+		},
+		{
+			title: "Personal Feed",
+			url: "/curation-profile-management",
+			icon: Settings,
+		},
+	]
+
 	return (
-		<Sidebar {...props}>
+		<Sidebar collapsible="offcanvas" {...props} className="bg-sidebar/90 border-2 border-l-0 border-b-0 border-r-[#000] pl-2">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-							<a href="/">
-								<House />
-								<span className="text-base font-semibold">Home</span>
-							</a>
+						<SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
+							<Link href="/" className="text-custom-sm  bg-card/50 hover:bg-card/10 active:bg-card/20 mt-2 mb-4">
+								<IconInnerShadowTop className="size-5!" />
+								<span className="text-base font-semibold">PodSlice</span>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
-			<SidebarContent className={styles["sidebar-content-gap"]}>
-				{/* We create a collapsible SidebarGroup for each parent. */}
-				{data.navMain.map(item => (
-					<Collapsible key={item.title} title={item.title} defaultOpen className={styles["collapsible-open"]}>
-						<SidebarGroup>
-							<SidebarGroupLabel asChild className={styles["collapsible-label"]}>
-								<CollapsibleTrigger>
-									{item.icon}
-									{item.title} <ChevronRight className={styles["chevron-icon"]} />
-								</CollapsibleTrigger>
-							</SidebarGroupLabel>
-							<CollapsibleContent>
-								<SidebarGroupContent>
-									<SidebarMenu>
-										{item.items.map(item => (
-											<SidebarMenuItem key={item.title} className={styles["sidebar-menu-item"]}>
-												<SidebarMenuButton asChild isActive={item.isActive}>
-													<a href={item.url}>{item.title}</a>
-												</SidebarMenuButton>
-											</SidebarMenuItem>
-										))}
-									</SidebarMenu>
-								</SidebarGroupContent>
-							</CollapsibleContent>
-						</SidebarGroup>
-					</Collapsible>
-				))}
+			<SidebarContent>
+				<NavMain items={navItems} />
 			</SidebarContent>
-			<SidebarRail />
 			<SidebarFooter>
-				<NavUser
-					user={{
-						name: user?.fullName || user?.firstName || "User",
-						email: user?.emailAddresses?.[0]?.emailAddress || "",
-						avatar: user?.imageUrl || "",
-					}}
-				/>
+				<NavUser user={userData} />
 			</SidebarFooter>
 		</Sidebar>
 	)

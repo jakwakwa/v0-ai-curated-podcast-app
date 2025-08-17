@@ -1,18 +1,22 @@
 "use client"
 
-import { CheckCircle } from "lucide-react"
-import Link from "next/link"
-import { useFeatureAccess } from "@/components/access-control"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import styles from "./page.module.css"
 import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+// Subscription store disabled in this build
+// CSS module migrated to Tailwind classes
 
 export default function AboutPage() {
-	// Check current subscription level
-	const { hasAccess: hasCustomProfiles } = useFeatureAccess("custom_curation_profiles")
-	const { hasAccess: hasWeeklyCombo } = useFeatureAccess("weekly_combo")
+	const _router = useRouter()
+	const _subscription = null
+	const isLoading = false
+	const tiers = [
+		{ name: "FreeSlice", price: 0, description: "Free tier", features: ["Basic features"] },
+		{ name: "Casual Listener", price: 5, description: "Tier 2", features: ["Weekly combo"] },
+		{ name: "Curate & Control", price: 12, description: "Tier 3", features: ["All features"], popular: true },
+	]
+
 	const howItWorks = [
 		{
 			step: 1,
@@ -31,156 +35,69 @@ export default function AboutPage() {
 		},
 	]
 
-	const pricingTiers = [
-		{
-			name: "FreeSlice",
-			price: "Free",
-			duration: "forever",
-			description: "Perfect for podcast discovery and light listening",
-			features: [
-				"Access to 3 pre-selected PODSLICE Bundles (Tech, Business, Culture)",
-				"1 weekly combo episode (20-30 minutes)",
-				"Standard audio quality",
-				"Basic podcast player with essential controls",
-				"Community forums access",
-			],
-			popular: false,
-			cta: "Get Started Free",
-		},
-		{
-			name: "Casual Listener",
-			price: "$5",
-			duration: "per month",
-			description: "Enhanced experience with premium features and priority access",
-			features: [
-				"Access to ALL available PODSLICE Bundles (10+ categories)",
-				"Up to 3 weekly episodes (30-45 minutes each)",
-				"Premium audio quality with enhanced voice synthesis",
-				"Priority processing - episodes ready by Friday morning",
-				"Advanced player with speed controls, bookmarks, and offline download",
-				"Email notifications when episodes are ready",
-			],
-			popular: false,
-			cta: "Upgrade to Casual",
-		},
-		{
-			name: "Curate & Control",
-			price: "$10",
-			duration: "per month",
-			description: "Ultimate control with unlimited custom curation profiles",
-			features: [
-				"Everything in Casual Listener, plus:",
-				"Create unlimited custom Personalized Feeds from 25+ hand-picked podcasts",
-				"Advanced AI curation that learns your preferences and adapts over time",
-				"Custom episode themes and topics - guide the AI to focus on specific subjects",
-			],
-			popular: true,
-			cta: "Go Pro",
-		},
-	]
+	const handleUpgrade = async (_planCode: string | undefined) => {}
 
 	// Determine current plan and button states
-	const getCurrentPlan = () => {
-		if (hasCustomProfiles) return "Curate & Control"
-		if (hasWeeklyCombo) return "Casual Listener"
-		return "FreeSlice"
-	}
+	const getCurrentPlanName = () => "FreeSlice"
 
-	const getButtonProps = (tierName: string) => {
-		const currentPlan = getCurrentPlan()
-		if (currentPlan === tierName) {
+	const _getButtonProps = (tier: (typeof tiers)[0]) => {
+		const currentPlanName = getCurrentPlanName()
+		if (currentPlanName === tier.name) {
 			return {
 				children: "Active",
 				disabled: true,
 				variant: "secondary" as const,
+				onClick: () => {},
 			}
 		}
 
-		const tier = pricingTiers.find(t => t.name === tierName)
 		return {
-			children: tierName === "FreeSlice" ? "Downgrade" : tier?.cta,
-			disabled: false,
-			variant: tier?.popular ? ("default" as const) : ("outline" as const),
+			children: tier.name === "FreeSlice" ? "Downgrade" : `Upgrade to ${tier.name}`,
+			disabled: isLoading,
+			variant: tier.popular ? ("default" as const) : ("outline" as const),
+			onClick: () => handleUpgrade(undefined),
 		}
 	}
 
 	return (
 		<div className="container">
 			{/* Short Intro */}
-			<section className={styles.hero}>
-				<div className={styles.heroContent}>
-					<Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} />
+			<section className="text-center pt-16 pb-4 mb-0">
+				<div className="max-w-[800px] mx-auto">
+					<Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} className="scale-[2] mx-auto mb-8" />
 
-					<p className={styles.heroDescription}>
+					<p className="text-base leading-6 font-normal tracking-wide mb-8 max-w-[600px] mx-auto">
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>
+					<div className="flex justify-center items-center space-x-4 text-sm text-muted-foreground mb-8">
+						<Link href="/terms" className="hover:text-foreground transition-colors">
+							Terms of Service
+						</Link>
+						<span>•</span>
+						<Link href="/privacy" className="hover:text-foreground transition-colors">
+							Privacy Policy
+						</Link>
+					</div>
 				</div>
 			</section>
 			{/* How It Works */}
-			<section className={styles.section}>
-				<div className={styles.sectionHeader}>
-					<h2 className={styles.sectionTitle}>How It Works</h2>
-					<p className={styles.sectionDescription}>Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.</p>
+			<section className="mb-16 p-16">
+				<div className="text-center mb-12">
+					<h2 className="text-3xl leading-9 font-semibold tracking-tight mb-4">How It Works!</h2>
+					<p className="text-base leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
+						Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.
+					</p>
 				</div>
 
-				<div className={styles.stepsGrid}>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 					{howItWorks.map(step => (
-						<Card key={step.step} className={styles.stepCard}>
+						<Card key={step.step} className="transition-all duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg">
 							<CardHeader>
-								<div className={styles.stepNumber}>{step.step}</div>
-								<CardTitle className={styles.stepTitle}>{step.title}</CardTitle>
+								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-radial-gradient-secondary text-primary-foreground font-semibold text-lg mb-4">{step.step}</div>
+								<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{step.title}</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<p className={styles.stepDescription}>{step.description}</p>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			</section>
-			{/* Pricing */}
-			<section className={styles.section}>
-				<div className={styles.sectionHeader}>
-					<h2 className={styles.sectionTitle}>Choose Your Plan</h2>
-					<p className={styles.sectionDescription}>From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.</p>
-				</div>
-
-				<div className={styles.pricingGrid}>
-					{pricingTiers.map(tier => (
-						<Card key={tier.name} className={`${styles.pricingCard} ${tier.popular ? styles.popularCard : ""}`}>
-							{tier.popular && <Badge className={styles.popularBadge}>Most Popular</Badge>}
-							<CardHeader>
-								<div className="flex flex-col mt-4">
-									<CardTitle className={styles.pricingTitle}>{tier.name}</CardTitle>
-									<div className={styles.pricingAmount}>
-										<span className={styles.price}>{tier.price}</span>
-										{tier.price !== "Free" && <span className={styles.duration}>/{tier.duration}</span>}
-									</div>
-									<p className={styles.pricingDescription}>{tier.description}</p>
-								</div>
-							</CardHeader>
-							<CardContent className={styles.pricingCardContent}>
-								<ul className={styles.featuresList}>
-									{tier.features.map((feature, index) => (
-										<li key={index} className={styles.featureItem}>
-											<CheckCircle size={16} className={styles.checkIcon} />
-											{feature}
-										</li>
-									))}
-								</ul>
-								{(() => {
-									const buttonProps = getButtonProps(tier.name)
-									return buttonProps.disabled ? (
-										<Button className={`${styles.pricingButton}`} variant={buttonProps.variant} size="lg" disabled>
-											{buttonProps.children}
-										</Button>
-									) : (
-										<Link href="/subscription">
-											<Button className={`${styles.pricingButton} ${tier.popular ? styles.popularButton : ""}`} variant={buttonProps.variant} size="lg">
-												{buttonProps.children}
-											</Button>
-										</Link>
-									)
-								})()}
+								<p className="text-muted-foreground leading-relaxed mb-4">{step.description}</p>
 							</CardContent>
 						</Card>
 					))}

@@ -6,7 +6,7 @@ Our advanced AI identifies and extracts the most valuable insights from hours of
 Experience remarkably natural AI voices that deliver insights with the clarity and nuance of human speech, making complex ideas easy to understand.
 Get immediate access to key takeaways without hunting through rambling conversations. Transform 3-hour podcasts into 5-minute insights.
 
-Be among the first to experience the future of podcast consumption.
+Be among the first to experience the future of podcast summaries
 
 ## Core Features
 

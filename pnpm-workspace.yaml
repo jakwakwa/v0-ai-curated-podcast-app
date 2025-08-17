@@ -3,7 +3,6 @@ onlyBuiltDependencies:
   - "@clerk/shared"
   - "@prisma/client"
   - "@prisma/engines"
-  - "@tailwindcss/oxide"
   - core-js
   - esbuild
   - prisma

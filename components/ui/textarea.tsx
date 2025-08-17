@@ -1,19 +1,13 @@
+import type { VariantProps } from "class-variance-authority"
 import * as React from "react"
-
+import { textareaVariants } from "@/lib/component-variants"
 import { cn } from "@/lib/utils"
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(({ className, ...props }, ref) => {
-	return (
-		<textarea
-			className={cn(
-				"flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-				className
-			)}
-			ref={ref}
-			{...props}
-		/>
-	)
+interface TextareaComponentProps extends Omit<React.ComponentProps<"textarea">, "size">, VariantProps<typeof textareaVariants> {}
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaComponentProps>(({ className, variant, size, ...props }, ref) => {
+	return <textarea className={cn(textareaVariants({ variant, size }), className)} ref={ref} {...props} />
 })
 Textarea.displayName = "Textarea"
 
-export { Textarea }
+export { Textarea, type TextareaComponentProps }

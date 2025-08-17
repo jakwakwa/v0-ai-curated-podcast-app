@@ -5,10 +5,33 @@ import { useRouter } from "next/navigation"
 import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
-import { SidebarProvider } from "@/components/ui/sidebar-ui"
-import { StoreInitializer } from "../store-initializer"
-import styles from "./layout.module.css"
+import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+
+function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
+	const { state } = useSidebar()
+
+	return (
+		<>
+			<AppSidebar />
+			<SidebarInset>
+				<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] bg-background backdrop-blur-md ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0">
+					<div className="flex items-center gap-2 px-2 md:px-4">
+						{/* @ts-ignore */}
+						<SidebarTrigger className="ml-2" />
+						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+						<DynamicBreadcrumb />
+					</div>
+				</header>
+
+				<main className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-0 md:px-12 mt-8 md:mt-14 mb-20 ${state === "expanded" ? "w-full" : "w-full"}`}>
+					<div className="w-full min-w-[100px] p-0 flex backdrop-blur-md gap-8 px-2 md:px-8 min-h-screen">{children}</div>
+				</main>
+			</SidebarInset>
+		</>
+	)
+}
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
 	const { isSignedIn, isLoaded } = useAuth()
@@ -55,10 +78,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	if (!isLoaded || (isSignedIn && !isUserSynced)) {
 		return (
 			<SidebarProvider>
-				<SiteHeader />
-				<div className={styles.progressLoader}>
-					<div className={styles.progressBar}>
-						<div className={styles.progressFill} />
+				{/* <SiteHeader /> */}
+				<div className="progress-loader">
+					<div className="progress-bar">
+						<div className="progress-fill" />
 					</div>
 				</div>
 			</SidebarProvider>
@@ -69,10 +92,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	if (!isSignedIn) {
 		return (
 			<SidebarProvider>
-				<SiteHeader />
-				<div className={styles.progressLoader}>
-					<div className={styles.progressBar}>
-						<div className={styles.progressFill} />
+				{/* <SiteHeader /> */}
+				<div className="progress-loader">
+					<div className="progress-bar">
+						<div className="progress-fill" />
 					</div>
 				</div>
 			</SidebarProvider>
@@ -82,13 +105,17 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	// No auth check needed here - middleware handles all protection
 	return (
 		<SidebarProvider>
-			<StoreInitializer />
-			<AppSidebar />
-			<div className="container">
-				<SiteHeader />
-				<div className={styles.content}>{children}</div>
-			</div>
-			{/* <DummyDataTogglePanel /> */}
+			<ProtectedLayoutInner>{children}</ProtectedLayoutInner>
+
+			{/* Global audio player - always on top */}
+			<div
+				id="global-audio-player"
+				className="fixed bottom-0 left-64 right-0 z-[9999] pointer-events-auto"
+				style={{
+					// @ts-ignore
+					position: "fixed !important",
+				}}
+			/>
 		</SidebarProvider>
 	)
 }

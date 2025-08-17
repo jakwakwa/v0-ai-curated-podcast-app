@@ -1,9 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-When converting Tailwind classes to CSS Modules:
-
-1. **New CSS Module File:** If the component with JSX being refactored does NOT have an existing `.module.css` file, a new CSS Module file MUST be created. The new file should follow kebab-case naming conventions, corresponding to the TSX file (e.g., `my-component.tsx` -> `my-component.module.css`).
-2. **Appending to Existing CSS Module File:** If the component already has an existing `.module.css` file, the newly converted styles MUST be added to this file. Existing legacy styles in the `.module.css` file MUST NOT be lost or overwritten.
