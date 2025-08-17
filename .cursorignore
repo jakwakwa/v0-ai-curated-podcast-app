@@ -5,4 +5,3 @@ lib/admin-middleware.ts
 .gitignore
 tasks/fix-sync-edgecases-paddle.md
 components/team-switcher.tsx
-.env
