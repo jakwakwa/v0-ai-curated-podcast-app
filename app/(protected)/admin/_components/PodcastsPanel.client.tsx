@@ -196,7 +196,7 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 						{podcasts.map((podcast: Podcast) => {
 							const p = optimisticPodcast(podcast)
 							return (
-								<div key={p.podcast_id} className="p-3 border rounded-lg bg-card">
+								<div key={p.podcast_id} className="p-3 border rounded-lg bg-card content">
 									{/* Row 1: title */}
 									<div className="mb-2">
 										<h4 className="font-medium truncate">{p.name}</h4>

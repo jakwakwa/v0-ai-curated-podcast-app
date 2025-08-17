@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 function Badge({
 	className,
 	variant = "default",
-	size = "md",
+	size = "sm",
 	...props
 }: { className?: string; variant: "default" | "secondary" | "destructive" | "outline" | "card" | "primarycard"; size: "sm" | "md" | "lg" | "xl" } & React.HTMLAttributes<HTMLDivElement>) {
 	/**
@@ -23,20 +23,20 @@ function Badge({
 	 *
 	 */
 
-	if (size === "sm") {
-		return <div className={`text-custom-xs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+	if (size === "sm" && variant === "outline") {
+		return <div className={`text-[0.6rem] border-1 px-3 py-0 leading-normal border-[#FFFFFF7A] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "md") {
-		return <div className={`text-custom-sm ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "lg") {
-		return <div className={`text-custom-md ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "xl") {
-		return <div className={`text-custom-lg ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-custom-xs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	return <div className={cn(badgeVariants({ variant, size }), className)} {...props} />

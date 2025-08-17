@@ -1,4 +1,4 @@
-@import "../../styles/mixins.css";
+
 
 /* Dropdown Menu Sub Trigger */
 .subTrigger {
@@ -9,7 +9,6 @@
     gap: 0.5rem;
     border-radius: 0.125rem;
     padding: 0.375rem 0.5rem;
-    @mixin dropdown-button-text;
     outline: none;
 }
 
@@ -178,7 +177,6 @@
     gap: 0.5rem;
     border-radius: 0.125rem;
     padding: 0.45rem 0.7rem;
-    @mixin dropdown-button-text;
     outline: none;
     border: 1px solid transparent;
     transition: all 0.35s ease;
@@ -243,7 +241,6 @@
     align-items: center;
     border-radius: 0.125rem;
     padding: 0.375rem 0.5rem 0.375rem 2rem;
-    @mixin dropdown-button-text;
     outline: none;
     transition: color 0.15s ease;
 }
@@ -282,7 +279,7 @@
     align-items: center;
     border-radius: 0.125rem;
     padding: 0.375rem 0.5rem 0.375rem 2rem;
-    @mixin button-text;
+   
     outline: none;
     transition: color 0.15s ease;
 }
@@ -316,7 +313,7 @@
 /* Dropdown Menu Label */
 .label {
     padding: 0.375rem 0.5rem;
-    @mixin button-text;
+    
 }
 
 .labelInset {
@@ -333,7 +330,7 @@
 /* Dropdown Menu Shortcut */
 .shortcut {
     margin-left: auto;
-    @mixin body-text-sm;
+  
     letter-spacing: 0.1em;
     opacity: 0.6;
 }

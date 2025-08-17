@@ -177,7 +177,7 @@ export default function CurationProfileManagementPage() {
 											<Typography as="h5" className="font-medium">
 												Podcasts linked with this bundle:
 											</Typography>
-											<ul className="list-disc bg-card px-4 mt-2 py-2 text-muted-foreground rounded-lg">
+											<ul className="list-disc bg-card content px-4 mt-2 py-2 text-muted-foreground rounded-lg">
 												{userCurationProfile.selectedBundle.podcasts?.map((podcast: Podcast) => (
 													<li key={podcast.podcast_id} className="ml-4">
 														{podcast.name}

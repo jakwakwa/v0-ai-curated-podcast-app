@@ -30,7 +30,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				{episodes.length > 0 ? (
 					<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
 						{episodes.map(episode => (
-							<li key={episode.episode_id} className="flex bg-card flex-row items-center  hover:bg-card/10 active:bg-card/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
+							<li key={episode.episode_id} className="flex bg-card content flex-row items-center  hover:bg-card content/10 active:bg-card content/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
 								<div className="pl-1 w-full max-w-[90px]">
 									{episode.image_url ? (
 										<Image src={episode.image_url} alt={episode.title} className="h-34 w-full max-w-[80px] md:h-24 md:w-full rounded-md object-cover" width={200} height={120} />

@@ -210,7 +210,7 @@ export default function NotificationsPage() {
 
 			<div className="min-h-[400px]">
 				{notifications.length === 0 ? (
-					<Card className="text-center p-12 border-2 border-dashed border-border bg-card">
+					<Card className="text-center p-12 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
 							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
 							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
@@ -223,13 +223,13 @@ export default function NotificationsPage() {
 							<Card
 								key={notification.notification_id}
 								className={cn(
-									"border transition-all duration-200 my-2 px-2 py-2 bg-cardglass hover:translate-y-[-1px] hover:shadow-lg",
-									!notification.is_read && "border-l-4 border-l-primary bg-card"
+									"border transition-all duration-200 my-2 px-2 py-2 bg-card contentglass hover:translate-y-[-1px] hover:shadow-lg",
+									!notification.is_read && "border-l-4 border-l-primary bg-card content"
 								)}
 							>
 								<CardHeader className="p-6 flex justify-between items-start gap-4">
 									<div className="flex gap-4 flex-1">
-										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#176a888f] text-primary-foreground flex-shrink-0 bg-cardglass">
+										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#176a888f] text-primary-foreground flex-shrink-0 bg-card contentglass">
 											{getNotificationIcon(notification.type)}
 										</div>
 										<div className="flex-1 min-w-0">

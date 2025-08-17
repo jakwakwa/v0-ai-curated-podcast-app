@@ -1,4 +1,4 @@
-@import "../../styles/mixins.css";
+
 
 .audioPlayer {
     position: fixed;
@@ -36,7 +36,7 @@
 
 .info h3 {
     color: #ffffff;
-    /* @mixin body-text; */
+  
 		line-height: 1.1;
     margin: 0;
     white-space: nowrap;
@@ -46,7 +46,7 @@
 
 .info p {
     color: #b3b3b3;
-    @mixin body-text-sm;
+
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -72,7 +72,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    @mixin body-text;
+
     box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
 }
 
@@ -96,7 +96,7 @@
 
 .timeDisplay {
     color: #b3b3b3;
-    @mixin body-text-sm;
+
     min-width: 40px;
     text-align: left;
 }
@@ -235,7 +235,7 @@
     .playPauseButton {
         width: 40px;
         height: 40px;
-        @mixin body-text-sm;
+       
     }
 
     .progressContainer {
@@ -243,7 +243,7 @@
     }
 
     .timeDisplay {
-        @mixin body-text-sm;
+     
         min-width: 35px;
     }
 

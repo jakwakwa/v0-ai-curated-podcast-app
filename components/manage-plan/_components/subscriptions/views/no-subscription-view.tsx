@@ -8,7 +8,7 @@ export function NoSubscriptionView() {
 		<>
 			{/* <DashboardPageHeader pageTitle={"Subscriptions"} /> */}
 			<div className={"grid grid-cols-12"}>
-				<Card className={"bg-background/50 backdrop-blur-[24px] border-border p-6 col-span-12 md:col-span-6 lg:col-span-4"}>
+				<Card className={"bg-background/50 border-border p-6 col-span-12 md:col-span-6 lg:col-span-4"}>
 					<CardHeader className="p-0 space-y-0">
 						<CardTitle className="flex justify-between items-center pb-2">
 							<span className={"text-xl font-medium"}>No active subscriptions</span>

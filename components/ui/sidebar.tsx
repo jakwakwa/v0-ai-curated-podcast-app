@@ -362,7 +362,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 		<li
 			data-slot="sidebar-menu-item"
 			data-sidebar="menu-item"
-			className={cn("group/menu-item relative", className, "text-custom-sm bg-card/0 hover:bg-[#131718a8]	 hover:text-custom-sm active:bg-card/20")}
+			className={cn("group/menu-item relative", className, "text-custom-sm bg-card content/0 hover:bg-[#131718a8]	 hover:text-custom-sm active:bg-card content/20")}
 			{...props}
 		/>
 	)

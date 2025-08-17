@@ -109,16 +109,16 @@ export function NavUser({
 							<MoreVerticalIcon className="ml-auto h-4 w-4" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+					<DropdownMenuContent className="bg-cardglass  w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
 						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 md:px-2 py-1.5 text-left text-sm">
+							<div className="flex items-center gap-2 px-1 md:px-2 py-1.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
 								<Avatar className="h-8 w-8 rounded-lg filter grayscale">
 									<AvatarImage src={user.avatar} alt={user.name} />
 									<AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user.name}</span>
-									<span className="truncate text-xs text-muted-foreground">{user.email}</span>
+									<span className="truncate">{user.name}</span>
+									<span className="truncate my-0 font-[200] text-xs text-foreground/99">{user.email}</span>
 								</div>
 							</div>
 						</DropdownMenuLabel>

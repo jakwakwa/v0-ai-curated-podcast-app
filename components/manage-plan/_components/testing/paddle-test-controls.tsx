@@ -110,13 +110,13 @@ export function SubscriptionTestControlsPaddle() {
 	return (
 		<div className="fixed bottom-4 right-4 z-50">
 			{/* Toggle Button */}
-			<Button onClick={() => setIsVisible(!isVisible)} variant="outline" size="sm" className="bg-background/80 backdrop-blur-sm">
+			<Button onClick={() => setIsVisible(!isVisible)} variant="outline" size="sm" className="bg-background/80">
 				{isVisible ? "Hide" : "Show"} Paddle Test Controls
 			</Button>
 
 			{/* Test Controls Panel */}
 			{isVisible && (
-				<Card className="w-80 mt-2 bg-background/95 backdrop-blur-sm border-2">
+				<Card className="w-80 mt-2 bg-background/95 border-2">
 					<CardHeader className="pb-3">
 						<CardTitle className="text-sm">Paddle Subscription Test Controls</CardTitle>
 						<CardDescription className="text-xs">Switch between different subscription states for testing</CardDescription>

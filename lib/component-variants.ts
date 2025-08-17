@@ -22,10 +22,10 @@ export const typographyVariants = cva("", {
 export const cardVariants = cva("rounded-3xl px-3 border transition-all duration-200", {
 	variants: {
 		variant: {
-			default: "border bg-card-alt text-card-foreground",
-			glass: "bg-cardglass",
-			episode: "border bg-linear-to-br from-card/80 via-accent/20 to-muted shadow-episode cursor-pointer hover:shadow-lg hover:scale-[1.02]",
-			bundle: "border bg-dialog-bg shadow-lg text-card-foreground hover:bg-card/25 cursor-pointer hover:shadow-md border-[#2D2C38] border-b-none backdrop-blur-md hover:-translate-y-0.5 pb-4",
+			default: "bg-card border text-card-foreground",
+			glass: "bg-cardglass	backdrop-blur-[2px]",
+			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
+			bundle: "border-light border-1 bg-linear-to-br from-secondary-light/60 via-secondary-dark/30 shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6",
 		},
 		selected: {
 			true: "border-2 border-accent-selection-border bg-gradient-to-br from-accent-selection-bg to-card shadow-lg shadow-accent-selection-bg/20",
@@ -140,11 +140,11 @@ export const labelVariants = cva("text-sm font-medium text-[var(--color-form-inp
 
 // Switch variants - toggle component styling
 export const switchVariants = cva(
-	"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ",
+	"popper inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ",
 	{
 		variants: {
 			variant: {
-				default: "data-[state=checked]:bg-secondary data-[state=unchecked]:bg-input",
+				default: "data-[state=checked]:bg-none data-[state=unchecked]:bg-none",
 			},
 		},
 		defaultVariants: {
@@ -160,7 +160,7 @@ export const badgeVariants = cva(
 		variants: {
 			variant: {
 				default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
-				secondary: "border-transparent text-secondary-foreground hover:bg-secondary/80",
+				secondary: "border-transparent text-primary-foreground hover:bg-secondary/80",
 				destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
 				outline: "text-foreground border-1 border-foreground/40",
 				card: "border-transparent bg-card text-card-foreground shadow hover:bg-card/80",

@@ -28,7 +28,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "About Podslice",
-			url: "/about",
+			url: "/welcome",
 			icon: Info,
 		},
 		{
@@ -51,18 +51,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	return (
 		<Sidebar collapsible="offcanvas" {...props} className="bg-sidebar/90 border-2 border-l-0 border-b-0 border-r-[#000] pl-2">
-			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
-							<Link href="/" className="text-custom-sm  bg-card/50 hover:bg-card/10 active:bg-card/20 mt-2 mb-4">
-								<IconInnerShadowTop className="size-5!" />
-								<span className="text-base font-semibold">PodSlice</span>
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={navItems} />
 			</SidebarContent>

@@ -133,7 +133,7 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 	return (
 		<>
 			{paddleProductPlan?.map(tier => (
-				<Card key={tier.priceId} className={cn('rounded-lg bg-background/70 backdrop-blur-[6px] overflow-hidden flex-1')}>
+				<Card key={tier.priceId} className={cn('rounded-lg bg-background/70  overflow-hidden flex-1')}>
 					<div className={cn('flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border')}>
 						<PriceTitle tier={tier} />
 						<PriceAmount

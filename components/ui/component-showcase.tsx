@@ -26,13 +26,13 @@ export function ComponentShowcase() {
 			{/* Cards - replaces all your different card implementations */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 				{/* Default Card */}
-				<div className="rounded-2xl border bg-card text-card-foreground transition-all duration-200 p-6">
+				<div className="rounded-2xl border bg-card content text-card-foreground transition-all duration-200 p-6">
 					<H3 className="mb-2">Default Card</H3>
 					<Muted>This uses the default card styling</Muted>
 				</div>
 
 				{/* Glass Card */}
-				<div className="rounded-2xl border border-white/10 bg-card/25 backdrop-blur-2xl shadow-glass p-6">
+				<div className="rounded-2xl border border-white/10 bg-card content/25 backdrop-blur-2xl shadow-glass p-6">
 					<H3 className="mb-2">Glass Card</H3>
 					<Muted>This uses the glass morphism effect</Muted>
 				</div>
@@ -54,7 +54,7 @@ export function ComponentShowcase() {
 			</div>
 
 			{/* Example of how this replaces your old patterns */}
-			<div className="bg-card/25 backdrop-blur-sm border border-white/20 rounded-lg p-6">
+			<div className="bg-card content/25 backdrop-blur-sm border border-white/20 rounded-lg p-6">
 				<H3 className="mb-4">Migration Benefits</H3>
 				<div className="space-y-2">
 					<Muted>✅ One Card component instead of 4+ different implementations</Muted>

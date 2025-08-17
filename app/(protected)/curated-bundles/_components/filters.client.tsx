@@ -75,26 +75,25 @@ export function CuratedBundlesFilters() {
 	return (
 		<form onSubmit={onSubmit} className="mt-4 mb-6">
 			<div className="flex flex-col md:flex-row gap-3 md:items-center">
+				<Select value={plan} onValueChange={setPlan}>
+					<SelectTrigger aria-label="Minimum plan">
+						<SelectValue placeholder="Filter">{selectedLabel}</SelectValue>
+					</SelectTrigger>
+					<SelectContent>
+						{currentOptions.map(option => (
+							<SelectItem key={option.value || "ALL"} value={option.value}>
+								{option.label}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 				<div className="flex-1">
 					<Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search bundles or podcasts..." aria-label="Search bundles or podcasts" />
 				</div>
-				<div className="w-full md:w-64">
-					<Select value={plan} onValueChange={setPlan}>
-						<SelectTrigger aria-label="Minimum plan">
-							<SelectValue placeholder="All plans">{selectedLabel}</SelectValue>
-						</SelectTrigger>
-						<SelectContent>
-							{currentOptions.map(option => (
-								<SelectItem key={option.value || "ALL"} value={option.value}>
-									{option.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
+
 				<div className="flex gap-2">
 					<Button type="submit" variant="default" disabled={isPending}>
-						Apply
+						Search
 					</Button>
 					{(initialQuery || initialPlan) && (
 						<Button type="button" variant="outline" onClick={onClear} disabled={isPending}>
@@ -102,6 +101,8 @@ export function CuratedBundlesFilters() {
 						</Button>
 					)}
 				</div>
+
+
 			</div>
 		</form>
 	)

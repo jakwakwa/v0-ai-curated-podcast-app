@@ -31,8 +31,8 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 			is_active: true,
 			...(q
 				? {
-						OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
-					}
+					OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
+				}
 				: {}),
 			...(minPlanFilter ? { min_plan: PlanGate[minPlanFilter] } : {}),
 		}
@@ -93,40 +93,41 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-1 mb-0">
 					{curatedBundles.map(bundle => (
-						<Card key={bundle.bundle_id} className="h-auto flex flex-col max-h-[500px] bg-card" variant="bundle">
-							<CardHeader className="px-6 pb-2 pt-4">
+						<Card variant="bundle" key={bundle.bundle_id} className="h-auto flex flex-col max-h-[500px]" >
+							<CardHeader className="px-2 pb-2 pt-4">
 								<div className="w-full flex flex-col gap-3">
 									<div className="flex flex-col gap-3">
-										<CardTitle className="text-[1.2rem] text-secondary-foreground font-bold my-2 leading-8 tracking-tight leading-tight mb-0 truncate">{bundle.name}</CardTitle>
-										<p className="text-[0.7rem] pb-4  leading-6 font-normal tracking-tight leading-[1] line-clamp-2 max-h-[3rem] truncate text-foreground/80 mb-0">{bundle.description}</p>
+										<CardTitle className="text-[0.85rem] text-secondary-foreground font-bold mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</CardTitle>
+
 									</div>
 									{/* <div className="relative border-2 border-lines-light bg-black block rounded-lg overflow-hidden w-full h-24">
 										{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}
 									</div> */}
 
-									<div className="flex items-center justify-between gap-3 text-2xl font-semibold p-0 pb-2">
-										<Badge variant="outline" size="sm" className="text-sm leading-tight font-normal tracking-wide">
-											{bundle.podcasts.length} Podcasts
+									<div className="flex items-center justify-between text-custom-sm font-semibold pb-3">
+										<Badge variant="outline" size="sm" className="font-normal tracking-wide">
+											{bundle.podcasts.length} Shows
 										</Badge>
-										<div className="flex items-center gap-2 text-sm leading-tight font-normal tracking-wide">
-											<Lock size={12} />
-											<span className="text-sm">Fixed Selection</span>
+
+										<div className="flex items-center gap-2 text-sm font-normal tracking-wide">
+											<Lock size={8} />
+											<Typography className="text-xxs">Fixed Selection</Typography>
 										</div>
 									</div>
 								</div>
 							</CardHeader>
 
-							<CardContent className="py-1 px-1 mx-auto overflow-y-auto">
-								<ul className="list-none p-0 m-0 flex flex-col rounded-xl bg-[#000]/30 max-h-[20rem] overflow-y-auto">
-									{bundle.podcasts.map((podcast: Podcast) => (
-										<li key={podcast.podcast_id} className="flex items-center w-full justify-end gap-4 py-2 px-2 md:px-4 w-full border-1 border-dark/10  rounded-lg">
-											<div className="w-full flex flex-col gap-1">
-												<Typography as="h5" className="text-body font-semibold leading-7 tracking-tight my-1 opacity-80">
+							<CardContent className="bg-cardglass mx-auto shadow-sm rounded-md w-full p-3 m-0">
+								{/* <p className="text-[0.7rem] pb-4  leading-6 font-normal tracking-tight leading-[1] line-clamp-2 max-h-[3rem] truncate text-foreground/80 mb-0">{bundle.description}</p> */}
+								<p className="text-[0.7rem] pb-2  text-xxs leading-6 font-normal tracking-tight leading-[1] line-clamp-2 uppercase truncate text-foreground/80 mb-0">Included Shows</p>
+								<ul className="list-none p-0 m-0 flex flex-col max-h-[20rem] overflow-scroll">
+									{bundle.podcasts.slice(1).map((podcast: Podcast) => (
+										<li key={podcast.podcast_id} className="flex w-full justify-end gap-0 w-full">
+											<div className="w-full flex flex-col gap-0">
+												<Typography as="p" className="text-xs font-normal leading-normal tracking-tight my-0 px-0 mx-0 opacity-80">
 													{podcast.name}
 												</Typography>
-												<Typography as="p" className="text-muted-foreground text-sm leading-relaxed opacity-90 line-clamp-4 max-h-[5rem] leading-[1.2]">
-													{podcast.description}
-												</Typography>
+
 											</div>
 										</li>
 									))}

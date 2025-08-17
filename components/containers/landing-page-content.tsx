@@ -255,7 +255,7 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent" : ""}`}
+								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex  "border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg ${tier.popular ? "border-2 border-accent" : ""}`}
 							>
 								{tier.popular && (
 									<Badge

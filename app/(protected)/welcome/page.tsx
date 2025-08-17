@@ -36,19 +36,19 @@ export default function WelcomePage() {
 		},
 	]
 
-	const _handleUpgrade = async (_planCode: string | undefined) => {}
+	const _handleUpgrade = async (_planCode: string | undefined) => { }
 
 	return (
 		<div className="container">
 			{/* Short Intro */}
-			<section className="text-center pt-8 md:pt-0 pb-4 mb-0">
-				<div className="max-w-[800px] mx-auto">
-					<Typography className="text-custom-display text-center">Welcome!</Typography>
+			<section className="text-left  w-full pt-8 md:pt-0 pb-4 mb-0">
+				<div className="w-full mx-auto">
+					<Typography className="text-custom-display  font-bold text-left">Welcome!</Typography>
 					{/* <Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} className="scale-[0.5] mx-auto mb-8" /> */}
-					<p className="text-custom-h4 leading-6 font-normal tracking-wide mb-12 max-w-[600px] mx-auto">
+					<p className="text-custom-h4 leading-6 font-normal tracking-wide mb-12 max-w-[600px] w-full">
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>
-					<div className="flex justify-center items-center space-x-4 text-foreground/70 mt-8">
+					<div className="flex justify-end items-center space-x-4 text-foreground/70 mt-8">
 						<Link href="/terms" className="hover:text-foreground transition-colors text-custom-xs underline">
 							Terms of Service
 						</Link>
@@ -61,15 +61,11 @@ export default function WelcomePage() {
 			</section>
 			{/* How It Works */}
 			<section className="flex flex-col justify-center w-full mb-16 p-8  mt-4 bg-background rounded-4xl">
-				<div className="text-center mb-12">
+				<div className="text-left mb-12">
 					<h2 className="text-custom-h1 leading-9 font-semibold tracking-tight mb-4">How It Works!</h2>
-					<p className="text-custom-h5 leading-6 font-normal tracking-wide max-w-[600px] mx-auto">
+					<p className="text-custom-h5 leading-6 font-normal tracking-wide max-w-[600px]">
 						Getting started with PODSLICE is simple. Follow these three easy steps to create your personalized podcast experience.
 					</p>
-					<div className="flex gap-6 justify-center rounded-full  p-4 mt-6  mx-auto max-w-fit bg-glass border-1 border-black/10">
-						<Button variant={"secondary"}>Discover Bundles</Button>
-						<Button variant={"outline"}>Quick Start Bundle</Button>
-					</div>
 				</div>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

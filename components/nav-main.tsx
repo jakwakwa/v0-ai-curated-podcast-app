@@ -21,15 +21,15 @@ export function NavMain({
 
 	return (
 		<SidebarGroup>
-			<SidebarMenu>
+			<SidebarMenu className="mt-24 px-2">
 				{items.map((item, index) => (
-					<div key={item.title}>
-						{item.separator && index > 0 && <SidebarSeparator className="my-2" />}
+					<div key={item.title} className="my-1">
+						{item.separator && index > 0 && <SidebarSeparator className="border-none bg-[#98818128] mx-0 my-5 h-[1px]" />}
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild isActive={pathname === item.url}>
-								<Link href={item.url} className={cn("flex items-center gap-2")}>
-									{item.icon && <item.icon className="size-4" />}
-									<span>{item.title}</span>
+								<Link href={item.url} className={cn("flex items-center gap-4")}>
+									{item.icon && <item.icon className="size-4 opacity-[0.5]" />}
+									<span className="text-muted opacity-[0.9]">{item.title}</span>
 								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
