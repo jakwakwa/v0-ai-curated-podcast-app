@@ -1,7 +1,12 @@
 {
   "snapshot": "snapshot-20250715-0e0434af-660a-4462-9fb1-be8a4ad7e9e1",
-  "install": "pnpm install",
-  "start": "pnpm dev",
-  "terminals": [],
+  "install": "npm install",
+  "start": "npm run dev",
+  "terminals": [
+    {
+      "name": "zsh",
+      "command": "pnpm install"
+    }
+  ],
   "agentCanUpdateSnapshot": false
 }
