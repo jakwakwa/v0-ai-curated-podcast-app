@@ -6,13 +6,14 @@ import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Podcast } from "@/lib/types"
 import { createPodcastAction, deletePodcastAction, updatePodcastAction } from "./podcasts.actions"
+import PanelHeader from "./PanelHeader"
 
 export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] }) {
 	const router = useRouter()
@@ -149,15 +150,14 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between">
-				<div>
-					<CardTitle>Podcasts ({podcasts.length})</CardTitle>
-					<CardDescription>Create, edit, and manage curated podcasts</CardDescription>
-				</div>
-				<Button variant="outline" size="sm" onClick={() => setShowCreateForm(s => !s)}>
-					{showCreateForm ? "Hide" : podcasts.length === 0 ? "Add your first podcast" : "Add another podcast"}
-				</Button>
-			</CardHeader>
+			<PanelHeader
+				title={`Podcasts (${podcasts.length})`}
+				description="Create, edit, and manage curated podcasts"
+				actionButton={{
+					label: showCreateForm ? "Hide" : podcasts.length === 0 ? "Add your first podcast" : "Add another podcast",
+					onClick: () => setShowCreateForm(s => !s)
+				}}
+			/>
 			<CardContent className="p-4 space-y-6">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 					{/* Left: create form (toggle) */}
