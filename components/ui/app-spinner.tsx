@@ -11,7 +11,7 @@ export interface AppSpinnerProps extends SpinnerProps {
 	className?: string
 }
 
-export function AppSpinner({ label, size = "md", color = "primary", variant = "default", labelColor = "default", className }: AppSpinnerProps) {
+export function AppSpinner({ label, size = "md", color = "primary", variant = "dots", labelColor = "default", className }: AppSpinnerProps) {
 	const getLabelColorClass = (labelColor: string) => {
 		switch (labelColor) {
 			case "primary":
@@ -39,7 +39,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 						<div className="w-full h-full border-2 border-transparent border-t-current rounded-full animate-spin" />
 					</div>
 				)
-
+        
 			case "gradient":
 				return (
 					<div className={cn("relative", baseClasses)}>
