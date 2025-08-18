@@ -7,13 +7,14 @@ import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
 import Stepper from "./stepper"
+import PanelHeader from "./PanelHeader"
 
 type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
 
@@ -46,14 +47,25 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 
 	const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url.trim())
 
+	useEffect(() => {
+		if (!selectedBundle) {
+			setSelectedPodcastId("")
+			return
+		}
+		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id)
+		if (!podcastIds.includes(selectedPodcastId)) {
+			setSelectedPodcastId(podcastIds[0] ?? "")
+		}
+	}, [selectedPodcastId, selectedBundle?.podcasts, setSelectedPodcastId])
+
 	if (!hasBundles) {
 		return (
 			<div className="p-6">
 				<Card>
-					<CardHeader>
-						<CardTitle>No bundles found</CardTitle>
-						<CardDescription>Create a bundle before generating or uploading episodes.</CardDescription>
-					</CardHeader>
+					<PanelHeader
+						title="No bundles found"
+						description="Create a bundle before generating or uploading episodes."
+					/>
 					<CardContent>
 						<Button asChild variant="default">
 							<Link href="/admin/bundles">Create your first bundle</Link>
@@ -160,28 +172,18 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		if (fileInputRef.current) fileInputRef.current.value = ""
 	}
 
-	// When bundle changes, default/select first podcast from bundle; clear if none
-	useEffect(() => {
-		if (!selectedBundle) {
-			setSelectedPodcastId("")
-			return
-		}
-		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id)
-		if (!podcastIds.includes(selectedPodcastId)) {
-			setSelectedPodcastId(podcastIds[0] ?? "")
-		}
-	}, [selectedBundleId])
-
 	return (
 		<div className="space-y-6">
 			{/* Step 1: Select bundle (always visible) */}
 			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<Stepper step={1} /> Select Bundle
-					</CardTitle>
-					<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
-				</CardHeader>
+				<PanelHeader
+					title={
+						<div className="flex items-center gap-2">
+							<Stepper step={1} /> Select Bundle
+						</div>
+					}
+					description="Choose which curated bundle to generate an episode for"
+				/>
 				<CardContent className="p-4">
 					<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
 						<SelectTrigger>
@@ -220,12 +222,14 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			{/* Step 1.5: Select podcast (only when a bundle is selected) */}
 			{selectedBundleId && selectedBundle && (
 				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Stepper step={2} /> Select Podcast for Episode
-						</CardTitle>
-						<CardDescription>Choose which podcast within the bundle this episode belongs to</CardDescription>
-					</CardHeader>
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={2} /> Select Podcast for Episode
+							</div>
+						}
+						description="Choose which podcast within the bundle this episode belongs to"
+					/>
 					<CardContent className="p-4 space-y-2">
 						<Select value={selectedPodcastId} onValueChange={setSelectedPodcastId}>
 							<SelectTrigger>
@@ -251,12 +255,14 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			{/* Step 2: Episode details (only when a bundle is selected) */}
 			{selectedBundleId && (
 				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Stepper step={3} /> Episode Details
-						</CardTitle>
-						<CardDescription>Provide basic information for the episode</CardDescription>
-					</CardHeader>
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={3} /> Episode Details
+							</div>
+						}
+						description="Provide basic information for the episode"
+					/>
 					<CardContent className="space-y-4 p-4">
 						<div>
 							<Label htmlFor="title">Episode Title *</Label>
@@ -277,19 +283,21 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			{/* Step 3: Method + contextual fields (only when a bundle is selected) */}
 			{selectedBundleId && (
 				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Stepper step={4} />
-							{uploadMethod === "upload" ? "Upload Audio" : uploadMethod === "direct" ? "Provide Audio URL" : "Add Episode Sources"}
-						</CardTitle>
-						<CardDescription>
-							{uploadMethod === "upload"
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={4} />
+								{uploadMethod === "upload" ? "Upload Audio" : uploadMethod === "direct" ? "Provide Audio URL" : "Add Episode Sources"}
+							</div>
+						}
+						description={
+							uploadMethod === "upload"
 								? "Choose how to provide the episode audio"
 								: uploadMethod === "direct"
 									? "Provide a direct MP3 URL"
-									: "Add YouTube videos or other sources for each show in the bundle"}
-						</CardDescription>
-					</CardHeader>
+									: "Add YouTube videos or other sources for each show in the bundle"
+						}
+					/>
 					<CardContent className="p-4 space-y-4">
 						<div>
 							<Label>Creation Method</Label>
