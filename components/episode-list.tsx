@@ -1,7 +1,8 @@
-import { Music, Play } from "lucide-react"
+import { Download, Music, Play } from "lucide-react"
 import Image from "next/image"
-
 import type React from "react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
@@ -15,12 +16,88 @@ interface EpisodeListProps {
 	_href?: string // TODO: remove this
 }
 
+interface UserSubscription {
+	plan_type: string
+	status: string
+}
+
 const _formatDate = (date: Date | null | undefined) => {
 	if (!date) return "N/A"
 	return new Date(date).toLocaleString()
 }
 
 export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisode, playingEpisodeId }) => {
+	const [subscription, setSubscription] = useState<UserSubscription | null>(null)
+	const [downloadingEpisodes, setDownloadingEpisodes] = useState<Set<string>>(new Set())
+
+	// Fetch user subscription status
+	useEffect(() => {
+		const fetchSubscription = async () => {
+			try {
+				const response = await fetch("/api/account/subscription")
+				if (response.ok) {
+					const subData = await response.json()
+					setSubscription(subData)
+				}
+			} catch (error) {
+				console.error("Failed to fetch subscription:", error)
+			}
+		}
+
+		fetchSubscription()
+	}, [])
+
+	// Check if user has tier 3 (CURATE_CONTROL) access
+	const hasTier3Access = () => {
+		if (!subscription) return false
+		const planType = subscription.plan_type?.toLowerCase()
+		return planType === "curate_control" || planType === "curate control"
+	}
+
+	// Check if episode is user-generated (has profile_id)
+	const isUserGeneratedEpisode = (episode: Episode) => {
+		return !!episode.profile_id
+	}
+
+	// Handle episode download
+	const handleDownloadEpisode = async (episodeId: string, episodeTitle: string) => {
+		if (downloadingEpisodes.has(episodeId)) return
+
+		setDownloadingEpisodes(prev => new Set(prev).add(episodeId))
+
+		try {
+			const response = await fetch(`/api/episodes/${episodeId}/download`)
+
+			if (!response.ok) {
+				const error = await response.json()
+				toast.error(error.error || "Failed to download episode")
+				return
+			}
+
+			const { audio_url, filename } = await response.json()
+
+			// Create download link
+			const link = document.createElement("a")
+			link.href = audio_url
+			link.download = filename || `${episodeTitle}.mp3`
+			link.target = "_blank"
+			document.body.appendChild(link)
+			link.click()
+			document.body.removeChild(link)
+
+			toast.success(`Downloading "${episodeTitle}"`)
+		} catch (error) {
+			console.error("Download error:", error)
+			toast.error("An error occurred while downloading the episode")
+		} finally {
+			setDownloadingEpisodes(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(episodeId)
+				return newSet
+			})
+		}
+	}
+
 	return (
 		<Card className="w-full min-h-none md:min-h-[300px]">
 			<CardHeader>
@@ -30,7 +107,9 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				{episodes.length > 0 ? (
 					<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
 						{episodes.map(episode => (
-							<li key={episode.episode_id} className="flex bg-card content flex-row items-center  hover:bg-card content/10 active:bg-card content/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
+							<li
+								key={episode.episode_id}
+								className="flex bg-card content flex-row items-center  hover:bg-card content/10 active:bg-card content/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
 								<div className="pl-1 w-full max-w-[90px]">
 									{episode.image_url ? (
 										<Image src={episode.image_url} alt={episode.title} className="h-34 w-full max-w-[80px] md:h-24 md:w-full rounded-md object-cover" width={200} height={120} />
@@ -49,19 +128,33 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 
 									<Body className=" text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{episode.description || "No description available."}</Body>
 									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
-									{/* Play button - delegates to parent component */}
-									{episode.audio_url && onPlayEpisode && (
-										<div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start">
+
+									{/* Action buttons container */}
+									<div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start gap-2">
+										{/* Play button - delegates to parent component */}
+										{episode.audio_url && onPlayEpisode && (
 											<Button
 												onClick={() => onPlayEpisode(episode.episode_id)}
 												variant="default"
 												size="sm"
-												className={playingEpisodeId === episode.episode_id ? "bg-[black]/90 m-0 p-0 w-4 h-4" : "bg-[black]"}
-											>
+												className={playingEpisodeId === episode.episode_id ? "bg-[black]/90 m-0 p-0 w-4 h-4" : "bg-[black]"}>
 												<Play className="w-auto h-auto text-custom-xxs md:text-custom-sm md:w-6 md:h-auto md:max-w-3 md:max-h-6 pl-0 py-[1px] text-left" width={"18x"} height={"18px"} />
 											</Button>
-										</div>
-									)}
+										)}
+
+										{/* Download button - only for tier 3 users and user-generated episodes */}
+										{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
+											<Button
+												onClick={() => handleDownloadEpisode(episode.episode_id, episode.title)}
+												variant="outline"
+												size="sm"
+												disabled={downloadingEpisodes.has(episode.episode_id)}
+												className="h-8">
+												<Download className="w-4 h-4" />
+												{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
+											</Button>
+										)}
+									</div>
 								</div>
 							</li>
 						))}

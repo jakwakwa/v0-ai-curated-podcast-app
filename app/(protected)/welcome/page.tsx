@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Typography } from "@/components/ui/typography"
 // Subscription store disabled in this build

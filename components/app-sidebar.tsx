@@ -1,13 +1,11 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { IconInnerShadowTop } from "@tabler/icons-react"
 import { Home, Info, Play, Radio, Settings } from "lucide-react"
-import Link from "next/link"
 import type * as React from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarFooter, } from "@/components/ui/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useUser()
