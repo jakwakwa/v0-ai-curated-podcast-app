@@ -5,15 +5,15 @@ import { useEffect, useState, useTransition } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { usePlanGatesStore } from "@/lib/stores/plan-gates-store"
 import type { Bundle, Podcast } from "@/lib/types"
-import { createBundleAction, updateBundleAction, deleteBundleAction } from "./bundles.actions"
+import { createBundleAction, deleteBundleAction, updateBundleAction } from "./bundles.actions"
+import PanelHeader from "./PanelHeader"
 
 // Combine bundle + podcasts for convenience
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
@@ -50,8 +50,7 @@ export default function BundlesPanelClient({
 	})
 	const [isCreating, setIsCreating] = useState(false)
 
-	// EDIT form state
-	const [editOpen, setEditOpen] = useState(false)
+	// EDIT form state - now inline instead of modal
 	const [editingBundleId, setEditingBundleId] = useState<string | null>(null)
 	const [editForm, setEditForm] = useState<EditFormState>({
 		name: "",
@@ -99,8 +98,8 @@ export default function BundlesPanelClient({
 		}
 	}
 
-	// EDIT
-	const openEdit = (b: BundleWithPodcasts & { min_plan?: string }) => {
+	// EDIT - now inline
+	const startEdit = (b: BundleWithPodcasts & { min_plan?: string }) => {
 		setEditingBundleId(b.bundle_id)
 		setEditForm({
 			name: b.name || "",
@@ -108,7 +107,16 @@ export default function BundlesPanelClient({
 			min_plan: (b.min_plan as string) || "NONE",
 			selectedPodcastIds: b.podcasts.map(p => p.podcast_id),
 		})
-		setEditOpen(true)
+	}
+
+	const cancelEdit = () => {
+		setEditingBundleId(null)
+		setEditForm({
+			name: "",
+			description: "",
+			min_plan: "NONE",
+			selectedPodcastIds: [],
+		})
 	}
 
 	const toggleEditPodcastSelection = (id: string) => {
@@ -140,7 +148,7 @@ export default function BundlesPanelClient({
 					min_plan: editForm.min_plan,
 					podcastIds: editForm.selectedPodcastIds,
 				})
-				setEditOpen(false)
+				setEditingBundleId(null)
 				toast.success("Bundle updated")
 				router.refresh()
 			} catch (e) {
@@ -175,18 +183,18 @@ export default function BundlesPanelClient({
 
 	return (
 		<Card>
-			<CardHeader className="flex flex-row items-center justify-between">
-				<div>
-					<CardTitle>Bundle Management</CardTitle>
-					<CardDescription>Create new bundles and manage existing ones</CardDescription>
-				</div>
-				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm" onClick={() => setShowCreateForm(s => !s)}>
-						{showCreateForm ? "Hide" : createButtonLabel}
-					</Button>
-					<Button variant="outline" size="sm" onClick={() => router.refresh()}>Refresh</Button>
-				</div>
-			</CardHeader>
+			<PanelHeader
+				title="Bundle Management"
+				description="Create new bundles and manage existing ones"
+				actionButton={{
+					label: showCreateForm ? "Hide" : createButtonLabel,
+					onClick: () => setShowCreateForm(s => !s)
+				}}
+				secondaryButton={{
+					label: "Refresh",
+					onClick: () => router.refresh()
+				}}
+			/>
 			<CardContent className="p-4 space-y-6">
 				{/* CREATE FORM */}
 				{showCreateForm && (
@@ -213,16 +221,13 @@ export default function BundlesPanelClient({
 						</div>
 						<div>
 							<Label>Select Podcasts (optional)</Label>
-							<div className="mt-2 max-h-200 overflow-y-auto border rounded-lg p-3 space-y-2">
+							<div className="mt-2 border rounded-lg p-3" style={{ maxHeight: "200px", overflowY: "auto" }}>
 								{availablePodcasts.map(p => (
-									<div key={p.podcast_id} className="flex items-start space-x-2">
+									<div key={p.podcast_id} className="flex items-center space-x-2 py-1">
 										<Checkbox id={`create-pod-${p.podcast_id}`} checked={createForm.selectedPodcastIds.includes(p.podcast_id)} onCheckedChange={() => toggleCreatePodcastSelection(p.podcast_id)} />
-										<div className="flex-1">
-											<label htmlFor={`create-pod-${p.podcast_id}`} className="text-sm font-medium cursor-pointer">
-												{p.name}
-											</label>
-											<p className="text-xs text-muted-foreground">{p.description}</p>
-										</div>
+										<label htmlFor={`create-pod-${p.podcast_id}`} className="text-sm font-medium cursor-pointer">
+											{p.name}
+										</label>
 									</div>
 								))}
 							</div>
@@ -238,6 +243,8 @@ export default function BundlesPanelClient({
 					<h3 className="text-sm text-muted-foreground">Existing Bundles ({bundles.length})</h3>
 					{bundles.map(bundleOriginal => {
 						const bundle = optimisticBundle(bundleOriginal)
+						const isEditing = editingBundleId === bundle.bundle_id
+
 						return (
 							<div key={bundle.bundle_id} className={`p-4 border rounded-lg ${bundleOriginal.canInteract === false ? "opacity-60" : ""}`}>
 								{/* Header */}
@@ -255,65 +262,70 @@ export default function BundlesPanelClient({
 									</div>
 									{/* Actions */}
 									<div className="flex items-center gap-2">
-										<Dialog open={editOpen && editingBundleId === bundle.bundle_id} onOpenChange={o => !o && setEditOpen(false)}>
-											<DialogTrigger asChild>
-												<Button variant="ghost" size="sm" onClick={() => openEdit(bundle)}>
+										{isEditing ? (
+											<>
+												<Button variant="outline" size="sm" onClick={cancelEdit}>
+													Cancel
+												</Button>
+												<Button variant="default" size="sm" onClick={saveEdit} disabled={isPending || !editForm.name.trim()}>
+													Save
+												</Button>
+											</>
+										) : (
+											<>
+												<Button variant="ghost" size="sm" onClick={() => startEdit(bundle)}>
 													Edit
 												</Button>
-											</DialogTrigger>
-											<DialogContent>
-												<DialogHeader>
-													<DialogTitle>Edit bundle</DialogTitle>
-												</DialogHeader>
-												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-													<div>
-														<Label htmlFor="editName">Name</Label>
-														<Input id="editName" value={editForm.name} onChange={e => setEditForm(s => ({ ...s, name: e.target.value }))} />
-													</div>
-													<div>
-														<Label htmlFor="editDescription">Description</Label>
-														<Textarea id="editDescription" rows={2} value={editForm.description} onChange={e => setEditForm(s => ({ ...s, description: e.target.value }))} />
-													</div>
-													<div>
-														<Label htmlFor="editMinPlan">Visibility</Label>
-														<select id="editMinPlan" className="w-full border rounded h-9 px-2 bg-background" value={editForm.min_plan} onChange={e => setEditForm(s => ({ ...s, min_plan: e.target.value }))}>
-															{(planGatesLoaded ? planGateOptions : [{ value: "NONE", label: "Free (All users)" }]).map(opt => (
-																<option key={opt.value} value={opt.value}>
-																	{opt.label}
-																</option>
-															))}
-													</select>
-													</div>
-												</div>
-												<div>
-													<Label>Select Podcasts</Label>
-													<div className="mt-2 max-h-200 overflow-y-auto border rounded-lg p-3 space-y-2">
-														{availablePodcasts.map(p => (
-															<div key={p.podcast_id} className="flex items-start space-x-2">
-																<Checkbox id={`edit-pod-${p.podcast_id}`} checked={editForm.selectedPodcastIds.includes(p.podcast_id)} onCheckedChange={() => toggleEditPodcastSelection(p.podcast_id)} />
-																<div className="flex-1">
-																	<label htmlFor={`edit-pod-${p.podcast_id}`} className="text-sm font-medium cursor-pointer">
-																		{p.name}
-																	</label>
-																	<p className="text-xs text-muted-foreground">{p.description}</p>
-																</div>
-														</div>
-													))}
-													</div>
-												</div>
-												<DialogFooter>
-													<Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
-													<Button variant="default" onClick={saveEdit} disabled={isPending || !editForm.name.trim()}>
-														Save
-													</Button>
-												</DialogFooter>
-											</DialogContent>
-										</Dialog>
-										<Button variant="ghost" size="sm" onClick={() => deleteBundle(bundle as BundleWithPodcasts)} className="text-destructive">
-											Delete
-										</Button>
+												<Button variant="ghost" size="sm" onClick={() => deleteBundle(bundle as BundleWithPodcasts)} className="text-destructive">
+													Delete
+												</Button>
+											</>
+										)}
 									</div>
 								</div>
+
+								{/* EDIT FORM - inline when editing */}
+								{isEditing && (
+									<div className="mt-4 p-4 border rounded-lg bg-muted/50">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+											<div>
+												<Label htmlFor="editName">Name</Label>
+												<Input id="editName" value={editForm.name} onChange={e => setEditForm(s => ({ ...s, name: e.target.value }))} />
+											</div>
+											<div>
+												<Label htmlFor="editDescription">Description</Label>
+												<Textarea id="editDescription" rows={2} value={editForm.description} onChange={e => setEditForm(s => ({ ...s, description: e.target.value }))} />
+											</div>
+											<div>
+												<Label htmlFor="editMinPlan">Visibility</Label>
+												<select
+													id="editMinPlan"
+													className="w-full border rounded h-9 px-2 bg-background"
+													value={editForm.min_plan}
+													onChange={e => setEditForm(s => ({ ...s, min_plan: e.target.value }))}>
+													{(planGatesLoaded ? planGateOptions : [{ value: "NONE", label: "Free (All users)" }]).map(opt => (
+														<option key={opt.value} value={opt.value}>
+															{opt.label}
+														</option>
+													))}
+												</select>
+											</div>
+										</div>
+										<div>
+											<Label>Select Podcasts</Label>
+											<div className="mt-2 border rounded-lg p-3" style={{ maxHeight: "200px", overflowY: "auto" }}>
+												{availablePodcasts.map(p => (
+													<div key={p.podcast_id} className="flex items-center space-x-2 py-1">
+														<Checkbox id={`edit-pod-${p.podcast_id}`} checked={editForm.selectedPodcastIds.includes(p.podcast_id)} onCheckedChange={() => toggleEditPodcastSelection(p.podcast_id)} />
+														<label htmlFor={`edit-pod-${p.podcast_id}`} className="text-sm font-medium cursor-pointer">
+															{p.name}
+														</label>
+													</div>
+												))}
+											</div>
+										</div>
+									</div>
+								)}
 							</div>
 						)
 					})}
