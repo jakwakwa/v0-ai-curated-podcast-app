@@ -483,7 +483,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 		event: "podcast/admin-generate-gemini-tts.requested",
 	},
 	async ({ event, step }) => {
-		const { adminCurationProfile, bundleId, episodeTitle, episodeDescription } = event.data
+		const { adminCurationProfile, bundleId, podcastId, episodeTitle, episodeDescription } = event.data
 
 		// Stage 1: Content Aggregation
 		const sourcesWithTranscripts: AdminSourceWithTranscript[] = await Promise.all(
@@ -598,14 +598,15 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				throw new Error(`Bundle ${bundleId} not found or has no associated podcasts`)
 			}
 
-			// Use the first podcast from the bundle as the podcast reference
-			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
+			// Use the explicitly selected podcast from the admin UI and ensure it belongs to the bundle
+			const membership = bundleWithPodcasts.bundle_podcast.find(bp => bp.podcast_id === podcastId)
+			if (!membership) {
+				throw new Error(`Podcast ${podcastId} is not a member of bundle ${bundleId}`)
+			}
+			const selectedPodcast = membership.podcast
 
 			const txResults = await prisma.$transaction([
-				prisma.bundlePodcast.createMany({
-					data: [{ bundle_id: bundleId, podcast_id: firstPodcast.podcast_id }],
-					skipDuplicates: true,
-				}),
+				// Avoid creating membership here; assume existing membership as validated above
 				prisma.episode.create({
 					data: {
 						episode_id: randomUUID(),
@@ -616,7 +617,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 						published_at: new Date(),
 						week_nr: currentWeek,
 						bundle_id: bundleId, // diagnostics only; reads remain membership-based
-						podcast_id: firstPodcast.podcast_id,
+						podcast_id: selectedPodcast.podcast_id,
 					},
 				}),
 			])
