@@ -325,7 +325,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Uploading...
 											</>
 										) : (
@@ -352,7 +352,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Uploading...
 											</>
 										) : (
@@ -396,7 +396,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Generating Episode...
 											</>
 										) : (

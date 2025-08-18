@@ -224,7 +224,6 @@ export const spinnerVariants = cva("", {
 		},
 		variant: {
 			default: "animate-spin",
-			simple: "animate-spin",
 			gradient: "animate-spin",
 			wave: "",
 			dots: "",
@@ -234,7 +233,7 @@ export const spinnerVariants = cva("", {
 	defaultVariants: {
 		size: "md",
 		color: "primary",
-		variant: "default",
+		variant: "dots",
 	},
 })
 
