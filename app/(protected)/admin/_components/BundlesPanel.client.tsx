@@ -18,7 +18,7 @@ import { createBundleAction, updateBundleAction, deleteBundleAction } from "./bu
 // Combine bundle + podcasts for convenience
 type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
 
-type OptimisticBundle = Partial<BundleWithPodcasts> & { min_plan?: string }
+type OptimisticBundle = Partial<BundleWithPodcasts>
 
 type EditFormState = {
 	name: string
@@ -130,7 +130,6 @@ export default function BundlesPanelClient({
 					...(prev[id] || {}),
 					name: editForm.name,
 					description: editForm.description,
-					min_plan: editForm.min_plan,
 					podcasts: availablePodcasts.filter(p => editForm.selectedPodcastIds.includes(p.podcast_id)),
 				},
 			}))
