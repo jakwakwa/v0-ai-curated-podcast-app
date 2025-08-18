@@ -30,14 +30,35 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	const [subscription, setSubscription] = useState<UserSubscription | null>(null)
 	const [downloadingEpisodes, setDownloadingEpisodes] = useState<Set<string>>(new Set())
 
-	// Fetch user subscription status
+	// Fetch user subscription status with caching (30 days)
 	useEffect(() => {
+		const CACHE_KEY = "user_subscription"
+		const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
+
 		const fetchSubscription = async () => {
 			try {
+				// Check if we have cached data
+				const cachedData = localStorage.getItem(CACHE_KEY)
+				const cacheTimestamp = localStorage.getItem(`${CACHE_KEY}_timestamp`)
+
+				if (cachedData && cacheTimestamp) {
+					const isExpired = Date.now() - parseInt(cacheTimestamp) > CACHE_DURATION
+					if (!isExpired) {
+						// Use cached data
+						setSubscription(JSON.parse(cachedData))
+						return
+					}
+				}
+
+				// Fetch fresh data
 				const response = await fetch("/api/account/subscription")
 				if (response.ok) {
 					const subData = await response.json()
 					setSubscription(subData)
+
+					// Cache the data
+					localStorage.setItem(CACHE_KEY, JSON.stringify(subData))
+					localStorage.setItem(`${CACHE_KEY}_timestamp`, Date.now().toString())
 				}
 			} catch (error) {
 				console.error("Failed to fetch subscription:", error)
