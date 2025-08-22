@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertCircle } from "lucide-react"
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import EditUserFeedModal from "@/components/edit-user-feed-modal"
@@ -127,12 +128,12 @@ export default function CurationProfileManagementPage() {
 									<Button className="mt-2" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 										Update Personalized Bundle Feed
 									</Button>
-									{subscription?.plan_type === "CURATE_CONTROL" && (
-										<Button className="mt-2" variant="default" size="sm" onClick={() => {
-											console.log("start episode generation wizard")
-										}}>
-											Start Episode Generation Wizard
-										</Button>
+									{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
+										<Link href="/my-episodes" passHref>
+											<Button as="a" className="mt-2" variant="default" size="sm">
+												My Episodes
+											</Button>
+										</Link>
 									)}
 								</div>
 							</CardHeader>

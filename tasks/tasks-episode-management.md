@@ -44,9 +44,11 @@
   - [x] 4.2 Develop the `episode-creator.tsx` Client Component with a form for submitting a YouTube URL and editing metadata.
   - [x] 4.3 Develop the `episode-list.tsx` Client Component to display episodes with an audio player for each.
   - [x] 4.4 Implement UI feedback mechanisms for loading, success, and error states during episode creation.
-- [ ] 5.0 Integration, Plan Gating and Lifecycle Management
-  - [ ] 5.1 Add a conditionally rendered link to `/my-episodes` from the `/curation-profile-management` page, visible only to `curate_control` users.
-  - [ ] 5.2 Display the user's remaining episode creation count on the `/my-episodes` page.
-  - [ ] 5.3 Disable the episode creation form when the user has reached their monthly limit.
-  - [ ] 5.4 Modify the Paddle webhook handler to reset the usage counter upon subscription renewal.
-  - [ ] 5.5 Modify the Paddle webhook handler to delete a user's episodes and GCS files when their subscription is cancelled or renews.
+- [x] 5.0 Integration, Plan Gating and Lifecycle Management
+  - [x] 5.1 Add a conditionally rendered link to `/my-episodes` from the `/curation-profile-management` page, visible only to `curate_control` users.
+  - [x] 5.2 Display the user's remaining episode creation count on the `/my-episodes` page.
+  - [x] 5.3 Disable the episode creation form when the user has reached their monthly limit.
+  - [x] 5.4 Modify the Paddle webhook handler to reset the usage counter upon subscription renewal.
+  - [x] 5.5 Modify the Paddle webhook handler to delete a user's episodes and GCS files when their subscription is cancelled or renews.
+
+# Completed Tasks

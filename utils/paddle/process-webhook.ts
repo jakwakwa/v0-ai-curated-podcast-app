@@ -1,5 +1,6 @@
 import { type CustomerCreatedEvent, type CustomerUpdatedEvent, type EventEntity, EventName, type SubscriptionCreatedEvent, type SubscriptionUpdatedEvent } from "@paddle/paddle-node-sdk"
 import { z } from "zod"
+import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 import { priceIdToPlanType } from "@/utils/paddle/plan-utils"
 
@@ -62,31 +63,62 @@ export class ProcessWebhook {
 		const user = await prisma.user.findFirst({ where: { paddle_customer_id: customerId }, select: { user_id: true } })
 		if (!user) return
 
+		if (status === "canceled") {
+			await this.handleSubscriptionCancellation(user.user_id)
+		}
+
+		const updateData = {
+			paddle_price_id: priceId,
+			plan_type: priceIdToPlanType(priceId) ?? undefined,
+			status,
+			current_period_start,
+			current_period_end,
+			trial_end,
+			canceled_at,
+			cancel_at_period_end,
+		}
+
+		// Reset usage counter on renewal
+		if (event.eventType === EventName.SubscriptionUpdated) {
+			Object.assign(updateData, { episode_creation_count: 0 })
+		}
+
 		await prisma.subscription.upsert({
 			where: { paddle_subscription_id: externalId },
 			create: {
 				user_id: user.user_id,
 				paddle_subscription_id: externalId,
-				paddle_price_id: priceId,
-				plan_type: priceIdToPlanType(priceId) ?? undefined,
-				status,
-				current_period_start,
-				current_period_end,
-				trial_end,
-				canceled_at,
-				cancel_at_period_end,
+				...updateData,
 			},
-			update: {
-				paddle_price_id: priceId,
-				plan_type: priceIdToPlanType(priceId) ?? undefined,
-				status,
-				current_period_start,
-				current_period_end,
-				trial_end,
-				canceled_at,
-				cancel_at_period_end,
-			},
+			update: updateData,
 		})
+	}
+
+	private async handleSubscriptionCancellation(userId: string) {
+		const episodes = await prisma.userEpisode.findMany({
+			where: { user_id: userId },
+		})
+
+		if (episodes.length > 0) {
+			try {
+				const storage = getStorageUploader()
+				const bucketName = ensureBucketName()
+
+				const deletePromises = episodes.map(episode => {
+					if (episode.gcs_audio_url) {
+						const objectName = episode.gcs_audio_url.replace(`gs://${bucketName}/`, "")
+						return storage.bucket(bucketName).file(objectName).delete()
+					}
+					return Promise.resolve()
+				})
+
+				await Promise.all(deletePromises)
+				await prisma.userEpisode.deleteMany({ where: { user_id: userId } })
+			} catch (error) {
+				console.error(`Failed to delete GCS files or user episodes for user ${userId}:`, error)
+				// Don't throw here, as we still want to update the subscription status
+			}
+		}
 	}
 
 	private async updateCustomerData(event: CustomerCreatedEvent | CustomerUpdatedEvent) {

@@ -25,7 +25,16 @@ export async function POST(request: Request) {
 
 		const { youtubeUrl, episodeTitle } = parsed.data
 
-		// TODO: Add plan gating logic here to check episodeCreationCount
+		const subscription = await prisma.subscription.findFirst({
+			where: { user_id: userId },
+			orderBy: { created_at: "desc" },
+		})
+
+		// Assuming a limit of 10 for now
+		const EPISODE_LIMIT = 10
+		if ((subscription?.episode_creation_count ?? 0) >= EPISODE_LIMIT) {
+			return new NextResponse("You have reached your monthly episode creation limit.", { status: 403 })
+		}
 
 		const newEpisode = await prisma.userEpisode.create({
 			data: {
