@@ -20,11 +20,11 @@
 
 ## Tasks
 
-- [ ] 1.0 Backend Setup: Database and Schema Changes
-  - [ ] 1.1 Modify `prisma/schema.prisma` to add a new `UserEpisode` model with all required fields (`userId`, `episodeTitle`, `gcsAudioUrl`, etc.).
-  - [ ] 1.2 Add an `episodeCreationCount` field to the `Subscription` model in `prisma/schema.prisma`.
-  - [ ] 1.3 Generate a new Prisma migration for the schema changes.
-  - [ ] 1.4 Apply the migration to the development database.
+- [x] 1.0 Backend Setup: Database and Schema Changes
+  - [x] 1.1 Modify `prisma/schema.prisma` to add a new `UserEpisode` model with all required fields (`userId`, `episodeTitle`, `gcsAudioUrl`, etc.).
+  - [x] 1.2 Add an `episodeCreationCount` field to the `Subscription` model in `prisma/schema.prisma`.
+  - [x] 1.3 Generate a new Prisma migration for the schema changes.
+  - [x] 1.4 Apply the migration to the development database.
 - [ ] 2.0 Core Backend Logic: Episode Generation Workflow
   - [ ] 2.1 Create a new Inngest function in `lib/inngest/user-episode-generator.ts` for the episode creation pipeline.
   - [ ] 2.2 Add the `youtube-transcript` package as a dependency.
