@@ -25,15 +25,15 @@
   - [x] 1.2 Add an `episodeCreationCount` field to the `Subscription` model in `prisma/schema.prisma`.
   - [x] 1.3 Generate a new Prisma migration for the schema changes.
   - [x] 1.4 Apply the migration to the development database.
-- [ ] 2.0 Core Backend Logic: Episode Generation Workflow
-  - [ ] 2.1 Create a new Inngest function in `lib/inngest/user-episode-generator.ts` for the episode creation pipeline.
-  - [ ] 2.2 Add the `youtube-transcript` package as a dependency.
-  - [ ] 2.3 Implement the first step in the workflow to fetch the transcript from a YouTube URL.
-  - [ ] 2.4 Implement the second step to summarize the transcript into a script using Gemini.
-  - [ ] 2.5 Implement the third step to convert the script into an audio file using Google's TTS service.
-  - [ ] 2.6 Implement the fourth step to upload the generated audio file to a private GCS bucket.
-  - [ ] 2.7 Implement the final step to update the `UserEpisode` record with the final `gcsAudioUrl`.
-  - [ ] 2.8 Add robust error handling for each step of the Inngest workflow.
+- [x] 2.0 Core Backend Logic: Episode Generation Workflow
+  - [x] 2.1 Create a new Ingest function in `lib/inngest/user-episode-generator.ts` for the episode creation pipeline.
+  - [x] 2.2 Add the `youtube-transcript` package as a dependency.
+  - [x] 2.3 Implement the first step in the workflow to fetch the transcript from a YouTube URL.
+  - [x] 2.4 Implement the second step to summarize the transcript into a script using Gemini.
+  - [x] 2.5 Implement the third step to convert the script into an audio file using Google's TTS service.
+  - [x] 2.6 Implement the fourth step to upload the generated audio file to a private GCS bucket.
+  - [x] 2.7 Implement the final step to update the `UserEpisode` record with the final `gcsAudioUrl`.
+  - [x] 2.8 Add robust error handling for each step of the Inngest workflow.
 - [ ] 3.0 API Development: Endpoints for Episode Management
   - [ ] 3.1 Create the API route `app/api/user-episodes/create/route.ts` to trigger the Inngest workflow.
   - [ ] 3.2 Create the API route `app/api/user-episodes/list/route.ts` to fetch user episodes and provide GCS signed URLs.
