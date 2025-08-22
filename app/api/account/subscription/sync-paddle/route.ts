@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { getSubscriptionsByCustomer } from "@/lib/paddle-server/paddle"
 import { prisma } from "@/lib/prisma"
+import { priceIdToPlanType } from "@/utils/paddle/plan-utils"
 
 export async function POST() {
 	try {
@@ -67,6 +68,7 @@ export async function POST() {
 					user_id: userId,
 					paddle_subscription_id: externalId,
 					paddle_price_id: priceId,
+					plan_type: priceIdToPlanType(priceId) ?? undefined,
 					status,
 					current_period_start,
 					current_period_end,
@@ -76,6 +78,7 @@ export async function POST() {
 				},
 				update: {
 					paddle_price_id: priceId,
+					plan_type: priceIdToPlanType(priceId) ?? undefined,
 					status,
 					current_period_start,
 					current_period_end,
@@ -91,6 +94,7 @@ export async function POST() {
 					user_id: userId,
 					paddle_subscription_id: null,
 					paddle_price_id: priceId,
+					plan_type: priceIdToPlanType(priceId) ?? undefined,
 					status,
 					current_period_start,
 					current_period_end,

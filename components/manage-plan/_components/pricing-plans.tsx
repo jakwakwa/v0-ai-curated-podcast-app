@@ -1,5 +1,7 @@
 "use client"
 
+import { useUser } from "@clerk/nextjs"
+import { type InitializePaddleOptions, initializePaddle, type Paddle } from "@paddle/paddle-js"
 import { CircleCheck } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -7,12 +9,9 @@ import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePaddlePrices } from "@/hooks/use-paddle-Prices"
-
 import type { IBillingFrequency, PaddleCheckoutCompletedData, PlanTier } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { initializePaddle, type InitializePaddleOptions, type Paddle } from "@paddle/paddle-js";
 import { PriceTitle } from "./pricing/price-title"
-
 
 // --- Component Props and Interfaces ---
 
@@ -72,20 +71,20 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 
 export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckoutClosed }: IPricingPlanProps) {
 	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
-	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: 'month', label: 'Monthly', priceSuffix: 'per user/month' });
-	const [paddle, setPaddle] = useState<Paddle>();
+	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per user/month" })
+	const [paddle, setPaddle] = useState<Paddle>()
 
 	// Call the custom hook to get prices and loading state.
 	// We've changed the country code from "USD" to "US" to fix the API error.
-	const { prices, loading } = usePaddlePrices(paddle, "US");
+	const { prices, loading } = usePaddlePrices(paddle, "US")
 
 	useEffect(() => {
 		// Correctly accessing the client-side environment variable.
-		const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
+		const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
 
 		if (!clientToken) {
-			console.error("Paddle Client Token is not set. Please ensure the NEXT_PUBLIC_PADDLE_CLIENT_TOKEN environment variable is configured correctly.");
-			return;
+			console.error("Paddle Client Token is not set. Please ensure the NEXT_PUBLIC_PADDLE_CLIENT_TOKEN environment variable is configured correctly.")
+			return
 		}
 
 		initializePaddle({
@@ -93,48 +92,48 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 			token: clientToken,
 			eventCallback: (data: { name: string; data?: PaddleCheckoutCompletedData }) => {
 				if (data.name === "checkout.completed" && data.data) {
-					onCheckoutCompleted(data.data as PaddleCheckoutCompletedData);
+					onCheckoutCompleted(data.data as PaddleCheckoutCompletedData)
 				}
 				if (data.name === "checkout.closed") {
 					// Ensure membership state refresh when checkout is closed
-					onCheckoutClosed?.();
+					onCheckoutClosed?.()
 				}
-			}
-		} as unknown as InitializePaddleOptions).then(
-			(paddleInstance: Paddle | undefined) => {
+			},
+		} as unknown as InitializePaddleOptions)
+			.then((paddleInstance: Paddle | undefined) => {
 				if (paddleInstance) {
-					setPaddle(paddleInstance);
+					setPaddle(paddleInstance)
 				}
-			}
-		).catch((error: Error) => {
-			// Log any errors during initialization to prevent uncaught promises
-			console.error("Failed to initialize Paddle:", error);
-		});
-	}, [onCheckoutCompleted, onCheckoutClosed]);
+			})
+			.catch((error: Error) => {
+				// Log any errors during initialization to prevent uncaught promises
+				console.error("Failed to initialize Paddle:", error)
+			})
+	}, [onCheckoutCompleted, onCheckoutClosed])
 
-	const customerInfo = {
-		email: "sam@example.com",
-	};
-
+	const { user } = useUser()
+	const customerInfo = user?.primaryEmailAddress?.emailAddress ? { email: user.primaryEmailAddress.emailAddress } : undefined
 
 	const openPaddleCheckout = (e: React.FormEvent, id: string) => {
 		e.preventDefault()
 		if (paddle && id) {
 			paddle.Checkout.open({
-				items: [{
-					priceId: id,
-					quantity: 1
-				}],
-				customer: customerInfo,
-			});
+				items: [
+					{
+						priceId: id,
+						quantity: 1,
+					},
+				],
+				...(customerInfo ? { customer: customerInfo } : {}),
+			})
 		}
-	};
+	}
 
 	return (
 		<>
 			{paddleProductPlan?.map(tier => (
-				<Card key={tier.priceId} className={cn('rounded-lg bg-background/70  overflow-hidden flex-1')}>
-					<div className={cn('flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border')}>
+				<Card key={tier.priceId} className={cn("rounded-lg bg-background/70  overflow-hidden flex-1")}>
+					<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
 						<PriceTitle tier={tier} />
 						<PriceAmount
 							loading={loading}
@@ -142,13 +141,13 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 							value={prices?.[tier.priceId]}
 							priceSuffix={frequency.priceSuffix}
 						/>
-						<div className={'px-8'}>
-							<Separator className={'bg-border'} />
+						<div className={"px-8"}>
+							<Separator className={"bg-border"} />
 						</div>
-						<div className={'px-8 text-[16px] leading-[24px]'}>{tier.description}</div>
+						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
 					</div>
-					<div className={'px-8 mt-8'}>
-						<Button onClick={(e) => openPaddleCheckout(e, tier.priceId)} className={'w-full'} variant={'secondary'}>
+					<div className={"px-8 mt-8"}>
+						<Button onClick={e => openPaddleCheckout(e, tier.priceId)} className={"w-full"} variant={"secondary"}>
 							Upgrade
 						</Button>
 					</div>

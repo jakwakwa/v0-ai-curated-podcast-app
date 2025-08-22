@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getSubscriptionsByCustomer } from "@/lib/paddle-server/paddle"
 import { prisma } from "@/lib/prisma"
+import { priceIdToPlanType } from "@/utils/paddle/plan-utils"
 
 const checkoutCompletedSchema = z.object({
 	transaction_id: z.string(),
@@ -98,12 +99,14 @@ export async function POST(request: Request) {
 				user_id: userId,
 				paddle_subscription_id: uniqueExternalId,
 				paddle_price_id: priceId,
+				plan_type: priceIdToPlanType(priceId) ?? undefined,
 				status: "active",
 				current_period_start,
 				current_period_end,
 			},
 			update: {
 				paddle_price_id: priceId,
+				plan_type: priceIdToPlanType(priceId) ?? undefined,
 				status: "active",
 				current_period_start,
 				current_period_end,
