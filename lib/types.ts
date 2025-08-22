@@ -13,6 +13,7 @@ export type Notification = Prisma.$NotificationPayload["scalars"]
 export type Subscription = Prisma.$SubscriptionPayload["scalars"]
 export type EpisodeFeedback = Prisma.$EpisodeFeedbackPayload["scalars"]
 export type FeedbackRating = PrismaFeedbackRating
+export type UserEpisode = Prisma.$UserEpisodePayload["scalars"]
 
 // Custom types that combine Prisma types with relations
 export type UserCurationProfileWithRelations = UserCurationProfile & {
@@ -111,4 +112,3 @@ export type PaddleCheckoutCompletedData = {
 		price_id: string
 	}[]
 }
-

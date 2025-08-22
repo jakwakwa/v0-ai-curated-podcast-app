@@ -125,7 +125,7 @@ export function EpisodeCreator() {
                                 required
                             />
                         </div>
-                        <Button type="submit" disabled={isCreating || isFetchingTitle || !youtubeUrl || !episodeTitle}>
+                        <Button variant="default" type="submit" disabled={isCreating || isFetchingTitle || !youtubeUrl || !episodeTitle}>
                             {isCreating ? "Generating..." : "Generate Episode"}
                         </Button>
                     </form>

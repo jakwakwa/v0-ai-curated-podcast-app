@@ -4,14 +4,18 @@ import { generateText } from "ai"
 import mime from "mime"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "@/config/ai"
-import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
+import { ensureUserEpisodesBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 import { inngest } from "./client"
+
+// ensure we store to correct bucket with  GCS_USER_EPISODES_BUCKET_NAME when user creates an episode
+// ensure we store to correct bucket name when admin creates episode with GOOGLE_CLOUD_STORAGE_BUCKET_NAME
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const uploader = getStorageUploader()
-		const bucketName = ensureBucketName()
+		// Use the dedicated user episodes bucket for user-generated content
+		const bucketName = ensureUserEpisodesBucketName()
 		console.log(`Uploading to bucket: ${bucketName}`)
 
 		const [exists] = await uploader.bucket(bucketName).exists()
@@ -142,7 +146,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		apiKey: geminiApiKey,
 	})
 
-	const model = "gemini-1.5-flash-tts-latest" // Using a specific TTS model
+	const model = "gemini-2.5-pro-preview-tts" // Using a specific TTS model
 	const contents = [
 		{
 			role: "user",
@@ -188,13 +192,25 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	return audioBuffer
 }
 
+type JsonBuffer = { type: "Buffer"; data: number[] }
+
+function isJsonBuffer(value: unknown): value is JsonBuffer {
+	return typeof value === "object" && value !== null && (value as { type?: unknown }).type === "Buffer" && Array.isArray((value as { data?: unknown }).data)
+}
+
+function ensureNodeBuffer(value: unknown): Buffer {
+	if (Buffer.isBuffer(value)) return value
+	if (isJsonBuffer(value)) return Buffer.from(value.data)
+	throw new Error("Invalid audio buffer returned from TTS step")
+}
+
 export const generateUserEpisode = inngest.createFunction(
 	{
 		id: "generate-user-episode-workflow",
 		name: "Generate User Episode Workflow",
 		retries: 2,
-		onFailure: async ({ error, event }) => {
-			const { userEpisodeId } = event.data as { userEpisodeId: string }
+		onFailure: async ({ error: _error, event }) => {
+			const { userEpisodeId } = (event as unknown as { data: { userEpisodeId: string } }).data
 			await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
 				data: { status: "FAILED" },
@@ -264,7 +280,7 @@ export const generateUserEpisode = inngest.createFunction(
 		// Step 4: Upload to GCS
 		const gcsAudioUrl = await step.run("upload-audio-to-gcs", async () => {
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`
-			return await uploadContentToBucket(audioBuffer, fileName)
+			return await uploadContentToBucket(ensureNodeBuffer(audioBuffer as unknown), fileName)
 		})
 
 		// Step 5: Finalize Episode

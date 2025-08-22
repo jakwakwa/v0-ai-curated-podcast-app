@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
+const EPISODE_LIMIT = 30 // Assuming a limit of 30 for now
 
 export function UsageDisplay() {
     const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })

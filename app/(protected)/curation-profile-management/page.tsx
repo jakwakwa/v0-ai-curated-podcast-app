@@ -130,9 +130,9 @@ export default function CurationProfileManagementPage() {
 									</Button>
 									{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
 										<Link href="/my-episodes" passHref>
-											<Button as="a" className="mt-2" variant="default" size="sm">
-												My Episodes
-											</Button>
+
+											My Episodes
+
 										</Link>
 									)}
 								</div>
