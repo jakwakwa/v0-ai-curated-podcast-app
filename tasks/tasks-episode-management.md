@@ -39,11 +39,11 @@
   - [x] 3.2 Create the API route `app/api/user-episodes/list/route.ts` to fetch user episodes and provide GCS signed URLs.
   - [x] 3.3 Create the API route `app/api/youtube-metadata/route.ts` to fetch video details.
   - [x] 3.4 Secure all new API routes to ensure they are only accessible by authenticated users.
-- [ ] 4.0 Frontend Development: UI for Episode Management Page
-  - [ ] 4.1 Create the new page file at `app/(protected)/my-episodes/page.tsx`.
-  - [ ] 4.2 Develop the `episode-creator.tsx` Client Component with a form for submitting a YouTube URL and editing metadata.
-  - [ ] 4.3 Develop the `episode-list.tsx` Client Component to display episodes with an audio player for each.
-  - [ ] 4.4 Implement UI feedback mechanisms for loading, success, and error states during episode creation.
+- [x] 4.0 Frontend Development: UI for Episode Management Page
+  - [x] 4.1 Create the new page file at `app/(protected)/my-episodes/page.tsx`.
+  - [x] 4.2 Develop the `episode-creator.tsx` Client Component with a form for submitting a YouTube URL and editing metadata.
+  - [x] 4.3 Develop the `episode-list.tsx` Client Component to display episodes with an audio player for each.
+  - [x] 4.4 Implement UI feedback mechanisms for loading, success, and error states during episode creation.
 - [ ] 5.0 Integration, Plan Gating and Lifecycle Management
   - [ ] 5.1 Add a conditionally rendered link to `/my-episodes` from the `/curation-profile-management` page, visible only to `curate_control` users.
   - [ ] 5.2 Display the user's remaining episode creation count on the `/my-episodes` page.
