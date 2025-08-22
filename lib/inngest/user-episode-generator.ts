@@ -1,65 +1,16 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { GoogleGenAI } from "@google/genai"
-import { Storage } from "@google-cloud/storage"
 import { generateText } from "ai"
 import mime from "mime"
 import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "@/config/ai"
+import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
-import { getEnv } from "@/utils/helpers"
 import { inngest } from "./client"
-
-// Lazily initialize Storage clients
-let storageUploader: Storage | undefined
-
-function looksLikeJson(value: string | undefined): boolean {
-	if (!value) return false
-	const trimmed = value.trim()
-	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function ensureBucketName(): string {
-	const name = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME
-	if (!name) {
-		throw new Error("GOOGLE_CLOUD_STORAGE_BUCKET_NAME is not set")
-	}
-	return name
-}
-
-function initStorageUploader(): Storage {
-	if (storageUploader) {
-		return storageUploader
-	}
-
-	const isDevelopment = process.env.NODE_ENV === "development" || !process.env.NODE_ENV
-
-	// Accept multiple env var names to reduce configuration friction
-	const uploaderRaw = getEnv("GCS_UPLOADER_KEY_JSON") ?? getEnv("GCS_UPLOADER_KEY") ?? getEnv("GCS_UPLOADER_KEY_PATH")
-
-	if (!uploaderRaw) {
-		throw new Error("Missing Google Cloud credentials: GCS_UPLOADER_KEY_JSON|GCS_UPLOADER_KEY|GCS_UPLOADER_KEY_PATH")
-	}
-
-	try {
-		if (isDevelopment && looksLikeJson(uploaderRaw)) {
-			console.log("Initializing Storage uploader (JSON credentials)")
-			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw) })
-		} else {
-			console.log("Initializing Storage uploader (key file path)")
-			storageUploader = new Storage({ keyFilename: uploaderRaw })
-		}
-		console.log("Storage uploader initialized")
-	} catch {
-		// Do not leak credential contents or paths
-		throw new Error("Failed to initialize Google Cloud Storage uploader")
-	}
-
-	return storageUploader!
-}
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
-		const uploader = initStorageUploader()
+		const uploader = getStorageUploader()
 		const bucketName = ensureBucketName()
 		console.log(`Uploading to bucket: ${bucketName}`)
 

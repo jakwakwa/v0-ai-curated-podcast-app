@@ -34,11 +34,11 @@
   - [x] 2.6 Implement the fourth step to upload the generated audio file to a private GCS bucket.
   - [x] 2.7 Implement the final step to update the `UserEpisode` record with the final `gcsAudioUrl`.
   - [x] 2.8 Add robust error handling for each step of the Inngest workflow.
-- [ ] 3.0 API Development: Endpoints for Episode Management
-  - [ ] 3.1 Create the API route `app/api/user-episodes/create/route.ts` to trigger the Inngest workflow.
-  - [ ] 3.2 Create the API route `app/api/user-episodes/list/route.ts` to fetch user episodes and provide GCS signed URLs.
-  - [ ] 3.3 Create the API route `app/api/youtube-metadata/route.ts` to fetch video details.
-  - [ ] 3.4 Secure all new API routes to ensure they are only accessible by authenticated users.
+- [x] 3.0 API Development: Endpoints for Episode Management
+  - [x] 3.1 Create the API route `app/api/user-episodes/create/route.ts` to trigger the Inngest workflow.
+  - [x] 3.2 Create the API route `app/api/user-episodes/list/route.ts` to fetch user episodes and provide GCS signed URLs.
+  - [x] 3.3 Create the API route `app/api/youtube-metadata/route.ts` to fetch video details.
+  - [x] 3.4 Secure all new API routes to ensure they are only accessible by authenticated users.
 - [ ] 4.0 Frontend Development: UI for Episode Management Page
   - [ ] 4.1 Create the new page file at `app/(protected)/my-episodes/page.tsx`.
   - [ ] 4.2 Develop the `episode-creator.tsx` Client Component with a form for submitting a YouTube URL and editing metadata.
