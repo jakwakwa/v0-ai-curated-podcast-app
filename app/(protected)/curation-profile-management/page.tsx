@@ -125,8 +125,15 @@ export default function CurationProfileManagementPage() {
 										</Typography>
 									</div>
 									<Button className="mt-2" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
-										Update Personalized Feed
+										Update Personalized Bundle Feed
 									</Button>
+									{subscription?.plan_type === "CURATE_CONTROL" && (
+										<Button className="mt-2" variant="default" size="sm" onClick={() => {
+											console.log("start episode generation wizard")
+										}}>
+											Start Episode Generation Wizard
+										</Button>
+									)}
 								</div>
 							</CardHeader>
 
