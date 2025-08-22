@@ -10,6 +10,7 @@ import { Subscriptions } from "../_components/subscriptions/subscriptions"
 
 const ManagPlanLandingPage: React.FC = () => {
 	const setSubscription = useSubscriptionStore(state => state.setSubscription)
+	const subscription = useSubscriptionStore(state => state.subscription)
 	const [isSyncing, setIsSyncing] = useState(false)
 
 	const fetchSubscription = useCallback(async () => {
@@ -31,7 +32,13 @@ const ManagPlanLandingPage: React.FC = () => {
 	}, [setSubscription])
 
 	useEffect(() => {
-		fetchSubscription()
+		const run = async () => {
+			try {
+				await fetch("/api/account/subscription/sync-paddle", { method: "POST" })
+			} catch { }
+			await fetchSubscription()
+		}
+		void run()
 	}, [fetchSubscription])
 
 	const syncSubscription = async (data: PaddleCheckoutCompletedData) => {
@@ -55,16 +62,22 @@ const ManagPlanLandingPage: React.FC = () => {
 			setIsSyncing(false)
 		}
 	}
+
+	const status = subscription?.status && typeof subscription.status === "string" ? subscription.status.toLowerCase() : null
+	const hasActiveSubscription = Boolean(subscription && (status === "active" || status === "trialing" || status === "paused"))
+
 	return (
 		<div className="w-full max-w-7xl flex flex-col gap-6">
 			<Subscriptions />
-			<div className="flex w-full flex-row gap-12 ">
-				<PricingPlans
-					onCheckoutCompleted={syncSubscription}
-					onCheckoutClosed={fetchSubscription}
-					paddleProductPlan={PRICING_TIER}
-				/>
-			</div>
+			{!hasActiveSubscription && (
+				<div className="flex w-full flex-row gap-12 ">
+					<PricingPlans
+						onCheckoutCompleted={syncSubscription}
+						onCheckoutClosed={fetchSubscription}
+						paddleProductPlan={PRICING_TIER}
+					/>
+				</div>
+			)}
 		</div>
 	)
 }

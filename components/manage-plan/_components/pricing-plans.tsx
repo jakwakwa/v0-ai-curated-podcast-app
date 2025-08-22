@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePaddlePrices } from "@/hooks/use-paddle-Prices"
+import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
 import type { IBillingFrequency, PaddleCheckoutCompletedData, PlanTier } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { PriceTitle } from "./pricing/price-title"
@@ -78,6 +79,11 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 	// We've changed the country code from "USD" to "US" to fix the API error.
 	const { prices, loading } = usePaddlePrices(paddle, "US")
 
+	// Defensive UI: hide/disable when an active-like subscription exists
+	const subscription = useSubscriptionStore(state => state.subscription)
+	const status = subscription?.status && typeof subscription.status === "string" ? subscription.status.toLowerCase() : null
+	const hasActiveSubscription = Boolean(subscription && (status === "active" || status === "trialing" || status === "paused"))
+
 	useEffect(() => {
 		// Correctly accessing the client-side environment variable.
 		const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
@@ -116,6 +122,9 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 
 	const openPaddleCheckout = (e: React.FormEvent, id: string) => {
 		e.preventDefault()
+		if (hasActiveSubscription) {
+			return
+		}
 		if (paddle && id) {
 			paddle.Checkout.open({
 				items: [
@@ -131,29 +140,30 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 
 	return (
 		<>
-			{paddleProductPlan?.map(tier => (
-				<Card key={tier.priceId} className={cn("rounded-lg bg-background/70  overflow-hidden flex-1")}>
-					<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
-						<PriceTitle tier={tier} />
-						<PriceAmount
-							loading={loading}
-							// This is the main fix: Use the tier's priceId to look up the correct price from the prices object.
-							value={prices?.[tier.priceId]}
-							priceSuffix={frequency.priceSuffix}
-						/>
-						<div className={"px-8"}>
-							<Separator className={"bg-border"} />
+			{!hasActiveSubscription &&
+				paddleProductPlan?.map(tier => (
+					<Card key={tier.priceId} className={cn("rounded-lg bg-background/70  overflow-hidden flex-1")}>
+						<div className={cn("flex gap-5 flex-col rounded-lg rounded-b-none pricing-card-border")}>
+							<PriceTitle tier={tier} />
+							<PriceAmount
+								loading={loading}
+								// This is the main fix: Use the tier's priceId to look up the correct price from the prices object.
+								value={prices?.[tier.priceId]}
+								priceSuffix={frequency.priceSuffix}
+							/>
+							<div className={"px-8"}>
+								<Separator className={"bg-border"} />
+							</div>
+							<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
 						</div>
-						<div className={"px-8 text-[16px] leading-[24px]"}>{tier.description}</div>
-					</div>
-					<div className={"px-8 mt-8"}>
-						<Button onClick={e => openPaddleCheckout(e, tier.priceId)} className={"w-full"} variant={"secondary"}>
-							Upgrade
-						</Button>
-					</div>
-					<FeatureList tier={tier} loading={loading} />
-				</Card>
-			))}
+						<div className={"px-8 mt-8"}>
+							<Button onClick={e => openPaddleCheckout(e, tier.priceId)} className={"w-full"} variant={"secondary"} disabled={hasActiveSubscription}>
+								Upgrade
+							</Button>
+						</div>
+						<FeatureList tier={tier} loading={loading} />
+					</Card>
+				))}
 		</>
 	)
 }
