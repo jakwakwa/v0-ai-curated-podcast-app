@@ -20,6 +20,34 @@ export function NotificationBell() {
 		loadNotifications()
 	}, [loadNotifications])
 
+	// Refresh when opened
+	useEffect(() => {
+		if (isOpen) {
+			void loadNotifications()
+		}
+	}, [isOpen, loadNotifications])
+
+	// Light polling while closed and tab visible
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			if (!isOpen && typeof document !== "undefined" && document.visibilityState === "visible") {
+				void loadNotifications()
+			}
+		}, 10000)
+
+		const onVisibility = () => {
+			if (document.visibilityState === "visible" && !isOpen) {
+				void loadNotifications()
+			}
+		}
+		document.addEventListener("visibilitychange", onVisibility)
+
+		return () => {
+			clearInterval(intervalId)
+			document.removeEventListener("visibilitychange", onVisibility)
+		}
+	}, [isOpen, loadNotifications])
+
 	const handleMarkAsRead = async (notificationId: string) => {
 		try {
 			await markAsRead(notificationId)
@@ -87,7 +115,7 @@ export function NotificationBell() {
 						<Badge
 							variant="destructive"
 							size="sm"
-							className="absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-xs flex items-center justify-center"
+							className="absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/60 shadow-md animate-pulse"
 						>
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>

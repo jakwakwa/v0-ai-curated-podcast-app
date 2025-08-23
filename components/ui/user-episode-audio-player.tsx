@@ -1,5 +1,4 @@
 "use client"
-import Image from "next/image"
 import type React from "react"
 import { type JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -8,7 +7,6 @@ import type { UserEpisode } from "@/lib/types"
 
 import { Button } from "./button"
 import { Typography } from "./typography"
-
 
 export const truncateTitle = (title: string, maxLength: number): string => {
     if (title.length > maxLength) {
@@ -33,7 +31,6 @@ export const formatTime = (time: number): string => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
-
 export const truncateDescription = (description: string | null, maxLength: number): string => {
     if (!description) return ""
     if (description.length > maxLength) {
@@ -55,7 +52,7 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
     const [duration, setDuration] = useState(0)
     const [volume, setVolume] = useState(1)
     const [isMuted, setIsMuted] = useState(false)
-    const [imageError, setImageError] = useState(false)
+
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     const onAudioEnd = useCallback(() => {
@@ -209,15 +206,11 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
     return (
         <div className={styles.audioPlayer}>
             <div className={styles.episodeImageContainer}>
-                {episode.gcs_audio_url && !imageError ? (
-                    <Image src={episode.gcs_audio_url!} alt={episode.summary ?? ""} width={56} height={56} className={styles.episodeImage} onError={() => setImageError(true)} />
-                ) : (
-                    <div className={styles.placeholderImage}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                        </svg>
-                    </div>
-                )}
+                <div className={styles.placeholderImage}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                    </svg>
+                </div>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -252,10 +245,15 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
                 </Button>
                 <input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
                 {onClose && (
-                    <Button variant="ghost" onClick={onClose} size="sm" className="ml-2 h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                        </svg>
+                    <Button
+                        variant="outline"
+                        onClick={onClose}
+                        size="sm"
+                        className="ml-2 h-8 px-2 text-xs font-medium"
+                        aria-label="Close player"
+                        title="Close"
+                    >
+                        Close
                     </Button>
                 )}
             </div>

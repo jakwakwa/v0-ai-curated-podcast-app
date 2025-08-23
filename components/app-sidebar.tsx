@@ -1,7 +1,7 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { Home, Info, Play, Radio, Settings } from "lucide-react"
+import { Bell, Home, Info, Play, Radio, Settings } from "lucide-react"
 import type * as React from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -23,6 +23,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: Home,
+		},
+		{
+			title: "Notifications",
+			url: "/notifications",
+			icon: Bell
 		},
 		{
 			title: "About Podslice",

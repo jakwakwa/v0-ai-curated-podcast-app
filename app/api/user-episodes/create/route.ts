@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 const createEpisodeSchema = z.object({
 	youtubeUrl: z.string().url(),
 	episodeTitle: z.string().min(1),
+	transcript: z.string().min(1),
 })
 
 export async function POST(request: Request) {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
 			return new NextResponse(parsed.error.message, { status: 400 })
 		}
 
-		const { youtubeUrl, episodeTitle } = parsed.data
+		const { youtubeUrl, episodeTitle, transcript } = parsed.data
 
 		const subscription = await prisma.subscription.findFirst({
 			where: { user_id: userId },
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
 				user_id: userId,
 				youtube_url: youtubeUrl,
 				episode_title: episodeTitle,
+				transcript: transcript,
 				status: "PENDING",
 			},
 		})

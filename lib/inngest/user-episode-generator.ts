@@ -2,8 +2,10 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { GoogleGenAI } from "@google/genai"
 import { generateText } from "ai"
 import mime from "mime"
-import { YoutubeTranscript } from "youtube-transcript"
+// TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
+
 import { aiConfig } from "@/config/ai"
+import emailService from "@/lib/email-service"
 import { ensureUserEpisodesBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 import { inngest } from "./client"
@@ -14,9 +16,9 @@ import { inngest } from "./client"
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const uploader = getStorageUploader()
-		// Use the dedicated user episodes bucket for user-generated content
-		const bucketName = ensureUserEpisodesBucketName()
-		console.log(`Uploading to bucket: ${bucketName}`)
+		// Temporarily use admin bucket for testing (same as admin episodes)
+		const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME || ensureUserEpisodesBucketName()
+		console.log(`Uploading to bucket: ${bucketName} (using admin bucket for testing)`)
 
 		const [exists] = await uploader.bucket(bucketName).exists()
 
@@ -42,30 +44,15 @@ const googleAI = createGoogleGenerativeAI({
 	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 })
 
-// Gemini TTS configuration
+// Gemini TTS configuration - Single speaker for faster processing
 const geminiTTSConfig = {
 	temperature: 1,
 	responseModalities: ["audio"],
 	speechConfig: {
-		multiSpeakerVoiceConfig: {
-			speakerVoiceConfigs: [
-				{
-					speaker: "Speaker 1 (Host)",
-					voiceConfig: {
-						prebuiltVoiceConfig: {
-							voiceName: "Enceladus",
-						},
-					},
-				},
-				{
-					speaker: "Speaker 2 (PodSlice AI)",
-					voiceConfig: {
-						prebuiltVoiceConfig: {
-							voiceName: "Aoede",
-						},
-					},
-				},
-			],
+		voiceConfig: {
+			prebuiltVoiceConfig: {
+				voiceName: "Zephyr", // Fast single voice
+			},
 		},
 	},
 }
@@ -136,17 +123,31 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 }
 
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
-	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+	// Try both env variable names for compatibility
+	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY
 
 	if (!geminiApiKey) {
-		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.")
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY is not set.")
+	}
+
+	console.log("🎤 Starting audio generation with Zephyr voice...")
+	console.log(`📝 Script length: ${script.length} characters`)
+
+	// Dynamic script length limits based on episode type
+	const maxLength = aiConfig.useShortEpisodes ? 1500 : 4000
+	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute"
+
+	if (script.length > maxLength) {
+		console.log(`⚠️ Script too long for ${episodeType} episode (${script.length} chars), truncating to ${maxLength} chars`)
+		script = `${script.substring(0, maxLength)}...`
 	}
 
 	const ai = new GoogleGenAI({
 		apiKey: geminiApiKey,
 	})
 
-	const model = "gemini-2.5-pro-preview-tts" // Using a specific TTS model
+	const model = "gemini-2.5-flash-preview-tts" // Using faster Flash TTS model
+	console.log(`🤖 Using TTS model: ${model}`)
 	const contents = [
 		{
 			role: "user",
@@ -158,20 +159,29 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		},
 	]
 
+	console.log("📡 Sending request to Gemini TTS API...")
 	const response = await ai.models.generateContentStream({
 		model,
 		config: geminiTTSConfig,
 		contents,
 	})
 
+	console.log("📨 Response received, processing stream...")
 	let audioBuffer: Buffer | null = null
+	let chunkCount = 0
 
 	for await (const chunk of response) {
-		if (!chunk.candidates?.[0]?.content?.parts?.[0]) {
+		chunkCount++
+		console.log(`📦 Processing chunk ${chunkCount}...`)
+
+		// biome-ignore lint/complexity/useOptionalChain: <fix later>
+		if (!(chunk.candidates && chunk.candidates[0].content && chunk.candidates[0].content.parts)) {
+			console.log("⚠️ Chunk missing expected structure")
 			continue
 		}
-		const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData
-		if (inlineData) {
+		if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
+			console.log("🎵 Found audio data in chunk!")
+			const inlineData = chunk.candidates[0].content.parts[0].inlineData
 			let fileExtension = mime.getExtension(inlineData.mimeType || "")
 			let buffer = Buffer.from(inlineData.data || "", "base64")
 
@@ -181,7 +191,13 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 			}
 
 			audioBuffer = buffer
+			console.log(`✅ Audio buffer created: ${buffer.length} bytes`)
 			break // Take the first audio chunk
+		} else {
+			// Log any text responses (for debugging)
+			if (chunk.text) {
+				console.log("📝 TTS text response:", chunk.text)
+			}
 		}
 	}
 
@@ -189,6 +205,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		throw new Error("Failed to generate audio with Gemini TTS")
 	}
 
+	console.log("✅ Audio generation completed!")
 	return audioBuffer
 }
 
@@ -198,7 +215,7 @@ function isJsonBuffer(value: unknown): value is JsonBuffer {
 	return typeof value === "object" && value !== null && (value as { type?: unknown }).type === "Buffer" && Array.isArray((value as { data?: unknown }).data)
 }
 
-function ensureNodeBuffer(value: unknown): Buffer {
+function _ensureNodeBuffer(value: unknown): Buffer {
 	if (Buffer.isBuffer(value)) return value
 	if (isJsonBuffer(value)) return Buffer.from(value.data)
 	throw new Error("Invalid audio buffer returned from TTS step")
@@ -215,6 +232,31 @@ export const generateUserEpisode = inngest.createFunction(
 				where: { episode_id: userEpisodeId },
 				data: { status: "FAILED" },
 			})
+
+			// Best-effort in-app notification on failure
+			try {
+				const episode = await prisma.userEpisode.findUnique({
+					where: { episode_id: userEpisodeId },
+					select: { episode_title: true, user_id: true },
+				})
+				if (episode) {
+					const user = await prisma.user.findUnique({
+						where: { user_id: episode.user_id },
+						select: { in_app_notifications: true },
+					})
+					if (user?.in_app_notifications) {
+						await prisma.notification.create({
+							data: {
+								user_id: episode.user_id,
+								type: "episode_failed",
+								message: `We couldn't generate your episode "${episode.episode_title}". Please try again.`,
+							},
+						})
+					}
+				}
+			} catch (notifyError) {
+				console.error("[USER_EPISODE_FAILED_NOTIFY]", notifyError)
+			}
 		},
 	},
 	{
@@ -230,8 +272,8 @@ export const generateUserEpisode = inngest.createFunction(
 			})
 		})
 
-		// Step 1: Fetch Transcript
-		const transcript = await step.run("fetch-transcript", async () => {
+		// Step 1: Get Transcript from Database
+		const transcript = await step.run("get-transcript", async () => {
 			const episode = await prisma.userEpisode.findUnique({
 				where: { episode_id: userEpisodeId },
 			})
@@ -240,24 +282,46 @@ export const generateUserEpisode = inngest.createFunction(
 				throw new Error(`UserEpisode with ID ${userEpisodeId} not found.`)
 			}
 
-			const transcriptData = await YoutubeTranscript.fetchTranscript(episode.youtube_url)
-			const transcriptText = transcriptData.map(entry => entry.text).join(" ")
+			if (!episode.transcript) {
+				throw new Error(`No transcript found for episode ${userEpisodeId}`)
+			}
 
-			await prisma.userEpisode.update({
-				where: { episode_id: userEpisodeId },
-				data: { transcript: transcriptText },
-			})
-
-			return transcriptText
+			return episode.transcript
 		})
 
 		// Step 2: Summarize Transcript
 		const summary = await step.run("summarize-transcript", async () => {
 			const model = googleAI(aiConfig.geminiModel)
 			try {
+				// Dynamic episode length based on config flag
+				const episodeConfig = aiConfig.useShortEpisodes
+					? {
+							words: "150-200 words",
+							duration: "about 1 minute of audio",
+							description: "testing version",
+						}
+					: {
+							words: "500-600 words",
+							duration: "about 3-4 minutes of audio",
+							description: "production version",
+						}
+
+				console.log(`📝 Generating ${episodeConfig.description}: ${episodeConfig.words}`)
+
 				const { text } = await generateText({
 					model: model,
-					prompt: `Summarize the following transcript into an engaging podcast script of approximately 300 words. The script should have a clear narrative, including an introduction, main points, and a conclusion. The tone should be informative and conversational. Focus on the most interesting and important information from the transcript.\n\nTranscript: ${transcript}`,
+					prompt: `Create an engaging podcast script of approximately ${episodeConfig.words} (${episodeConfig.duration}) based on the following transcript. Write it as a single narrator presenting the content in an engaging, conversational podcast style.
+
+The script should include:
+- An engaging introduction that hooks the listener
+- Clear narrative structure with smooth transitions
+- Key insights and takeaways from the transcript  
+- Interesting examples and explanations
+- A compelling conclusion with actionable advice or thought-provoking questions
+
+Write in a warm, conversational tone as if speaking directly to the listener. Use phrases like "you might wonder," "here's what's fascinating," "let's dive into," etc. to maintain engagement.
+
+Transcript: ${transcript}`,
 				})
 
 				await prisma.userEpisode.update({
@@ -272,18 +336,16 @@ export const generateUserEpisode = inngest.createFunction(
 			}
 		})
 
-		// Step 3: Convert to Audio
-		const audioBuffer = await step.run("convert-to-audio", async () => {
-			return await generateAudioWithGeminiTTS(summary)
-		})
-
-		// Step 4: Upload to GCS
-		const gcsAudioUrl = await step.run("upload-audio-to-gcs", async () => {
+		// Step 3: Convert to Audio and Upload to GCS (combined to avoid large data transfer)
+		const gcsAudioUrl = await step.run("convert-to-audio-and-upload", async () => {
+			console.log("🎤 Generating audio and uploading directly to GCS...")
+			const audioBuffer = await generateAudioWithGeminiTTS(summary)
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`
-			return await uploadContentToBucket(ensureNodeBuffer(audioBuffer as unknown), fileName)
+			console.log(`📁 Uploading ${audioBuffer.length} bytes to GCS...`)
+			return await uploadContentToBucket(audioBuffer, fileName)
 		})
 
-		// Step 5: Finalize Episode
+		// Step 4: Finalize Episode
 		await step.run("finalize-episode", async () => {
 			return await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
@@ -292,6 +354,51 @@ export const generateUserEpisode = inngest.createFunction(
 					status: "COMPLETED",
 				},
 			})
+		})
+
+		// Step 5: Notify user (in-app + email)
+		await step.run("notify-user", async () => {
+			const episode = await prisma.userEpisode.findUnique({
+				where: { episode_id: userEpisodeId },
+				select: { episode_id: true, episode_title: true, user_id: true },
+			})
+
+			if (!episode) return
+
+			const [user, profile] = await Promise.all([
+				prisma.user.findUnique({
+					where: { user_id: episode.user_id },
+					select: { email: true, name: true, in_app_notifications: true },
+				}),
+				prisma.userCurationProfile.findFirst({
+					where: { user_id: episode.user_id, is_active: true },
+					select: { name: true },
+				}),
+			])
+
+			if (user?.in_app_notifications) {
+				await prisma.notification.create({
+					data: {
+						user_id: episode.user_id,
+						type: "episode_ready",
+						message: `Your episode "${episode.episode_title}" is ready to listen.`,
+					},
+				})
+			}
+
+			if (user?.email) {
+				const userFirstName = (user.name || "").trim().split(" ")[0] || "there"
+				const profileName = profile?.name ?? "Your personalized feed"
+				const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+				const episodeUrl = `${baseUrl}/my-episodes`
+
+				await emailService.sendEpisodeReadyEmail(episode.user_id, user.email, {
+					userFirstName,
+					episodeTitle: episode.episode_title,
+					episodeUrl,
+					profileName,
+				})
+			}
 		})
 
 		return {

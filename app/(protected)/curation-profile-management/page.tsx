@@ -9,8 +9,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import EpisodeCard from "@/components/ui/episode-card"
 import { Typography } from "@/components/ui/typography"
-import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
+import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player"
+import type { Episode, Podcast, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types"
 
 interface SubscriptionInfo {
 	plan_type: string
@@ -32,17 +34,29 @@ export default function CurationProfileManagementPage() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
+	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null }
+	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([])
+	const [currentlyPlayingUserEpisodeId, setCurrentlyPlayingUserEpisodeId] = useState<string | null>(null)
+
 	const fetchAndUpdateData = useCallback(async () => {
 		try {
-			// Fetch user curation profile and episodes in parallel
-			const [profileResponse, episodesResponse, subscriptionResponse] = await Promise.all([fetch("/api/user-curation-profiles"), fetch("/api/episodes"), fetch("/api/subscription")])
+			// Fetch user curation profile, catalog episodes, user episodes and subscription in parallel
+			const [profileResponse, episodesResponse, userEpisodesResponse, subscriptionResponse] = await Promise.all([
+				fetch("/api/user-curation-profiles"),
+				fetch("/api/episodes"),
+				fetch("/api/user-episodes/list"),
+				fetch("/api/account/subscription"),
+			])
 
 			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null
 			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : []
+			const fetchedUserEpisodes: UserEpisodeWithSignedUrl[] = userEpisodesResponse.ok ? await userEpisodesResponse.json() : []
 			const fetchedSubscription = subscriptionResponse.ok ? await subscriptionResponse.json() : null
 
 			setUserCurationProfile(fetchedProfile)
 			setEpisodes(fetchedEpisodes)
+			setUserEpisodes(fetchedUserEpisodes)
+			console.log(fetchedSubscription)
 			setSubscription(fetchedSubscription)
 
 			// Get bundle episodes if user has a bundle selection
@@ -57,6 +71,7 @@ export default function CurationProfileManagementPage() {
 		}
 	}, [])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <temp fix>
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -71,6 +86,7 @@ export default function CurationProfileManagementPage() {
 		}
 
 		fetchData()
+		console.log(subscription)
 	}, [fetchAndUpdateData])
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
@@ -128,13 +144,10 @@ export default function CurationProfileManagementPage() {
 									<Button className="mt-2" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 										Update Personalized Bundle Feed
 									</Button>
-									{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
-										<Link href="/my-episodes" passHref>
 
-											My Episodes
-
-										</Link>
-									)}
+									<Button className="mt-2" variant="default" size="sm" asChild>
+										<Link href="/generate-my-episodes">Generate Episodes</Link>
+									</Button>
 								</div>
 							</CardHeader>
 
@@ -169,6 +182,34 @@ export default function CurationProfileManagementPage() {
 								</div>
 							</CardContent>
 						</Card>
+
+						<CardContent>
+							{userEpisodes.length === 0 ? (
+								<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
+							) : (
+								<ul className="inline-block w-full inline-flex flex-col gap-3">
+									{userEpisodes
+										.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
+										.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+										.slice(0, 3)
+										.map(episode => (
+											<li key={episode.episode_id} className="list-none">
+												<EpisodeCard
+													imageUrl={null}
+													title={episode.episode_title}
+													description={episode.summary}
+													publishedAt={episode.updated_at}
+													actions={
+														<Button size="sm" variant="default" onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)}>
+															Play
+														</Button>
+													}
+												/>
+											</li>
+										))}
+								</ul>
+							)}
+						</CardContent>
 
 						<div className="grid grid-cols-1 md:grid-cols-1 gap-4 lg:gap-5 lg:col-span-1 h-full">
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
@@ -210,6 +251,31 @@ export default function CurationProfileManagementPage() {
 			</div>
 
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
+
+			{currentlyPlayingUserEpisodeId && <UserAudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />}
 		</Card>
 	)
+}
+
+export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
+	// Force fresh lookup of episode and require a signed URL for playback
+	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+	if (!(episode && episode.signedAudioUrl)) {
+		return null
+	}
+
+	const normalizedEpisode: UserEpisode = {
+		episode_id: episode.episode_id,
+		episode_title: episode.episode_title,
+		gcs_audio_url: episode.signedAudioUrl,
+		summary: episode.summary,
+		created_at: episode.created_at,
+		updated_at: episode.updated_at,
+		user_id: episode.user_id,
+		youtube_url: episode.youtube_url,
+		transcript: episode.transcript,
+		status: episode.status,
+	}
+
+	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />
 }

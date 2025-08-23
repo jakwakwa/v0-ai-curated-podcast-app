@@ -56,8 +56,7 @@
 			},
 			"correctness": {
 				"noUnusedVariables": {
-					"level": "error",
-					"fix": "safe"
+					"level": "error"
 				},
 				"noUnusedFunctionParameters": {
 					"level": "error",
@@ -126,7 +125,11 @@
 				"noSparseArray": "error",
 				"noConsole": {
 					"options": {
-						"allow": ["assert", "error", "warn"]
+						"allow": [
+							"assert",
+							"error",
+							"warn"
+						]
 					},
 					"fix": "safe"
 				}
