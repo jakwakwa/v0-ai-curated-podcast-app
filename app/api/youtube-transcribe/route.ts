@@ -34,7 +34,16 @@ export async function POST(request: Request) {
 		const result = await transcribeYouTubeVideo(url)
 
 		if (!result.success) {
-			return new NextResponse(result.error || "Transcription failed", { status: 500 })
+			const message = result.error || "Transcription failed"
+			if (/confirm you’re not a bot|confirm you're not a bot|bot/i.test(message)) {
+				// Return a clearer message for YouTube anti-bot/consent walls
+				return NextResponse.json({
+					success: false,
+					error:
+						"YouTube blocked automated access for this video (anti-bot). Try manual transcript input or rely on the browser extraction (Auto Extract).",
+				}, { status: 429 })
+			}
+			return new NextResponse(message, { status: 500 })
 		}
 
 		return NextResponse.json({

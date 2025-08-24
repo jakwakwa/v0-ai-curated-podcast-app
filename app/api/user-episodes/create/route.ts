@@ -3,11 +3,16 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { inngest } from "@/lib/inngest/client"
 import { prisma } from "@/lib/prisma"
+import { VOICE_NAMES } from "@/lib/constants/voices"
 
 const createEpisodeSchema = z.object({
 	youtubeUrl: z.string().url(),
 	episodeTitle: z.string().min(1),
 	transcript: z.string().min(1),
+	generationMode: z.enum(["single", "multi"]).default("single").optional(),
+	voiceA: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
+	voiceB: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
+	useShortEpisodesOverride: z.boolean().optional(),
 })
 
 export async function POST(request: Request) {
@@ -24,13 +29,13 @@ export async function POST(request: Request) {
 			return new NextResponse(parsed.error.message, { status: 400 })
 		}
 
-		const { youtubeUrl, episodeTitle, transcript } = parsed.data
+		const { youtubeUrl, episodeTitle, transcript, generationMode = "single", voiceA, voiceB, useShortEpisodesOverride } = parsed.data
 
 		// Count only completed user episodes for this user
 		const existingEpisodeCount = await prisma.userEpisode.count({
 			where: { 
 				user_id: userId,
-				status: "COMPLETED" // Only count completed episodes towards limit
+				status: "COMPLETED"
 			},
 		})
 
@@ -50,12 +55,27 @@ export async function POST(request: Request) {
 			},
 		})
 
-		await inngest.send({
-			name: "user.episode.generate.requested",
-			data: {
-				userEpisodeId: newEpisode.episode_id,
-			},
-		})
+		if (generationMode === "multi") {
+			if (!(voiceA && voiceB)) {
+				return new NextResponse("Two voices are required for multi-speaker generation.", { status: 400 })
+			}
+			await inngest.send({
+				name: "user.episode.generate.multi.requested",
+				data: {
+					userEpisodeId: newEpisode.episode_id,
+					voiceA,
+					voiceB,
+					useShortEpisodesOverride,
+				},
+			})
+		} else {
+			await inngest.send({
+				name: "user.episode.generate.requested",
+				data: {
+					userEpisodeId: newEpisode.episode_id,
+				},
+			})
+		}
 
 		return NextResponse.json(newEpisode, { status: 201 })
 	} catch (error) {
