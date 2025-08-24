@@ -5,11 +5,16 @@
 import { randomUUID } from "node:crypto"
 import type { ReadStream } from "node:fs"
 import { createReadStream } from "node:fs"
-import { unlink, writeFile } from "node:fs/promises"
+import { mkdtemp, readFile, unlink, writeFile } from "node:fs/promises"
+import { tmpdir } from "node:os"
 import { join } from "node:path"
 import type { Readable } from "node:stream"
 import ytdl from "@distube/ytdl-core"
+import ffmpegStatic from "ffmpeg-static"
+import ffmpeg from "fluent-ffmpeg"
 import OpenAI from "openai"
+
+ffmpeg.setFfmpegPath(ffmpegStatic as unknown as string)
 
 let _openaiClient: OpenAI | null = null
 function getOpenAIClient(): OpenAI {
@@ -123,11 +128,61 @@ async function transcribeWithWhisper(filePath: string): Promise<string> {
 	}
 }
 
+async function compressAudioToMono16k(inputPath: string): Promise<{ outputPath: string; size: number }> {
+	const outputPath = inputPath.replace(/\.(webm|mp4|m4a|mp3|wav|aac|flac)$/i, "_compressed.mp3")
+	await new Promise<void>((resolve, reject) => {
+		ffmpeg(inputPath)
+			.audioChannels(1)
+			.audioFrequency(16000)
+			.audioCodec("libmp3lame")
+			.audioBitrate("64k")
+			.on("end", () => resolve())
+			.on("error", err => reject(err))
+			.save(outputPath)
+	})
+	const buf = await readFile(outputPath)
+	return { outputPath, size: buf.length }
+}
+
+async function splitAudioIfNeeded(inputPath: string, maxBytes: number): Promise<string[]> {
+	const statBuf = await readFile(inputPath)
+	if (statBuf.length <= maxBytes) return [inputPath]
+	// Rough duration probe then split by duration proportionally
+	const probe = await new Promise<{ durationSec: number }>((resolve, reject) => {
+		ffmpeg.ffprobe(inputPath, (err, data) => {
+			if (err) return reject(err)
+			resolve({ durationSec: (data.format.duration || 0) as number })
+		})
+	})
+	const parts: string[] = []
+	const numChunks = Math.ceil(statBuf.length / maxBytes)
+	const chunkDur = probe.durationSec > 0 ? probe.durationSec / numChunks : 600
+	const tempDir = await mkdtemp(join(tmpdir(), "yt-chunks-"))
+	for (let i = 0; i < numChunks; i++) {
+		const out = join(tempDir, `chunk_${i}.mp3`)
+		await new Promise<void>((resolve, reject) => {
+			ffmpeg(inputPath)
+				.seekInput(i * chunkDur)
+				.duration(chunkDur)
+				.audioChannels(1)
+				.audioFrequency(16000)
+				.audioCodec("libmp3lame")
+				.audioBitrate("64k")
+				.on("end", () => resolve())
+				.on("error", err => reject(err))
+				.save(out)
+		})
+		parts.push(out)
+	}
+	return parts
+}
+
 /**
  * Main transcription function
  */
 export async function transcribeYouTubeVideo(videoUrl: string): Promise<TranscriptionResult> {
 	let tempFilePath: string | null = null
+	let tempCompressedPath: string | null = null
 
 	try {
 		// Validate OpenAI API key
@@ -150,21 +205,38 @@ export async function transcribeYouTubeVideo(videoUrl: string): Promise<Transcri
 
 		console.log(`Audio saved: ${size} bytes`)
 
-		// Check file size limit (OpenAI Whisper has 25MB limit)
-		const maxSize = 25 * 1024 * 1024 // 25MB
+		// Step 3: Compress to fit under 25MB if needed
+		const maxSize = 25 * 1024 * 1024
+		let toTranscribe = filePath
+		let workingSize = size
 		if (size > maxSize) {
-			throw new Error(`Audio file too large: ${(size / 1024 / 1024).toFixed(1)}MB (max 25MB)`)
+			const compressed = await compressAudioToMono16k(filePath)
+			tempCompressedPath = compressed.outputPath
+			workingSize = compressed.size
+			toTranscribe = tempCompressedPath
+			console.log(`Compressed audio size: ${workingSize} bytes`)
 		}
 
-		// Step 3: Transcribe with Whisper
-		const transcript = await transcribeWithWhisper(filePath)
+		if (workingSize > maxSize) {
+			// Optional: chunk and transcribe sequentially
+			const chunks = await splitAudioIfNeeded(toTranscribe, maxSize)
+			let fullText = ""
+			for (const chunkPath of chunks) {
+				const part = await transcribeWithWhisper(chunkPath)
+				fullText += (fullText ? "\n" : "") + part
+			}
+			return { success: true, transcript: fullText, audioSize: workingSize }
+		}
+
+		// Step 4: Transcribe with Whisper
+		const transcript = await transcribeWithWhisper(toTranscribe)
 
 		console.log(`Transcription completed: ${transcript.length} characters`)
 
 		return {
 			success: true,
 			transcript,
-			audioSize: size,
+			audioSize: workingSize,
 		}
 	} catch (error) {
 		console.error("Custom transcription failed:", error)
@@ -181,6 +253,11 @@ export async function transcribeYouTubeVideo(videoUrl: string): Promise<Transcri
 			} catch (error) {
 				console.warn("Failed to clean up temporary file:", error)
 			}
+		}
+		if (tempCompressedPath) {
+			try {
+				await unlink(tempCompressedPath)
+			} catch {}
 		}
 	}
 }

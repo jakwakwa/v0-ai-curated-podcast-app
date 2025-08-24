@@ -6,10 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EpisodeProgress } from "@/components/ui/episode-progress"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+// Client-side YouTube captions disabled; we rely on server pipeline
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { extractYouTubeTranscript } from "@/lib/client-youtube-transcript"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { VOICE_OPTIONS } from "@/lib/constants/voices"
 
 const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
@@ -49,6 +49,10 @@ export function EpisodeCreator() {
 		useShortEpisodesOverride?: boolean
 	}
 
+	type ExtractResult =
+		| { success: true; transcript: string; method: "whisper" | "orchestrator" | "unknown" }
+		| { success: false; error: string; method: "none" | "whisper" | "orchestrator" | "unknown" }
+
 	function isYouTubeUrl(url: string): boolean {
 		return url.includes("youtube.com") || url.includes("youtu.be")
 	}
@@ -71,36 +75,22 @@ export function EpisodeCreator() {
 		return data as { success: true; transcript: string }
 	}
 
-	// Transcript extraction with client-first then server fallback
-	const extractTranscriptWithFallbacks = async (url: string) => {
-		// Non-YouTube: use orchestrator directly
-		if (!isYouTubeUrl(url)) {
-			return await extractViaOrchestrator(url, allowPaid)
-		}
-		try {
-			const clientResult = await extractYouTubeTranscript(url)
-			if (clientResult.success && clientResult.transcript) {
-				return { success: true, transcript: clientResult.transcript, method: "client" }
-			}
-		} catch {}
-		try {
-			const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
-			if (customRes.ok) {
-				const customData = await customRes.json()
-				if (customData.success && customData.transcript) {
-					return { success: true, transcript: customData.transcript, method: "server" }
+	// Transcript extraction now: Whisper first (YouTube), then orchestrator (Rev.ai if allowed)
+	const extractTranscriptWithFallbacks = async (url: string): Promise<ExtractResult> => {
+		if (isYouTubeUrl(url)) {
+			try {
+				const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
+				if (customRes.ok) {
+					const customData = await customRes.json()
+					if ((customData as { success?: boolean; transcript?: string }).success && (customData as { transcript?: string }).transcript) {
+						return { success: true, transcript: (customData as { transcript: string }).transcript, method: "whisper" }
+					}
 				}
-			} else {
-				const text = await customRes.text()
-				return { success: false, error: text || "Transcription failed", method: "server" }
-			}
-		} catch (error) {
-			return { success: false, error: error instanceof Error ? error.message : "Unknown error", method: "server" }
+			} catch { }
 		}
-		// Final attempt: orchestrator (may use paid fallback if enabled)
 		const orch = await extractViaOrchestrator(url, allowPaid)
-		if ((orch as any).success) return { success: true, transcript: (orch as any).transcript, method: "orchestrator" }
-		return { success: false, error: (orch as any).error || "All transcript methods failed", method: "none" }
+		if ((orch as { success?: boolean }).success) return { success: true, transcript: (orch as { transcript: string }).transcript, method: "orchestrator" }
+		return { success: false, error: (orch as { error?: string }).error || "All transcript methods failed", method: "none" }
 	}
 
 	useEffect(() => {
@@ -131,20 +121,23 @@ export function EpisodeCreator() {
 					setAttempts([])
 					// Only fetch YouTube title for YouTube links
 					const titlePromise = isYouTubeUrl(youtubeUrl)
-						? fetch(`/api/youtube-metadata?url=${encodeURIComponent(youtubeUrl)}`).then(res => (res.ok ? res.json() : null)).then(data => data?.title || "").catch(() => "")
+						? fetch(`/api/youtube-metadata?url=${encodeURIComponent(youtubeUrl)}`)
+							.then(res => (res.ok ? res.json() : null))
+							.then(data => data?.title || "")
+							.catch(() => "")
 						: Promise.resolve("")
 					const transcriptPromise = extractTranscriptWithFallbacks(youtubeUrl)
 					const [title, transcriptResult] = await Promise.all([titlePromise, transcriptPromise])
 					setEpisodeTitle(title)
-					if ((transcriptResult as any).success && (transcriptResult as any).transcript) {
-						setTranscript((transcriptResult as any).transcript)
-						setExtractionMethod((transcriptResult as any).method || "unknown")
+					if (transcriptResult.success) {
+						setTranscript(transcriptResult.transcript)
+						setExtractionMethod(transcriptResult.method || "unknown")
 					} else {
 						setTranscript("")
 						setExtractionMethod("")
-						setError((transcriptResult as any).error || "Failed to extract transcript.")
+						setError(transcriptResult.error || "Failed to extract transcript.")
 					}
-				} catch (error) {
+				} catch {
 					setTranscript("")
 					setError("Failed to fetch data. Please check the URL.")
 				} finally {
@@ -158,7 +151,9 @@ export function EpisodeCreator() {
 				setAttempts([])
 			}
 		}, 1000)
-		return () => { clearTimeout(handler) }
+		return () => {
+			clearTimeout(handler)
+		}
 	}, [youtubeUrl, allowPaid])
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -196,7 +191,6 @@ export function EpisodeCreator() {
 	}
 
 	const hasReachedLimit = usage.count >= usage.limit
-	const FIFTEEN_MIN_MS = 15 * 60 * 1000
 	const hasValidTranscript = transcriptMethod === "manual" ? manualTranscript && manualTranscript.trim().length > 0 : transcript && transcript.trim().length > 0
 	const canSubmit = youtubeUrl && episodeTitle && hasValidTranscript && !isCreating && !isFetchingTitle && !isFetchingTranscript
 
@@ -213,7 +207,6 @@ export function EpisodeCreator() {
 	}
 
 	return (
-
 		<div className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
 			{showProgress && currentEpisodeId && <EpisodeProgress episodeId={currentEpisodeId} onComplete={handleProgressComplete} onError={handleProgressError} />}
 
@@ -231,7 +224,14 @@ export function EpisodeCreator() {
 						<form onSubmit={handleSubmit} className="space-y-6">
 							<div className="space-y-2">
 								<Label htmlFor="youtubeUrl">Source URL</Label>
-								<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={isCreating} required />
+								<Input
+									id="youtubeUrl"
+									placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss"
+									value={youtubeUrl}
+									onChange={e => setYoutubeUrl(e.target.value)}
+									disabled={isCreating}
+									required
+								/>
 							</div>
 
 							<div className="flex items-center gap-2">
@@ -241,12 +241,19 @@ export function EpisodeCreator() {
 
 							<div className="space-y-2">
 								<Label htmlFor="episodeTitle">Episode Title</Label>
-								<Input id="episodeTitle" placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"} value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} disabled={isCreating || isFetchingTitle} required />
+								<Input
+									id="episodeTitle"
+									placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"}
+									value={episodeTitle}
+									onChange={e => setEpisodeTitle(e.target.value)}
+									disabled={isCreating || isFetchingTitle}
+									required
+								/>
 							</div>
 
 							<div className="space-y-4">
 								<Label>Transcript Source</Label>
-								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual") }>
+								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
 									<TabsList className="grid w-full grid-cols-2">
 										<TabsTrigger value="auto">Auto Extract</TabsTrigger>
 										<TabsTrigger value="manual">Manual Input</TabsTrigger>
@@ -257,7 +264,9 @@ export function EpisodeCreator() {
 											{isFetchingTranscript ? (
 												<span className="text-blue-600">🔄 Extracting transcript...</span>
 											) : transcript && transcript.trim().length > 0 ? (
-												<span className="text-green-600">✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}</span>
+												<span className="text-green-600">
+													✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}
+												</span>
 											) : youtubeUrl && !isFetchingTranscript ? (
 												<span className="text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</span>
 											) : (
@@ -269,7 +278,9 @@ export function EpisodeCreator() {
 												<Label className="text-xs text-gray-500">Attempts:</Label>
 												<ul className="list-disc pl-5">
 													{attempts.map((a, idx) => (
-														<li key={idx}>{a.provider}: {a.success ? "ok" : `fail${a.error ? ` (${a.error})` : ""}`}</li>
+														<li key={idx}>
+															{a.provider}: {a.success ? "ok" : `fail${a.error ? ` (${a.error})` : ""}`}
+														</li>
 													))}
 												</ul>
 											</div>
@@ -283,8 +294,18 @@ export function EpisodeCreator() {
 									</TabsContent>
 
 									<TabsContent value="manual" className="space-y-2">
-										<Label htmlFor="manualTranscript" className="text-sm">Paste transcript text here</Label>
-										<Textarea id="manualTranscript" placeholder="Paste the video transcript here..." value={manualTranscript} onChange={e => setManualTranscript(e.target.value)} disabled={isCreating} rows={6} className="resize-none" />
+										<Label htmlFor="manualTranscript" className="text-sm">
+											Paste transcript text here
+										</Label>
+										<Textarea
+											id="manualTranscript"
+											placeholder="Paste the video transcript here..."
+											value={manualTranscript}
+											onChange={e => setManualTranscript(e.target.value)}
+											disabled={isCreating}
+											rows={6}
+											className="resize-none"
+										/>
 										{manualTranscript && <div className="text-xs text-gray-500">{manualTranscript.length} characters</div>}
 									</TabsContent>
 								</Tabs>
@@ -293,8 +314,12 @@ export function EpisodeCreator() {
 							<div className="space-y-2">
 								<Label>Episode Type</Label>
 								<div className="grid grid-cols-2 gap-2">
-									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating}>Single speaker</Button>
-									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating}>Multi speaker</Button>
+									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating}>
+										Single speaker
+									</Button>
+									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating}>
+										Multi speaker
+									</Button>
 								</div>
 							</div>
 
@@ -309,7 +334,9 @@ export function EpisodeCreator() {
 												</SelectTrigger>
 												<SelectContent>
 													{VOICE_OPTIONS.map(v => (
-														<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+														<SelectItem key={v.name} value={v.name}>
+															{v.label}
+														</SelectItem>
 													))}
 												</SelectContent>
 											</Select>
@@ -322,7 +349,9 @@ export function EpisodeCreator() {
 												</SelectTrigger>
 												<SelectContent>
 													{VOICE_OPTIONS.map(v => (
-														<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+														<SelectItem key={v.name} value={v.name}>
+															{v.label}
+														</SelectItem>
 													))}
 												</SelectContent>
 											</Select>
@@ -333,8 +362,12 @@ export function EpisodeCreator() {
 											<Label>Developer test mode</Label>
 											<div className="text-xs text-gray-600">Shorter summary and shorter episode (for faster testing)</div>
 											<div>
-												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm">Short</Button>
-												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm">Production (3-5 min)</Button>
+												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm">
+													Short
+												</Button>
+												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm">
+													Production (3-5 min)
+												</Button>
 											</div>
 										</div>
 									)}

@@ -4,6 +4,8 @@ import { z } from "zod"
 import { getTranscriptOrchestrated } from "@/lib/transcripts"
 import type { TranscriptSourceKind } from "@/lib/transcripts/types"
 
+export const runtime = "nodejs"
+
 const querySchema = z.object({
 	url: z.string().url(),
 	lang: z.string().optional(),

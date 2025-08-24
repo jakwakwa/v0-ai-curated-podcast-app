@@ -1,7 +1,6 @@
 import ytdl from "@distube/ytdl-core"
 import { XMLParser } from "fast-xml-parser"
-import type { TranscriptResponse } from "youtube-transcript"
-import { YoutubeTranscript } from "youtube-transcript"
+// Removed youtube-transcript; keep ytdl-core based approach only
 import { z } from "zod"
 
 export async function getYouTubeVideoTitle(videoUrl: string): Promise<string> {
@@ -72,24 +71,10 @@ export function extractYouTubeVideoId(urlOrId: string): string | null {
 	return urlMatch ? urlMatch[1] : null
 }
 
-export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: string): Promise<TranscriptResponse[]> {
-	// Try the new method first, fallback to old method
-	try {
-		return await getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId, lang)
-	} catch (error) {
-		console.warn("ytdl-core method failed, trying youtube-transcript package:", error)
-		// Fallback to original method
-		const id = extractYouTubeVideoId(videoUrlOrId) ?? videoUrlOrId
-		try {
-			const segments = await YoutubeTranscript.fetchTranscript(id, lang ? { lang } : undefined)
-			return segments
-		} catch (fallbackError) {
-			if (fallbackError instanceof Error) {
-				throw new Error(`Transcript unavailable: ${fallbackError.message}`)
-			}
-			throw new Error("Transcript unavailable")
-		}
-	}
+export type YouTubeTranscriptItem = { text: string; duration: number; offset: number }
+export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
+	// Only use ytdl-core based attempt
+	return await getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId, lang)
 }
 
 export async function getYouTubeTranscriptText(videoUrlOrId: string, lang?: string): Promise<string> {
@@ -97,7 +82,7 @@ export async function getYouTubeTranscriptText(videoUrlOrId: string, lang?: stri
 	return segments.map(s => s.text).join(" ")
 }
 
-async function parseTranscriptXML(xmlData: string): Promise<TranscriptResponse[]> {
+async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptItem[]> {
 	if (!xmlData || xmlData.trim().length === 0) {
 		throw new Error("Empty caption data received")
 	}
@@ -122,22 +107,25 @@ async function parseTranscriptXML(xmlData: string): Promise<TranscriptResponse[]
 	}
 
 	// Convert to TranscriptResponse format
-	return texts.map((item: unknown, index: number) => {
+	return texts.map((item: { "#text"?: string; dur?: string; start?: string } | string, index: number) => {
 		const xmlItem = item as { "#text"?: string; dur?: string; start?: string } | string
 		return {
 			text: typeof xmlItem === "string" ? xmlItem : xmlItem["#text"] || "",
 			duration: typeof xmlItem === "object" && xmlItem.dur ? parseFloat(xmlItem.dur) : 1,
 			offset: typeof xmlItem === "object" && xmlItem.start ? parseFloat(xmlItem.start) : index,
 		}
-	}) as TranscriptResponse[]
+	}) as YouTubeTranscriptItem[]
 }
 
-async function getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId: string, lang?: string): Promise<TranscriptResponse[]> {
+async function getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
 	try {
 		const videoUrl = videoUrlOrId.startsWith("http") ? videoUrlOrId : `https://www.youtube.com/watch?v=${videoUrlOrId}`
 		const info = await ytdl.getInfo(videoUrl)
 
-		const captions = info.player_response?.captions?.playerCaptionsTracklistRenderer?.captionTracks
+		const playerResponse: unknown = (info as unknown as { player_response?: unknown }).player_response
+		const captions: Array<{ languageCode?: string; kind?: string; baseUrl?: string; name?: { simpleText?: string } }> | undefined = (
+			playerResponse as { captions?: { playerCaptionsTracklistRenderer?: { captionTracks?: Array<{ languageCode?: string; kind?: string; baseUrl?: string; name?: { simpleText?: string } }> } } }
+		)?.captions?.playerCaptionsTracklistRenderer?.captionTracks
 		if (!captions || captions.length === 0) {
 			throw new Error("No captions available for this video")
 		}

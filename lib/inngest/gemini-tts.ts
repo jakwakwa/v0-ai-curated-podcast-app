@@ -4,10 +4,10 @@ import { GoogleGenAI } from "@google/genai"
 import { Storage } from "@google-cloud/storage"
 import { generateText } from "ai"
 import mime from "mime"
-import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
 import { prisma } from "@/lib/prisma"
+import { getTranscriptOrchestrated } from "@/lib/transcripts"
 import type { Podcast as PodcastModel } from "@/lib/types"
 import { getEnv } from "@/utils/helpers"
 import { inngest } from "./client"
@@ -309,8 +309,12 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const transcriptData = await YoutubeTranscript.fetchTranscript(videoId)
-						transcriptContent = transcriptData.map(entry => entry.text).join(" ")
+						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true })
+						if (result.success) {
+							transcriptContent = result.transcript
+						} else {
+							transcriptContent = `Transcript unavailable for ${s.name}: ${result.error ?? "Unknown error"}`
+						}
 					} catch (error) {
 						transcriptContent = `Failed to retrieve transcript for ${s.name} from ${s.url}. Error: ${(error as Error).message}`
 					}
@@ -496,8 +500,12 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const transcriptData = await YoutubeTranscript.fetchTranscript(videoId)
-						transcriptContent = transcriptData.map(entry => entry.text).join(" ")
+						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true })
+						if (result.success) {
+							transcriptContent = result.transcript
+						} else {
+							transcriptContent = `Transcript unavailable for ${s.name}: ${result.error ?? "Unknown error"}`
+						}
 					} catch (error) {
 						transcriptContent = `Failed to retrieve transcript for ${s.name} from ${s.url}. Error: ${(error as Error).message}`
 					}

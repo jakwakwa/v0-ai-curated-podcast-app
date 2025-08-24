@@ -1,10 +1,9 @@
-import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
-import { YouTubeCaptionsProvider } from "./providers/youtube"
-import { YouTubeClientProvider } from "./providers/youtube-client"
-import { PodcastRssProvider } from "./providers/podcast"
 import { ListenNotesProvider } from "./providers/listen-notes"
 import { PaidAsrProvider } from "./providers/paid-asr"
+// Skipped YouTube caption providers per new policy
+import { PodcastRssProvider } from "./providers/podcast"
 import { RevAiProvider } from "./providers/revai"
+import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
 
 const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
 
@@ -16,21 +15,13 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 
 function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undefined): TranscriptProvider[] {
 	if (kind === "youtube") {
-		return [YouTubeCaptionsProvider, YouTubeClientProvider, ...(allowPaid ? [PaidAsrProvider] : [])]
+		// New order: Whisper/OpenAI first, then Rev.ai if allowed
+		return [PaidAsrProvider, ...(allowPaid ? [RevAiProvider] : [])]
 	}
 	if (kind === "podcast") {
-		return [
-			PodcastRssProvider,
-			...(ENABLE_LISTEN_NOTES ? [ListenNotesProvider] as const : []),
-			...(allowPaid ? [RevAiProvider] : []),
-		]
+		return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider] : [])]
 	}
-	return [
-		YouTubeCaptionsProvider,
-		PodcastRssProvider,
-		...(ENABLE_LISTEN_NOTES ? [ListenNotesProvider] as const : []),
-		...(allowPaid ? [RevAiProvider, PaidAsrProvider] : []),
-	]
+	return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider, PaidAsrProvider] : [])]
 }
 
 export async function getTranscriptOrchestrated(initialRequest: TranscriptRequest): Promise<OrchestratorResult> {
@@ -49,7 +40,7 @@ export async function getTranscriptOrchestrated(initialRequest: TranscriptReques
 			if (result.success) {
 				return { ...result, attempts }
 			}
-			const nextUrl = (result as any)?.meta?.nextUrl as string | undefined
+			const nextUrl = (result as { meta?: { nextUrl?: string } }).meta?.nextUrl
 			if (nextUrl) {
 				request = { ...request, url: nextUrl }
 				kind = detectKindFromUrl(nextUrl)

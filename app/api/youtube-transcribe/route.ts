@@ -8,6 +8,8 @@ const transcribeSchema = z.object({
 	validate: z.boolean().optional(),
 })
 
+export const runtime = "nodejs"
+
 export async function POST(request: Request) {
 	try {
 		const { userId } = await auth()
@@ -37,13 +39,15 @@ export async function POST(request: Request) {
 			const message = result.error || "Transcription failed"
 			if (/confirm you’re not a bot|confirm you're not a bot|bot/i.test(message)) {
 				// Return a clearer message for YouTube anti-bot/consent walls
-				return NextResponse.json({
-					success: false,
-					error:
-						"YouTube blocked automated access for this video (anti-bot). Try manual transcript input or rely on the browser extraction (Auto Extract).",
-				}, { status: 429 })
+				return NextResponse.json(
+					{
+						success: false,
+						error: "YouTube blocked automated access for this video (anti-bot). Try manual transcript input or rely on the browser extraction (Auto Extract).",
+					},
+					{ status: 429 }
+				)
 			}
-			return new NextResponse(message, { status: 500 })
+			return new NextResponse(message.includes("too large") ? "Audio exceeded size limits. We tried compressing; try a shorter clip or enable paid fallback." : message, { status: 500 })
 		}
 
 		return NextResponse.json({
