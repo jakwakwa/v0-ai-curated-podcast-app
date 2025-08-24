@@ -4,6 +4,7 @@ import { YouTubeClientProvider } from "./providers/youtube-client"
 import { PodcastRssProvider } from "./providers/podcast"
 import { ListenNotesProvider } from "./providers/listen-notes"
 import { PaidAsrProvider } from "./providers/paid-asr"
+import { RevAiProvider } from "./providers/revai"
 
 export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	if (/youtu(be\.be|be\.com)/i.test(url)) return "youtube"
@@ -16,9 +17,9 @@ function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undef
 		return [YouTubeCaptionsProvider, YouTubeClientProvider, ...(allowPaid ? [PaidAsrProvider] : [])]
 	}
 	if (kind === "podcast") {
-		return [PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [PaidAsrProvider] : [])]
+		return [PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [RevAiProvider] : [])]
 	}
-	return [YouTubeCaptionsProvider, PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [PaidAsrProvider] : [])]
+	return [YouTubeCaptionsProvider, PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [RevAiProvider, PaidAsrProvider] : [])]
 }
 
 export async function getTranscriptOrchestrated(request: TranscriptRequest): Promise<OrchestratorResult> {

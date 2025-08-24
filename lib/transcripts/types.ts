@@ -31,6 +31,7 @@ export type ProviderName =
 	| "youtube-client"
 	| "podcast-rss"
 	| "listen-notes"
+	| "revai"
 	| "paid-asr"
 
 export interface TranscriptProvider {
