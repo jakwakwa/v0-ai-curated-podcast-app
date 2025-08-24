@@ -137,7 +137,7 @@ async function compressAudioToMono16k(inputPath: string): Promise<{ outputPath: 
 			.audioCodec("libmp3lame")
 			.audioBitrate("64k")
 			.on("end", () => resolve())
-			.on("error", err => reject(err))
+			.on("error", (err: unknown) => reject(err))
 			.save(outputPath)
 	})
 	const buf = await readFile(outputPath)
@@ -149,7 +149,7 @@ async function splitAudioIfNeeded(inputPath: string, maxBytes: number): Promise<
 	if (statBuf.length <= maxBytes) return [inputPath]
 	// Rough duration probe then split by duration proportionally
 	const probe = await new Promise<{ durationSec: number }>((resolve, reject) => {
-		ffmpeg.ffprobe(inputPath, (err, data) => {
+		ffmpeg.ffprobe(inputPath, (err: unknown, data: any) => {
 			if (err) return reject(err)
 			resolve({ durationSec: (data.format.duration || 0) as number })
 		})
@@ -169,7 +169,7 @@ async function splitAudioIfNeeded(inputPath: string, maxBytes: number): Promise<
 				.audioCodec("libmp3lame")
 				.audioBitrate("64k")
 				.on("end", () => resolve())
-				.on("error", err => reject(err))
+				.on("error", (err: unknown) => reject(err))
 				.save(out)
 		})
 		parts.push(out)
