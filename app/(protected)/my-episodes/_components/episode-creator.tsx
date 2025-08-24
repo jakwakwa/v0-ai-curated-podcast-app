@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EpisodeProgress } from "@/components/ui/episode-progress"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 // Client-side YouTube captions disabled; we rely on server pipeline
@@ -15,6 +16,7 @@ import { VOICE_OPTIONS } from "@/lib/constants/voices"
 const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
 
 export function EpisodeCreator() {
+    const router = useRouter()
 	const [youtubeUrl, setYoutubeUrl] = useState("")
 	const [episodeTitle, setEpisodeTitle] = useState("")
 	const [transcript, setTranscript] = useState<string>("")
@@ -28,8 +30,6 @@ export function EpisodeCreator() {
 	const [successMessage, setSuccessMessage] = useState<string | null>(null)
 	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })
 	const [isLoadingUsage, setIsLoadingUsage] = useState(true)
-	const [currentEpisodeId, setCurrentEpisodeId] = useState<string | null>(null)
-	const [showProgress, setShowProgress] = useState(false)
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
 	const [voiceA, setVoiceA] = useState<string>("Zephyr")
 	const [voiceB, setVoiceB] = useState<string>("Puck")
@@ -154,7 +154,7 @@ export function EpisodeCreator() {
 		return () => {
 			clearTimeout(handler)
 		}
-	}, [youtubeUrl, allowPaid])
+	}, [youtubeUrl, extractTranscriptWithFallbacks, isYouTubeUrl])
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -174,15 +174,8 @@ export function EpisodeCreator() {
 				const errorData = await res.text()
 				throw new Error(errorData || "Failed to create episode.")
 			}
-			const newEpisode = await res.json()
-			setSuccessMessage(`Successfully started generation for: "${newEpisode.episode_title}"`)
-			setCurrentEpisodeId(newEpisode.episode_id)
-			setShowProgress(true)
-			setYoutubeUrl("")
-			setEpisodeTitle("")
-			setTranscript("")
-			setManualTranscript("")
-			setUsage(prev => ({ ...prev, count: prev.count + 1 }))
+			toast.message("The episode is generating in the background, we will notify you in 2 - 5 mins when its completed and ready to listen to")
+			router.push("/curation-profile-management")
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "An unknown error occurred.")
 		} finally {
@@ -192,24 +185,11 @@ export function EpisodeCreator() {
 
 	const hasReachedLimit = usage.count >= usage.limit
 	const hasValidTranscript = transcriptMethod === "manual" ? manualTranscript && manualTranscript.trim().length > 0 : transcript && transcript.trim().length > 0
-	const canSubmit = youtubeUrl && episodeTitle && hasValidTranscript && !isCreating && !isFetchingTitle && !isFetchingTranscript
-
-	const handleProgressComplete = () => {
-		setShowProgress(false)
-		setCurrentEpisodeId(null)
-		window.location.reload()
-	}
-
-	const handleProgressError = (error: string) => {
-		setError(`Episode generation failed: ${error}`)
-		setShowProgress(false)
-		setCurrentEpisodeId(null)
-	}
+	const isBusy = isCreating || isFetchingTitle || isFetchingTranscript
+	const canSubmit = youtubeUrl && episodeTitle && hasValidTranscript && !isBusy
 
 	return (
 		<div className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
-			{showProgress && currentEpisodeId && <EpisodeProgress episodeId={currentEpisodeId} onComplete={handleProgressComplete} onError={handleProgressError} />}
-
 			<Card>
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>
@@ -229,13 +209,13 @@ export function EpisodeCreator() {
 									placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss"
 									value={youtubeUrl}
 									onChange={e => setYoutubeUrl(e.target.value)}
-									disabled={isCreating}
+									disabled={isCreating || isFetchingTitle || isFetchingTranscript}
 									required
 								/>
 							</div>
 
 							<div className="flex items-center gap-2">
-								<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTranscript} />
+								<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} />
 								<Label htmlFor="allowPaid">Use paid fallback (Rev.ai) when needed</Label>
 							</div>
 
@@ -246,7 +226,7 @@ export function EpisodeCreator() {
 									placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"}
 									value={episodeTitle}
 									onChange={e => setEpisodeTitle(e.target.value)}
-									disabled={isCreating || isFetchingTitle}
+									disabled={isCreating || isFetchingTitle || isFetchingTranscript}
 									required
 								/>
 							</div>
@@ -255,8 +235,8 @@ export function EpisodeCreator() {
 								<Label>Transcript Source</Label>
 								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
 									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="auto">Auto Extract</TabsTrigger>
-										<TabsTrigger value="manual">Manual Input</TabsTrigger>
+										<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Auto Extract</TabsTrigger>
+										<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Manual Input</TabsTrigger>
 									</TabsList>
 
 									<TabsContent value="auto" className="space-y-2">
@@ -302,7 +282,7 @@ export function EpisodeCreator() {
 											placeholder="Paste the video transcript here..."
 											value={manualTranscript}
 											onChange={e => setManualTranscript(e.target.value)}
-											disabled={isCreating}
+											disabled={isCreating || isFetchingTitle || isFetchingTranscript}
 											rows={6}
 											className="resize-none"
 										/>
@@ -314,10 +294,10 @@ export function EpisodeCreator() {
 							<div className="space-y-2">
 								<Label>Episode Type</Label>
 								<div className="grid grid-cols-2 gap-2">
-									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating}>
+									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 										Single speaker
 									</Button>
-									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating}>
+									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 										Multi speaker
 									</Button>
 								</div>
@@ -329,7 +309,7 @@ export function EpisodeCreator() {
 										<div>
 											<Label>Voice A</Label>
 											<Select value={voiceA} onValueChange={setVoiceA}>
-												<SelectTrigger className="w/full">
+												<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													<SelectValue placeholder="Select Voice A" />
 												</SelectTrigger>
 												<SelectContent>
@@ -344,7 +324,7 @@ export function EpisodeCreator() {
 										<div>
 											<Label>Voice B</Label>
 											<Select value={voiceB} onValueChange={setVoiceB}>
-												<SelectTrigger className="w/full">
+												<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													<SelectValue placeholder="Select Voice B" />
 												</SelectTrigger>
 												<SelectContent>
@@ -362,10 +342,10 @@ export function EpisodeCreator() {
 											<Label>Developer test mode</Label>
 											<div className="text-xs text-gray-600">Shorter summary and shorter episode (for faster testing)</div>
 											<div>
-												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm">
+												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													Short
 												</Button>
-												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm">
+												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													Production (3-5 min)
 												</Button>
 											</div>
