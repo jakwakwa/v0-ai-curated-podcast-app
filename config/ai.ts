@@ -1,17 +1,17 @@
 // Payment provider configuration
-export const PAYMENT_CONFIG = {
-	// Payment provider selection
-	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
+// export const PAYMENT_CONFIG = {
+// 	// Payment provider selection
+// 	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
 
-	// Feature flags
-	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
+// 	// Feature flags
+// 	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
 
-	// Plan IDs
-	PADDLE: {
-		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
-		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
-	},
-} as const
+// 	// Plan IDs
+// 	PADDLE: {
+// 		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
+// 		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
+// 	},
+// } as const
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model

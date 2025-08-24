@@ -1,8 +1,8 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { GoogleGenAI } from "@google/genai"
 import { generateText } from "ai"
-import { z } from "zod"
 import mime from "mime"
+import { z } from "zod"
 
 import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
@@ -146,18 +146,12 @@ function stripMarkdownJsonFences(input: string): string {
 }
 
 function coerceJsonArray(input: string): DialogueLine[] {
-	const attempts: Array<() => unknown> = [
-		() => JSON.parse(input),
-		() => JSON.parse((input.match(/\[[\s\S]*\]/)?.[0] || "[]")),
-		() => JSON.parse(stripMarkdownJsonFences(input)),
-	]
+	const attempts: Array<() => unknown> = [() => JSON.parse(input), () => JSON.parse(input.match(/\[[\s\S]*\]/)?.[0] || "[]"), () => JSON.parse(stripMarkdownJsonFences(input))]
 	for (const attempt of attempts) {
 		try {
 			const parsed = attempt()
 			return z.array(DialogueSchema).parse(parsed)
-		} catch {
-			continue
-		}
+		} catch {}
 	}
 	throw new Error("Failed to parse dialogue script")
 }
@@ -258,7 +252,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			if (user?.email) {
 				const userFirstName = (user.name || "").trim().split(" ")[0] || "there"
 				const profileName = profile?.name ?? "Your personalized feed"
-				const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+				const baseUrl = process.env.EMAIL_LINK_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || ""
 				const episodeUrl = `${baseUrl}/my-episodes`
 				await emailService.sendEpisodeReadyEmail(episode.user_id, user.email, { userFirstName, episodeTitle: episode.episode_title, episodeUrl, profileName })
 			}

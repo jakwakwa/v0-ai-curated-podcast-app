@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,7 +16,7 @@ import { VOICE_OPTIONS } from "@/lib/constants/voices"
 const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
 
 export function EpisodeCreator() {
-    const router = useRouter()
+	const router = useRouter()
 	const [youtubeUrl, setYoutubeUrl] = useState("")
 	const [episodeTitle, setEpisodeTitle] = useState("")
 	const [transcript, setTranscript] = useState<string>("")
@@ -53,11 +53,11 @@ export function EpisodeCreator() {
 		| { success: true; transcript: string; method: "whisper" | "orchestrator" | "unknown" }
 		| { success: false; error: string; method: "none" | "whisper" | "orchestrator" | "unknown" }
 
-	function isYouTubeUrl(url: string): boolean {
+	const isYouTubeUrl = useCallback((url: string): boolean => {
 		return url.includes("youtube.com") || url.includes("youtu.be")
-	}
+	}, [])
 
-	async function extractViaOrchestrator(url: string, usePaid: boolean) {
+	const extractViaOrchestrator = useCallback(async (url: string, usePaid: boolean) => {
 		const qs = new URLSearchParams({ url })
 		if (usePaid) qs.set("allowPaid", "true")
 		const res = await fetch(`/api/transcripts/get?${qs.toString()}`)
@@ -73,25 +73,30 @@ export function EpisodeCreator() {
 		const data = await res.json()
 		setAttempts(Array.isArray(data?.attempts) ? data.attempts : [])
 		return data as { success: true; transcript: string }
-	}
+	}, [])
 
 	// Transcript extraction now: Whisper first (YouTube), then orchestrator (Rev.ai if allowed)
-	const extractTranscriptWithFallbacks = async (url: string): Promise<ExtractResult> => {
-		if (isYouTubeUrl(url)) {
-			try {
-				const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
-				if (customRes.ok) {
-					const customData = await customRes.json()
-					if ((customData as { success?: boolean; transcript?: string }).success && (customData as { transcript?: string }).transcript) {
-						return { success: true, transcript: (customData as { transcript: string }).transcript, method: "whisper" }
+	const extractTranscriptWithFallbacks = useCallback(
+		async (url: string): Promise<ExtractResult> => {
+			if (isYouTubeUrl(url)) {
+				try {
+					const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
+					if (customRes.ok) {
+						const customData = await customRes.json()
+						if ((customData as { success?: boolean; transcript?: string }).success && (customData as { transcript?: string }).transcript) {
+							return { success: true, transcript: (customData as { transcript: string }).transcript, method: "whisper" }
+						}
 					}
-				}
-			} catch { }
-		}
-		const orch = await extractViaOrchestrator(url, allowPaid)
-		if ((orch as { success?: boolean }).success) return { success: true, transcript: (orch as { transcript: string }).transcript, method: "orchestrator" }
-		return { success: false, error: (orch as { error?: string }).error || "All transcript methods failed", method: "none" }
-	}
+				} catch { }
+			}
+			const orch = await extractViaOrchestrator(url, allowPaid)
+			if ((orch as { success?: boolean }).success) return { success: true, transcript: (orch as { transcript: string }).transcript, method: "orchestrator" }
+			return { success: false, error: (orch as { error?: string }).error || "All transcript methods failed", method: "none" }
+		},
+		[allowPaid, extractViaOrchestrator, isYouTubeUrl]
+	)
+
+	const lastProcessedUrlRef = useRef<string | null>(null)
 
 	useEffect(() => {
 		const fetchUsage = async () => {
@@ -113,42 +118,51 @@ export function EpisodeCreator() {
 
 	useEffect(() => {
 		const handler = setTimeout(async () => {
-			if (youtubeUrl) {
-				try {
-					setIsFetchingTitle(true)
-					setIsFetchingTranscript(true)
-					setError(null)
-					setAttempts([])
-					// Only fetch YouTube title for YouTube links
-					const titlePromise = isYouTubeUrl(youtubeUrl)
-						? fetch(`/api/youtube-metadata?url=${encodeURIComponent(youtubeUrl)}`)
-							.then(res => (res.ok ? res.json() : null))
-							.then(data => data?.title || "")
-							.catch(() => "")
-						: Promise.resolve("")
-					const transcriptPromise = extractTranscriptWithFallbacks(youtubeUrl)
-					const [title, transcriptResult] = await Promise.all([titlePromise, transcriptPromise])
-					setEpisodeTitle(title)
-					if (transcriptResult.success) {
-						setTranscript(transcriptResult.transcript)
-						setExtractionMethod(transcriptResult.method || "unknown")
-					} else {
-						setTranscript("")
-						setExtractionMethod("")
-						setError(transcriptResult.error || "Failed to extract transcript.")
-					}
-				} catch {
-					setTranscript("")
-					setError("Failed to fetch data. Please check the URL.")
-				} finally {
-					setIsFetchingTitle(false)
-					setIsFetchingTranscript(false)
-				}
-			} else {
+			const trimmedUrl = youtubeUrl.trim()
+			if (!trimmedUrl) {
+				lastProcessedUrlRef.current = null
 				setTranscript("")
 				setEpisodeTitle("")
 				setError(null)
 				setAttempts([])
+				return
+			}
+
+			// Avoid duplicate processing for the same URL
+			if (lastProcessedUrlRef.current === trimmedUrl) {
+				return
+			}
+			lastProcessedUrlRef.current = trimmedUrl
+
+			try {
+				setIsFetchingTitle(true)
+				setIsFetchingTranscript(true)
+				setError(null)
+				setAttempts([])
+				// Only fetch YouTube title for YouTube links
+				const titlePromise = isYouTubeUrl(trimmedUrl)
+					? fetch(`/api/youtube-metadata?url=${encodeURIComponent(trimmedUrl)}`)
+						.then(res => (res.ok ? res.json() : null))
+						.then(data => data?.title || "")
+						.catch(() => "")
+					: Promise.resolve("")
+				const transcriptPromise = extractTranscriptWithFallbacks(trimmedUrl)
+				const [title, transcriptResult] = await Promise.all([titlePromise, transcriptPromise])
+				setEpisodeTitle(title)
+				if (transcriptResult.success) {
+					setTranscript(transcriptResult.transcript)
+					setExtractionMethod(transcriptResult.method || "unknown")
+				} else {
+					setTranscript("")
+					setExtractionMethod("")
+					setError(transcriptResult.error || "Failed to extract transcript.")
+				}
+			} catch {
+				setTranscript("")
+				setError("Failed to fetch data. Please check the URL.")
+			} finally {
+				setIsFetchingTitle(false)
+				setIsFetchingTranscript(false)
 			}
 		}, 1000)
 		return () => {
@@ -235,8 +249,12 @@ export function EpisodeCreator() {
 								<Label>Transcript Source</Label>
 								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
 									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Auto Extract</TabsTrigger>
-										<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Manual Input</TabsTrigger>
+										<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+											Auto Extract
+										</TabsTrigger>
+										<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+											Manual Input
+										</TabsTrigger>
 									</TabsList>
 
 									<TabsContent value="auto" className="space-y-2">
@@ -294,10 +312,18 @@ export function EpisodeCreator() {
 							<div className="space-y-2">
 								<Label>Episode Type</Label>
 								<div className="grid grid-cols-2 gap-2">
-									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+									<Button
+										type="button"
+										variant={generationMode === "single" ? "default" : "secondary"}
+										onClick={() => setGenerationMode("single")}
+										disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 										Single speaker
 									</Button>
-									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+									<Button
+										type="button"
+										variant={generationMode === "multi" ? "default" : "secondary"}
+										onClick={() => setGenerationMode("multi")}
+										disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 										Multi speaker
 									</Button>
 								</div>
@@ -345,7 +371,13 @@ export function EpisodeCreator() {
 												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													Short
 												</Button>
-												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+												<Button
+													type="button"
+													variant={!useShort ? "default" : "secondary"}
+													onClick={() => setUseShort(false)}
+													className="ml-2"
+													size="sm"
+													disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
 													Production (3-5 min)
 												</Button>
 											</div>

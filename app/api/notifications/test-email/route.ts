@@ -31,13 +31,9 @@ export async function POST() {
 
 		// Log configuration (without sensitive data)
 		console.log("Email config check:", {
-			hasHost: !!process.env.EMAIL_HOST,
+			hasResendKey: !!process.env.RESEND_API_KEY,
 			hasFrom: !!process.env.EMAIL_FROM,
-			hasUser: !!process.env.EMAIL_USER,
-			hasPass: !!process.env.EMAIL_PASS,
-			host: process.env.EMAIL_HOST,
 			from: process.env.EMAIL_FROM,
-			user: process.env.EMAIL_USER,
 			targetEmail: userEmail,
 		})
 

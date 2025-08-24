@@ -17,35 +17,10 @@ export function NotificationBell() {
 
 	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll } = useNotificationStore()
 
-	useEffect(() => {
-		loadNotifications()
-	}, [loadNotifications])
-
-	// Refresh when opened
+	// Fetch only when the dropdown opens
 	useEffect(() => {
 		if (isOpen) {
 			void loadNotifications()
-		}
-	}, [isOpen, loadNotifications])
-
-	// Light polling while closed and tab visible
-	useEffect(() => {
-		const intervalId = setInterval(() => {
-			if (!isOpen && typeof document !== "undefined" && document.visibilityState === "visible") {
-				void loadNotifications()
-			}
-		}, 10000)
-
-		const onVisibility = () => {
-			if (document.visibilityState === "visible" && !isOpen) {
-				void loadNotifications()
-			}
-		}
-		document.addEventListener("visibilitychange", onVisibility)
-
-		return () => {
-			clearInterval(intervalId)
-			document.removeEventListener("visibilitychange", onVisibility)
 		}
 	}, [isOpen, loadNotifications])
 

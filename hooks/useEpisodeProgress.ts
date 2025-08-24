@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNotificationStore } from "@/lib/stores"
 
 interface EpisodeProgress {
 	step: number
@@ -21,6 +22,7 @@ export function useEpisodeProgress(episodeId: string | null) {
 	const [status, setStatus] = useState<EpisodeStatus | null>(null)
 	const [isPolling, setIsPolling] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+	const { loadNotifications } = useNotificationStore()
 
 	useEffect(() => {
 		if (!episodeId) {
@@ -51,6 +53,8 @@ export function useEpisodeProgress(episodeId: string | null) {
 						if (intervalId) {
 							clearInterval(intervalId)
 						}
+						// Fetch notifications once to surface episode_ready
+						void loadNotifications()
 					}
 				}
 			} catch (err) {
@@ -73,7 +77,7 @@ export function useEpisodeProgress(episodeId: string | null) {
 				clearInterval(intervalId)
 			}
 		}
-	}, [episodeId])
+	}, [episodeId, loadNotifications])
 
 	return {
 		status,

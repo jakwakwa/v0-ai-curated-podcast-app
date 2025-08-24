@@ -109,7 +109,7 @@ export function NavUser({
 							<MoreVerticalIcon className="ml-auto h-4 w-4" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="bg-cardglass  w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+					<DropdownMenuContent className="dropdown-menu-card w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 md:px-2 pb-4.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
 								<Avatar className="h-8 w-8 rounded-lg filter">
