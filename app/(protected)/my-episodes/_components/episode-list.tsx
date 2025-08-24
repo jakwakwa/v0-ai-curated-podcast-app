@@ -81,9 +81,9 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
                                             {episode.status}
                                         </Badge>
                                         {episode.status === "COMPLETED" && episode.signedAudioUrl && (
-                                            <Button size="sm" variant="default" onClick={() => setActiveEpisodeId(episode.episode_id)}>
-                                                Play
-                                            </Button>
+                                            <Button size="play" variant="play" onClick={() => setActiveEpisodeId(episode.episode_id)} />
+
+
                                         )}
                                     </>
                                 }

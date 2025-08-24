@@ -22,10 +22,10 @@ export const typographyVariants = cva("", {
 export const cardVariants = cva("rounded-3xl px-3 border transition-all duration-200", {
 	variants: {
 		variant: {
-			default: "bg-card border text-card-foreground",
+			default: "main-card border text-card-foreground",
 			glass: "bg-cardglass	backdrop-blur-[2px]",
 			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
-			bundle: "border-light border-1 bg-linear-to-br from-secondary-light/60 via-secondary-dark/30 shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6",
+			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",
 		},
 		selected: {
 			true: "border-2 border-accent-selection-border bg-gradient-to-br from-accent-selection-bg to-card shadow-lg shadow-accent-selection-bg/20",
@@ -155,26 +155,26 @@ export const switchVariants = cva(
 
 // Badge variants - status and label styling
 export const badgeVariants = cva(
-	"inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+	" w-fit  flex items-center justify-center rounded-md  px-0.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 leading-none border-custom-sm",
 	{
 		variants: {
 			variant: {
-				default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
-				secondary: "border-transparent text-primary-foreground hover:bg-secondary/80",
-				destructive: "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-				outline: "text-foreground border-1 border-foreground/40",
-				card: "border-transparent bg-card text-card-foreground shadow hover:bg-card/80",
-				primarycard: "bg-primary-card border-transparent",
+				default: "text-primary-foreground shadow min-h-[initial]",
+				secondary: " text-primary-foreground min-h-[initial]",
+				destructive: " bg-destructive text-destructive-foreground shadow min-h-[initial]	",
+				outline: "text-foreground border-1 border-foreground/40 min-h-[initial]",
+				card: " my-0 bg-[rgba(21 22 22 / 0.76) text-card-foreground shadow-sm min-h-[initial]",
+				primarycard: "bg-primary-card  min-h-[initial]",
 			},
 			size: {
-				sm: "px-2 py-0.5 text-xs",
-				md: "px-2.5 py-0.5 text-xs",
-				lg: "px-3 py-1 text-sm",
-				xl: "px-4 py-1.5 text-sm",
+				sm: "px-1 py-0 text-xs h-fit leading-none",
+				md: "px-2.5 py-0 text-xs h-fit leading-none",
+				lg: "px-3 py-0 text-sm h-fit leading-none",
+				xl: "px-4 py-0 text-sm h-fit leading-none",
 			},
 		},
 		defaultVariants: {
-			variant: "primarycard",
+			variant: "default",
 			size: "md",
 		},
 	}

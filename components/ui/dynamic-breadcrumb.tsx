@@ -12,8 +12,8 @@ export function DynamicBreadcrumb() {
 	}
 
 	return (
-		<Breadcrumb>
-			<BreadcrumbList>
+		<Breadcrumb className="w-full">
+			<BreadcrumbList className="w-full">
 				{breadcrumbs.map((breadcrumb, index) => (
 					<div key={breadcrumb.href} className="contents">
 						<BreadcrumbItem className={index === 0 ? "hidden md:block" : ""}>

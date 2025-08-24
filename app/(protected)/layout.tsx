@@ -18,15 +18,15 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 			<AppSidebar />
 
 			<SidebarInset>
-				<header className="bg-primary flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 ">
+				<header className="bg-primary flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4" >
 					<div className="flex items-center justify-between gap-2 px-2 md:px-4">
 						{/* @ts-ignore */}
-						<SidebarTrigger className="ml-2" />
+						<SidebarTrigger className=" w-10" />
 						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
 						<DynamicBreadcrumb />
 
 					</div>
-					<div className="w-2/3 flex flex-row justify-end">
+					<div className="w-[100px] flex flex-row flex-end items-center justify-end mr-4" >
 
 						<NotificationBell />
 					</div>

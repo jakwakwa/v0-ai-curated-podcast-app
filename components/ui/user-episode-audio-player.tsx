@@ -205,17 +205,15 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
 
     return (
         <div className={styles.audioPlayer}>
-            <div className={styles.episodeImageContainer}>
-                <div className={styles.placeholderImage}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <div className=" gap-4  flex flex-row items-center justify-start px-16 m-0">
+                <div className="h-fit flex items-center justify-center">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                     </svg>
                 </div>
+                <Typography className=" w-full text-custom-h5 text-left font-medium">{episode.episode_title}</Typography>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <Typography className="text-custom-h5 font-medium">{episode.episode_title}</Typography>
-            </div>
 
             <div className={styles.controls}>
                 <Button onClick={togglePlayPause} className={styles.playPauseButton} size={"sm"} variant="default">
@@ -246,10 +244,10 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
                 <input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
                 {onClose && (
                     <Button
-                        variant="outline"
+                        variant="link"
                         onClick={onClose}
-                        size="sm"
-                        className="ml-2 h-8 px-2 text-xs font-medium"
+                        size="xs"
+                        className={styles.closeButton}
                         aria-label="Close player"
                         title="Close"
                     >

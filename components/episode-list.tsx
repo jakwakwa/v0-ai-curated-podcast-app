@@ -1,4 +1,4 @@
-import { Download, Music, Play } from "lucide-react"
+import { Download, Music } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -35,8 +35,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				const response = await fetch("/api/account/subscription", {
 					next: {
 						revalidate: 30 * 24 * 60 * 60, // 30 days in seconds
-						tags: ['user-subscription']
-					}
+						tags: ["user-subscription"],
+					},
 				})
 				if (response.ok) {
 					const subData = await response.json()
@@ -122,12 +122,9 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 										{episode.audio_url && onPlayEpisode && (
 											<Button
 												onClick={() => onPlayEpisode(episode.episode_id)}
-												variant="default"
-												size="sm"
-												className={playingEpisodeId === episode.episode_id ? "bg-[black]/90 m-0 p-0 w-4 h-4" : "bg-[black]"}
-											>
-												<Play className="w-auto h-auto text-custom-xxs md:text-custom-sm md:w-6 md:h-auto md:max-w-3 md:max-h-6 pl-0 py-[1px] text-left" width={"18x"} height={"18px"} />
-											</Button>
+												variant="play"
+												size="play"
+												className={playingEpisodeId === episode.episode_id ? "bg-[black]/90 m-0 p-0 w-4 h-4" : "bg-[black]"} />
 										)}
 										{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
 											<Button
@@ -135,8 +132,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 												variant="outline"
 												size="sm"
 												disabled={downloadingEpisodes.has(episode.episode_id)}
-												className="h-8"
-											>
+												className="h-8">
 												<Download className="w-4 h-4" />
 												{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
 											</Button>

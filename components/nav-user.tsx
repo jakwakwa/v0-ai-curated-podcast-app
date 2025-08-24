@@ -97,33 +97,33 @@ export function NavUser({
 			<SidebarMenuItem>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-							<Avatar className="h-8 w-8 rounded-lg filter grayscale">
+						<SidebarMenuButton size="lg" className="episode-card border-none outline-none  data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+							<Avatar className="h-8 w-8 rounded-lg filter ">
 								<AvatarImage src={user.avatar} alt={user.name} />
 								<AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">{user.name}</span>
-								<span className="truncate text-xs text-muted-foreground">{user.email}</span>
+								<span className="truncate font-medium text-foreground/90 text-sm">{user.name}</span>
+								<span className="truncate text-xxs text-muted-foreground/80 font-[300] mt-1">{user.email}</span>
 							</div>
 							<MoreVerticalIcon className="ml-auto h-4 w-4" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="bg-cardglass  w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
 						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 md:px-2 py-1.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
-								<Avatar className="h-8 w-8 rounded-lg filter grayscale">
+							<div className="flex items-center gap-2 px-1 md:px-2 pb-4.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
+								<Avatar className="h-8 w-8 rounded-lg filter">
 									<AvatarImage src={user.avatar} alt={user.name} />
 									<AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
 								</Avatar>
-								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate">{user.name}</span>
-									<span className="truncate my-0 font-[200] text-xs text-foreground/99">{user.email}</span>
+								<div className="grid flex-1 text-left text-xs leading-tight">
+									<span className="truncate font-medium text-sm text-secondary-foreground">{user.name}</span>
+									<span className="truncate my-0 font-[200] text-sm text-foreground/70">{user.email}</span>
 								</div>
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
+						<DropdownMenuGroup className="flex flex-col gap-1 py-2">
 							<DropdownMenuItem asChild>
 								<Link href="/notification-preferences">
 									<Bell className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function NavUser({
 							</>
 						)}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem
+						<DropdownMenuItem className="text-sm mt-2"
 							onClick={async () => {
 								try {
 									await signOut()

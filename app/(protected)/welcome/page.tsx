@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Typography } from "@/components/ui/typography"
 // Subscription store disabled in this build
 // CSS module migrated to Tailwind classes
@@ -69,14 +69,14 @@ export default function WelcomePage() {
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 					{howItWorks.map(step => (
-						<Card key={step.step} className="transition-all duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg">
-							<CardHeader>
-								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-radial-gradient-secondary text-primary-foreground font-semibold text-lg mb-4">{step.step}</div>
-								<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{step.title}</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<p className="text-muted-foreground leading-relaxed mb-4">{step.description}</p>
-							</CardContent>
+						<Card key={step.step} className="transition-all duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg bg-card py-12">
+							<div className="flex flex-row items-center justify-center w-full gap-4 h-10 my-8">
+								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1D7558] border-2 mx-0 border-[#3C8C7091] text-primary-foreground font-semibold text-h5 mb-4">{step.step}</div>
+								<Typography variant="h3" className="text-xl font-semibold tracking-tight mb-2 mt-0 w-full">
+									{step.title}
+								</Typography>
+							</div>
+							<p className="text-muted-foreground leading-relaxed mb-4">{step.description}</p>
 						</Card>
 					))}
 				</div>

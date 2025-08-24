@@ -1,8 +1,8 @@
 "use client"
 
-import { Music } from "lucide-react"
 import Image from "next/image"
 import type React from "react"
+import { Badge } from "./badge"
 import DateIndicator from "./date-indicator"
 import { Body, Typography } from "./typography"
 
@@ -21,25 +21,24 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
     const date: Date = publishedAt ? new Date(publishedAt) : new Date()
 
     return (
-        <Root className="flex bg-card content flex-row items-center  hover:bg-card content/10 active:bg-card content/20 justify-start px-4 md:px-8 py-4 w-full gap-6 episode-card w-full ">
-            <div className="pl-1 w-full max-w-[90px]">
-                {imageUrl ? (
-                    <Image src={imageUrl} alt={title} className="h-34 w-full max-w-[80px] md:h-24 md:w-full rounded-md object-cover" width={200} height={120} />
-                ) : (
-                    <div className="h-8 w-8 md:h-24 md:w-24 rounded-md bg-muted flex items-center justify-center">
-                        <Music className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                )}
-            </div>
+        <Root className="flex flex-row items-center hover:bg-card content/10 active:bg-card justify-between px-8 py-2 w-full gap-8 episode-card w-full ">
+            {imageUrl ? (
+                <div className="  w-full items-center max-w-[50px]  ">
+                    <Image src={imageUrl} alt={title} className="h-20 w-full max-w-[70px] md:h-14 md:w-full border-1 m-2   shadow-md border-[#201326F3] rounded-2xl object-fill" width={100} height={60} />
+                </div>
+            ) : null}
             <div className="flex w-[100%] min-width-[100%] flex-col justify-around py-2  px-0 md:px-0 gap-1">
-                <Typography as="h5" className="font-heading font-bold truncate mb-0 w-full block">
+                <Typography as="h5" className="episode-card-title leading-normal font-bold truncate m-0 w-full block text-[#fff]/90">
                     {title}
                 </Typography>
-                <Body className=" text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{description || "No description available."}</Body>
-                <DateIndicator size="sm" indicator={date} label="Published" />
+                <Body className=" text-custom-xs text-card-foreground episode-card-description mb-0 w-full">{description || "No description available."}</Body>
+                <Badge size="sm" variant="default" className="w-fit text-card-foreground">
+                    <DateIndicator size="sm" indicator={date} label={null} />
+                </Badge>
 
-                <div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start gap-2">{actions}</div>
+
             </div>
+            <div className="flex-self-end flex justify-end ">{actions}</div>
         </Root>
     )
 }
