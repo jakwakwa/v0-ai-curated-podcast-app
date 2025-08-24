@@ -51,7 +51,7 @@ const geminiTTSConfig = {
 	speechConfig: {
 		voiceConfig: {
 			prebuiltVoiceConfig: {
-				voiceName: "Zephyr", // Fast single voice
+				voiceName: "Enceladus",
 			},
 		},
 	},
@@ -121,7 +121,6 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 
 	return buffer
 }
-
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	// Try both env variable names for compatibility
 	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY
