@@ -34,6 +34,8 @@ export function EpisodeCreator() {
 	const [voiceA, setVoiceA] = useState<string>("Zephyr")
 	const [voiceB, setVoiceB] = useState<string>("Puck")
 	const [useShort, setUseShort] = useState<boolean>(true)
+	const [allowPaid, setAllowPaid] = useState<boolean>(false)
+	const [attempts, setAttempts] = useState<Array<{ provider: string; success: boolean; error?: string }>>([])
 
 	const showDevFlags = useMemo(() => process.env.NEXT_PUBLIC_SHOW_DEV_EPISODE_FLAGS === "true", [])
 
@@ -47,8 +49,34 @@ export function EpisodeCreator() {
 		useShortEpisodesOverride?: boolean
 	}
 
+	function isYouTubeUrl(url: string): boolean {
+		return url.includes("youtube.com") || url.includes("youtu.be")
+	}
+
+	async function extractViaOrchestrator(url: string, usePaid: boolean) {
+		const qs = new URLSearchParams({ url })
+		if (usePaid) qs.set("allowPaid", "true")
+		const res = await fetch(`/api/transcripts/get?${qs.toString()}`)
+		if (!res.ok) {
+			try {
+				const data = await res.json()
+				setAttempts(Array.isArray(data?.attempts) ? data.attempts : [])
+				return { success: false, error: data?.error || "Transcript not available" }
+			} catch {
+				return { success: false, error: await res.text() }
+			}
+		}
+		const data = await res.json()
+		setAttempts(Array.isArray(data?.attempts) ? data.attempts : [])
+		return data as { success: true; transcript: string }
+	}
+
 	// Transcript extraction with client-first then server fallback
 	const extractTranscriptWithFallbacks = async (url: string) => {
+		// Non-YouTube: use orchestrator directly
+		if (!isYouTubeUrl(url)) {
+			return await extractViaOrchestrator(url, allowPaid)
+		}
 		try {
 			const clientResult = await extractYouTubeTranscript(url)
 			if (clientResult.success && clientResult.transcript) {
@@ -60,7 +88,7 @@ export function EpisodeCreator() {
 			if (customRes.ok) {
 				const customData = await customRes.json()
 				if (customData.success && customData.transcript) {
-					return { success: true, transcript: customData.transcript, method: "custom" }
+					return { success: true, transcript: customData.transcript, method: "server" }
 				}
 			} else {
 				const text = await customRes.text()
@@ -69,7 +97,10 @@ export function EpisodeCreator() {
 		} catch (error) {
 			return { success: false, error: error instanceof Error ? error.message : "Unknown error", method: "server" }
 		}
-		return { success: false, error: "All transcript extraction methods failed. Please use manual input.", method: "none" }
+		// Final attempt: orchestrator (may use paid fallback if enabled)
+		const orch = await extractViaOrchestrator(url, allowPaid)
+		if ((orch as any).success) return { success: true, transcript: (orch as any).transcript, method: "orchestrator" }
+		return { success: false, error: (orch as any).error || "All transcript methods failed", method: "none" }
 	}
 
 	useEffect(() => {
@@ -92,26 +123,30 @@ export function EpisodeCreator() {
 
 	useEffect(() => {
 		const handler = setTimeout(async () => {
-			if (youtubeUrl.includes("youtube.com") || youtubeUrl.includes("youtu.be")) {
+			if (youtubeUrl) {
 				try {
 					setIsFetchingTitle(true)
 					setIsFetchingTranscript(true)
 					setError(null)
-					const titlePromise = fetch(`/api/youtube-metadata?url=${encodeURIComponent(youtubeUrl)}`).then(res => (res.ok ? res.json() : null)).then(data => data?.title || "").catch(() => "")
+					setAttempts([])
+					// Only fetch YouTube title for YouTube links
+					const titlePromise = isYouTubeUrl(youtubeUrl)
+						? fetch(`/api/youtube-metadata?url=${encodeURIComponent(youtubeUrl)}`).then(res => (res.ok ? res.json() : null)).then(data => data?.title || "").catch(() => "")
+						: Promise.resolve("")
 					const transcriptPromise = extractTranscriptWithFallbacks(youtubeUrl)
 					const [title, transcriptResult] = await Promise.all([titlePromise, transcriptPromise])
 					setEpisodeTitle(title)
-					if (transcriptResult.success && transcriptResult.transcript) {
-						setTranscript(transcriptResult.transcript)
-						setExtractionMethod(transcriptResult.method || "unknown")
+					if ((transcriptResult as any).success && (transcriptResult as any).transcript) {
+						setTranscript((transcriptResult as any).transcript)
+						setExtractionMethod((transcriptResult as any).method || "unknown")
 					} else {
 						setTranscript("")
 						setExtractionMethod("")
-						setError(transcriptResult.error || "Failed to extract transcript. The video may not have captions available.")
+						setError((transcriptResult as any).error || "Failed to extract transcript.")
 					}
 				} catch (error) {
 					setTranscript("")
-					setError("Failed to fetch video data. Please check the YouTube URL.")
+					setError("Failed to fetch data. Please check the URL.")
 				} finally {
 					setIsFetchingTitle(false)
 					setIsFetchingTranscript(false)
@@ -120,10 +155,11 @@ export function EpisodeCreator() {
 				setTranscript("")
 				setEpisodeTitle("")
 				setError(null)
+				setAttempts([])
 			}
 		}, 1000)
 		return () => { clearTimeout(handler) }
-	}, [youtubeUrl])
+	}, [youtubeUrl, allowPaid])
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -184,7 +220,7 @@ export function EpisodeCreator() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>
-					<CardDescription>Enter a YouTube URL to generate a new podcast episode.</CardDescription>
+					<CardDescription>Enter a YouTube, podcast page, or RSS URL. We’ll resolve transcripts and fallbacks automatically.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{isLoadingUsage ? (
@@ -194,35 +230,50 @@ export function EpisodeCreator() {
 					) : (
 						<form onSubmit={handleSubmit} className="space-y-6">
 							<div className="space-y-2">
-								<Label htmlFor="youtubeUrl">YouTube URL</Label>
-								<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={isCreating} required />
+								<Label htmlFor="youtubeUrl">Source URL</Label>
+								<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={isCreating} required />
+							</div>
+
+							<div className="flex items-center gap-2">
+								<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTranscript} />
+								<Label htmlFor="allowPaid">Use paid fallback (Rev.ai) when needed</Label>
 							</div>
 
 							<div className="space-y-2">
 								<Label htmlFor="episodeTitle">Episode Title</Label>
-								<Input id="episodeTitle" placeholder="Episode title will be fetched automatically" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} disabled={isCreating || isFetchingTitle} required />
+								<Input id="episodeTitle" placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"} value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} disabled={isCreating || isFetchingTitle} required />
 							</div>
 
 							<div className="space-y-4">
 								<Label>Transcript Source</Label>
 								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual") }>
 									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="auto">Auto Extract (client-first)</TabsTrigger>
+										<TabsTrigger value="auto">Auto Extract</TabsTrigger>
 										<TabsTrigger value="manual">Manual Input</TabsTrigger>
 									</TabsList>
 
 									<TabsContent value="auto" className="space-y-2">
 										<div className="text-sm text-gray-600">
 											{isFetchingTranscript ? (
-												<span className="text-blue-600">🔄 Extracting transcript from video...</span>
+												<span className="text-blue-600">🔄 Extracting transcript...</span>
 											) : transcript && transcript.trim().length > 0 ? (
 												<span className="text-green-600">✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}</span>
 											) : youtubeUrl && !isFetchingTranscript ? (
-												<span className="text-red-500">✗ Could not extract transcript automatically. YouTube may have blocked automated access. Try Manual Input.</span>
+												<span className="text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</span>
 											) : (
-												<span>Enter a YouTube URL above to auto-extract transcript</span>
+												<span>Enter a URL above to auto-extract transcript</span>
 											)}
 										</div>
+										{attempts && attempts.length > 0 && (
+											<div className="mt-2 text-xs text-gray-600">
+												<Label className="text-xs text-gray-500">Attempts:</Label>
+												<ul className="list-disc pl-5">
+													{attempts.map((a, idx) => (
+														<li key={idx}>{a.provider}: {a.success ? "ok" : `fail${a.error ? ` (${a.error})` : ""}`}</li>
+													))}
+												</ul>
+											</div>
+										)}
 										{transcript && (
 											<div className="mt-2">
 												<Label className="text-xs text-gray-500">Preview:</Label>
