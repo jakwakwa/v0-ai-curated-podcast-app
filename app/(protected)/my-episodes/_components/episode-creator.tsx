@@ -85,18 +85,16 @@ export function EpisodeCreator() {
         const fetchUsage = async () => {
             try {
                 setIsLoadingUsage(true)
-                const res = await fetch("/api/account/subscription")
+                const res = await fetch("/api/user-episodes?count=true")
                 if (res.ok) {
-                    const subscription = await res.json()
-                    if (subscription) {
-                        setUsage({
-                            count: subscription.episode_creation_count,
-                            limit: EPISODE_LIMIT, // TODO: This should come from plan data
-                        })
-                    }
+                    const { count } = await res.json()
+                    setUsage({
+                        count: count,
+                        limit: EPISODE_LIMIT, // TODO: This should come from plan data
+                    })
                 }
             } catch (error) {
-                console.error("Failed to fetch subscription data:", error)
+                console.error("Failed to fetch user episodes data:", error)
             } finally {
                 setIsLoadingUsage(false)
             }
@@ -217,7 +215,8 @@ export function EpisodeCreator() {
     }
 
     return (
-        <div className="space-y-4">
+
+        <div className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
             {showProgress && currentEpisodeId && <EpisodeProgress episodeId={currentEpisodeId} onComplete={handleProgressComplete} onError={handleProgressError} />}
 
             <Card>

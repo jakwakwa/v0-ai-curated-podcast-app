@@ -3,34 +3,27 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-
-const EPISODE_LIMIT = 30 // Assuming a limit of 30 for now
+import { PRICING_TIER } from "@/config/paddle-config"
+import { useUserEpisodesStore } from "@/lib/stores/user-episodes-store"
 
 export function UsageDisplay() {
-    const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })
+    // const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })
     const [isLoading, setIsLoading] = useState(true)
+    // const subscription = useSubscriptionStore(state => state.subscription)
+
+    // ALWAYS CURATE_CONTROL PLAN   
+    const episodeLimit = PRICING_TIER.find(tier => tier.planId === "CURATE_CONTROL")?.episodeLimit || 16;
+
+    const fetchCompletedEpisodeCount = useUserEpisodesStore(state => state.fetchCompletedEpisodeCount)
+    const completedEpisodeCount = useUserEpisodesStore(state => state.completedEpisodeCount)
+    const usage = { count: completedEpisodeCount, limit: episodeLimit }
 
     useEffect(() => {
-        const fetchUsage = async () => {
-            try {
-                const res = await fetch("/api/account/subscription")
-                if (res.ok) {
-                    const subscription = await res.json()
-                    if (subscription) {
-                        setUsage({
-                            count: subscription.episode_creation_count,
-                            limit: EPISODE_LIMIT, // TODO: This should come from plan data
-                        })
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch subscription data:", error)
-            } finally {
-                setIsLoading(false)
-            }
-        }
+        fetchCompletedEpisodeCount()
+    }, [fetchCompletedEpisodeCount])
 
-        fetchUsage()
+    useEffect(() => {
+        setIsLoading(false) // set loading to false when user episodes are fetched  
     }, [])
 
     if (isLoading) {
@@ -38,7 +31,7 @@ export function UsageDisplay() {
     }
 
     return (
-        <Card>
+        <Card variant="default">
             <CardHeader>
                 <CardTitle>Episode Usage</CardTitle>
             </CardHeader>
@@ -46,7 +39,7 @@ export function UsageDisplay() {
                 <p>
                     You have used {usage.count} of your {usage.limit} monthly episodes.
                 </p>
-                {/* TODO: Add a progress bar */}
+
             </CardContent>
         </Card>
     )

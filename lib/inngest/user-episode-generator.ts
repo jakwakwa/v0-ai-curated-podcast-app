@@ -356,7 +356,10 @@ Transcript: ${transcript}`,
 			})
 		})
 
-		// Step 5: Notify user (in-app + email)
+		// Step 5: Episode Usage is now tracked by counting UserEpisode records
+		// No need to update subscription table - usage is calculated dynamically
+
+		// Step 6: Notify user (in-app + email)
 		await step.run("notify-user", async () => {
 			const episode = await prisma.userEpisode.findUnique({
 				where: { episode_id: userEpisodeId },

@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertCircle } from "lucide-react"
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { toast } from "sonner"
@@ -141,32 +142,25 @@ export default function CurationProfileManagementPage() {
 						<Card className="lg:col-span-1 flex flex-col w-full gap-8">
 							<CardHeader className="w-full flex flex-col justify-between pb-0 mb-1">
 								<div className="flex flex-col justify-between w-full">
-
 									<CardTitle className="w-full my-2">Current Weekly Feed Profile</CardTitle>
 									<CardDescription>
-										Track, change and modify your weekly bundled feeds. If you're a "Curate and Control" member. Generate a total of 30 podcast episode summaries per month from virtually any youtube channel.
+										Track, change and modify your weekly bundled feeds. If you're a "Curate and Control" member. Generate a total of 30 podcast episode summaries per month from virtually any youtube
+										channel.
 									</CardDescription>
-
-
 								</div>
 							</CardHeader>
 
-
-
-
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
 								<Card variant="default" className="py-4 px-8">
-									<Typography as="h4" className="w-full text-foreground p-0 m-0"><span className=" text-md uppercase text-foreground font-bold my-2">
-										{userCurationProfile?.name}</span>
+									<Typography as="h4" className="w-full text-foreground p-0 m-0">
+										<span className=" text-md uppercase text-foreground font-bold my-2">{userCurationProfile?.name}</span>
 									</Typography>
 									<Typography className="text-xs text-muted-foreground mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography>
 									<Button className="mb-4" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 										Update Weekly Feed (Bundle)
 									</Button>
 									<div className="bg-card-plain px-2 py-3 border-dark rounded">
-										<Typography className="text-md font-bold uppercase text-secondary-foreground">
-											{userCurationProfile.selectedBundle.name}
-										</Typography>
+										<Typography className="text-md font-bold uppercase text-secondary-foreground">{userCurationProfile.selectedBundle.name}</Typography>
 
 										<div className="mt-2">
 											<Typography as="p" className="font-normal italic text-sm">
@@ -181,8 +175,6 @@ export default function CurationProfileManagementPage() {
 											</ul>
 										</div>
 									</div>
-
-
 								</Card>
 							)}
 
@@ -193,7 +185,6 @@ export default function CurationProfileManagementPage() {
 										<span className="text-foreground/80 text-xs">Bundle Episode/s:</span>
 										<span className="font-medium">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 									</div>
-
 
 									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-2">
 										<span className="text-foreground/80 text-xs">Plan Tier:</span>
@@ -208,20 +199,23 @@ export default function CurationProfileManagementPage() {
 										<span className="text-xs opacity-[0.5]">{_formatDate(userCurationProfile?.updated_at)}</span>
 									</div>
 								</div>
-
-
 							</Card>
 						</Card>
 						<Card variant="default" className="py-4 px-6 border-dark border-b-dark">
-
-
 							<CardTitle className="w-full my-2">Your recently generated episodes</CardTitle>
-							<CardDescription>
-								View and manage your recently generated episodes.
-							</CardDescription>
-
-
-
+							<CardDescription>View and manage your recently generated episodes.</CardDescription>
+							{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
+								<Link href="/my-episodes" passHref>
+									<Button variant="default" size="sm" className="mt-4">
+										My Episodes
+									</Button>
+								</Link>
+							)}
+							<Link href="/generate-my-episodes" passHref>
+								<Button variant="default" size="sm" className="mt-4">
+									Episode Creator
+								</Button>
+							</Link>
 
 							<CardContent className="w-full mt-4 px-0">
 								{userEpisodes.length === 0 ? (
@@ -239,9 +233,7 @@ export default function CurationProfileManagementPage() {
 														title={episode.episode_title}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
-														actions={
-															<Button size="play" variant="play" onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} />
-														}
+														actions={<Button size="play" variant="play" onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} />}
 													/>
 												</li>
 											))}

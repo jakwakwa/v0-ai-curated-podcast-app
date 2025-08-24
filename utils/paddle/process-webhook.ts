@@ -78,10 +78,7 @@ export class ProcessWebhook {
 			cancel_at_period_end,
 		}
 
-		// Reset usage counter on renewal
-		if (event.eventType === EventName.SubscriptionUpdated) {
-			Object.assign(updateData, { episode_creation_count: 0 })
-		}
+		// Usage is now tracked by counting UserEpisode records, no need to reset counters
 
 		await prisma.subscription.upsert({
 			where: { paddle_subscription_id: externalId },

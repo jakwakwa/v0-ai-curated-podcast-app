@@ -26,14 +26,17 @@ export async function POST(request: Request) {
 
 		const { youtubeUrl, episodeTitle, transcript } = parsed.data
 
-		const subscription = await prisma.subscription.findFirst({
-			where: { user_id: userId },
-			orderBy: { created_at: "desc" },
+		// Count only completed user episodes for this user
+		const existingEpisodeCount = await prisma.userEpisode.count({
+			where: { 
+				user_id: userId,
+				status: "COMPLETED" // Only count completed episodes towards limit
+			},
 		})
 
-		// Assuming a limit of 10 for now
-		const EPISODE_LIMIT = 10
-		if ((subscription?.episode_creation_count ?? 0) >= EPISODE_LIMIT) {
+		// Get episode limit from plan configuration
+		const EPISODE_LIMIT = 16 // CURATE_CONTROL plan limit
+		if (existingEpisodeCount >= EPISODE_LIMIT) {
 			return new NextResponse("You have reached your monthly episode creation limit.", { status: 403 })
 		}
 

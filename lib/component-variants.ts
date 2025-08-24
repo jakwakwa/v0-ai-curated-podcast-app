@@ -22,10 +22,11 @@ export const typographyVariants = cva("", {
 export const cardVariants = cva("rounded-3xl px-3 border transition-all duration-200", {
 	variants: {
 		variant: {
-			default: "main-card border text-card-foreground",
+			default: "default-card border text-card-foreground",
 			glass: "bg-cardglass	backdrop-blur-[2px]",
 			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
 			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",
+			transparent: "main-card",
 		},
 		selected: {
 			true: "border-2 border-accent-selection-border bg-gradient-to-br from-accent-selection-bg to-card shadow-lg shadow-accent-selection-bg/20",
