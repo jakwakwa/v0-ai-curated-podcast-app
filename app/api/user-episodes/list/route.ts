@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { ensureBucketName, getStorageReader } from "@/lib/gcs"
+import { getStorageReader, parseGcsUri } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(_request: Request) {
@@ -16,22 +16,19 @@ export async function GET(_request: Request) {
 		})
 
 		const storageReader = getStorageReader()
-		const bucketName = ensureBucketName()
 
 		const episodesWithSignedUrls = await Promise.all(
 			episodes.map(async episode => {
 				let signedAudioUrl: string | null = null
 				if (episode.gcs_audio_url) {
-					// GCS URL is in gs://<bucket>/<object> format
-					const objectName = episode.gcs_audio_url.replace(`gs://${bucketName}/`, "")
-					const [url] = await storageReader
-						.bucket(bucketName)
-						.file(objectName)
-						.getSignedUrl({
-							action: "read",
-							expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-						})
-					signedAudioUrl = url
+					const parsed = parseGcsUri(episode.gcs_audio_url)
+					if (parsed) {
+						const [url] = await storageReader
+							.bucket(parsed.bucket)
+							.file(parsed.object)
+							.getSignedUrl({ action: "read", expires: Date.now() + 15 * 60 * 1000 })
+						signedAudioUrl = url
+					}
 				}
 				return { ...episode, signedAudioUrl }
 			})
