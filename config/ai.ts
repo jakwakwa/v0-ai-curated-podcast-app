@@ -15,14 +15,19 @@ export const PAYMENT_CONFIG = {
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model
-	maxSources: 1, // Maximum number of sources allowed per collection
+	geminiTTSModel: "gemini-2.5-flash-preview-tts",
+	maxSources: 2, // Maximum number of sources allowed per collection
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
+
+	// Episode generation settings
+	useShortEpisodes: true, // Set to `true` for 1-minute episodes (testing), `false` for 3-minute episodes (production)
+
 	// Add other AI-related configurations here if needed]
 	/* **HOPE** */
-	synthVoice: "uYXf8XasLslADfZ2MB4u",
+	// synthVoice: "uYXf8XasLslADfZ2MB4u",
 	/* **VINCE** */
 	// synthVoicd: "zZLmKvCp1i04X8E0FJ8B",
-	synthModel: "eleven_flash_v2",
+	// synthModel: "eleven_flash_v2",
 }
 
 // "TX3LPaxmHKxFdv7VOQHJ", // Liam

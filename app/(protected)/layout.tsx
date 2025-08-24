@@ -6,6 +6,7 @@ import type React from "react"
 import { useCallback, useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
+import { NotificationBell } from "@/components/ui/notification-bell"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 
@@ -17,21 +18,25 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 			<AppSidebar />
 
 			<SidebarInset>
-				<header className="bg-primary flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0">
-
-					<div className="flex items-center gap-2 px-2 md:px-4">
+				<header className="bg-primary flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4" >
+					<div className="flex items-center justify-between gap-2 px-2 md:px-4">
 						{/* @ts-ignore */}
-						<SidebarTrigger className="ml-2" />
+						<SidebarTrigger className=" w-10" />
 						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
 						<DynamicBreadcrumb />
+
 					</div>
+					<div className="w-[100px] flex flex-row flex-end items-center justify-end mr-4" >
+
+						<NotificationBell />
+					</div>
+
 				</header>
 
 				<main className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-0 md:px-12 mt-8 md:mt-14 mb-20 ${state === "expanded" ? "w-full" : "w-full"}`}>
 					<div className="main-layouts"></div>
 					<div className="w-full min-w-[100px] p-0 flex gap-8 px-2 md:px-8 min-h-screen">{children}</div>
 				</main>
-
 			</SidebarInset>
 		</>
 	)

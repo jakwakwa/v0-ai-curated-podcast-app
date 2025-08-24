@@ -1,7 +1,7 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { Home, Info, Play, Radio, Settings } from "lucide-react"
+import { Bell, Home, Info, Play, Radio, Settings } from "lucide-react"
 import type * as React from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -23,6 +23,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: Home,
+		},
+		{
+			title: "Notifications",
+			url: "/notifications",
+			icon: Bell
 		},
 		{
 			title: "About Podslice",
@@ -48,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	]
 
 	return (
-		<Sidebar collapsible="offcanvas" {...props} className="bg-sidebar/90 border-2 border-l-0 border-b-0 border-r-[#000] pl-2">
+		<Sidebar collapsible="offcanvas" {...props} className="bg-sidebar/90 border-2 border-l-0 border-b-0 border-r-[#000] ">
 			<SidebarContent>
 				<NavMain items={navItems} />
 			</SidebarContent>

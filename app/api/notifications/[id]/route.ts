@@ -1,35 +1,28 @@
 import { auth } from "@clerk/nextjs/server"
-import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-interface RouteParams {
-	params: Promise<{ id: string }>
-}
-
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
 	try {
 		const { userId } = await auth()
-
 		if (!userId) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		const { id } = await params
-
+		const { id } = params
 		if (!id) {
-			return new NextResponse("Notification ID is required", { status: 400 })
+			return NextResponse.json({ error: "Notification ID is required" }, { status: 400 })
 		}
 
-		const deletedNotification = await prisma.notification.delete({
+		const result = await prisma.notification.deleteMany({
 			where: { notification_id: id, user_id: userId },
 		})
 
-		if (!deletedNotification) {
-			return new NextResponse("Notification not found or unauthorized", { status: 404 })
+		if (result.count === 0) {
+			return NextResponse.json({ error: "Notification not found" }, { status: 404 })
 		}
 
-		return NextResponse.json({ message: "Notification deleted successfully" })
+		return NextResponse.json({ success: true })
 	} catch (error) {
 		console.error("[NOTIFICATION_DELETE]", error)
 		return new NextResponse("Internal Error", { status: 500 })

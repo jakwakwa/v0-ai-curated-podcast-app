@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getSubscriptionsByCustomer } from "@/lib/paddle-server/paddle"
 import { prisma } from "@/lib/prisma"
+import { priceIdToPlanType } from "@/utils/paddle/plan-utils"
 
 const checkoutCompletedSchema = z.object({
 	transaction_id: z.string(),
@@ -90,6 +91,17 @@ export async function POST(request: Request) {
 			}
 		} catch {}
 
+		// Enforce single active-like subscription per user locally
+		const existingActive = await prisma.subscription.findFirst({
+			where: {
+				user_id: userId,
+				OR: [{ status: "active" }, { status: "trialing" }, { status: "paused" }],
+			},
+		})
+		if (existingActive && (externalSubscriptionId ? existingActive.paddle_subscription_id !== externalSubscriptionId : true)) {
+			return NextResponse.json({ error: "You already have an active subscription. Manage or change your plan instead of purchasing a new one." }, { status: 409 })
+		}
+
 		// Be idempotent: upsert by unique paddle_subscription_id (fall back to transaction_id if Paddle sub id is missing)
 		const uniqueExternalId = externalSubscriptionId || transaction_id
 		const newSubscription = await prisma.subscription.upsert({
@@ -98,12 +110,14 @@ export async function POST(request: Request) {
 				user_id: userId,
 				paddle_subscription_id: uniqueExternalId,
 				paddle_price_id: priceId,
+				plan_type: priceIdToPlanType(priceId) ?? undefined,
 				status: "active",
 				current_period_start,
 				current_period_end,
 			},
 			update: {
 				paddle_price_id: priceId,
+				plan_type: priceIdToPlanType(priceId) ?? undefined,
 				status: "active",
 				current_period_start,
 				current_period_end,
@@ -123,10 +137,18 @@ export async function GET() {
 		if (!userId) {
 			return new Response("Unauthorized", { status: 401 })
 		}
-		const subscription = await prisma.subscription.findFirst({
-			where: { user_id: userId },
-			orderBy: { created_at: "desc" },
-		})
+		const findLatest = async () =>
+			prisma.subscription.findFirst({
+				where: { user_id: userId },
+				orderBy: { created_at: "desc" },
+			})
+		let subscription = await findLatest()
+		// Retry once on transient connection closure
+		if (!subscription) {
+			try {
+				subscription = await findLatest()
+			} catch {}
+		}
 		if (!subscription) {
 			return new Response(null, { status: 204 })
 		}

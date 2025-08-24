@@ -52,6 +52,15 @@ export async function cancelSubscription(subscriptionId: string) {
 	})
 }
 
+// Schedule cancellation at end of current billing period
+export async function scheduleCancelSubscription(subscriptionId: string) {
+	return paddleApiRequest({
+		method: "POST",
+		path: `/subscriptions/${subscriptionId}/cancel`,
+		body: {},
+	})
+}
+
 export async function updateSubscription(subscriptionId: string, updateData: { items: Array<{ price_id: string; quantity: number }>; proration_billing_mode?: "immediate" | "next_billing_period" }) {
 	return paddleApiRequest({
 		method: "PATCH",
@@ -63,7 +72,7 @@ export async function updateSubscription(subscriptionId: string, updateData: { i
 export async function getTransaction(transactionId: string) {
 	// Only allow alphanumeric, dash, and underscore in transactionId
 	if (!/^[a-zA-Z0-9_-]+$/.test(transactionId)) {
-		throw new Error("Invalid transactionId format");
+		throw new Error("Invalid transactionId format")
 	}
 	return paddleApiRequest({
 		method: "GET",
