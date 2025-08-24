@@ -3,27 +3,15 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { inngest } from "@/lib/inngest/client"
 import { prisma } from "@/lib/prisma"
-
-const VOICE_NAMES = [
-	"Zephyr","Puck","Charon",
-	"Kore","Fenrir","Leda",
-	"Orus","Aoede","Callirrhoe",
-	"Autonoe","Enceladus","Iapetus",
-	"Umbriel","Algieba","Despina",
-	"Erinome","Algenib","Rasalgethi",
-	"Laomedeia","Achernar","Alnilam",
-	"Schedar","Gacrux","Pulcherrima",
-	"Achird","Zubenelgenubi","Vindemiatrix",
-	"Sadachbia","Sadaltager","Sulafat",
-] as const
+import { VOICE_NAMES } from "@/lib/constants/voices"
 
 const createEpisodeSchema = z.object({
 	youtubeUrl: z.string().url(),
 	episodeTitle: z.string().min(1),
 	transcript: z.string().min(1),
 	generationMode: z.enum(["single", "multi"]).default("single").optional(),
-	voiceA: z.enum(VOICE_NAMES).optional(),
-	voiceB: z.enum(VOICE_NAMES).optional(),
+	voiceA: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
+	voiceB: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
 	useShortEpisodesOverride: z.boolean().optional(),
 })
 

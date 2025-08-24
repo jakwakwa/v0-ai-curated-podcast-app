@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { EpisodeProgress } from "@/components/ui/episode-progress"
@@ -10,41 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { extractYouTubeTranscript } from "@/lib/client-youtube-transcript"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { VOICE_OPTIONS } from "@/lib/constants/voices"
 
 const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
-
-const VOICE_OPTIONS = [
-	{ name: "Zephyr", label: "Zephyr — Bright" },
-	{ name: "Puck", label: "Puck — Upbeat" },
-	{ name: "Charon", label: "Charon — Informative" },
-	{ name: "Kore", label: "Kore — Firm" },
-	{ name: "Fenrir", label: "Fenrir — Excitable" },
-	{ name: "Leda", label: "Leda — Youthful" },
-	{ name: "Orus", label: "Orus — Firm" },
-	{ name: "Aoede", label: "Aoede — Breezy" },
-	{ name: "Callirrhoe", label: "Callirrhoe — Easy-going" },
-	{ name: "Autonoe", label: "Autonoe — Bright" },
-	{ name: "Enceladus", label: "Enceladus — Breathy" },
-	{ name: "Iapetus", label: "Iapetus — Clear" },
-	{ name: "Umbriel", label: "Umbriel — Easy-going" },
-	{ name: "Algieba", label: "Algieba — Smooth" },
-	{ name: "Despina", label: "Despina — Smooth" },
-	{ name: "Erinome", label: "Erinome — Clear" },
-	{ name: "Algenib", label: "Algenib — Gravelly" },
-	{ name: "Rasalgethi", label: "Rasalgethi — Informative" },
-	{ name: "Laomedeia", label: "Laomedeia — Upbeat" },
-	{ name: "Achernar", label: "Achernar — Soft" },
-	{ name: "Alnilam", label: "Alnilam — Firm" },
-	{ name: "Schedar", label: "Schedar — Even" },
-	{ name: "Gacrux", label: "Gacrux — Mature" },
-	{ name: "Pulcherrima", label: "Pulcherrima — Forward" },
-	{ name: "Achird", label: "Achird — Friendly" },
-	{ name: "Zubenelgenubi", label: "Zubenelgenubi — Casual" },
-	{ name: "Vindemiatrix", label: "Vindemiatrix — Gentle" },
-	{ name: "Sadachbia", label: "Sadachbia — Lively" },
-	{ name: "Sadaltager", label: "Sadaltager — Knowledgeable" },
-	{ name: "Sulafat", label: "Sulafat — Warm" },
-]
 
 export function EpisodeCreator() {
 	const [youtubeUrl, setYoutubeUrl] = useState("")
@@ -67,18 +35,26 @@ export function EpisodeCreator() {
 	const [voiceB, setVoiceB] = useState<string>("Puck")
 	const [useShort, setUseShort] = useState<boolean>(true)
 
+	const showDevFlags = useMemo(() => process.env.NEXT_PUBLIC_SHOW_DEV_EPISODE_FLAGS === "true", [])
+
+	type CreatePayload = {
+		youtubeUrl: string
+		episodeTitle: string
+		transcript: string
+		generationMode: "single" | "multi"
+		voiceA?: string
+		voiceB?: string
+		useShortEpisodesOverride?: boolean
+	}
+
 	// Transcript extraction with client-first then server fallback
 	const extractTranscriptWithFallbacks = async (url: string) => {
-		// 1) Browser/client-side captions fetch (less likely to be blocked)
 		try {
 			const clientResult = await extractYouTubeTranscript(url)
 			if (clientResult.success && clientResult.transcript) {
 				return { success: true, transcript: clientResult.transcript, method: "client" }
 			}
-		} catch {
-			// continue
-		}
-		// 2) Server-side extraction + Whisper
+		} catch {}
 		try {
 			const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
 			if (customRes.ok) {
@@ -146,9 +122,7 @@ export function EpisodeCreator() {
 				setError(null)
 			}
 		}, 1000)
-		return () => {
-			clearTimeout(handler)
-		}
+		return () => { clearTimeout(handler) }
 	}, [youtubeUrl])
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -158,7 +132,7 @@ export function EpisodeCreator() {
 		setSuccessMessage(null)
 		try {
 			const finalTranscript = transcriptMethod === "manual" ? manualTranscript : transcript
-			const payload: any = { youtubeUrl, episodeTitle, transcript: finalTranscript, generationMode }
+			const payload: CreatePayload = { youtubeUrl, episodeTitle, transcript: finalTranscript, generationMode }
 			if (generationMode === "multi") {
 				payload.voiceA = voiceA
 				payload.voiceB = voiceB
@@ -186,6 +160,7 @@ export function EpisodeCreator() {
 	}
 
 	const hasReachedLimit = usage.count >= usage.limit
+	const FIFTEEN_MIN_MS = 15 * 60 * 1000
 	const hasValidTranscript = transcriptMethod === "manual" ? manualTranscript && manualTranscript.trim().length > 0 : transcript && transcript.trim().length > 0
 	const canSubmit = youtubeUrl && episodeTitle && hasValidTranscript && !isCreating && !isFetchingTitle && !isFetchingTranscript
 
@@ -278,7 +253,7 @@ export function EpisodeCreator() {
 										<div>
 											<Label>Voice A</Label>
 											<Select value={voiceA} onValueChange={setVoiceA}>
-												<SelectTrigger className="w-full">
+												<SelectTrigger className="w/full">
 													<SelectValue placeholder="Select Voice A" />
 												</SelectTrigger>
 												<SelectContent>
@@ -291,7 +266,7 @@ export function EpisodeCreator() {
 										<div>
 											<Label>Voice B</Label>
 											<Select value={voiceB} onValueChange={setVoiceB}>
-												<SelectTrigger className="w-full">
+												<SelectTrigger className="w/full">
 													<SelectValue placeholder="Select Voice B" />
 												</SelectTrigger>
 												<SelectContent>
@@ -302,14 +277,16 @@ export function EpisodeCreator() {
 											</Select>
 										</div>
 									</div>
-									<div className="space-y-1">
-										<Label>Developer test mode</Label>
-										<div className="text-xs text-gray-600">Shorter summary and shorter episode (for faster testing)</div>
-										<div>
-											<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm">Short</Button>
-											<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm">Production (3-5 min)</Button>
+									{showDevFlags && (
+										<div className="space-y-1">
+											<Label>Developer test mode</Label>
+											<div className="text-xs text-gray-600">Shorter summary and shorter episode (for faster testing)</div>
+											<div>
+												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm">Short</Button>
+												<Button type="button" variant={!useShort ? "default" : "secondary"} onClick={() => setUseShort(false)} className="ml-2" size="sm">Production (3-5 min)</Button>
+											</div>
 										</div>
-									</div>
+									)}
 								</div>
 							)}
 

@@ -85,7 +85,6 @@ function isWav(buffer: Buffer): boolean {
 }
 
 function extractWavOptions(buffer: Buffer): WavConversionOptions {
-	// assumes standard PCM header
 	const numChannels = buffer.readUInt16LE(22)
 	const sampleRate = buffer.readUInt32LE(24)
 	const bitsPerSample = buffer.readUInt16LE(34)
@@ -107,46 +106,60 @@ function concatenateWavs(buffers: Buffer[]): Buffer {
 	return Buffer.concat([header, ...pcmParts])
 }
 
-async function ttsWithVoice(text: string, voiceName: string): Promise<Buffer> {
+async function ttsWithVoice(text: string, voiceName: string, retries = 2): Promise<Buffer> {
 	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY
 	if (!apiKey) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY is not set.")
-	const ai = new GoogleGenAI({ apiKey })
-	const contents = [
-		{ role: "user", parts: [{ text: `Read the following lines as ${voiceName}, in an engaging podcast style. Only speak the text.\n\n${text}` }] },
-	]
-	const response = await ai.models.generateContentStream({
-		model: DEFAULT_TTS_MODEL,
-		config: {
-			temperature: 1,
-			responseModalities: ["audio"],
-			speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
-		},
-		contents,
-	})
-	for await (const chunk of response) {
-		const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData as
-			| { data?: string; mimeType?: string }
-			| undefined
-		if (!inlineData) continue
-		const ext = mime.getExtension(inlineData.mimeType || "")
-		const buf = Buffer.from(inlineData.data || "", "base64")
-		if (ext === "wav" && isWav(buf)) return buf
-		return convertToWav(inlineData.data || "", inlineData.mimeType || "audio/L16;rate=24000")
+	let lastError: unknown
+	for (let attempt = 0; attempt <= retries; attempt++) {
+		try {
+			const ai = new GoogleGenAI({ apiKey })
+			const contents = [{ role: "user", parts: [{ text: `Read the following lines as ${voiceName}, in an engaging podcast style. Only speak the text.\n\n${text}` }] }]
+			const response = await ai.models.generateContentStream({
+				model: DEFAULT_TTS_MODEL,
+				config: { temperature: 1, responseModalities: ["audio"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } },
+				contents,
+			})
+			for await (const chunk of response) {
+				const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData as { data?: string; mimeType?: string } | undefined
+				if (!inlineData) continue
+				const ext = mime.getExtension(inlineData.mimeType || "")
+				const buf = Buffer.from(inlineData.data || "", "base64")
+				if (ext === "wav" && isWav(buf)) return buf
+				return convertToWav(inlineData.data || "", inlineData.mimeType || "audio/L16;rate=24000")
+			}
+			throw new Error("TTS response had no audio data")
+		} catch (err) {
+			lastError = err
+			if (attempt === retries) break
+			await new Promise(res => setTimeout(res, 1000 * (attempt + 1)))
+		}
 	}
-	throw new Error("TTS response had no audio data")
+	throw lastError instanceof Error ? lastError : new Error("Unknown TTS error")
 }
 
 type DialogueLine = { speaker: "A" | "B"; text: string }
 
 const DialogueSchema = z.object({ speaker: z.enum(["A", "B"]), text: z.string().min(1) })
 
+function stripMarkdownJsonFences(input: string): string {
+	return input.replace(/```json\n?|\n?```/g, "").trim()
+}
+
 function coerceJsonArray(input: string): DialogueLine[] {
-	// Attempt to extract JSON array from possible code blocks or extra text
-	const jsonMatch = input.match(/\[[\s\S]*\]/)
-	const jsonText = jsonMatch ? jsonMatch[0] : input
-	const parsed = JSON.parse(jsonText)
-	const lines = z.array(DialogueSchema).parse(parsed)
-	return lines
+	const attempts: Array<() => unknown> = [
+		() => JSON.parse(input),
+		() => JSON.parse((input.match(/\[[\s\S]*\]/)?.[0] || "[]")),
+		() => JSON.parse(stripMarkdownJsonFences(input)),
+	]
+	for (const attempt of attempts) {
+		try {
+			const parsed = attempt()
+			return z.array(DialogueSchema).parse(parsed)
+		} catch {
+			continue
+		}
+	}
+	throw new Error("Failed to parse dialogue script")
 }
 
 export const generateUserEpisodeMulti = inngest.createFunction(
@@ -213,12 +226,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 				model,
 				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${isShort ? "short (~1 minute)" : "around 3-5 minutes"}. Do not include stage directions or timestamps.\n\nOutput ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.\n\nSummary: ${summary}`,
 			})
-			try {
-				return coerceJsonArray(text)
-			} catch (e) {
-				console.error("Failed to parse duet script JSON:", e)
-				throw new Error("Failed to generate structured duet script")
-			}
+			return coerceJsonArray(text)
 		})
 
 		const gcsAudioUrl = await step.run("synthesize-multi-voice-and-upload", async () => {
