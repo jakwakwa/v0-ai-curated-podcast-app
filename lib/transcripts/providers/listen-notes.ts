@@ -1,4 +1,5 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
+import { isListenNotesAllowed, recordListenNotesCall } from "@/lib/usage/listen-notes-quota"
 
 function isDirectAudioUrl(url: string): boolean {
 	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url)
@@ -18,9 +19,11 @@ async function resolveAudioViaListenNotes(url: string, apiKey: string): Promise<
 	endpoint.searchParams.set("len_min", "0")
 	endpoint.searchParams.set("len_max", "36000")
 
+	// Record usage before calling to prevent race increments on rapid retries
+	recordListenNotesCall()
+
 	const res = await fetch(endpoint.toString(), {
 		headers: { "X-ListenAPI-Key": apiKey },
-		// Allow caching by Next if desired later
 	})
 	if (!res.ok) return null
 	const data = await res.json() as any
@@ -37,7 +40,8 @@ export const ListenNotesProvider: TranscriptProvider = {
 	canHandle(request) {
 		if (isYouTube(request.url)) return false
 		if (isDirectAudioUrl(request.url)) return false
-		return Boolean(process.env.LISTEN_NOTES_API_KEY)
+		if (!process.env.LISTEN_NOTES_API_KEY) return false
+		return isListenNotesAllowed()
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		const apiKey = process.env.LISTEN_NOTES_API_KEY
