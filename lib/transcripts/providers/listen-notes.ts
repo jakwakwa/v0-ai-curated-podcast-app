@@ -1,5 +1,6 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 import { isListenNotesAllowed, recordListenNotesCall } from "@/lib/usage/listen-notes-quota"
+import { incrementPaidServiceUsage } from "@/lib/usage/service-usage"
 
 function isDirectAudioUrl(url: string): boolean {
 	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url)
@@ -21,6 +22,7 @@ async function resolveAudioViaListenNotes(url: string, apiKey: string): Promise<
 
 	// Record usage before calling to prevent race increments on rapid retries
 	recordListenNotesCall()
+	incrementPaidServiceUsage("listen-notes")
 
 	const res = await fetch(endpoint.toString(), {
 		headers: { "X-ListenAPI-Key": apiKey },
