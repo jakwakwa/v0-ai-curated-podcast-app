@@ -11,9 +11,17 @@ import type { Readable } from "node:stream"
 import ytdl from "@distube/ytdl-core"
 import OpenAI from "openai"
 
-const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY,
-})
+let _openaiClient: OpenAI | null = null
+function getOpenAIClient(): OpenAI {
+	const apiKey = process.env.OPENAI_API_KEY
+	if (!_openaiClient) {
+		if (!apiKey) {
+			throw new Error("OpenAI API key not configured")
+		}
+		_openaiClient = new OpenAI({ apiKey })
+	}
+	return _openaiClient
+}
 
 export interface TranscriptionResult {
 	success: boolean
@@ -99,15 +107,16 @@ async function transcribeWithWhisper(filePath: string): Promise<string> {
 		// Create a readable stream from the file
 		const fileStream = createReadStream(filePath)
 
+		const openai = getOpenAIClient()
 		const transcription = await openai.audio.transcriptions.create({
-			file: fileStream as ReadStream & { name?: string }, // Type ReadStream for OpenAI SDK
+			file: fileStream as ReadStream & { name?: string },
 			model: "whisper-1",
-			language: "en", // Can be made configurable
+			language: "en",
 			response_format: "text",
 			temperature: 0.2,
 		})
 
-		return transcription as string
+		return transcription as unknown as string
 	} catch (error) {
 		console.error("Error transcribing with Whisper:", error)
 		throw new Error(`Transcription failed: ${error instanceof Error ? error.message : "Unknown error"}`)
