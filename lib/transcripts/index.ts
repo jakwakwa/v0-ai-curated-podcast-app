@@ -6,6 +6,8 @@ import { ListenNotesProvider } from "./providers/listen-notes"
 import { PaidAsrProvider } from "./providers/paid-asr"
 import { RevAiProvider } from "./providers/revai"
 
+const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
+
 export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	if (/youtu(be\.be|be\.com)/i.test(url)) return "youtube"
 	if (/(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url)) return "podcast"
@@ -17,9 +19,18 @@ function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undef
 		return [YouTubeCaptionsProvider, YouTubeClientProvider, ...(allowPaid ? [PaidAsrProvider] : [])]
 	}
 	if (kind === "podcast") {
-		return [PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [RevAiProvider] : [])]
+		return [
+			PodcastRssProvider,
+			...(ENABLE_LISTEN_NOTES ? [ListenNotesProvider] as const : []),
+			...(allowPaid ? [RevAiProvider] : []),
+		]
 	}
-	return [YouTubeCaptionsProvider, PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [RevAiProvider, PaidAsrProvider] : [])]
+	return [
+		YouTubeCaptionsProvider,
+		PodcastRssProvider,
+		...(ENABLE_LISTEN_NOTES ? [ListenNotesProvider] as const : []),
+		...(allowPaid ? [RevAiProvider, PaidAsrProvider] : []),
+	]
 }
 
 export async function getTranscriptOrchestrated(initialRequest: TranscriptRequest): Promise<OrchestratorResult> {
@@ -38,13 +49,11 @@ export async function getTranscriptOrchestrated(initialRequest: TranscriptReques
 			if (result.success) {
 				return { ...result, attempts }
 			}
-			// If provider hinted a nextUrl (e.g., RSS -> enclosure audio), switch request and refresh chain
 			const nextUrl = (result as any)?.meta?.nextUrl as string | undefined
 			if (nextUrl) {
 				request = { ...request, url: nextUrl }
 				kind = detectKindFromUrl(nextUrl)
 				providers = getProviderChain(kind, request.allowPaid)
-				// Continue with updated providers list
 			}
 		} catch (error) {
 			const errMsg = error instanceof Error ? error.message : "Unknown provider error"
