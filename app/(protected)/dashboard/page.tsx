@@ -107,7 +107,7 @@ export default function Page() {
 
 	if (error) {
 		return (
-			<div className="main-layouts container mx-auto p-6">
+			<div className=" mx-auto p-6">
 				<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 				<Alert>
 					<AlertCircle className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function Page() {
 	}
 
 	return (
-		<div className="mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+		<div className="default-card mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
 			{/* MAIN CONTAINER */}
 
 			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />

@@ -260,7 +260,7 @@
 	--color-foreground: var(--foreground);
 	--color-foreground-muted: var(--foreground-muted);
 		/* MAIN BG  */
-	--background: oklch(0.11 0 285.76 / 0.66);
+	--background: oklch(0.15 0.01 303.27 / 0.95);
 
 
 	--card: rgba(29, 41, 11, 1);
@@ -661,6 +661,20 @@ textarea {
 		border-radius: 10px !important;
 	}
 
+	.container {
+		background-color: oklch(0.17 0 196.85 / 0.88) !important;
+	}
+
+	.default-card {
+		background-color: oklch(0.24 0.02 284.72 / 0.57) !important;
+		background-image: linear-gradient(to right bottom, oklch(0.25 0.01 285.56 / 0.79), oklch(0.31 0.02 211.26 / 0.02)) !important;
+		border-radius: 8px;
+		outline: 1px solid #151B1FEB !important;
+		transition: all 0.2s ease-in-out;
+		padding: 12px 20px 12px 20px;
+		outline-offset: 1px !important;
+	}
+
 	.main-card {
 		
 		background-image: linear-gradient(to right bottom, oklch(0.25 0.01 285.56 / 0.79), oklch(0.31 0.02 211.26 / 0.02)) !important;
@@ -744,6 +758,8 @@ textarea {
 		-webkit-line-clamp: 1;
 		-webkit-box-orient: vertical;
 	}
+
+
 
 	.bg-card {
 		background-image: linear-gradient(340deg, oklch(0.39 0.23 278.08 / 0.09), oklch(0.63 0.08 299.67 / 0.17));
@@ -1330,17 +1346,17 @@ textarea {
 	}
 
 	.main-layouts {
-		position: absolute;
+		/* position: absolute;
 		inset: 0;
 		pointer-events: none;
 		background:  url('/assets/background/checkout-bottom-gradient-original.svg') no-repeat,  url('/assets/background/grid-bg.svg') no-repeat;
 		background-color: oklch(0.12 0.04 300.35 / 0.39) !important;
 		/* Layered subtle gradients */
 		/* background-position: 0% 0%, 40% 40% !important; */
-		background-size: 110% 110%, 110% 110% !important;
+		/* background-size: 110% 110%, 110% 110% !important;
 		animation: heroGradientShift 15s ease-in-out infinite alternate;
 		filter: blur(1px) !important;
-		mix-blend-mode: multiply, multiply;
+		mix-blend-mode: multiply, multiply; */
 	}
 }
 
