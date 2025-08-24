@@ -67,9 +67,18 @@ export function EpisodeCreator() {
 	const [voiceB, setVoiceB] = useState<string>("Puck")
 	const [useShort, setUseShort] = useState<boolean>(true)
 
-	// Transcript extraction with multiple fallbacks
+	// Transcript extraction with client-first then server fallback
 	const extractTranscriptWithFallbacks = async (url: string) => {
-		console.log("🔄 Starting transcript extraction with fallbacks...")
+		// 1) Browser/client-side captions fetch (less likely to be blocked)
+		try {
+			const clientResult = await extractYouTubeTranscript(url)
+			if (clientResult.success && clientResult.transcript) {
+				return { success: true, transcript: clientResult.transcript, method: "client" }
+			}
+		} catch {
+			// continue
+		}
+		// 2) Server-side extraction + Whisper
 		try {
 			const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
 			if (customRes.ok) {
@@ -77,17 +86,12 @@ export function EpisodeCreator() {
 				if (customData.success && customData.transcript) {
 					return { success: true, transcript: customData.transcript, method: "custom" }
 				}
+			} else {
+				const text = await customRes.text()
+				return { success: false, error: text || "Transcription failed", method: "server" }
 			}
-		} catch {
-			// ignore
-		}
-		try {
-			const clientResult = await extractYouTubeTranscript(url)
-			if (clientResult.success && clientResult.transcript) {
-				return { success: true, transcript: clientResult.transcript, method: "client" }
-			}
-		} catch {
-			// ignore
+		} catch (error) {
+			return { success: false, error: error instanceof Error ? error.message : "Unknown error", method: "server" }
 		}
 		return { success: false, error: "All transcript extraction methods failed. Please use manual input.", method: "none" }
 	}
@@ -226,9 +230,9 @@ export function EpisodeCreator() {
 
 							<div className="space-y-4">
 								<Label>Transcript Source</Label>
-								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
+								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual") }>
 									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="auto">Auto Extract</TabsTrigger>
+										<TabsTrigger value="auto">Auto Extract (client-first)</TabsTrigger>
 										<TabsTrigger value="manual">Manual Input</TabsTrigger>
 									</TabsList>
 
@@ -239,7 +243,7 @@ export function EpisodeCreator() {
 											) : transcript && transcript.trim().length > 0 ? (
 												<span className="text-green-600">✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}</span>
 											) : youtubeUrl && !isFetchingTranscript ? (
-												<span className="text-red-500">✗ Could not extract transcript automatically</span>
+												<span className="text-red-500">✗ Could not extract transcript automatically. YouTube may have blocked automated access. Try Manual Input.</span>
 											) : (
 												<span>Enter a YouTube URL above to auto-extract transcript</span>
 											)}
