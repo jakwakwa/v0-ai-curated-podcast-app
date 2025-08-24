@@ -1,7 +1,33 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
+import { XMLParser } from "fast-xml-parser"
 
 function isLikelyPodcastUrl(url: string): boolean {
 	return /(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url)
+}
+
+function looksLikeRssUrl(url: string): boolean {
+	return /\.rss(\b|$)/i.test(url) || /\/feed(\b|$)/i.test(url)
+}
+
+function ensureArray<T>(value: T | T[] | undefined): T[] {
+	if (!value) return []
+	return Array.isArray(value) ? value : [value]
+}
+
+async function fetchText(url: string): Promise<string> {
+	const res = await fetch(url)
+	if (!res.ok) throw new Error(`Failed to fetch: ${url}`)
+	return await res.text()
+}
+
+async function tryFetchTranscriptFromUrl(url: string): Promise<string | null> {
+	try {
+		const text = await fetchText(url)
+		// naive heuristics: if JSON VTT/SRT, just return raw text for now
+		return text
+	} catch {
+		return null
+	}
 }
 
 export const PodcastRssProvider: TranscriptProvider = {
@@ -9,7 +35,49 @@ export const PodcastRssProvider: TranscriptProvider = {
 	canHandle(request) {
 		return isLikelyPodcastUrl(request.url)
 	},
-	async getTranscript(_request: TranscriptRequest): Promise<TranscriptResponse> {
-		return { success: false, error: "Podcast RSS transcript lookup not yet implemented", provider: this.name }
+	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
+		try {
+			// If it's not an obvious RSS URL, still try to fetch
+			const rssXml = await fetchText(request.url)
+
+			const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" })
+			const parsed = parser.parse(rssXml) as any
+			const channel = parsed?.rss?.channel || parsed?.feed || parsed?.channel
+			if (!channel) {
+				return { success: false, error: "Not a valid RSS feed", provider: this.name }
+			}
+
+			const items = ensureArray<any>(channel.item || channel.entry)
+			if (items.length === 0) {
+				return { success: false, error: "RSS feed has no items", provider: this.name }
+			}
+
+			// Try to find a transcript tag on any item
+			for (const item of items) {
+				const transcriptTags = ensureArray<any>(item["podcast:transcript"]) // Podcast namespace
+				for (const tag of transcriptTags) {
+					const href = tag?.["@_url"] || tag?.url
+					if (typeof href === "string" && href.startsWith("http")) {
+						const transcript = await tryFetchTranscriptFromUrl(href)
+						if (transcript && transcript.trim().length > 0) {
+							return { success: true, transcript, provider: this.name, meta: { transcriptUrl: href } }
+						}
+					}
+				}
+			}
+
+			// If no transcript, try to surface the audio URL from enclosure for fallback
+			for (const item of items) {
+				const enclosure = item.enclosure
+				const audioUrl: string | undefined = enclosure?.["@_url"] || enclosure?.url || item?.link
+				if (audioUrl && /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(audioUrl)) {
+					return { success: false, error: "No transcript in RSS; use audio", provider: this.name, meta: { nextUrl: audioUrl } }
+				}
+			}
+
+			return { success: false, error: "No transcript found in RSS", provider: this.name }
+		} catch (error) {
+			return { success: false, error: error instanceof Error ? error.message : "RSS provider error", provider: this.name }
+		}
 	},
 }

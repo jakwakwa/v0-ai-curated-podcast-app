@@ -22,9 +22,10 @@ function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undef
 	return [YouTubeCaptionsProvider, PodcastRssProvider, ListenNotesProvider, ...(allowPaid ? [RevAiProvider, PaidAsrProvider] : [])]
 }
 
-export async function getTranscriptOrchestrated(request: TranscriptRequest): Promise<OrchestratorResult> {
-	const kind = request.kind ?? detectKindFromUrl(request.url)
-	const providers = getProviderChain(kind, request.allowPaid)
+export async function getTranscriptOrchestrated(initialRequest: TranscriptRequest): Promise<OrchestratorResult> {
+	let request = { ...initialRequest }
+	let kind = request.kind ?? detectKindFromUrl(request.url)
+	let providers = getProviderChain(kind, request.allowPaid)
 
 	const attempts: OrchestratorResult["attempts"] = []
 
@@ -36,6 +37,14 @@ export async function getTranscriptOrchestrated(request: TranscriptRequest): Pro
 			attempts.push({ provider: provider.name, success: result.success, error: result.success ? undefined : result.error })
 			if (result.success) {
 				return { ...result, attempts }
+			}
+			// If provider hinted a nextUrl (e.g., RSS -> enclosure audio), switch request and refresh chain
+			const nextUrl = (result as any)?.meta?.nextUrl as string | undefined
+			if (nextUrl) {
+				request = { ...request, url: nextUrl }
+				kind = detectKindFromUrl(nextUrl)
+				providers = getProviderChain(kind, request.allowPaid)
+				// Continue with updated providers list
 			}
 		} catch (error) {
 			const errMsg = error instanceof Error ? error.message : "Unknown provider error"
