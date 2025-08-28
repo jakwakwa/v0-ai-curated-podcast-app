@@ -5,7 +5,7 @@ function isLikelyPodcastUrl(url: string): boolean {
 	return /(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url)
 }
 
-function looksLikeRssUrl(url: string): boolean {
+function _looksLikeRssUrl(url: string): boolean {
 	return /\.rss(\b|$)/i.test(url) || /\/feed(\b|$)/i.test(url)
 }
 

@@ -6,10 +6,9 @@ import type { UserCurationProfileWithRelations } from "@/lib/types"
 interface ProfileFeedCardsProps {
 	userCurationProfile: UserCurationProfileWithRelations | null
 	showProfileCard?: boolean
-	showBundleCard?: boolean
 }
 
-export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationProfile, showProfileCard = true, showBundleCard = true }: ProfileFeedCardsProps) {
+export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationProfile, showProfileCard = true }: ProfileFeedCardsProps) {
 	if (!userCurationProfile) {
 		return null
 	}

@@ -128,7 +128,7 @@ export default function Page() {
 				<div className="flex flex-col lg:flex-row gap-6">
 					<div className="w-full  md:w-full">
 						{userCurationProfile ? (
-							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} showBundleCard={true} />
+							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} />
 						) : (
 							<EmptyStateCard
 								title="No Personalized Feed Found"

@@ -1,5 +1,5 @@
-import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 import { transcribeYouTubeVideo } from "@/lib/custom-transcriber"
+import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 export const PaidAsrProvider: TranscriptProvider = {
 	name: "paid-asr",
@@ -15,7 +15,7 @@ export const PaidAsrProvider: TranscriptProvider = {
 				if (result.success && result.transcript) {
 					return { success: true, transcript: result.transcript, provider: this.name, meta: { audioSize: result.audioSize } }
 				}
-				return { success: false, error: result.error || "ASR failed" , provider: this.name }
+				return { success: false, error: result.error || "ASR failed", provider: this.name }
 			}
 			return { success: false, error: "ASR provider not configured for this source", provider: this.name }
 		} catch (error) {

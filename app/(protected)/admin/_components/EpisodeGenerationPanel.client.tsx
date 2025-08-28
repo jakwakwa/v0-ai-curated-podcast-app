@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
-import Stepper from "./stepper"
 import PanelHeader from "./PanelHeader"
+import Stepper from "./stepper"
 
 type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
 
@@ -56,16 +56,13 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		if (!podcastIds.includes(selectedPodcastId)) {
 			setSelectedPodcastId(podcastIds[0] ?? "")
 		}
-	}, [selectedPodcastId, selectedBundle?.podcasts, setSelectedPodcastId])
+	}, [selectedPodcastId, selectedBundle])
 
 	if (!hasBundles) {
 		return (
 			<div className="p-6">
 				<Card>
-					<PanelHeader
-						title="No bundles found"
-						description="Create a bundle before generating or uploading episodes."
-					/>
+					<PanelHeader title="No bundles found" description="Create a bundle before generating or uploading episodes." />
 					<CardContent>
 						<Button asChild variant="default">
 							<Link href="/admin/bundles">Create your first bundle</Link>
@@ -105,7 +102,14 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		const resp = await fetch("/api/admin/generate-bundle-episode", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ bundleId: selectedBundleId, podcastId: selectedPodcastId, title: episodeTitle, description: episodeDescription || undefined, image_url: episodeImageUrl || undefined, sources }),
+			body: JSON.stringify({
+				bundleId: selectedBundleId,
+				podcastId: selectedPodcastId,
+				title: episodeTitle,
+				description: episodeDescription || undefined,
+				image_url: episodeImageUrl || undefined,
+				sources,
+			}),
 		})
 		setIsLoading(false)
 		if (!resp.ok) {
@@ -245,7 +249,9 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 						</Select>
 						{selectedPodcast && (
 							<div className="mt-2">
-								<Badge size="sm" variant="secondary">Selected: {selectedPodcast.name}</Badge>
+								<Badge size="sm" variant="secondary">
+									Selected: {selectedPodcast.name}
+								</Badge>
 							</div>
 						)}
 					</CardContent>
@@ -401,7 +407,12 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									</div>
 								)}
 								<CardContent className="pt-2 p-0">
-									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant="default">
+									<Button
+										onClick={generateEpisode}
+										disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle || sources.length === 0}
+										className="w-full"
+										size="lg"
+										variant="default">
 										{isLoading ? (
 											<>
 												<AppSpinner size="sm" color="default" className="mr-2" />
