@@ -42,9 +42,22 @@ export const PodcastRssProvider: TranscriptProvider = {
 
 			const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" })
 			const parsed = parser.parse(rssXml) as unknown
-			type RssNode = { [key: string]: unknown }
-			const root = parsed as RssNode
-			const channel = (root as RssNode)?.rss?.channel ?? (root as RssNode)?.feed ?? (root as RssNode)?.channel
+
+			function getObject(value: unknown): Record<string, unknown> | null {
+				return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : null
+			}
+
+			function getProp(obj: unknown, key: string): unknown {
+				const rec = getObject(obj)
+				return rec ? rec[key] : undefined
+			}
+
+			const root = getObject(parsed)
+			const channelCandidate =
+				getProp(getProp(root, "rss"), "channel") ??
+				getProp(getProp(root, "feed"), "channel") ??
+				getProp(root, "channel")
+			const channel = getObject(channelCandidate)
 			if (!channel) {
 				return { success: false, error: "Not a valid RSS feed", provider: this.name }
 			}
