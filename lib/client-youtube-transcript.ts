@@ -201,19 +201,15 @@ export async function extractTranscriptViaIframe(url: string): Promise<Transcrip
 			iframe.style.display = "none"
 			iframe.src = `https://www.youtube.com/watch?v=${videoId}`
 
-			let timeoutId: NodeJS.Timeout | undefined
-
 			const cleanup = () => {
 				if (iframe.parentNode) {
 					iframe.parentNode.removeChild(iframe)
 				}
-				if (timeoutId) {
-					clearTimeout(timeoutId)
-				}
+				clearTimeout(timeoutId)
 			}
 
 			// Set timeout
-			timeoutId = setTimeout(() => {
+			const timeoutId = setTimeout(() => {
 				cleanup()
 				resolve({
 					success: false,

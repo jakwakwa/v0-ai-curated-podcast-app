@@ -41,22 +41,25 @@ export const PodcastRssProvider: TranscriptProvider = {
 			const rssXml = await fetchText(request.url)
 
 			const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" })
-			const parsed = parser.parse(rssXml) as any
-			const channel = parsed?.rss?.channel || parsed?.feed || parsed?.channel
+			const parsed = parser.parse(rssXml) as unknown
+			type RssNode = { [key: string]: unknown }
+			const root = parsed as RssNode
+			const channel = (root as RssNode)?.rss?.channel ?? (root as RssNode)?.feed ?? (root as RssNode)?.channel
 			if (!channel) {
 				return { success: false, error: "Not a valid RSS feed", provider: this.name }
 			}
 
-			const items = ensureArray<any>(channel.item || channel.entry)
+			const ch = channel as { item?: unknown | unknown[]; entry?: unknown | unknown[] }
+			const items = ensureArray<unknown>(ch.item || ch.entry)
 			if (items.length === 0) {
 				return { success: false, error: "RSS feed has no items", provider: this.name }
 			}
 
 			// Try to find a transcript tag on any item
-			for (const item of items) {
-				const transcriptTags = ensureArray<any>(item["podcast:transcript"]) // Podcast namespace
-				for (const tag of transcriptTags) {
-					const href = tag?.["@_url"] || tag?.url
+			for (const item of items as Array<Record<string, unknown>>) {
+				const transcriptTags = ensureArray<unknown>(item["podcast:transcript"]) // Podcast namespace
+				for (const tag of transcriptTags as Array<Record<string, unknown>>) {
+					const href = (tag?.["@_url"] as unknown) || (tag?.url as unknown)
 					if (typeof href === "string" && href.startsWith("http")) {
 						const transcript = await tryFetchTranscriptFromUrl(href)
 						if (transcript && transcript.trim().length > 0) {
@@ -67,9 +70,12 @@ export const PodcastRssProvider: TranscriptProvider = {
 			}
 
 			// If no transcript, try to surface the audio URL from enclosure for fallback
-			for (const item of items) {
-				const enclosure = item.enclosure
-				const audioUrl: string | undefined = enclosure?.["@_url"] || enclosure?.url || item?.link
+			for (const item of items as Array<Record<string, unknown>>) {
+				const enclosure = item.enclosure as Record<string, unknown> | undefined
+				const audioUrl: string | undefined =
+					(typeof enclosure?.["@_url"] === "string" ? (enclosure?.["@_url"] as string) : undefined) ||
+					(typeof enclosure?.url === "string" ? (enclosure?.url as string) : undefined) ||
+					(typeof item?.link === "string" ? (item.link as string) : undefined)
 				if (audioUrl && /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(audioUrl)) {
 					return { success: false, error: "No transcript in RSS; use audio", provider: this.name, meta: { nextUrl: audioUrl } }
 				}

@@ -1,6 +1,6 @@
-import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 import { isListenNotesAllowed, recordListenNotesCall } from "@/lib/usage/listen-notes-quota"
 import { incrementPaidServiceUsage } from "@/lib/usage/service-usage"
+import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 function isDirectAudioUrl(url: string): boolean {
 	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url)
@@ -28,10 +28,12 @@ async function resolveAudioViaListenNotes(url: string, apiKey: string): Promise<
 		headers: { "X-ListenAPI-Key": apiKey },
 	})
 	if (!res.ok) return null
-	const data = await res.json() as any
-	const results: any[] = Array.isArray(data?.results) ? data.results : []
+	const data = (await res.json()) as unknown
+	type ListenNotesSearch = { results?: Array<{ audio?: unknown }> }
+	const safe = data as ListenNotesSearch
+	const results: Array<{ audio?: unknown }> = Array.isArray(safe?.results) ? safe.results : []
 	for (const r of results) {
-		const audio: string | undefined = r?.audio
+		const audio: string | undefined = typeof r?.audio === "string" ? r.audio : undefined
 		if (audio && isDirectAudioUrl(audio)) return audio
 	}
 	return null

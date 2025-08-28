@@ -149,9 +149,11 @@ async function splitAudioIfNeeded(inputPath: string, maxBytes: number): Promise<
 	if (statBuf.length <= maxBytes) return [inputPath]
 	// Rough duration probe then split by duration proportionally
 	const probe = await new Promise<{ durationSec: number }>((resolve, reject) => {
-		ffmpeg.ffprobe(inputPath, (err: unknown, data: any) => {
+		ffmpeg.ffprobe(inputPath, (err: unknown, data: { format?: { duration?: number | string } }) => {
 			if (err) return reject(err)
-			resolve({ durationSec: (data.format.duration || 0) as number })
+			const raw = data?.format?.duration
+			const durationSec = typeof raw === "string" ? parseFloat(raw) : typeof raw === "number" ? raw : 0
+			resolve({ durationSec })
 		})
 	})
 	const parts: string[] = []
