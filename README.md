@@ -4,7 +4,7 @@
 
 PODSLICE is a sophisticated AI-powered content curation platform built on a modern, server-first architecture. It addresses the pervasive challenge of information overload by transforming long-form audio and video content (specifically from YouTube) into concise, personalized, and AI-generated podcast summaries. 
 The application's core value proposition, "Cut the Chatter, Keep the Insight," is supported by a multi-tier SaaS subscription model (Free Slice, Casual Listener, Curate Control) that grants hierarchical feature access. 
-The system is strategically architected with a Next.js App Router frontend, Inngest for robust background job orchestration, Prisma with PostgreSQL for data management, Google Cloud Storage (GCS) for audio asset hosting, and Clerk for secure and scalable authentication
+The system is strategically architected with a Next.js App Router frontend, Inngest for robust background job orchestration, Prisma with PostgreSQL for data management, Google Cloud Storage (GCS) for audio asset hosting, and Clerk for secure and scalable authentications
 
 ## **II. Application Domain & Business Logic**
 ### **Core Business Entities & Strategic Roles**
