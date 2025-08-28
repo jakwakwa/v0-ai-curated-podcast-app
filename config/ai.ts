@@ -1,17 +1,19 @@
-// Payment provider configuration
-// export const PAYMENT_CONFIG = {
-// 	// Payment provider selection
-// 	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
+// Payment
+// provider
+// configuration
+export const PAYMENT_CONFIG = {
+	// Payment provider selection
+	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
 
-// 	// Feature flags
-// 	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
+	// Feature flags
+	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
 
-// 	// Plan IDs
-// 	PADDLE: {
-// 		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
-// 		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
-// 	},
-// } as const
+	// Plan IDs
+	PADDLE: {
+		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
+		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
+	},
+} as const
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model
@@ -20,14 +22,7 @@ export const aiConfig = {
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
 
 	// Episode generation settings
-	useShortEpisodes: true, // Set to `true` for 1-minute episodes (testing), `false` for 3-minute episodes (production)
-
-	// Add other AI-related configurations here if needed]
-	/* **HOPE** */
-	// synthVoice: "uYXf8XasLslADfZ2MB4u",
-	/* **VINCE** */
-	// synthVoicd: "zZLmKvCp1i04X8E0FJ8B",
-	// synthModel: "eleven_flash_v2",
+	useShortEpisodes: true,
 }
 
 // "TX3LPaxmHKxFdv7VOQHJ", // Liam
