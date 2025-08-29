@@ -69,6 +69,7 @@
         "clsx": "^2.1.1",
         "date-fns": "4.1.0",
         "dayjs": "^1.11.13",
+        "fast-xml-parser": "^4.5.3",
         "framer-motion": "^12.23.12",
         "inngest": "^3.40.1",
         "lodash.throttle": "^4.1.1",
