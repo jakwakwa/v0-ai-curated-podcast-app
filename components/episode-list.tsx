@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
 import DateIndicator from "./ui/date-indicator"
+import DurationIndicator from "./ui/duration-indicator"
 import { Body, Typography } from "./ui/typography"
 
 interface EpisodeListProps {
@@ -49,6 +50,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 
 									<Body className=" text-custom-sm text-muted-foreground episode-card-description mb-0 w-full">{episode.description || "No description available."}</Body>
 									<DateIndicator size="sm" indicator={episode.published_at || new Date()} label="Published" />
+									<DurationIndicator size="sm" seconds={episode.duration_seconds ?? null} />
 									{/* Play button - delegates to parent component */}
 									{episode.audio_url && onPlayEpisode && (
 										<div className="mt-1 ml-0 pl-0 flex-self-start w-full flex justify-start">

@@ -66,6 +66,7 @@ model Episode {
   description   String?              @map("description")
   audio_url     String               @map("audio_url")
   image_url     String?              @map("image_url")
+  duration_seconds Int?              @map("duration_seconds")
   published_at  DateTime?            @map("published_at")
   week_nr       DateTime?            @map("week_nr")
   created_at    DateTime             @default(now()) @map("created_at")
