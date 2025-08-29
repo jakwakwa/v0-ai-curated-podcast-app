@@ -2,6 +2,7 @@ import { z } from "zod"
 import { inngest } from "./client"
 import { prisma } from "@/lib/prisma"
 import { searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
+import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video"
 
 type MetadataPayload = {
   userEpisodeId: string
@@ -144,6 +145,13 @@ export const transcribeFromMetadata = inngest.createFunction(
         // @ts-expect-error - step.sleep is provided by Inngest runtime
         await step.sleep("60s")
       }
+    }
+
+    // 3c) Try Gemini video understanding as last resort (if enabled)
+    if (!transcriptText) {
+      transcriptText = await step.run("gemini-video-transcribe", async () => {
+        return await transcribeWithGeminiFromUrl(audioUrl)
+      })
     }
 
     if (!transcriptText) {
