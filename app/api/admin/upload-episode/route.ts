@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "../../../../lib/prisma"
 import { withUploadTimeout } from "../../../../lib/utils"
 

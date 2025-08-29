@@ -3,6 +3,7 @@ import { inngest } from "./client"
 import { prisma } from "@/lib/prisma"
 import { searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
 import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video"
+import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger"
 
 type MetadataPayload = {
   userEpisodeId: string
@@ -55,6 +56,7 @@ export const transcribeFromMetadata = inngest.createFunction(
     // 1) Mark processing
     await step.run("mark-processing", async () => {
       await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "PROCESSING" } })
+      await writeEpisodeDebugLog(userEpisodeId, { step: "status", status: "start", message: "PROCESSING" })
     })
 
     // 2) Search audio URL via Listen Notes
@@ -67,6 +69,7 @@ export const transcribeFromMetadata = inngest.createFunction(
     if (!audioUrl) {
       await step.run("mark-failed-no-audio", async () => {
         await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } })
+        await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-audio", status: "fail", message: "No audio found" })
       })
       return { message: "No audio found for metadata", userEpisodeId }
     }
@@ -74,6 +77,7 @@ export const transcribeFromMetadata = inngest.createFunction(
     // Store the resolved audio url into youtube_url field for traceability
     await step.run("store-audio-url", async () => {
       await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { youtube_url: audioUrl } })
+      await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-audio", status: "success", meta: { audioUrl } })
     })
 
     if (!allowPaid) {
@@ -89,6 +93,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 
     if (assemblyKey) {
       const jobId = await step.run("assemblyai-start", async () => {
+        await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "start" })
         return await startAssemblyJob(audioUrl, assemblyKey)
       })
 
@@ -99,9 +104,11 @@ export const transcribeFromMetadata = inngest.createFunction(
         })
         if (job.status === "completed" && job.text) {
           transcriptText = job.text
+          await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "success", meta: { jobId } })
           break
         }
         if (job.status === "error") {
+          await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: job.error || "AssemblyAI job failed", meta: { jobId } })
           throw new Error(job.error || "AssemblyAI job failed")
         }
         // Wait 60 seconds before next poll
@@ -133,15 +140,22 @@ export const transcribeFromMetadata = inngest.createFunction(
         return await res.text()
       }
 
-      const jobId = await step.run("revai-start", startRev)
+      const jobId = await step.run("revai-start", async () => {
+        await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "start" })
+        return await startRev()
+      })
 
       for (let i = 0; i < 90; i++) {
         const status = await step.run("revai-poll", async () => await getStatus(jobId as string))
         if (status.status === "transcribed" || status.status === "completed") {
           transcriptText = await step.run("revai-fetch", async () => await getTranscript(jobId as string))
+          await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "success", meta: { jobId } })
           break
         }
-        if (status.status === "failed") throw new Error("Rev.ai job failed")
+        if (status.status === "failed") {
+          await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "fail", message: "Rev.ai job failed", meta: { jobId } })
+          throw new Error("Rev.ai job failed")
+        }
         // @ts-expect-error - step.sleep is provided by Inngest runtime
         await step.sleep("60s")
       }
@@ -150,13 +164,16 @@ export const transcribeFromMetadata = inngest.createFunction(
     // 3c) Try Gemini video understanding as last resort (if enabled)
     if (!transcriptText) {
       transcriptText = await step.run("gemini-video-transcribe", async () => {
-        return await transcribeWithGeminiFromUrl(audioUrl)
+        const t = await transcribeWithGeminiFromUrl(audioUrl)
+        await writeEpisodeDebugLog(userEpisodeId, { step: "gemini", status: t ? "success" : "fail" })
+        return t
       })
     }
 
     if (!transcriptText) {
       await step.run("mark-failed-no-transcript", async () => {
         await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } })
+        await writeEpisodeDebugLog(userEpisodeId, { step: "transcription", status: "fail", message: "All providers failed" })
       })
       return { message: "Transcription not completed within window", userEpisodeId }
     }
@@ -171,6 +188,11 @@ export const transcribeFromMetadata = inngest.createFunction(
       "user.episode.forward",
       { name: generationMode === "multi" ? "user.episode.generate.multi.requested" : "user.episode.generate.requested", data: { userEpisodeId, voiceA, voiceB } }
     )
+
+    await step.run("write-final-report", async () => {
+      const report = `# User Episode Run Report\n\n- Episode ID: ${userEpisodeId}\n- Title: ${title}\n- Podcast: ${podcastName ?? "-"}\n- Date: ${publishedAt ?? "-"}\n\n## Transcription\nProviders attempted: AssemblyAI → Rev.ai → Gemini\n\nTranscript length: ${transcriptText?.length ?? 0} chars\n\nNext step: ${generationMode === "multi" ? "Multi-speaker generation" : "Single-speaker generation"}\n`
+      await writeEpisodeDebugReport(userEpisodeId, report)
+    })
 
     return { message: "Transcription completed and generation triggered", userEpisodeId }
   }
