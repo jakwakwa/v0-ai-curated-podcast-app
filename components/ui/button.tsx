@@ -14,6 +14,9 @@ const buttonVariants = cva(
 					"btn-destructive hover:text-destructive-background hover:border-destructive",
 				outline:
 					"btn-ghost-outline",
+
+				icon: "flex items-center justify-center gap-2",
+
 				secondary: "btn-secondary px-2 md:px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)] focus:bg-accent",
 				ghost: "bg-none border-none outline-none text-foreground hover:color-[var(--color-secondary)] hover:text-accent-foreground",
 				link: "bg-none outline-none text-[var(--color-button-default-bg)] underline-offset-4 hover:underline p-0 h-auto w-auto inline-block align-middle leading-none text-base",
@@ -26,7 +29,6 @@ const buttonVariants = cva(
 				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
 				xs: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
 				lg: "h-10 px-2 md:px-6 rounded-lg md:rounded-xl",
-				icon: "size-12 w-12 h-12 p-0",
 				play: " w-auto inline-block align-middle leading-none text-xs px-0 py-0 my-0 leading-none flex flex-row items-center justify-center gap-1",
 			},
 		},
@@ -41,21 +43,22 @@ function Button({
 	variant,
 	size,
 	asChild = false,
-
 	children,
+	icon,
 	...props
 }: React.ComponentProps<"button"> & {
-	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play"
-	size?: "default" | "bundles" | "sm" | "xs" | "lg" | "icon" | "play"
+	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play" | "icon"
+	size?: "default" | "bundles" | "sm" | "xs" | "lg" | "play"
 	asChild?: boolean
+	icon?: React.ReactNode
 }) {
 	const Comp = asChild ? Slot : "button"
 
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
+			{icon && variant === "icon" && icon}
 			{children}
 			{variant === "play" && <PlayIcon color="#068B84A7" className="w-5 h-5" />}
-
 		</Comp>
 	)
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { Recycle, Speech } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -7,10 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { extractYouTubeTranscript } from "@/lib/client-youtube-transcript"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { Typography } from "@/components/ui/typography"
+import { extractYouTubeTranscript } from "@/lib/client-youtube-transcript"
 import { VOICE_OPTIONS } from "@/lib/constants/voices"
 
 const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
@@ -37,11 +39,11 @@ export function EpisodeCreator() {
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
 	const [voiceA, setVoiceA] = useState<string>("Zephyr")
 	const [voiceB, setVoiceB] = useState<string>("Puck")
-	const [useShort, setUseShort] = useState<boolean>(true)
+	const [useShort, _setUseShort] = useState<boolean>(true)
 	const [allowPaid, setAllowPaid] = useState<boolean>(true)
 	const [attempts, setAttempts] = useState<Array<{ provider: string; success: boolean; error?: string }>>([])
 
-	const showDevFlags = useMemo(() => process.env.NEXT_PUBLIC_SHOW_DEV_EPISODE_FLAGS === "true", [])
+	const _showDevFlags = useMemo(() => process.env.NEXT_PUBLIC_SHOW_DEV_EPISODE_FLAGS === "true", [])
 
 	type CreatePayload = {
 		youtubeUrl: string
@@ -206,7 +208,7 @@ export function EpisodeCreator() {
 
 	return (
 		<div className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
-			<Card>
+			<Card variant="default">
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>
 					<CardDescription>Enter a YouTube, podcast page, or RSS URL. We’ll resolve transcripts and fallbacks automatically.</CardDescription>
@@ -220,10 +222,15 @@ export function EpisodeCreator() {
 						<form onSubmit={handleSubmit} className="space-y-6">
 							<div className="space-y-2">
 								<Label>Creation Mode</Label>
+
 								<Tabs value={mode} onValueChange={value => setMode(value as "byUrl" | "byMetadata")}>
-									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="byUrl">By URL</TabsTrigger>
-										<TabsTrigger value="byMetadata">By Metadata</TabsTrigger>
+									<TabsList className="bg-dark flex items-center w-full grid-cols-2">
+										<TabsTrigger className="btn-custom-toggle h-2" value="byUrl">
+											By URL
+										</TabsTrigger>
+										<TabsTrigger className="bg-accent" value="byMetadata">
+											By Metadata
+										</TabsTrigger>
 									</TabsList>
 								</Tabs>
 							</div>
@@ -232,7 +239,14 @@ export function EpisodeCreator() {
 								<>
 									<div className="space-y-2">
 										<Label htmlFor="youtubeUrl">Source URL</Label>
-										<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} required />
+										<Input
+											id="youtubeUrl"
+											placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss"
+											value={youtubeUrl}
+											onChange={e => setYoutubeUrl(e.target.value)}
+											disabled={isCreating || isFetchingTitle || isFetchingTranscript}
+											required
+										/>
 									</div>
 
 									<div className="flex items-center gap-2">
@@ -242,27 +256,42 @@ export function EpisodeCreator() {
 
 									<div className="space-y-2">
 										<Label htmlFor="episodeTitle">Episode Title</Label>
-										<Input id="episodeTitle" placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"} value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} required />
+										<Input
+											id="episodeTitle"
+											placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"}
+											value={episodeTitle}
+											onChange={e => setEpisodeTitle(e.target.value)}
+											disabled={isCreating || isFetchingTitle || isFetchingTranscript}
+											required
+										/>
 									</div>
 
 									<div className="space-y-4">
 										<Label>Transcript Source</Label>
 										<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
 											<TabsList className="grid w-full grid-cols-2">
-												<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Auto Extract</TabsTrigger>
-												<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Manual Input</TabsTrigger>
+												<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+													Auto Extract
+												</TabsTrigger>
+												<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+													Manual Input
+												</TabsTrigger>
 											</TabsList>
 
 											<TabsContent value="auto" className="space-y-2">
-												<div className="text-sm text-gray-600">
+												<div className=" text-red-400">
 													{isFetchingTranscript ? (
-														<span className="text-blue-600">🔄 Extracting transcript...</span>
+														<Typography className="text-custom-xs text-blue-600"><Recycle /> Extracting transcript...</Typography>
 													) : transcript && transcript.trim().length > 0 ? (
-														<span className="text-green-600">✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}</span>
+														<Typography className="text-green-600">
+															✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}
+														</Typography>
 													) : youtubeUrl && !isFetchingTranscript ? (
-														<span className="text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</span>
+														<Typography className="text-custom-xxs text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</Typography>
 													) : (
-														<span>Enter a URL above to auto-extract transcript</span>
+														<Typography as="p" className="text-custom-xs">
+															Enter a URL above to auto-extract transcript
+														</Typography>
 													)}
 												</div>
 												{attempts && attempts.length > 0 && (
@@ -286,8 +315,18 @@ export function EpisodeCreator() {
 											</TabsContent>
 
 											<TabsContent value="manual" className="space-y-2">
-												<Label htmlFor="manualTranscript" className="text-sm">Paste transcript text here</Label>
-												<Textarea id="manualTranscript" placeholder="Paste the video transcript here..." value={manualTranscript} onChange={e => setManualTranscript(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} rows={6} className="resize-none" />
+												<Label htmlFor="manualTranscript" className="text-sm">
+													Paste transcript text here
+												</Label>
+												<Textarea
+													id="manualTranscript"
+													placeholder="Paste the video transcript here..."
+													value={manualTranscript}
+													onChange={e => setManualTranscript(e.target.value)}
+													disabled={isCreating || isFetchingTitle || isFetchingTranscript}
+													rows={6}
+													className="resize-none"
+												/>
 												{manualTranscript && <div className="text-xs text-gray-500">{manualTranscript.length} characters</div>}
 											</TabsContent>
 										</Tabs>
@@ -296,8 +335,20 @@ export function EpisodeCreator() {
 									<div className="space-y-2">
 										<Label>Episode Type</Label>
 										<div className="grid grid-cols-2 gap-2">
-											<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Single speaker</Button>
-											<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Multi speaker</Button>
+											<Button
+												type="button"
+												variant={generationMode === "single" ? "default" : "secondary"}
+												onClick={() => setGenerationMode("single")}
+												disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+												Single speaker
+											</Button>
+											<Button
+												type="button"
+												variant={generationMode === "multi" ? "default" : "secondary"}
+												onClick={() => setGenerationMode("multi")}
+												disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+												Multi speaker
+											</Button>
 										</div>
 									</div>
 
@@ -312,7 +363,9 @@ export function EpisodeCreator() {
 														</SelectTrigger>
 														<SelectContent>
 															{VOICE_OPTIONS.map(v => (
-																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+																<SelectItem key={v.name} value={v.name}>
+																	{v.label}
+																</SelectItem>
 															))}
 														</SelectContent>
 													</Select>
@@ -325,7 +378,9 @@ export function EpisodeCreator() {
 														</SelectTrigger>
 														<SelectContent>
 															{VOICE_OPTIONS.map(v => (
-																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+																<SelectItem key={v.name} value={v.name}>
+																	{v.label}
+																</SelectItem>
 															))}
 														</SelectContent>
 													</Select>
@@ -334,7 +389,9 @@ export function EpisodeCreator() {
 										</div>
 									)}
 
-									<Button variant="default" type="submit" disabled={!canSubmitUrl} className="w-full">{isCreating ? "Generating..." : "Generate Episode"}</Button>
+									<Button variant="default" type="submit" disabled={!canSubmitUrl} className="w-full">
+										{isCreating ? "Generating..." : "Generate Episode"}
+									</Button>
 								</>
 							)}
 
@@ -356,8 +413,12 @@ export function EpisodeCreator() {
 									<div className="space-y-2">
 										<Label>Episode Type</Label>
 										<div className="grid grid-cols-2 gap-2">
-											<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isBusy}>Single speaker</Button>
-											<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isBusy}>Multi speaker</Button>
+											<Button type="button" variant={generationMode === "single" ? "icon" : "secondary"} icon={<Speech className="w-4 h-4" />} onClick={() => setGenerationMode("single")} disabled={isBusy}>
+												Single speaker
+											</Button>
+											<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isBusy}>
+												Multi speaker
+											</Button>
 										</div>
 									</div>
 
@@ -372,7 +433,9 @@ export function EpisodeCreator() {
 														</SelectTrigger>
 														<SelectContent>
 															{VOICE_OPTIONS.map(v => (
-																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+																<SelectItem key={v.name} value={v.name}>
+																	{v.label}
+																</SelectItem>
 															))}
 														</SelectContent>
 													</Select>
@@ -385,7 +448,9 @@ export function EpisodeCreator() {
 														</SelectTrigger>
 														<SelectContent>
 															{VOICE_OPTIONS.map(v => (
-																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+																<SelectItem key={v.name} value={v.name}>
+																	{v.label}
+																</SelectItem>
 															))}
 														</SelectContent>
 													</Select>
@@ -394,25 +459,33 @@ export function EpisodeCreator() {
 										</div>
 									)}
 
-									<Button variant="default" type="button" disabled={!canSubmitMeta} className="w-full" onClick={async () => {
-										setIsCreating(true)
-										setError(null)
-										try {
-											const res = await fetch("/api/user-episodes/create-from-metadata", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: metaTitle, podcastName: metaPodcast || undefined, publishedAt: metaDate || undefined, generationMode, voiceA, voiceB, allowPaid }) })
-											if (!res.ok) throw new Error(await res.text())
-											toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
-											router.push("/curation-profile-management")
-										} catch (err) {
-											setError(err instanceof Error ? err.message : "Failed to start metadata flow")
-										} finally {
-											setIsCreating(false)
-										}
-									}}>
+									<Button
+										variant="default"
+										type="button"
+										disabled={!canSubmitMeta}
+										className="w-full"
+										onClick={async () => {
+											setIsCreating(true)
+											setError(null)
+											try {
+												const res = await fetch("/api/user-episodes/create-from-metadata", {
+													method: "POST",
+													headers: { "Content-Type": "application/json" },
+													body: JSON.stringify({ title: metaTitle, podcastName: metaPodcast || undefined, publishedAt: metaDate || undefined, generationMode, voiceA, voiceB, allowPaid }),
+												})
+												if (!res.ok) throw new Error(await res.text())
+												toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
+												router.push("/curation-profile-management")
+											} catch (err) {
+												setError(err instanceof Error ? err.message : "Failed to start metadata flow")
+											} finally {
+												setIsCreating(false)
+											}
+										}}>
 										{isCreating ? "Starting..." : "Start Metadata Search & Transcription"}
 									</Button>
 								</>
 							)}
-
 						</form>
 					)}
 					{error && <p className="text-red-500 mt-4">{error}</p>}
