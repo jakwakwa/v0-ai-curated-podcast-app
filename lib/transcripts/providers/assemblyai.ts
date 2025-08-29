@@ -47,10 +47,16 @@ function isYouTube(url: string): boolean {
 	return /youtu(be\.be|be\.com)/i.test(url)
 }
 
+function isAudioUrl(url: string): boolean {
+	return /\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$)/i.test(url) || url.includes("googlevideo.com")
+}
+
 export const AssemblyAIProvider: TranscriptProvider = {
 	name: "assemblyai",
 	canHandle(request) {
-		return Boolean(request.allowPaid) && isYouTube(request.url) && Boolean(process.env.ASSEMBLYAI_API_KEY)
+		return Boolean(request.allowPaid) && 
+			   (isYouTube(request.url) || isAudioUrl(request.url)) && 
+			   Boolean(process.env.ASSEMBLYAI_API_KEY)
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		const apiKey = process.env.ASSEMBLYAI_API_KEY

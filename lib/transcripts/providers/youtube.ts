@@ -1,5 +1,5 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
-import { getYouTubeTranscriptText } from "@/lib/youtube"
+import { getYouTubeTranscriptText } from "@/lib/youtube-safe"
 
 export const YouTubeCaptionsProvider: TranscriptProvider = {
 	name: "youtube-captions",
