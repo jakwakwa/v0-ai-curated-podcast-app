@@ -1,9 +1,11 @@
-import { AssemblyAiProvider } from "./providers/assemblyai"
+import { AssemblyAIProvider } from "./providers/assemblyai"
+import { ListenNotesProvider } from "./providers/listen-notes"
+// Skipped YouTube caption providers per new policy
 import { PodcastRssProvider } from "./providers/podcast"
 import { RevAiProvider } from "./providers/revai"
 import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
 
-const _ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
+const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
 
 export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	if (/youtu(be\.be|be\.com)/i.test(url)) return "youtube"
@@ -11,29 +13,15 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	return "unknown"
 }
 
-function _isVercelLike(): boolean {
-	// Prefer disabling ytdl-like providers on Vercel
-	return Boolean(process.env.VERCEL || process.env.NEXT_RUNTIME || process.env.VERCEL_REGION)
-}
-
 function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undefined): TranscriptProvider[] {
-	const providers: TranscriptProvider[] = []
 	if (kind === "youtube") {
-		// In Vercel, prefer AssemblyAI which accepts public URLs (including YouTube)
-		if (allowPaid) providers.push(AssemblyAiProvider)
-		// If we can resolve to direct audio first (not YouTube), Rev.ai can work
-		if (allowPaid) providers.push(RevAiProvider)
-		return providers
+		// Vercel-safe order: AssemblyAI (paid, remote) then Rev.ai (if already direct audio)
+		return [...(allowPaid ? [AssemblyAIProvider] : []), ...(allowPaid ? [RevAiProvider] : [])]
 	}
 	if (kind === "podcast") {
-		providers.push(PodcastRssProvider)
-		if (allowPaid) providers.push(RevAiProvider)
-		return providers
+		return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider] : [])]
 	}
-	// Unknown: try podcast heuristics then paid
-	providers.push(PodcastRssProvider)
-	if (allowPaid) providers.push(RevAiProvider, AssemblyAiProvider)
-	return providers
+	return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider] : [])]
 }
 
 export async function getTranscriptOrchestrated(initialRequest: TranscriptRequest): Promise<OrchestratorResult> {

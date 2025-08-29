@@ -1,4 +1,3 @@
-import { incrementPaidServiceUsage } from "@/lib/usage/service-usage"
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 interface RevAiJobResponse {
@@ -7,7 +6,6 @@ interface RevAiJobResponse {
 }
 
 async function startRevAiJob(audioUrl: string, apiKey: string): Promise<string> {
-	incrementPaidServiceUsage("revai")
 	const res = await fetch("https://api.rev.ai/speechtotext/v1/jobs", {
 		method: "POST",
 		headers: {
