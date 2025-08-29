@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-// Client-side YouTube captions disabled; we rely on server pipeline
+import { extractYouTubeTranscript } from "@/lib/client-youtube-transcript"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
@@ -34,7 +34,7 @@ export function EpisodeCreator() {
 	const [voiceA, setVoiceA] = useState<string>("Zephyr")
 	const [voiceB, setVoiceB] = useState<string>("Puck")
 	const [useShort, setUseShort] = useState<boolean>(true)
-	const [allowPaid, setAllowPaid] = useState<boolean>(false)
+	const [allowPaid, setAllowPaid] = useState<boolean>(true)
 	const [attempts, setAttempts] = useState<Array<{ provider: string; success: boolean; error?: string }>>([])
 
 	const showDevFlags = useMemo(() => process.env.NEXT_PUBLIC_SHOW_DEV_EPISODE_FLAGS === "true", [])
@@ -50,8 +50,8 @@ export function EpisodeCreator() {
 	}
 
 	type ExtractResult =
-		| { success: true; transcript: string; method: "whisper" | "orchestrator" | "unknown" }
-		| { success: false; error: string; method: "none" | "whisper" | "orchestrator" | "unknown" }
+		| { success: true; transcript: string; method: "captions" | "orchestrator" | "unknown" }
+		| { success: false; error: string; method: "none" | "captions" | "orchestrator" | "unknown" }
 
 	const isYouTubeUrl = useCallback((url: string): boolean => {
 		return url.includes("youtube.com") || url.includes("youtu.be")
@@ -75,17 +75,14 @@ export function EpisodeCreator() {
 		return data as { success: true; transcript: string }
 	}, [])
 
-	// Transcript extraction now: Whisper first (YouTube), then orchestrator (Rev.ai if allowed)
+	// Transcript extraction: Client captions first (YouTube), then orchestrator (paid providers)
 	const extractTranscriptWithFallbacks = useCallback(
 		async (url: string): Promise<ExtractResult> => {
 			if (isYouTubeUrl(url)) {
 				try {
-					const customRes = await fetch("/api/youtube-transcribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, validate: false }) })
-					if (customRes.ok) {
-						const customData = await customRes.json()
-						if ((customData as { success?: boolean; transcript?: string }).success && (customData as { transcript?: string }).transcript) {
-							return { success: true, transcript: (customData as { transcript: string }).transcript, method: "whisper" }
-						}
+					const clientData = await extractYouTubeTranscript(url)
+					if (clientData.success && clientData.transcript) {
+						return { success: true, transcript: clientData.transcript, method: "captions" }
 					}
 				} catch { }
 			}
@@ -230,7 +227,7 @@ export function EpisodeCreator() {
 
 							<div className="flex items-center gap-2">
 								<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} />
-								<Label htmlFor="allowPaid">Use paid fallback (Rev.ai) when needed</Label>
+								<Label htmlFor="allowPaid">Use paid transcription (AssemblyAI/Rev.ai) when needed</Label>
 							</div>
 
 							<div className="space-y-2">
