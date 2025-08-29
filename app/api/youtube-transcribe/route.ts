@@ -17,6 +17,10 @@ export async function POST(request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
+		// Gate server-side YouTube extraction on Vercel by default
+		const ENABLE_SERVER_YTDL = process.env.ENABLE_SERVER_YTDL === "true"
+		const IS_VERCEL = process.env.VERCEL === "1" || process.env.VERCEL === "true"
+
 		const json = await request.json()
 		const parsed = transcribeSchema.safeParse(json)
 
@@ -26,7 +30,19 @@ export async function POST(request: Request) {
 
 		const { url, validate } = parsed.data
 
-		// If validation requested, just check if video is suitable
+		// If server-side extraction is disabled in this environment, return early
+		if (IS_VERCEL && !ENABLE_SERVER_YTDL) {
+			return NextResponse.json(
+				{
+					success: false,
+					error:
+						"Server-side YouTube extraction is disabled in this environment. Use browser captions (client) or enable paid transcription.",
+				},
+				{ status: 429 }
+			)
+		}
+
+		// If validation requested, just check if video is suitable (may use ytdl under the hood)
 		if (validate) {
 			const validation = await validateVideoForTranscription(url)
 			return NextResponse.json(validation)
@@ -42,7 +58,7 @@ export async function POST(request: Request) {
 				return NextResponse.json(
 					{
 						success: false,
-						error: "YouTube blocked automated access for this video (anti-bot). Try manual transcript input or rely on the browser extraction (Auto Extract).",
+						error: "YouTube blocked automated access for this video (anti-bot). Use client captions or the paid transcription option.",
 					},
 					{ status: 429 }
 				)

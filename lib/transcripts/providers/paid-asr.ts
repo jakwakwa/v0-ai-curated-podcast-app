@@ -4,7 +4,13 @@ import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "
 export const PaidAsrProvider: TranscriptProvider = {
 	name: "paid-asr",
 	canHandle(request) {
-		// Allow as a fallback if explicitly allowed
+		// Allow as a fallback if explicitly allowed; disable on Vercel by default for YouTube unless opt-in
+		const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true"
+		const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true"
+		if (/youtu(be\.be|be\.com)/i.test(request.url)) {
+			// On Vercel, avoid Whisper/ytdl unless explicitly enabled
+			return Boolean(request.allowPaid) && (!isVercel || enableServerYtdl)
+		}
 		return Boolean(request.allowPaid)
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {

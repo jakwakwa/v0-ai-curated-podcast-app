@@ -73,7 +73,12 @@ export function extractYouTubeVideoId(urlOrId: string): string | null {
 
 export type YouTubeTranscriptItem = { text: string; duration: number; offset: number }
 export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
-	// Only use ytdl-core based attempt
+	// On Vercel, avoid server-side caption scraping unless explicitly enabled
+	const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true"
+	const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true"
+	if (isVercel && !enableServerYtdl) {
+		throw new Error("Server-side YouTube caption fetching disabled in this environment")
+	}
 	return await getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId, lang)
 }
 
