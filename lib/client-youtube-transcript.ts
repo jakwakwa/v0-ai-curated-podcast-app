@@ -69,8 +69,8 @@ function parseTranscriptXML(xmlText: string): TranscriptSegment[] {
  */
 async function fetchTranscriptData(videoId: string): Promise<string> {
 	try {
-		// First, get video info from YouTube's player API
-		const playerUrl = `https://www.youtube.com/youtubei/v1/player`
+		// First, get video info via same-origin proxy to avoid CORS
+		const playerUrl = `/api/youtube-player-proxy`
 		const playerData = {
 			context: {
 				client: {
@@ -85,9 +85,6 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"User-Agent": navigator.userAgent,
-				Referer: "https://www.youtube.com/",
-				Origin: "https://www.youtube.com",
 			},
 			body: JSON.stringify(playerData),
 		})
@@ -113,14 +110,9 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 			throw new Error("No suitable caption track found")
 		}
 
-		// Fetch the transcript XML
-		const transcriptResponse = await fetch(selectedTrack.baseUrl, {
-			headers: {
-				"User-Agent": navigator.userAgent,
-				Referer: `https://www.youtube.com/watch?v=${videoId}`,
-				Origin: "https://www.youtube.com",
-			},
-		})
+		// Fetch the transcript XML via same-origin proxy
+		const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: selectedTrack.baseUrl }).toString()
+		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" })
 
 		if (!transcriptResponse.ok) {
 			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`)
