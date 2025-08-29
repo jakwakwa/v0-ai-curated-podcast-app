@@ -26,13 +26,7 @@ export interface TranscriptResponseFailure {
 
 export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure
 
-export type ProviderName =
-	| "youtube-captions"
-	| "youtube-client"
-	| "podcast-rss"
-	| "listen-notes"
-	| "revai"
-	| "paid-asr"
+export type ProviderName = "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
 
 export interface TranscriptProvider {
 	name: ProviderName
@@ -42,9 +36,9 @@ export interface TranscriptProvider {
 	getTranscript(request: TranscriptRequest): Promise<TranscriptResponse>
 }
 
-export type OrchestratorResult = (TranscriptResponse & {
+export type OrchestratorResult = TranscriptResponse & {
 	attempts: Array<{ provider: ProviderName; success: boolean; error?: string }>
-})
+}
 
 export interface YouTubeProviderOptions {
 	// If true, prefer client-side caption extraction strategy first

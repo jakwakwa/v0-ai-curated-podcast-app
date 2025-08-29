@@ -6,12 +6,12 @@
   - Added `lib/transcripts/types.ts` with provider interfaces and typed responses
   - Implemented orchestrator `lib/transcripts/index.ts` with source-kind detection and ordered provider chaining
   - Providers:
-    - `youtube` (server captions via ytdl/youtube-transcript)
+    - `youtube` (AssemblyAI paid ASR for Vercel; no server-side ytdl)
     - `youtube-client` (browser hint only)
     - `podcast-rss` (reads `podcast:transcript`, falls back to `enclosure` audio)
     - `listen-notes` (optional) resolves episode audio URL via search
     - `revai` (paid ASR) with short polling
-    - temporary `paid-asr` (Whisper) retained for YouTube fallback
+    - temporary `paid-asr` (Whisper) retained for non-YouTube fallback
 - API
   - `GET /api/transcripts/get` with Clerk auth + Zod validation
   - Returns success with transcript, or 404 with attempts trail
@@ -29,7 +29,7 @@
 
 ## Current runtime behavior
 
-- YouTube: captions → server transcriber → orchestrator (paid if enabled)
+- YouTube: AssemblyAI (paid) → Rev.ai (if handed a direct audio URL)
 - Podcast/RSS/Show URL: RSS transcript → RSS enclosure audio → Listen Notes (optional) → Rev.ai (if `allowPaid=true`)
 - Single user input URL; internal resolution to direct audio when needed
 
@@ -104,6 +104,7 @@ HTTP semantics:
 
 - Required for paid fallback:
   - `REVAI_API_KEY`
+  - `ASSEMBLYAI_API_KEY`
 - Optional discovery:
   - `ENABLE_LISTEN_NOTES=true|false`
   - `LISTEN_NOTES_API_KEY`
@@ -113,8 +114,8 @@ HTTP semantics:
 
 ## How to test quickly
 
-- YouTube with captions:
-  - `GET /api/transcripts/get?url=<youtube_url>`
+- YouTube (paid on):
+  - `GET /api/transcripts/get?url=<youtube_url>&allowPaid=true`
 - Podcast feed/page (paid on):
   - `GET /api/transcripts/get?url=<rss_or_show_url>&allowPaid=true`
 - Direct audio (paid on):

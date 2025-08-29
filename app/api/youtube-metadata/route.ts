@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { getYouTubeVideoTitle } from "@/lib/youtube"
+import { getYouTubeVideoTitle } from "@/lib/youtube-safe"
 
 const schema = z.object({
 	url: z.string().url(),

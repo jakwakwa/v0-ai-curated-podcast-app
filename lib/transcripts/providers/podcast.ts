@@ -1,5 +1,5 @@
-import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 import { XMLParser } from "fast-xml-parser"
+import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 function isLikelyPodcastUrl(url: string): boolean {
 	return /(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url)
@@ -53,10 +53,7 @@ export const PodcastRssProvider: TranscriptProvider = {
 			}
 
 			const root = getObject(parsed)
-			const channelCandidate =
-				getProp(getProp(root, "rss"), "channel") ??
-				getProp(getProp(root, "feed"), "channel") ??
-				getProp(root, "channel")
+			const channelCandidate = getProp(getProp(root, "rss"), "channel") ?? getProp(getProp(root, "feed"), "channel") ?? getProp(root, "channel")
 			const channel = getObject(channelCandidate)
 			if (!channel) {
 				return { success: false, error: "Not a valid RSS feed", provider: this.name }

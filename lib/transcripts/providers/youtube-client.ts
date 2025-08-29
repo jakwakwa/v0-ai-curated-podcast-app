@@ -1,15 +1,134 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
+function extractVideoId(url: string): string | null {
+	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/]
+	for (const pattern of patterns) {
+		const match = url.match(pattern)
+		if (match) return match[1]
+	}
+	return null
+}
+
+async function fetchYouTubeCaption(videoId: string): Promise<string> {
+	// Try YouTube's innertube API which works better from servers
+	const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+		},
+		body: JSON.stringify({
+			context: {
+				client: {
+					clientName: "WEB",
+					clientVersion: "2.20240101.00.00",
+				},
+			},
+			videoId: videoId,
+		}),
+	})
+
+	if (!response.ok) {
+		throw new Error(`YouTube API request failed: ${response.status}`)
+	}
+
+	const data = await response.json()
+	const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks
+
+	if (!captionTracks || captionTracks.length === 0) {
+		throw new Error("No captions found")
+	}
+
+	// Find best caption track (prefer English auto-generated)
+	interface CaptionTrack {
+		languageCode?: string
+		kind?: string
+		baseUrl?: string
+	}
+	
+	const selectedTrack: CaptionTrack = 
+		captionTracks.find((track: CaptionTrack) => track.languageCode === "en" && track.kind === "asr") ||
+		captionTracks.find((track: CaptionTrack) => track.languageCode === "en") ||
+		captionTracks[0]
+
+	if (!selectedTrack?.baseUrl) {
+		throw new Error("No suitable caption track found")
+	}
+
+	// Fetch the actual transcript
+	const transcriptResponse = await fetch(selectedTrack.baseUrl, {
+		headers: {
+			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+		},
+	})
+
+	if (!transcriptResponse.ok) {
+		throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`)
+	}
+
+	const xmlText = await transcriptResponse.text()
+	
+	// Parse XML to extract text
+	const textMatches = xmlText.match(/<text[^>]*>([^<]+)</g)
+	if (!textMatches) {
+		throw new Error("No transcript text found")
+	}
+
+	const transcript = textMatches
+		.map(match => {
+			const textContent = match.replace(/<text[^>]*>/, "").replace(/<\/text>/, "")
+			// Decode HTML entities
+			return textContent
+				.replace(/&amp;/g, "&")
+				.replace(/&lt;/g, "<")
+				.replace(/&gt;/g, ">")
+				.replace(/&quot;/g, '"')
+				.replace(/&#39;/g, "'")
+		})
+		.join(" ")
+		.trim()
+
+	return transcript
+}
+
 export const YouTubeClientProvider: TranscriptProvider = {
 	name: "youtube-client",
 	canHandle(request) {
 		return /youtu(be\.be|be\.com)/i.test(request.url)
 	},
-	async getTranscript(_request: TranscriptRequest): Promise<TranscriptResponse> {
-		return {
-			success: false,
-			error: "Client-side YouTube captions should be attempted in browser context",
-			provider: this.name,
+	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
+		try {
+			const videoId = extractVideoId(request.url)
+			if (!videoId) {
+				return { 
+					success: false, 
+					error: "Invalid YouTube URL", 
+					provider: this.name 
+				}
+			}
+
+			const transcript = await fetchYouTubeCaption(videoId)
+			
+			if (!transcript || transcript.length < 10) {
+				return {
+					success: false,
+					error: "No meaningful transcript content found",
+					provider: this.name,
+				}
+			}
+
+			return {
+				success: true,
+				transcript,
+				provider: this.name,
+				meta: { videoId, method: "server-side-captions" }
+			}
+		} catch (error) {
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : "YouTube caption extraction failed",
+				provider: this.name,
+			}
 		}
 	},
 }

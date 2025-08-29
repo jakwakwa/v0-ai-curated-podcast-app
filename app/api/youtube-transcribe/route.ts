@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { transcribeYouTubeVideo, validateVideoForTranscription } from "@/lib/custom-transcriber"
+import { transcribeYouTubeVideo, validateVideoForTranscription } from "@/lib/vercel-safe-transcriber"
 
 const transcribeSchema = z.object({
 	url: z.string().url(),
