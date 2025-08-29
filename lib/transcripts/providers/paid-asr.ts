@@ -1,3 +1,4 @@
+import { transcribeYouTubeVideo } from "@/lib/custom-transcriber"
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 export const PaidAsrProvider: TranscriptProvider = {
