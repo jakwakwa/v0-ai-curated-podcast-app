@@ -25,11 +25,11 @@ function BreadcrumbLink({
 }) {
 	const Comp = asChild ? Slot : "a"
 
-	return <Comp data-slot="breadcrumb-link" className={cn("text-foreground hover:text-foreground/70 transition-colors font-bold", className)} {...props} />
+	return <Comp data-slot="breadcrumb-link" className={cn("text-foreground hover:text-foreground/70 transition-colors font-semibold", className)} {...props} />
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
-	return <span data-slot="breadcrumb-page" role="link" aria-disabled="true" aria-current="page" tabIndex={0} className={cn("text-secondary-foreground font-bold", className)} {...props} />
+	return <span data-slot="breadcrumb-page" role="link" aria-disabled="true" aria-current="page" tabIndex={0} className={cn("text-[#fff] font-normal letter-wide", className)} {...props} />
 }
 
 function BreadcrumbSeparator({ children, className, ...props }: React.ComponentProps<"li">) {

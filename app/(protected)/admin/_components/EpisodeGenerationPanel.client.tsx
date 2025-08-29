@@ -2,17 +2,18 @@
 
 import { Lock, Sparkles, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
+import PanelHeader from "./PanelHeader"
 import Stepper from "./stepper"
 
 type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
@@ -25,6 +26,7 @@ interface EpisodeSource {
 
 export default function EpisodeGenerationPanelClient({ bundles }: { bundles: BundleWithPodcasts[] }) {
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
+	const [selectedPodcastId, setSelectedPodcastId] = useState<string>("")
 	const [episodeTitle, setEpisodeTitle] = useState("")
 	const [episodeDescription, setEpisodeDescription] = useState("")
 	const [episodeImageUrl, setEpisodeImageUrl] = useState("")
@@ -39,19 +41,28 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
+	const selectedPodcast = selectedBundle?.podcasts.find(p => p.podcast_id === selectedPodcastId)
 
 	const hasBundles = bundles && bundles.length > 0
 
 	const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url.trim())
 
+	useEffect(() => {
+		if (!selectedBundle) {
+			setSelectedPodcastId("")
+			return
+		}
+		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id)
+		if (!podcastIds.includes(selectedPodcastId)) {
+			setSelectedPodcastId(podcastIds[0] ?? "")
+		}
+	}, [selectedPodcastId, selectedBundle])
+
 	if (!hasBundles) {
 		return (
 			<div className="p-6">
 				<Card>
-					<CardHeader>
-						<CardTitle>No bundles found</CardTitle>
-						<CardDescription>Create a bundle before generating or uploading episodes.</CardDescription>
-					</CardHeader>
+					<PanelHeader title="No bundles found" description="Create a bundle before generating or uploading episodes." />
 					<CardContent>
 						<Button asChild variant="default">
 							<Link href="/admin/bundles">Create your first bundle</Link>
@@ -78,8 +89,8 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 	const removeSource = (id: string) => setSources(prev => prev.filter(s => s.id !== id))
 
 	const generateEpisode = async () => {
-		if (!(selectedBundleId && episodeTitle && sources.length > 0)) {
-			toast.error("Bundle, title, and at least one valid source are required")
+		if (!(selectedBundleId && selectedPodcastId && episodeTitle && sources.length > 0)) {
+			toast.error("Bundle, podcast, title, and at least one valid source are required")
 			return
 		}
 		// Validate all sources
@@ -91,7 +102,14 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		const resp = await fetch("/api/admin/generate-bundle-episode", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ bundleId: selectedBundleId, title: episodeTitle, description: episodeDescription || undefined, image_url: episodeImageUrl || undefined, sources }),
+			body: JSON.stringify({
+				bundleId: selectedBundleId,
+				podcastId: selectedPodcastId,
+				title: episodeTitle,
+				description: episodeDescription || undefined,
+				image_url: episodeImageUrl || undefined,
+				sources,
+			}),
 		})
 		setIsLoading(false)
 		if (!resp.ok) {
@@ -100,6 +118,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		}
 		toast.success("Episode generation started")
 		setSelectedBundleId("")
+		setSelectedPodcastId("")
 		setEpisodeTitle("")
 		setEpisodeDescription("")
 		setEpisodeImageUrl("")
@@ -108,8 +127,8 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 
 	const uploadEpisode = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!(selectedBundleId && episodeTitle)) {
-			toast.error("Bundle and title are required")
+		if (!(selectedBundleId && selectedPodcastId && episodeTitle)) {
+			toast.error("Bundle, podcast, and title are required")
 			return
 		}
 		// Source fields are required for both upload and direct
@@ -131,6 +150,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		}
 		const formData = new FormData()
 		formData.append("bundleId", selectedBundleId)
+		formData.append("podcastId", selectedPodcastId)
 		formData.append("title", episodeTitle)
 		formData.append("description", episodeDescription)
 		if (episodeImageUrl) formData.append("image_url", episodeImageUrl)
@@ -145,6 +165,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		}
 		toast.success("Episode uploaded")
 		setSelectedBundleId("")
+		setSelectedPodcastId("")
 		setEpisodeTitle("")
 		setEpisodeDescription("")
 		setEpisodeImageUrl("")
@@ -159,12 +180,14 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		<div className="space-y-6">
 			{/* Step 1: Select bundle (always visible) */}
 			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<Stepper step={1} /> Select Bundle
-					</CardTitle>
-					<CardDescription>Choose which curated bundle to generate an episode for</CardDescription>
-				</CardHeader>
+				<PanelHeader
+					title={
+						<div className="flex items-center gap-2">
+							<Stepper step={1} /> Select Bundle
+						</div>
+					}
+					description="Choose which curated bundle to generate an episode for"
+				/>
 				<CardContent className="p-4">
 					<Select value={selectedBundleId} onValueChange={setSelectedBundleId}>
 						<SelectTrigger>
@@ -200,15 +223,52 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 				</CardContent>
 			</Card>
 
+			{/* Step 1.5: Select podcast (only when a bundle is selected) */}
+			{selectedBundleId && selectedBundle && (
+				<Card>
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={2} /> Select Podcast for Episode
+							</div>
+						}
+						description="Choose which podcast within the bundle this episode belongs to"
+					/>
+					<CardContent className="p-4 space-y-2">
+						<Select value={selectedPodcastId} onValueChange={setSelectedPodcastId}>
+							<SelectTrigger>
+								<SelectValue placeholder="Select a podcast..." />
+							</SelectTrigger>
+							<SelectContent>
+								{selectedBundle.podcasts.map(p => (
+									<SelectItem key={p.podcast_id} value={p.podcast_id}>
+										{p.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						{selectedPodcast && (
+							<div className="mt-2">
+								<Badge size="sm" variant="secondary">
+									Selected: {selectedPodcast.name}
+								</Badge>
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			)}
+
 			{/* Step 2: Episode details (only when a bundle is selected) */}
 			{selectedBundleId && (
 				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Stepper step={2} /> Episode Details
-						</CardTitle>
-						<CardDescription>Provide basic information for the episode</CardDescription>
-					</CardHeader>
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={3} /> Episode Details
+							</div>
+						}
+						description="Provide basic information for the episode"
+					/>
 					<CardContent className="space-y-4 p-4">
 						<div>
 							<Label htmlFor="title">Episode Title *</Label>
@@ -229,19 +289,21 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			{/* Step 3: Method + contextual fields (only when a bundle is selected) */}
 			{selectedBundleId && (
 				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Stepper step={3} />
-							{uploadMethod === "upload" ? "Upload Audio" : uploadMethod === "direct" ? "Provide Audio URL" : "Add Episode Sources"}
-						</CardTitle>
-						<CardDescription>
-							{uploadMethod === "upload"
+					<PanelHeader
+						title={
+							<div className="flex items-center gap-2">
+								<Stepper step={4} />
+								{uploadMethod === "upload" ? "Upload Audio" : uploadMethod === "direct" ? "Provide Audio URL" : "Add Episode Sources"}
+							</div>
+						}
+						description={
+							uploadMethod === "upload"
 								? "Choose how to provide the episode audio"
 								: uploadMethod === "direct"
 									? "Provide a direct MP3 URL"
-									: "Add YouTube videos or other sources for each show in the bundle"}
-						</CardDescription>
-					</CardHeader>
+									: "Add YouTube videos or other sources for each show in the bundle"
+						}
+					/>
 					<CardContent className="p-4 space-y-4">
 						<div>
 							<Label>Creation Method</Label>
@@ -274,10 +336,10 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									<Input id="sourceUrl3" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
 								</div>
 								<CardContent className="pt-2 p-0">
-									<Button type="submit" disabled={isLoading || !selectedBundleId || !episodeTitle} className="w-full" size="lg" variant="default">
+									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Uploading...
 											</>
 										) : (
@@ -301,10 +363,10 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									<Input id="sourceUrl4" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
 								</div>
 								<CardContent className="pt-2 p-0">
-									<Button type="submit" disabled={isLoading || !selectedBundleId || !episodeTitle} className="w-full" size="lg" variant="default">
+									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Uploading...
 											</>
 										) : (
@@ -345,10 +407,15 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 									</div>
 								)}
 								<CardContent className="pt-2 p-0">
-									<Button onClick={generateEpisode} disabled={isLoading || !selectedBundleId || !episodeTitle || sources.length === 0} className="w-full" size="lg" variant="default">
+									<Button
+										onClick={generateEpisode}
+										disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle || sources.length === 0}
+										className="w-full"
+										size="lg"
+										variant="default">
 										{isLoading ? (
 											<>
-												<AppSpinner size="sm" variant="simple" color="default" className="mr-2" />
+												<AppSpinner size="sm" color="default" className="mr-2" />
 												Generating Episode...
 											</>
 										) : (

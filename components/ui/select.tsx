@@ -46,13 +46,13 @@ function SelectTrigger({
 function SelectContent({ className, children, position = "popper", ...props }: React.ComponentProps<typeof SelectPrimitive.Content>) {
 	return (
 		<SelectPrimitive.Portal>
-			<SelectPrimitive.Content data-slot="select-content" position={position} {...props}>
+			<SelectPrimitive.Content data-slot="select-content" position={position} {...props} className={cn("bg-card z-50", className)} sideOffset={4}>
 				<SelectScrollUpButton />
 				<SelectPrimitive.Viewport
 					className={cn(
-						"p-1",
+						"p-1 overflow-y-auto",
 						position === "popper" &&
-						"bg-card py-2 px-3 border-1 border-dark rounded-xl h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1"
+						"bg-card py-2 px-3 border-1 border-dark rounded-xl max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1"
 					)}
 				>
 					{children}

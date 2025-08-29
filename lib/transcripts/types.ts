@@ -7,14 +7,7 @@ export interface TranscriptRequest {
 	allowPaid?: boolean
 }
 
-export type ProviderName =
-	| "youtube-captions"
-	| "youtube-client"
-	| "podcast-rss"
-	| "listen-notes"
-	| "revai"
-	| "paid-asr"
-	| "assemblyai"
+export type ProviderName = "youtube-captions" | "youtube-client" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
 
 export interface TranscriptResponseSuccess {
 	success: true
@@ -34,11 +27,22 @@ export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseF
 
 export interface TranscriptProvider {
 	name: ProviderName
+	// Quick check if the provider is applicable for this request
 	canHandle(request: TranscriptRequest): Promise<boolean> | boolean
+	// Attempt to fetch/generate a transcript
 	getTranscript(request: TranscriptRequest): Promise<TranscriptResponse>
 }
 
-export type OrchestratorResult = (TranscriptResponse & {
+export type OrchestratorResult = TranscriptResponse & {
 	attempts: Array<{ provider: ProviderName; success: boolean; error?: string }>
-})
+}
 
+export interface YouTubeProviderOptions {
+	// If true, prefer client-side caption extraction strategy first
+	preferClient?: boolean
+}
+
+export interface PaidAsrOptions {
+	provider: "revai" | "assemblyai" | "whisper"
+	apiKey?: string
+}

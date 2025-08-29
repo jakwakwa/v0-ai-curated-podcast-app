@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import nodemailer from "nodemailer"
+import { Resend } from "resend"
 import { requireAdminMiddleware } from "@/lib/admin-middleware"
 
 // Force this API route to be dynamic since it uses auth()
@@ -21,68 +21,40 @@ export async function GET() {
 			return new NextResponse("Unauthorized", { status: 401 })
 		}
 
-		// Check environment variables
+		// Check environment variables for Resend
 		const config = {
-			hasHost: !!process.env.EMAIL_HOST,
+			hasResendKey: !!process.env.RESEND_API_KEY,
 			hasFrom: !!process.env.EMAIL_FROM,
-			hasUser: !!process.env.EMAIL_USER,
-			hasPass: !!process.env.EMAIL_PASS,
 			hasAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
-			host: process.env.EMAIL_HOST,
-			port: process.env.EMAIL_PORT || "587",
-			secure: process.env.EMAIL_SECURE === "true",
 			from: process.env.EMAIL_FROM,
-			user: process.env.EMAIL_USER,
-			// Don't expose password
 		}
 
 		console.log("Email config verification:", config)
 
 		// Check if all required variables are present
-		if (!(config.hasHost && config.hasFrom && config.hasUser && config.hasPass)) {
+		if (!(config.hasResendKey && config.hasFrom)) {
 			return NextResponse.json({
 				success: false,
-				error: "Missing required environment variables",
+				error: "Missing RESEND_API_KEY or EMAIL_FROM",
 				config,
 			})
 		}
 
-		// Try to create and verify transporter
+		// Try to instantiate Resend client
 		try {
-			const transporter = nodemailer.createTransport({
-				host: process.env.EMAIL_HOST,
-				port: parseInt(process.env.EMAIL_PORT || "587"),
-				secure: process.env.EMAIL_SECURE === "true",
-				auth: {
-					user: process.env.EMAIL_USER,
-					pass: process.env.EMAIL_PASS,
-				},
-			})
-
-			// Test the connection
-			await new Promise((resolve, reject) => {
-				transporter.verify((error, success) => {
-					if (error) {
-						console.error("SMTP verification failed:", error)
-						reject(error)
-					} else {
-						console.log("SMTP verification successful:", success)
-						resolve(success)
-					}
-				})
-			})
-
+			const client = new Resend(process.env.RESEND_API_KEY as string)
+			void client
 			return NextResponse.json({
 				success: true,
-				message: "Email configuration is valid and SMTP connection successful",
+				message: "Resend configuration appears valid",
 				config,
 			})
-		} catch (smtpError) {
-			console.error("SMTP connection error:", smtpError)
+		} catch (resendError) {
+			console.error("Resend client error:", resendError)
 			return NextResponse.json({
 				success: false,
-				error: "SMTP connection failed",
-				details: smtpError instanceof Error ? smtpError.message : String(smtpError),
+				error: "Failed to initialize Resend client",
+				details: resendError instanceof Error ? resendError.message : String(resendError),
 				config,
 			})
 		}

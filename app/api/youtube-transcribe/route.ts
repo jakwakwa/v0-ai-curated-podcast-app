@@ -1,27 +1,65 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { getTranscriptOrchestrated } from "@/lib/transcripts"
+import { transcribeYouTubeVideo, validateVideoForTranscription } from "@/lib/custom-transcriber"
+
+const transcribeSchema = z.object({
+	url: z.string().url(),
+	validate: z.boolean().optional(),
+})
 
 export const runtime = "nodejs"
 
-const bodySchema = z.object({ url: z.string().url(), allowPaid: z.coerce.boolean().default(true) })
-
 export async function POST(request: Request) {
-  try {
-    const { userId } = await auth()
-    if (!userId) return new NextResponse("Unauthorized", { status: 401 })
+	try {
+		const { userId } = await auth()
+		if (!userId) {
+			return new NextResponse("Unauthorized", { status: 401 })
+		}
 
-    const json = await request.json()
-    const parsed = bodySchema.safeParse(json)
-    if (!parsed.success) return NextResponse.json({ error: parsed.error.message }, { status: 400 })
+		const json = await request.json()
+		const parsed = transcribeSchema.safeParse(json)
 
-    const result = await getTranscriptOrchestrated({ url: parsed.data.url, allowPaid: parsed.data.allowPaid, kind: "youtube" })
-    if (result.success) return NextResponse.json(result)
-    return NextResponse.json(result, { status: 404 })
-  } catch (error) {
-    console.error("[YOUTUBE_TRANSCRIBE]", error)
-    return NextResponse.json({ error: "Internal error" }, { status: 500 })
-  }
+		if (!parsed.success) {
+			return new NextResponse(parsed.error.message, { status: 400 })
+		}
+
+		const { url, validate } = parsed.data
+
+		// If validation requested, just check if video is suitable
+		if (validate) {
+			const validation = await validateVideoForTranscription(url)
+			return NextResponse.json(validation)
+		}
+
+		// Perform actual transcription
+		const result = await transcribeYouTubeVideo(url)
+
+		if (!result.success) {
+			const message = result.error || "Transcription failed"
+			if (/confirm you’re not a bot|confirm you're not a bot|bot/i.test(message)) {
+				// Return a clearer message for YouTube anti-bot/consent walls
+				return NextResponse.json(
+					{
+						success: false,
+						error: "YouTube blocked automated access for this video (anti-bot). Try manual transcript input or rely on the browser extraction (Auto Extract).",
+					},
+					{ status: 429 }
+				)
+			}
+			return new NextResponse(message.includes("too large") ? "Audio exceeded size limits. We tried compressing; try a shorter clip or enable paid fallback." : message, { status: 500 })
+		}
+
+		return NextResponse.json({
+			transcript: result.transcript,
+			audioSize: result.audioSize,
+			success: true,
+		})
+	} catch (error) {
+		console.error("[YOUTUBE_TRANSCRIBE_POST]", error)
+		if (error instanceof Error) {
+			return new NextResponse(error.message, { status: 500 })
+		}
+		return new NextResponse("Internal Error", { status: 500 })
+	}
 }
-

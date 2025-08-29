@@ -27,8 +27,29 @@ model User {
   ownedPodcasts          Podcast[]
   subscriptions          Subscription[]
   userCurationProfile    UserCurationProfile?
+  userEpisodes           UserEpisode[]
 
   @@map("user")
+}
+
+/// ───────────────────────────────────
+/// USER-GENERATED EPISODES
+/// ───────────────────────────────────
+model UserEpisode {
+  episode_id     String             @id @default(uuid()) @map("episode_id")
+  user_id        String             @map("user_id")
+  episode_title  String             @map("episode_title")
+  youtube_url    String             @map("youtube_url")
+  transcript     String?            @db.Text @map("transcript")
+  summary        String?            @db.Text @map("summary")
+  gcs_audio_url  String?            @map("gcs_audio_url")
+  status         UserEpisodeStatus  @default(PENDING) @map("status")
+  created_at     DateTime           @default(now()) @map("created_at")
+  updated_at     DateTime           @updatedAt @map("updated_at")
+  user           User               @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_episode")
 }
 
 /// ───────────────────────────────────
@@ -180,6 +201,7 @@ model Subscription {
   trial_end                  DateTime? @map("trial_end")
   canceled_at                DateTime? @map("canceled_at")
   cancel_at_period_end       Boolean   @default(false) @map("cancel_at_period_end")
+  episode_creation_count     Int       @default(0) @map("episode_creation_count")
   created_at                 DateTime  @default(now()) @map("created_at")
   updated_at                 DateTime  @updatedAt @map("updated_at")
   user                       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
@@ -205,6 +227,13 @@ enum FeedbackRating {
   THUMBS_UP
   THUMBS_DOWN
   NEUTRAL
+}
+
+enum UserEpisodeStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 /// Access gate for curated bundles

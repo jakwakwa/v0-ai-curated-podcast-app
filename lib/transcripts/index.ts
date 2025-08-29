@@ -1,9 +1,9 @@
-import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
+import { AssemblyAiProvider } from "./providers/assemblyai"
 import { PodcastRssProvider } from "./providers/podcast"
 import { RevAiProvider } from "./providers/revai"
-import { AssemblyAiProvider } from "./providers/assemblyai"
+import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
 
-const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
+const _ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
 
 export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	if (/youtu(be\.be|be\.com)/i.test(url)) return "youtube"
@@ -11,7 +11,7 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	return "unknown"
 }
 
-function isVercelLike(): boolean {
+function _isVercelLike(): boolean {
 	// Prefer disabling ytdl-like providers on Vercel
 	return Boolean(process.env.VERCEL || process.env.NEXT_RUNTIME || process.env.VERCEL_REGION)
 }
@@ -72,4 +72,3 @@ export async function getTranscriptOrchestrated(initialRequest: TranscriptReques
 }
 
 export type { TranscriptRequest, TranscriptResponse } from "./types"
-
