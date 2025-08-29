@@ -1,8 +1,8 @@
 import { AssemblyAIProvider } from "./providers/assemblyai"
 import { ListenNotesProvider } from "./providers/listen-notes"
-// Skipped YouTube caption providers per new policy
 import { PodcastRssProvider } from "./providers/podcast"
 import { RevAiProvider } from "./providers/revai"
+import { VercelYouTubeProvider } from "./providers/vercel-youtube"
 import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
 
 const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
@@ -15,8 +15,12 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 
 function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undefined): TranscriptProvider[] {
 	if (kind === "youtube") {
-		// Vercel-safe order: AssemblyAI (paid, remote) then Rev.ai (if already direct audio)
-		return [...(allowPaid ? [AssemblyAIProvider] : []), ...(allowPaid ? [RevAiProvider] : [])]
+		// Vercel-safe order: Client extraction first, then paid ASR for direct audio only
+		return [
+			VercelYouTubeProvider, // Coordinates client-side extraction
+			...(allowPaid ? [AssemblyAIProvider] : []), // For direct audio URLs only
+			...(allowPaid ? [RevAiProvider] : []) // For direct audio URLs only
+		]
 	}
 	if (kind === "podcast") {
 		return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider] : [])]
@@ -35,11 +39,40 @@ export async function getTranscriptOrchestrated(initialRequest: TranscriptReques
 		try {
 			const applicable = await provider.canHandle(request)
 			if (!applicable) continue
+			
 			const result: TranscriptResponse = await provider.getTranscript(request)
 			attempts.push({ provider: provider.name, success: result.success, error: result.success ? undefined : result.error })
+			
 			if (result.success) {
 				return { ...result, attempts }
 			}
+			
+			// Check if this provider requires client-side extraction
+			if (result.meta?.requiresClientExtraction) {
+				// Return early with instructions for client-side extraction
+				return {
+					success: false,
+					error: result.error || "Client-side extraction required",
+					attempts,
+					meta: {
+						requiresClientExtraction: true,
+						extractionMethod: result.meta.extractionMethod,
+						instructions: result.meta.instructions,
+						fallback: result.meta.fallback
+					}
+				}
+			}
+			
+			// Check if we should redirect to a different provider
+			if (result.meta?.redirectTo) {
+				// Find the provider to redirect to
+				const redirectProvider = providers.find(p => p.name === result.meta?.redirectTo)
+				if (redirectProvider) {
+					// Skip to the redirect provider
+					continue
+				}
+			}
+			
 			const nextUrl = (result as { meta?: { nextUrl?: string } }).meta?.nextUrl
 			if (nextUrl) {
 				request = { ...request, url: nextUrl }

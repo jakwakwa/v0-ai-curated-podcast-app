@@ -21,12 +21,21 @@ export interface TranscriptResponseFailure {
 	success: false
 	error: string
 	provider?: ProviderName
-	meta?: Record<string, unknown>
+	meta?: {
+		requiresClientExtraction?: boolean
+		extractionMethod?: string
+		instructions?: string
+		fallback?: string
+		redirectTo?: string
+		reason?: string
+		environment?: string
+		[key: string]: unknown
+	}
 }
 
 export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure
 
-export type ProviderName = "youtube-captions" | "youtube-client" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
+export type ProviderName = "youtube-captions" | "youtube-client" | "vercel-youtube" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
 
 export interface TranscriptProvider {
 	name: ProviderName
@@ -38,6 +47,16 @@ export interface TranscriptProvider {
 
 export type OrchestratorResult = TranscriptResponse & {
 	attempts: Array<{ provider: ProviderName; success: boolean; error?: string }>
+	meta?: {
+		requiresClientExtraction?: boolean
+		extractionMethod?: string
+		instructions?: string
+		fallback?: string
+		redirectTo?: string
+		reason?: string
+		environment?: string
+		[key: string]: unknown
+	}
 }
 
 export interface YouTubeProviderOptions {

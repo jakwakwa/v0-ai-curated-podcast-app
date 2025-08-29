@@ -1,6 +1,6 @@
 /**
  * Client-side YouTube transcript extraction
- * This runs in the browser to avoid server-side blocking
+ * This runs in the browser to avoid server-side blocking on Vercel
  */
 
 export interface TranscriptSegment {
@@ -14,6 +14,11 @@ export interface TranscriptResult {
 	transcript?: string
 	segments?: TranscriptSegment[]
 	error?: string
+	videoId?: string
+	meta?: {
+		suggestions?: string[]
+		[key: string]: unknown
+	}
 }
 
 /**
@@ -161,6 +166,7 @@ export async function extractYouTubeTranscript(url: string): Promise<TranscriptR
 			return {
 				success: false,
 				error: "No transcript content found",
+				videoId,
 			}
 		}
 
@@ -170,12 +176,78 @@ export async function extractYouTubeTranscript(url: string): Promise<TranscriptR
 			success: true,
 			transcript,
 			segments,
+			videoId,
 		}
 	} catch (error) {
 		console.error("Client-side transcript extraction failed:", error)
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : "Unknown error occurred",
+			videoId: extractVideoId(url) || undefined,
+		}
+	}
+}
+
+/**
+ * Enhanced transcript extraction with fallback strategies
+ */
+export async function extractYouTubeTranscriptWithFallback(url: string): Promise<TranscriptResult> {
+	try {
+		// First attempt: Standard caption extraction
+		const result = await extractYouTubeTranscript(url)
+		if (result.success) {
+			return result
+		}
+
+		// Fallback: Try to get any available captions
+		const videoId = extractVideoId(url)
+		if (!videoId) {
+			return { success: false, error: "Invalid YouTube URL" }
+		}
+
+		console.log(`Attempting fallback caption extraction for: ${videoId}`)
+
+		// Try to access the video page directly to check for captions
+		const videoPageResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+			method: "GET",
+			headers: {
+				"User-Agent": navigator.userAgent,
+				Referer: "https://www.youtube.com/",
+			},
+		})
+
+		if (videoPageResponse.ok) {
+			const pageText = await videoPageResponse.text()
+			
+			// Look for caption-related data in the page
+			const captionMatch = pageText.match(/"captions":\s*({[^}]+})/)
+			if (captionMatch) {
+				console.log("Found caption data in page, attempting extraction...")
+				// Try the standard extraction again
+				return await extractYouTubeTranscript(url)
+			}
+		}
+
+		// Final fallback: Return detailed error with suggestions
+		return {
+			success: false,
+			error: "No captions available for this video",
+			videoId,
+			meta: {
+				suggestions: [
+					"Try a different video with available captions",
+					"Download the audio locally and upload for transcription",
+					"Use manual transcript input",
+					"Check if the video has auto-generated captions enabled"
+				]
+			}
+		}
+	} catch (error) {
+		console.error("Fallback transcript extraction failed:", error)
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Fallback extraction failed",
+			videoId: extractVideoId(url) || undefined,
 		}
 	}
 }
