@@ -1,8 +1,9 @@
 import { AssemblyAIProvider } from "./providers/assemblyai"
 import { ListenNotesProvider } from "./providers/listen-notes"
-// Skipped YouTube caption providers per new policy
 import { PodcastRssProvider } from "./providers/podcast"
 import { RevAiProvider } from "./providers/revai"
+import { YouTubeClientProvider } from "./providers/youtube-client"
+import { YouTubeAudioExtractorProvider } from "./providers/youtube-audio-extractor"
 import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types"
 
 const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true"
@@ -15,8 +16,17 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 
 function getProviderChain(kind: TranscriptSourceKind, allowPaid: boolean | undefined): TranscriptProvider[] {
 	if (kind === "youtube") {
-		// Vercel-safe order: AssemblyAI (paid, remote) then Rev.ai (if already direct audio)
-		return [...(allowPaid ? [AssemblyAIProvider] : []), ...(allowPaid ? [RevAiProvider] : [])]
+		// Vercel-optimized order:
+		// 1. Try YouTube client-side captions first (free, fast, works on Vercel)
+		// 2. If paid allowed, extract audio URL and use AssemblyAI
+		// 3. Fallback to Rev.ai if we have direct audio URL
+		const providers: TranscriptProvider[] = [YouTubeClientProvider]
+		
+		if (allowPaid) {
+			providers.push(YouTubeAudioExtractorProvider, AssemblyAIProvider, RevAiProvider)
+		}
+		
+		return providers
 	}
 	if (kind === "podcast") {
 		return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : []), ...(allowPaid ? [RevAiProvider] : [])]

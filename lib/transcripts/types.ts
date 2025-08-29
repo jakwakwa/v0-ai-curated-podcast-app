@@ -26,7 +26,7 @@ export interface TranscriptResponseFailure {
 
 export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure
 
-export type ProviderName = "youtube-captions" | "youtube-client" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
+export type ProviderName = "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
 
 export interface TranscriptProvider {
 	name: ProviderName
