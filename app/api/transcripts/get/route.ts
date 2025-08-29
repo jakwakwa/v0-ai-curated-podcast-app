@@ -35,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
 		const result = await getTranscriptOrchestrated({
 			url: parsed.data.url,
 			lang: parsed.data.lang,
-			allowPaid: parsed.data.allowPaid ?? false,
+			allowPaid: parsed.data.allowPaid ?? true,
 			kind: parsed.data.kind,
 		})
 

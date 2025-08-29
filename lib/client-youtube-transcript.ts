@@ -69,8 +69,8 @@ function parseTranscriptXML(xmlText: string): TranscriptSegment[] {
  */
 async function fetchTranscriptData(videoId: string): Promise<string> {
 	try {
-		// First, get video info from YouTube's player API
-		const playerUrl = `https://www.youtube.com/youtubei/v1/player`
+		// First, get video info via same-origin proxy to avoid CORS
+		const playerUrl = `/api/youtube-player-proxy`
 		const playerData = {
 			context: {
 				client: {
@@ -85,9 +85,6 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"User-Agent": navigator.userAgent,
-				Referer: "https://www.youtube.com/",
-				Origin: "https://www.youtube.com",
 			},
 			body: JSON.stringify(playerData),
 		})
@@ -99,7 +96,10 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 		const playerJson = await playerResponse.json()
 		const captionTracks = playerJson?.captions?.playerCaptionsTracklistRenderer?.captionTracks
 
+		// If player doesn't advertise captions, try timedtext endpoints directly via proxy
 		if (!captionTracks || captionTracks.length === 0) {
+			const forcedXml = await tryTimedTextFallbacks(videoId)
+			if (forcedXml) return forcedXml
 			throw new Error("No captions found for this video")
 		}
 
@@ -113,14 +113,9 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 			throw new Error("No suitable caption track found")
 		}
 
-		// Fetch the transcript XML
-		const transcriptResponse = await fetch(selectedTrack.baseUrl, {
-			headers: {
-				"User-Agent": navigator.userAgent,
-				Referer: `https://www.youtube.com/watch?v=${videoId}`,
-				Origin: "https://www.youtube.com",
-			},
-		})
+		// Fetch the transcript XML via same-origin proxy
+		const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: selectedTrack.baseUrl }).toString()
+		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" })
 
 		if (!transcriptResponse.ok) {
 			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`)
@@ -137,6 +132,37 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 		console.error("Error fetching transcript data:", error)
 		throw error
 	}
+}
+
+async function fetchTimedText(videoId: string, opts: { lang?: string; asr?: boolean }): Promise<string | null> {
+	const lang = (opts.lang || "en").toLowerCase()
+	const base = new URL("https://www.youtube.com/api/timedtext")
+	base.searchParams.set("v", videoId)
+	base.searchParams.set("lang", lang)
+	base.searchParams.set("fmt", "xml")
+	if (opts.asr) base.searchParams.set("kind", "asr")
+	const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: base.toString() }).toString()
+	const res = await fetch(proxyUrl, { cache: "no-store" })
+	if (!res.ok) return null
+	const xml = await res.text()
+	return xml && xml.trim().length > 0 ? xml : null
+}
+
+async function tryTimedTextFallbacks(videoId: string): Promise<string | null> {
+	const browserLang = (typeof navigator !== "undefined" && navigator.language ? navigator.language : "en").slice(0, 2).toLowerCase()
+	const attempts: Array<{ lang: string; asr: boolean }> = [
+		{ lang: "en", asr: true },
+		{ lang: "en", asr: false },
+		{ lang: browserLang, asr: true },
+		{ lang: browserLang, asr: false },
+	]
+	for (const attempt of attempts) {
+		try {
+			const xml = await fetchTimedText(videoId, attempt)
+			if (xml) return xml
+		} catch {}
+	}
+	return null
 }
 
 /**

@@ -24,7 +24,7 @@ function Badge({
 	 */
 
 	if (size === "sm" && variant === "outline") {
-		return <div className={`text-[0.6rem] border-1 px-3 py-0 leading-normal border-[#FFFFFF7A] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-[0.6rem] bg-[000]  border-1 px-3 py-0 leading-normal border-[#FFFFFF7A] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "md") {
@@ -32,7 +32,7 @@ function Badge({
 	}
 
 	if (size === "lg") {
-		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`tbg-[000] text-custom-body ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "xl") {

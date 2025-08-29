@@ -41,6 +41,12 @@ export interface TranscriptionResult {
  */
 async function extractAudioFromYouTube(videoUrl: string): Promise<{ stream: Readable; contentLength?: number }> {
 	try {
+		// Block on Vercel unless explicitly enabled
+		const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true"
+		const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true"
+		if (isVercel && !enableServerYtdl) {
+			throw new Error("Sign in to confirm you’re not a bot")
+		}
 		console.log("Extracting audio from YouTube video:", videoUrl)
 
 		// Get video info
@@ -197,7 +203,7 @@ export async function transcribeYouTubeVideo(videoUrl: string): Promise<Transcri
 
 		console.log("Starting custom transcription for:", videoUrl)
 
-		// Step 1: Extract audio from YouTube
+		// Step 1: Extract audio from YouTube (may be gated by environment)
 		const { stream } = await extractAudioFromYouTube(videoUrl)
 
 		// Step 2: Save audio to temporary file

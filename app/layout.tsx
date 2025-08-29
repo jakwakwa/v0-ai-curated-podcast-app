@@ -45,6 +45,7 @@ export default function RootLayout({
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 				<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+				<link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
 			</head>
 			<body className={`${workSans.className}`}>
 				<GlobalProgressBar />
@@ -52,16 +53,15 @@ export default function RootLayout({
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
-						baseTheme: dark,  // <-- Move baseTheme here
+						baseTheme: dark, // <-- Move baseTheme here
 						elements: {
 							rootBox: {
-
-								width: '90vw',
+								width: "90vw",
 								display: "flex",
 								flexDirection: "column",
 								justifyContent: "center",
-								maxWidth: '500px',
-								minWidth: '700px',
+								maxWidth: "500px",
+								minWidth: "700px",
 							},
 							variables: {
 								fontWeight: {
@@ -72,46 +72,45 @@ export default function RootLayout({
 								},
 							},
 							socialButtons: {
-								display: 'flex',
-								justifyContent: 'center',
-								gap: '0.5rem',
+								display: "flex",
+								justifyContent: "center",
+								gap: "0.5rem",
 							},
 							button: {
-								display: 'flex',
+								display: "flex",
 								alignSelf: "center",
-								justifyContent: 'center',
+								justifyContent: "center",
 							},
 							form: {
-								display: 'flex',
-								justifyContent: 'center',
+								display: "flex",
+								justifyContent: "center",
 							},
 							cardBox: {
-								background: '#121928 !important',
-								width: '90vw',
+								background: "#121928 !important",
+								width: "90vw",
 								display: "flex",
 								flexDirection: "column",
 								justifyContent: "center",
-								margin: '0 auto',
-								maxWidth: '500px',
-								minWidth: '300px',
-
+								margin: "0 auto",
+								maxWidth: "500px",
+								minWidth: "300px",
 							},
 							card: {
-								background: '#1B1822',
+								background: "#1B1822",
 							},
 							footer: {
-								background: '#354F4C28',
+								background: "#354F4C28",
 
-								"p": {
-									color: '#37A1A3 !important',
-								}
-							},
-							'footerAction': {
-								color: '#121928 !important',
 								p: {
-									color: '#121928 !important',
-								}
-							}
+									color: "#37A1A3 !important",
+								},
+							},
+							footerAction: {
+								color: "#121928 !important",
+								p: {
+									color: "#121928 !important",
+								},
+							},
 						},
 					}}>
 					<ClientProviders>
@@ -125,6 +124,6 @@ export default function RootLayout({
 				</ClerkProvider>
 				<Analytics />
 			</body>
-		</html >
+		</html>
 	)
 }

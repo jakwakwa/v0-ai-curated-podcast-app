@@ -42,6 +42,7 @@
 		"@distube/ytdl-core": "^4.16.12",
 		"@google-cloud/storage": "^7.17.0",
 		"@google/genai": "^1.15.0",
+		"@google/generative-ai": "^0.21.0",
 		"@iconscout/react-unicons": "2.2.3-rc.6ef815a5",
 		"@paddle/paddle-js": "^1.4.2",
 		"@paddle/paddle-node-sdk": "^3.2.0",

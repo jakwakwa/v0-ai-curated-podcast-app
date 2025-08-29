@@ -32,6 +32,9 @@ importers:
       '@google/genai':
         specifier: ^1.15.0
         version: 1.15.0
+      '@google/generative-ai':
+        specifier: ^0.21.0
+        version: 0.21.0
       '@iconscout/react-unicons':
         specifier: 2.2.3-rc.6ef815a5
         version: 2.2.3-rc.6ef815a5(react@19.1.1)
@@ -812,6 +815,10 @@ packages:
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
+
+  '@google/generative-ai@0.21.0':
+    resolution: {integrity: sha512-7XhUbtnlkSEZK15kN3t+tzIMxsbKm/dSkKBFalj+20NvPKe1kBY7mR2P7vuijEn+f06z5+A8bVGKO0v39cr6Wg==}
+    engines: {node: '>=18.0.0'}
 
   '@grpc/grpc-js@1.13.4':
     resolution: {integrity: sha512-GsFaMXCkMqkKIvwCQjCrwH+GHbPKBjhwo/8ZuUkWHqbI73Kky9I+pQltrlT0+MWpedCoosda53lgjYfyEPgxBg==}
@@ -5283,6 +5290,8 @@ snapshots:
       - encoding
       - supports-color
       - utf-8-validate
+
+  '@google/generative-ai@0.21.0': {}
 
   '@grpc/grpc-js@1.13.4':
     dependencies:
