@@ -161,7 +161,7 @@ export const badgeVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "text-primary-foreground shadow min-h-[initial]",
+				default: " text-primary-foreground shadow min-h-[initial]",
 				secondary: " text-primary-foreground min-h-[initial]",
 				destructive: " bg-destructive text-destructive-foreground shadow min-h-[initial]	",
 				outline: "text-foreground border-1 border-foreground/40 min-h-[initial]",
@@ -177,7 +177,7 @@ export const badgeVariants = cva(
 		},
 		defaultVariants: {
 			variant: "default",
-			size: "md",
+			size: "lg",
 		},
 	}
 )
