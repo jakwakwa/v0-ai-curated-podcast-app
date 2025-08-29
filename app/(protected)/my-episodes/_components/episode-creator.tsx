@@ -18,6 +18,10 @@ const EPISODE_LIMIT = 10 // Assuming a limit of 10 for now
 export function EpisodeCreator() {
 	const router = useRouter()
 	const [youtubeUrl, setYoutubeUrl] = useState("")
+	const [mode, setMode] = useState<"byUrl" | "byMetadata">("byUrl")
+	const [metaTitle, setMetaTitle] = useState("")
+	const [metaPodcast, setMetaPodcast] = useState("")
+	const [metaDate, setMetaDate] = useState("")
 	const [episodeTitle, setEpisodeTitle] = useState("")
 	const [transcript, setTranscript] = useState<string>("")
 	const [manualTranscript, setManualTranscript] = useState<string>("")
@@ -197,7 +201,8 @@ export function EpisodeCreator() {
 	const hasReachedLimit = usage.count >= usage.limit
 	const hasValidTranscript = transcriptMethod === "manual" ? manualTranscript && manualTranscript.trim().length > 0 : transcript && transcript.trim().length > 0
 	const isBusy = isCreating || isFetchingTitle || isFetchingTranscript
-	const canSubmit = youtubeUrl && episodeTitle && hasValidTranscript && !isBusy
+	const canSubmitUrl = youtubeUrl && episodeTitle && hasValidTranscript && !isBusy
+	const canSubmitMeta = metaTitle && !isBusy
 
 	return (
 		<div className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
@@ -214,178 +219,200 @@ export function EpisodeCreator() {
 					) : (
 						<form onSubmit={handleSubmit} className="space-y-6">
 							<div className="space-y-2">
-								<Label htmlFor="youtubeUrl">Source URL</Label>
-								<Input
-									id="youtubeUrl"
-									placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss"
-									value={youtubeUrl}
-									onChange={e => setYoutubeUrl(e.target.value)}
-									disabled={isCreating || isFetchingTitle || isFetchingTranscript}
-									required
-								/>
-							</div>
-
-							<div className="flex items-center gap-2">
-								<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} />
-								<Label htmlFor="allowPaid">Use paid transcription (AssemblyAI/Rev.ai) when needed</Label>
-							</div>
-
-							<div className="space-y-2">
-								<Label htmlFor="episodeTitle">Episode Title</Label>
-								<Input
-									id="episodeTitle"
-									placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"}
-									value={episodeTitle}
-									onChange={e => setEpisodeTitle(e.target.value)}
-									disabled={isCreating || isFetchingTitle || isFetchingTranscript}
-									required
-								/>
-							</div>
-
-							<div className="space-y-4">
-								<Label>Transcript Source</Label>
-								<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
+								<Label>Creation Mode</Label>
+								<Tabs value={mode} onValueChange={value => setMode(value as "byUrl" | "byMetadata")}>
 									<TabsList className="grid w-full grid-cols-2">
-										<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-											Auto Extract
-										</TabsTrigger>
-										<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-											Manual Input
-										</TabsTrigger>
+										<TabsTrigger value="byUrl">By URL</TabsTrigger>
+										<TabsTrigger value="byMetadata">By Metadata</TabsTrigger>
 									</TabsList>
-
-									<TabsContent value="auto" className="space-y-2">
-										<div className="text-sm text-gray-600">
-											{isFetchingTranscript ? (
-												<span className="text-blue-600">🔄 Extracting transcript...</span>
-											) : transcript && transcript.trim().length > 0 ? (
-												<span className="text-green-600">
-													✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}
-												</span>
-											) : youtubeUrl && !isFetchingTranscript ? (
-												<span className="text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</span>
-											) : (
-												<span>Enter a URL above to auto-extract transcript</span>
-											)}
-										</div>
-										{attempts && attempts.length > 0 && (
-											<div className="mt-2 text-xs text-gray-600">
-												<Label className="text-xs text-gray-500">Attempts:</Label>
-												<ul className="list-disc pl-5">
-													{attempts.map((a, idx) => (
-														<li key={idx}>
-															{a.provider}: {a.success ? "ok" : `fail${a.error ? ` (${a.error})` : ""}`}
-														</li>
-													))}
-												</ul>
-											</div>
-										)}
-										{transcript && (
-											<div className="mt-2">
-												<Label className="text-xs text-gray-500">Preview:</Label>
-												<div className="text-xs bg-gray-50 p-2 rounded max-h-20 overflow-y-auto">{transcript.substring(0, 200)}...</div>
-											</div>
-										)}
-									</TabsContent>
-
-									<TabsContent value="manual" className="space-y-2">
-										<Label htmlFor="manualTranscript" className="text-sm">
-											Paste transcript text here
-										</Label>
-										<Textarea
-											id="manualTranscript"
-											placeholder="Paste the video transcript here..."
-											value={manualTranscript}
-											onChange={e => setManualTranscript(e.target.value)}
-											disabled={isCreating || isFetchingTitle || isFetchingTranscript}
-											rows={6}
-											className="resize-none"
-										/>
-										{manualTranscript && <div className="text-xs text-gray-500">{manualTranscript.length} characters</div>}
-									</TabsContent>
 								</Tabs>
 							</div>
 
-							<div className="space-y-2">
-								<Label>Episode Type</Label>
-								<div className="grid grid-cols-2 gap-2">
-									<Button
-										type="button"
-										variant={generationMode === "single" ? "default" : "secondary"}
-										onClick={() => setGenerationMode("single")}
-										disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-										Single speaker
-									</Button>
-									<Button
-										type="button"
-										variant={generationMode === "multi" ? "default" : "secondary"}
-										onClick={() => setGenerationMode("multi")}
-										disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-										Multi speaker
-									</Button>
-								</div>
-							</div>
+							{mode === "byUrl" && (
+								<>
+									<div className="space-y-2">
+										<Label htmlFor="youtubeUrl">Source URL</Label>
+										<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... or https://example.com/feed.rss" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} required />
+									</div>
 
-							{generationMode === "multi" && (
-								<div className="space-y-4">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label>Voice A</Label>
-											<Select value={voiceA} onValueChange={setVoiceA}>
-												<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-													<SelectValue placeholder="Select Voice A" />
-												</SelectTrigger>
-												<SelectContent>
-													{VOICE_OPTIONS.map(v => (
-														<SelectItem key={v.name} value={v.name}>
-															{v.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-										<div>
-											<Label>Voice B</Label>
-											<Select value={voiceB} onValueChange={setVoiceB}>
-												<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-													<SelectValue placeholder="Select Voice B" />
-												</SelectTrigger>
-												<SelectContent>
-													{VOICE_OPTIONS.map(v => (
-														<SelectItem key={v.name} value={v.name}>
-															{v.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
+									<div className="flex items-center gap-2">
+										<input id="allowPaid" type="checkbox" checked={allowPaid} onChange={e => setAllowPaid(e.target.checked)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} />
+										<Label htmlFor="allowPaid">Use paid transcription (AssemblyAI/Rev.ai) when needed</Label>
+									</div>
+
+									<div className="space-y-2">
+										<Label htmlFor="episodeTitle">Episode Title</Label>
+										<Input id="episodeTitle" placeholder={isYouTubeUrl(youtubeUrl) ? "Episode title will be fetched automatically" : "Optional title"} value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} required />
+									</div>
+
+									<div className="space-y-4">
+										<Label>Transcript Source</Label>
+										<Tabs value={transcriptMethod} onValueChange={value => setTranscriptMethod(value as "auto" | "manual")}>
+											<TabsList className="grid w-full grid-cols-2">
+												<TabsTrigger value="auto" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Auto Extract</TabsTrigger>
+												<TabsTrigger value="manual" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Manual Input</TabsTrigger>
+											</TabsList>
+
+											<TabsContent value="auto" className="space-y-2">
+												<div className="text-sm text-gray-600">
+													{isFetchingTranscript ? (
+														<span className="text-blue-600">🔄 Extracting transcript...</span>
+													) : transcript && transcript.trim().length > 0 ? (
+														<span className="text-green-600">✓ Transcript extracted ({transcript.length} characters) via {extractionMethod}</span>
+													) : youtubeUrl && !isFetchingTranscript ? (
+														<span className="text-red-500">✗ Could not extract transcript automatically. Try Manual Input or enable paid fallback.</span>
+													) : (
+														<span>Enter a URL above to auto-extract transcript</span>
+													)}
+												</div>
+												{attempts && attempts.length > 0 && (
+													<div className="mt-2 text-xs text-gray-600">
+														<Label className="text-xs text-gray-500">Attempts:</Label>
+														<ul className="list-disc pl-5">
+															{attempts.map((a, idx) => (
+																<li key={idx}>
+																	{a.provider}: {a.success ? "ok" : `fail${a.error ? ` (${a.error})` : ""}`}
+																</li>
+															))}
+														</ul>
+													</div>
+												)}
+												{transcript && (
+													<div className="mt-2">
+														<Label className="text-xs text-gray-500">Preview:</Label>
+														<div className="text-xs bg-gray-50 p-2 rounded max-h-20 overflow-y-auto">{transcript.substring(0, 200)}...</div>
+													</div>
+												)}
+											</TabsContent>
+
+											<TabsContent value="manual" className="space-y-2">
+												<Label htmlFor="manualTranscript" className="text-sm">Paste transcript text here</Label>
+												<Textarea id="manualTranscript" placeholder="Paste the video transcript here..." value={manualTranscript} onChange={e => setManualTranscript(e.target.value)} disabled={isCreating || isFetchingTitle || isFetchingTranscript} rows={6} className="resize-none" />
+												{manualTranscript && <div className="text-xs text-gray-500">{manualTranscript.length} characters</div>}
+											</TabsContent>
+										</Tabs>
+									</div>
+
+									<div className="space-y-2">
+										<Label>Episode Type</Label>
+										<div className="grid grid-cols-2 gap-2">
+											<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Single speaker</Button>
+											<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isCreating || isFetchingTitle || isFetchingTranscript}>Multi speaker</Button>
 										</div>
 									</div>
-									{showDevFlags && (
-										<div className="space-y-1">
-											<Label>Developer test mode</Label>
-											<div className="text-xs text-gray-600">Shorter summary and shorter episode (for faster testing)</div>
-											<div>
-												<Button type="button" variant={useShort ? "default" : "secondary"} onClick={() => setUseShort(true)} size="sm" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-													Short
-												</Button>
-												<Button
-													type="button"
-													variant={!useShort ? "default" : "secondary"}
-													onClick={() => setUseShort(false)}
-													className="ml-2"
-													size="sm"
-													disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
-													Production (3-5 min)
-												</Button>
+
+									{generationMode === "multi" && (
+										<div className="space-y-4">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div>
+													<Label>Voice A</Label>
+													<Select value={voiceA} onValueChange={setVoiceA}>
+														<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+															<SelectValue placeholder="Select Voice A" />
+														</SelectTrigger>
+														<SelectContent>
+															{VOICE_OPTIONS.map(v => (
+																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
+												<div>
+													<Label>Voice B</Label>
+													<Select value={voiceB} onValueChange={setVoiceB}>
+														<SelectTrigger className="w/full" disabled={isCreating || isFetchingTitle || isFetchingTranscript}>
+															<SelectValue placeholder="Select Voice B" />
+														</SelectTrigger>
+														<SelectContent>
+															{VOICE_OPTIONS.map(v => (
+																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
 											</div>
 										</div>
 									)}
-								</div>
+
+									<Button variant="default" type="submit" disabled={!canSubmitUrl} className="w-full">{isCreating ? "Generating..." : "Generate Episode"}</Button>
+								</>
 							)}
 
-							<Button variant="default" type="submit" disabled={!canSubmit} className="w-full">
-								{isCreating ? "Generating..." : "Generate Episode"}
-							</Button>
+							{mode === "byMetadata" && (
+								<>
+									<div className="space-y-2">
+										<Label htmlFor="metaTitle">Episode Title</Label>
+										<Input id="metaTitle" placeholder="Exact episode title" value={metaTitle} onChange={e => setMetaTitle(e.target.value)} disabled={isBusy} required />
+									</div>
+									<div className="space-y-2">
+										<Label htmlFor="metaPodcast">Podcast Name (optional)</Label>
+										<Input id="metaPodcast" placeholder="Podcast show name" value={metaPodcast} onChange={e => setMetaPodcast(e.target.value)} disabled={isBusy} />
+									</div>
+									<div className="space-y-2">
+										<Label htmlFor="metaDate">Published Date (optional)</Label>
+										<Input id="metaDate" type="date" value={metaDate} onChange={e => setMetaDate(e.target.value)} disabled={isBusy} />
+									</div>
+
+									<div className="space-y-2">
+										<Label>Episode Type</Label>
+										<div className="grid grid-cols-2 gap-2">
+											<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isBusy}>Single speaker</Button>
+											<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isBusy}>Multi speaker</Button>
+										</div>
+									</div>
+
+									{generationMode === "multi" && (
+										<div className="space-y-4">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div>
+													<Label>Voice A</Label>
+													<Select value={voiceA} onValueChange={setVoiceA}>
+														<SelectTrigger className="w/full" disabled={isBusy}>
+															<SelectValue placeholder="Select Voice A" />
+														</SelectTrigger>
+														<SelectContent>
+															{VOICE_OPTIONS.map(v => (
+																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
+												<div>
+													<Label>Voice B</Label>
+													<Select value={voiceB} onValueChange={setVoiceB}>
+														<SelectTrigger className="w/full" disabled={isBusy}>
+															<SelectValue placeholder="Select Voice B" />
+														</SelectTrigger>
+														<SelectContent>
+															{VOICE_OPTIONS.map(v => (
+																<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												</div>
+											</div>
+										</div>
+									)}
+
+									<Button variant="default" type="button" disabled={!canSubmitMeta} className="w-full" onClick={async () => {
+										setIsCreating(true)
+										setError(null)
+										try {
+											const res = await fetch("/api/user-episodes/create-from-metadata", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: metaTitle, podcastName: metaPodcast || undefined, publishedAt: metaDate || undefined, generationMode, voiceA, voiceB, allowPaid }) })
+											if (!res.ok) throw new Error(await res.text())
+											toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
+											router.push("/curation-profile-management")
+										} catch (err) {
+											setError(err instanceof Error ? err.message : "Failed to start metadata flow")
+										} finally {
+											setIsCreating(false)
+										}
+									}}>
+										{isCreating ? "Starting..." : "Start Metadata Search & Transcription"}
+									</Button>
+								</>
+							)}
+
 						</form>
 					)}
 					{error && <p className="text-red-500 mt-4">{error}</p>}
