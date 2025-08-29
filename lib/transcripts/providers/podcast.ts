@@ -23,6 +23,7 @@ async function fetchText(url: string): Promise<string> {
 async function tryFetchTranscriptFromUrl(url: string): Promise<string | null> {
 	try {
 		const text = await fetchText(url)
+		// naive heuristics: if JSON VTT/SRT, just return raw text for now
 		return text
 	} catch {
 		return null
@@ -36,7 +37,9 @@ export const PodcastRssProvider: TranscriptProvider = {
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {
+			// If it's not an obvious RSS URL, still try to fetch
 			const rssXml = await fetchText(request.url)
+
 			const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" })
 			const parsed = parser.parse(rssXml) as unknown
 
@@ -62,6 +65,7 @@ export const PodcastRssProvider: TranscriptProvider = {
 				return { success: false, error: "RSS feed has no items", provider: this.name }
 			}
 
+			// Try to find a transcript tag on any item
 			for (const item of items as Array<Record<string, unknown>>) {
 				const transcriptTags = ensureArray<unknown>(item["podcast:transcript"]) // Podcast namespace
 				for (const tag of transcriptTags as Array<Record<string, unknown>>) {
@@ -75,6 +79,7 @@ export const PodcastRssProvider: TranscriptProvider = {
 				}
 			}
 
+			// If no transcript, try to surface the audio URL from enclosure for fallback
 			for (const item of items as Array<Record<string, unknown>>) {
 				const enclosure = item.enclosure as Record<string, unknown> | undefined
 				const audioUrl: string | undefined =
