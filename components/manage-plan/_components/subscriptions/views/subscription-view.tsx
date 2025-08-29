@@ -219,30 +219,30 @@ export function SubscriptionView() {
 				{subscription && (
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
 						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Status</span>
-							<span>{subscription.status}</span>
+							<span className="text-muted-foreground text-sm">Status</span>
+							<span className="text-sm">{subscription.status}</span>
 						</div>
-						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Plan price ID</span>
-							<span className="truncate max-w-[180px]" title={subscription.paddle_price_id ?? undefined}>
+						<div className="flex text-sm items-center justify-between border rounded-md px-3 py-2">
+							<span className="text-muted-foreground text-sm">Plan price ID</span>
+							<span className="truncate max-w-[180px] text-sm" title={subscription.paddle_price_id ?? undefined}>
 								{subscription.paddle_price_id ?? "—"}
 							</span>
 						</div>
-						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Current period start</span>
-							<span>{formatDateTime(subscription.current_period_start)}</span>
+						<div className="flex text-sm items-center justify-between border rounded-md px-3 py-2">
+							<span className="text-muted-foreground text-sm">Current period start</span>
+							<span className="text-sm">{formatDateTime(subscription.current_period_start)}</span>
+						</div>
+						<div className="flex  text-sm items-center justify-between border rounded-md px-3 py-2">
+							<span className="text-muted-foreground text-sm">Current period end (next bill)</span>
+							<span className="text-sm">{formatDateTime(subscription.current_period_end)}</span>
 						</div>
 						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Current period end (next bill)</span>
-							<span>{formatDateTime(subscription.current_period_end)}</span>
+							<span className="text-muted-foreground text-sm">Trial end</span>
+							<span className="text-sm">{formatDateTime(subscription.trial_end)}</span>
 						</div>
 						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Trial end</span>
-							<span>{formatDateTime(subscription.trial_end)}</span>
-						</div>
-						<div className="flex items-center justify-between border rounded-md px-3 py-2">
-							<span className="text-muted-foreground">Cancel at period end</span>
-							<span>{subscription.cancel_at_period_end ? "Yes" : "No"}</span>
+							<span className="text-muted-foreground text-sm">Cancel at period end</span>
+							<span className="text-sm">{subscription.cancel_at_period_end ? "Yes" : "No"}</span>
 						</div>
 					</div>
 				)}
@@ -252,7 +252,7 @@ export function SubscriptionView() {
 						{isPolling && <span className="ml-2 text-xs text-muted-foreground">(syncing changes…)</span>}
 					</div>
 					<div className="flex gap-2 w-full md:w-auto">
-						<Button size="sm" variant="outline" onClick={openPortal}>
+						<Button variant="default" onClick={openPortal}>
 							Open Paddle portal
 						</Button>
 					</div>

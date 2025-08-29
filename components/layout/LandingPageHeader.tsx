@@ -8,7 +8,7 @@ export function LandingPageHeader() {
 		<header className={styles.landingHeader}>
 			<div className={styles.landingHeaderContainer}>
 				<Link href="/">
-					<Image src="/logo.png" width={120} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
+					<Image src="/logo.png" width={100} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
 				</Link>
 				<nav className={styles.landingNav}>
 					<Link href="/login">

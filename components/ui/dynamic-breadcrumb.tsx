@@ -1,5 +1,6 @@
 "use client"
 
+
 import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
@@ -13,7 +14,9 @@ export function DynamicBreadcrumb() {
 
 	return (
 		<Breadcrumb className="w-full">
+
 			<BreadcrumbList className="w-full">
+
 				{breadcrumbs.map((breadcrumb, index) => (
 					<div key={breadcrumb.href} className="contents">
 						<BreadcrumbItem className={index === 0 ? "hidden md:block" : ""}>

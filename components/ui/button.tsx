@@ -23,10 +23,10 @@ const buttonVariants = cva(
 			size: {
 				default: "h-12 px-2 md:px-4 py-2",
 				bundles: "h-auto px-2 md:px-4 py-8",
-				sm: "h-8 px-2 md:px-3 text-xs rounded-lg md:rounded-xl",
-				xs: "h-8 px-2 md:px-3 text-[0.6rem] rounded-lg md:rounded-xl",
+				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
+				xs: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
 				lg: "h-10 px-2 md:px-6 rounded-lg md:rounded-xl",
-				icon: "size-9 p-0",
+				icon: "size-12 w-12 h-12 p-0",
 				play: " w-auto inline-block align-middle leading-none text-xs px-0 py-0 my-0 leading-none flex flex-row items-center justify-center gap-1",
 			},
 		},
