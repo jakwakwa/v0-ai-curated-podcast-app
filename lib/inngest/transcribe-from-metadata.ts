@@ -60,16 +60,41 @@ export const transcribeFromMetadata = inngest.createFunction(
       await writeEpisodeDebugLog(userEpisodeId, { step: "status", status: "start", message: "PROCESSING" })
     })
 
-    // 2) Search audio URL via resolver pool (parallel)
-    const audioUrl = await step.run("search-audio", async () => {
-      const [ln, ap, yt] = await Promise.all([
-        searchEpisodeAudioViaListenNotes({ title, podcastName, publishedAt }),
-        searchEpisodeAudioViaApple({ title, podcastName, publishedAt }),
-        searchYouTubeByMetadata({ title, podcastName, publishedAt, dateBufferDays: 14 }),
-      ])
-      const winner = ln?.audioUrl || ap?.audioUrl || yt || null
-      return winner
-    })
+    // 2) Search audio/video via Provider Pool with retry window
+    const resolutionWindowMinutes = Number(process.env.RESOLUTION_WINDOW_MINUTES || 60)
+    const intervalSeconds = Number(process.env.RESOLUTION_SWEEP_INTERVAL_SECONDS || 180) // 3 minutes
+    const maxSweeps = Math.max(1, Math.ceil((resolutionWindowMinutes * 60) / intervalSeconds))
+
+    let audioUrl: string | null = null
+    for (let attempt = 1; attempt <= maxSweeps; attempt++) {
+      audioUrl = await step.run(`search-audio-sweep-${attempt}`, async () => {
+        const [ln, ap, yt] = await Promise.all([
+          searchEpisodeAudioViaListenNotes({ title, podcastName, publishedAt }),
+          searchEpisodeAudioViaApple({ title, podcastName, publishedAt }),
+          searchYouTubeByMetadata({ title, podcastName, publishedAt, dateBufferDays: 14 }),
+        ])
+        const winner = ln?.audioUrl || ap?.audioUrl || yt || null
+        await writeEpisodeDebugLog(userEpisodeId, {
+          step: "resolve-audio",
+          status: winner ? "success" : "info",
+          message: winner ? `resolved on attempt ${attempt}` : `no result on attempt ${attempt}`,
+          meta: {
+            attempt,
+            maxSweeps,
+            listenNotes: ln?.audioUrl ? true : false,
+            apple: ap?.audioUrl ? true : false,
+            youtube: yt ? true : false,
+            winner,
+          },
+        })
+        return winner
+      })
+      if (audioUrl) break
+      if (attempt < maxSweeps) {
+        // @ts-expect-error - step.sleep is provided by Inngest runtime
+        await step.sleep(`${intervalSeconds}s`)
+      }
+    }
 
     if (!audioUrl) {
       await step.run("mark-failed-no-audio", async () => {
@@ -79,7 +104,7 @@ export const transcribeFromMetadata = inngest.createFunction(
       return { message: "No audio found for metadata", userEpisodeId }
     }
 
-    // Store the resolved audio url into youtube_url field for traceability
+    // Store the resolved url (direct audio or YouTube) for traceability
     await step.run("store-audio-url", async () => {
       await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { youtube_url: audioUrl } })
       await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-audio", status: "success", meta: { audioUrl } })
