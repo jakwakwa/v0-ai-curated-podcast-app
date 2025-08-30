@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { inngest } from "./client"
 import { prisma } from "@/lib/prisma"
-import { searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
+import { searchEpisodeAudioViaListenNotes, searchEpisodeAudioViaApple } from "@/lib/transcripts/search"
 import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video"
 import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger"
 
@@ -59,11 +59,14 @@ export const transcribeFromMetadata = inngest.createFunction(
       await writeEpisodeDebugLog(userEpisodeId, { step: "status", status: "start", message: "PROCESSING" })
     })
 
-    // 2) Search audio URL via Listen Notes
+    // 2) Search audio URL via resolver pool (parallel)
     const audioUrl = await step.run("search-audio", async () => {
-      const result = await searchEpisodeAudioViaListenNotes({ title, podcastName, publishedAt })
-      if (!result) return null
-      return result.audioUrl
+      const [ln, ap] = await Promise.all([
+        searchEpisodeAudioViaListenNotes({ title, podcastName, publishedAt }),
+        searchEpisodeAudioViaApple({ title, podcastName, publishedAt }),
+      ])
+      const winner = ln?.audioUrl || ap?.audioUrl || null
+      return winner
     })
 
     if (!audioUrl) {
