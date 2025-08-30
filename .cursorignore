@@ -6,3 +6,4 @@ lib/admin-middleware.ts
 tasks/fix-sync-edgecases-paddle.md
 components/team-switcher.tsx
 .env
+/Users/jacobkotzee/Projects/v0-ai-curated-podcast-app/lib/gcs.ts

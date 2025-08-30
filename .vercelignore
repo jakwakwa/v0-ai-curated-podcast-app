@@ -5,6 +5,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.vault
 docs/
 scripts/
 __tests__/
@@ -16,3 +17,8 @@ google-cloud-sdk/
 gcs/
 .cursor/
 .DS_Store
+.env*
+
+
+.flaskenv*
+!.env.project
