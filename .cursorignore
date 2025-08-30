@@ -1,9 +1,7 @@
 /.next/*
-README.md
-middleware.ts
-lib/admin-middleware.ts
-.gitignore
+
 tasks/fix-sync-edgecases-paddle.md
-components/team-switcher.tsx
-.env
-/Users/jacobkotzee/Projects/v0-ai-curated-podcast-app/lib/gcs.ts
+# never commit raw creds
+!.env.staging
+!.env.production
+!.env

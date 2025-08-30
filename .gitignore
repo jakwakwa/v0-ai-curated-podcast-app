@@ -40,3 +40,10 @@ next-env.d.ts
 .flaskenv*
 !.env.project
 !.env.vault
+!.env.production
+!.env.staging
+# never commit raw creds
+*service*account*.json
+*gcs*.json
+*uploader*.json
+*reader*.json
