@@ -11,7 +11,8 @@ type MetadataPayload = {
   title: string
   podcastName?: string
   publishedAt?: string
-  allowPaid?: boolean
+  youtubeUrl?: string
+  lang?: string
   generationMode?: "single" | "multi"
   voiceA?: string
   voiceB?: string
@@ -48,10 +49,10 @@ export const transcribeFromMetadata = inngest.createFunction(
   { event: "user.episode.metadata.requested" },
   async ({ event, step }) => {
     const payload = event.data as MetadataPayload
-    const { userEpisodeId, title, podcastName, publishedAt, allowPaid = true, generationMode, voiceA, voiceB } = payload
+    const { userEpisodeId, title, podcastName, publishedAt, youtubeUrl, lang, generationMode, voiceA, voiceB } = payload
 
-    const inputSchema = z.object({ userEpisodeId: z.string().min(1), title: z.string().min(2), podcastName: z.string().optional(), publishedAt: z.string().optional() })
-    const parsed = inputSchema.safeParse({ userEpisodeId, title, podcastName, publishedAt })
+    const inputSchema = z.object({ userEpisodeId: z.string().min(1), title: z.string().min(2), podcastName: z.string().optional(), publishedAt: z.string().optional(), youtubeUrl: z.string().url().optional(), lang: z.string().optional() })
+    const parsed = inputSchema.safeParse({ userEpisodeId, title, podcastName, publishedAt, youtubeUrl, lang })
     if (!parsed.success) throw new Error(parsed.error.message)
 
     // 1) Mark processing
@@ -60,13 +61,18 @@ export const transcribeFromMetadata = inngest.createFunction(
       await writeEpisodeDebugLog(userEpisodeId, { step: "status", status: "start", message: "PROCESSING" })
     })
 
-    // 2) Search audio/video via Provider Pool with retry window
+    // 2) Search audio/video via Provider Pool with retry window (honor user-provided YouTube URL if present)
     const resolutionWindowMinutes = Number(process.env.RESOLUTION_WINDOW_MINUTES || 60)
     const intervalSeconds = Number(process.env.RESOLUTION_SWEEP_INTERVAL_SECONDS || 180) // 3 minutes
     const maxSweeps = Math.max(1, Math.ceil((resolutionWindowMinutes * 60) / intervalSeconds))
 
     let audioUrl: string | null = null
+    if (youtubeUrl) {
+      await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-audio", status: "info", message: "user provided YouTube URL", meta: { youtubeUrl } })
+      audioUrl = youtubeUrl
+    }
     for (let attempt = 1; attempt <= maxSweeps; attempt++) {
+      if (audioUrl) break
       audioUrl = await step.run(`search-audio-sweep-${attempt}`, async () => {
         const [ln, ap, yt] = await Promise.all([
           searchEpisodeAudioViaListenNotes({ title, podcastName, publishedAt }),
