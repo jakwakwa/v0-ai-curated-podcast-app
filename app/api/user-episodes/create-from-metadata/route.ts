@@ -9,10 +9,11 @@ const createFromMetadataSchema = z.object({
   title: z.string().min(2),
   podcastName: z.string().optional(),
   publishedAt: z.string().optional(),
+  youtubeUrl: z.string().url().optional(),
+  lang: z.string().min(2).max(10).optional(),
   generationMode: z.enum(["single", "multi"]).default("single").optional(),
   voiceA: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
   voiceB: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
-  allowPaid: z.coerce.boolean().default(true).optional(),
 })
 
 export async function POST(request: Request) {
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
     const parsed = createFromMetadataSchema.safeParse(json)
     if (!parsed.success) return new NextResponse(parsed.error.message, { status: 400 })
 
-    const { title, podcastName, publishedAt, generationMode = "single", voiceA, voiceB, allowPaid = true } = parsed.data
+    const { title, podcastName, publishedAt, youtubeUrl, lang, generationMode = "single", voiceA, voiceB } = parsed.data
 
     // Enforce monthly limit on COMPLETED episodes
     const existingEpisodeCount = await prisma.userEpisode.count({ where: { user_id: userId, status: "COMPLETED" } })
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
     await inngest.send({
       name: "user.episode.metadata.requested",
-      data: { userEpisodeId: newEpisode.episode_id, title, podcastName, publishedAt, allowPaid, generationMode, voiceA, voiceB },
+      data: { userEpisodeId: newEpisode.episode_id, title, podcastName, publishedAt, youtubeUrl, lang, generationMode, voiceA, voiceB },
     })
 
     return NextResponse.json(newEpisode, { status: 201 })

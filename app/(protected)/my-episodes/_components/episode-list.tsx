@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,6 +20,8 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null)
+    const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null)
+    const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", [])
 
     useEffect(() => {
         const fetchEpisodes = async () => {
@@ -85,9 +87,33 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 
 
                                         )}
+                                        {enableDebug && (
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                className="ml-2"
+                                                onClick={async () => {
+                                                    try {
+                                                        const res = await fetch(`/api/user-episodes/${episode.episode_id}/debug/logs`)
+                                                        if (!res.ok) throw new Error(await res.text())
+                                                        const data = await res.json()
+                                                        setDebugLogs(prev => ({ ...(prev || {}), [episode.episode_id]: data.events }))
+                                                    } catch (e) {
+                                                        console.error(e)
+                                                    }
+                                                }}
+                                            >
+                                                View Run Log
+                                            </Button>
+                                        )}
                                     </>
                                 }
                             />
+                            {enableDebug && debugLogs && debugLogs[episode.episode_id] && (
+                                <div className="mt-2 p-2 bg-gray-50 rounded border">
+                                    <pre className="text-[11px] whitespace-pre-wrap break-words">{JSON.stringify(debugLogs[episode.episode_id], null, 2)}</pre>
+                                </div>
+                            )}
                             {episode.status === "COMPLETED" && episode.signedAudioUrl && activeEpisodeId === episode.episode_id && (
                                 <div className="mt-2">
                                     <UserEpisodeAudioPlayer
