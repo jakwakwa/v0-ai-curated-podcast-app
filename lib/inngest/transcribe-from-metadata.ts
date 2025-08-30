@@ -116,13 +116,6 @@ export const transcribeFromMetadata = inngest.createFunction(
       await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-audio", status: "success", meta: { audioUrl } })
     })
 
-    if (!allowPaid) {
-      await step.run("mark-failed-paid-required", async () => {
-        await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } })
-      })
-      return { message: "Paid transcription disabled but required", userEpisodeId }
-    }
-
     // 3) Start paid ASR job (prefer AssemblyAI if available)
     const assemblyKey = process.env.ASSEMBLYAI_API_KEY
     let transcriptText: string | null = null
