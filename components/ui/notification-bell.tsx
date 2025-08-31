@@ -1,7 +1,7 @@
 "use client"
 
 import { formatDistanceToNow } from "date-fns"
-import { Bell, Check, Trash2, X } from "lucide-react"
+import { Bell, Calendar, Check, Podcast, Trash2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -10,15 +10,19 @@ import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useNotificationStore } from "@/lib/stores"
 import { cn } from "@/lib/utils"
+import { Typography } from "./typography"
 
 export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState(false)
 
 	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll } = useNotificationStore()
 
+	// Fetch only when the dropdown opens
 	useEffect(() => {
-		loadNotifications()
-	}, [loadNotifications])
+		if (isOpen) {
+			void loadNotifications()
+		}
+	}, [isOpen, loadNotifications])
 
 	const handleMarkAsRead = async (notificationId: string) => {
 		try {
@@ -59,9 +63,9 @@ export function NotificationBell() {
 	const getNotificationIcon = (type: string) => {
 		switch (type) {
 			case "episode_ready":
-				return "🎧"
+				return <Podcast className="w-5 h-5" color="#89D7AF" />
 			case "weekly_reminder":
-				return "📅"
+				return <Calendar className="w-5 h-5" color="#FFD700" />
 			default:
 				return "📢"
 		}
@@ -81,13 +85,13 @@ export function NotificationBell() {
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="icon" className="relative" aria-label={`Notifications (${unreadCount} unread)`}>
-					<Bell size={20} />
+				<Button variant="outline" size="sm" className="relative" aria-label={`Notifications (${unreadCount} unread)`}>
+					<Bell size={40} width={40} className="w-3 h-3" />
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
 							size="sm"
-							className="absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-xs flex items-center justify-center"
+							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50"
 						>
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>
@@ -96,17 +100,19 @@ export function NotificationBell() {
 			</DropdownMenuTrigger>
 
 			<DropdownMenuContent className="w-[400px] max-h-[500px] overflow-hidden" align="end" sideOffset={8}>
-				<div className="flex justify-between items-center p-4 border-b border-border">
-					<h3 className="text-lg font-semibold m-0">Notifications</h3>
+				<div className="flex justify-between items-center p-4 border-b  border-[#5A656194]/50">
+					<Typography variant="h3" className="text-lg font-semibold m-0">
+						Notifications
+					</Typography>
 					{notifications.length > 0 && (
-						<div className="flex gap-2">
+						<div className="flex gap-4">
 							{unreadCount > 0 && (
-								<Button variant="ghost" size="sm" onClick={handleMarkAllAsRead} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+								<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={isLoading} className="text-xs px-2 py-1 h-auto text-foreground/80 opacity-50">
 									<Check size={14} />
-									Mark all read
+									Mark all
 								</Button>
 							)}
-							<Button variant="ghost" size="sm" onClick={handleClearAll} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+							<Button variant="outline" size="sm" onClick={handleClearAll} disabled={isLoading} className="text-xs px-2 py-1 h-auto text-foreground/80 opacity-50">
 								<Trash2 size={14} />
 								Clear all
 							</Button>
@@ -131,23 +137,23 @@ export function NotificationBell() {
 									<div className="flex items-start justify-between mb-2">
 										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
 										<div className="flex items-center gap-2 ml-auto">
-											<time className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
+											<time className="text-xs text-foreground/80 font-normal italic">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
 											{!notification.is_read && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</div>
 									</div>
 
-									<p className="mb-3 text-sm leading-relaxed">{notification.message}</p>
+									<p className="mb-3 text-sm font-medium  text-foreground/90 leading-relaxed">{notification.message}</p>
 
 									<div className="flex gap-2 justify-end">
 										{!notification.is_read && (
-											<Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />
 												Mark read
 											</Button>
 										)}
-										<Button variant="ghost" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 											<X size={12} />
-											Delete
+											clear
 										</Button>
 									</div>
 								</div>

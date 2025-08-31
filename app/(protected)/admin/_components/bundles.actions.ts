@@ -109,6 +109,39 @@ export async function replaceBundleMembershipAction(bundleId: string, podcastIds
 	return { success: true, bundle: updated }
 }
 
+export async function updateBundleAction(bundleId: string, data: { name?: string; description?: string; min_plan?: string; podcastIds?: string[] }) {
+	await requireAdmin()
+	if (!bundleId) throw new Error("Bundle ID is required")
+
+	const { name, description, min_plan, podcastIds } = data
+
+	const updateData: Record<string, unknown> = {}
+	if (name !== undefined) updateData.name = name.trim()
+	if (description !== undefined) updateData.description = description.trim()
+	if (min_plan !== undefined) {
+		const parsed = parseMinPlan(min_plan)
+		if (!parsed) throw new Error("Invalid min_plan value")
+		updateData.min_plan = parsed
+	}
+
+	// Perform the bundle update if there is any field to change
+	if (Object.keys(updateData).length > 0) {
+		await prisma.bundle.update({ where: { bundle_id: bundleId }, data: updateData })
+	}
+
+	// Handle membership replacement if podcastIds were provided
+	if (podcastIds !== undefined) {
+		await replaceBundleMembershipAction(bundleId, podcastIds)
+	}
+
+	const refreshed = await prisma.bundle.findUnique({
+		where: { bundle_id: bundleId },
+		include: { bundle_podcast: { include: { podcast: true } }, episodes: { orderBy: { published_at: "desc" } } },
+	})
+
+	return { success: true, bundle: refreshed }
+}
+
 export async function deleteBundleAction(bundleId: string) {
 	await requireAdmin()
 	if (!bundleId) throw new Error("Bundle ID is required")

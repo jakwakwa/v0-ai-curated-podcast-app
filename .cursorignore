@@ -1,8 +1,7 @@
 /.next/*
-README.md
-middleware.ts
-lib/admin-middleware.ts
-.gitignore
+
 tasks/fix-sync-edgecases-paddle.md
-components/team-switcher.tsx
-.env
+# never commit raw creds
+!.env.staging
+!.env.production
+!.env

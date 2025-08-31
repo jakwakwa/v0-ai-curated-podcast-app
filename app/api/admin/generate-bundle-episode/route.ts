@@ -17,6 +17,7 @@ interface EpisodeSource {
 
 interface AdminGenerationRequest {
 	bundleId: string
+	podcastId: string
 	title: string
 	description?: string
 	image_url?: string
@@ -39,10 +40,10 @@ export async function POST(request: Request) {
 		}
 
 		const body: AdminGenerationRequest = await request.json()
-		const { bundleId, title, description, image_url, sources } = body
+		const { bundleId, podcastId, title, description, image_url, sources } = body
 
-		if (!(bundleId && title && sources) || sources.length === 0) {
-			return NextResponse.json({ error: "Missing required fields: bundleId, title, and sources" }, { status: 400 })
+		if (!(bundleId && podcastId && title && sources) || sources.length === 0) {
+			return NextResponse.json({ error: "Missing required fields: bundleId, podcastId, title, and sources" }, { status: 400 })
 		}
 
 		// Validate that the bundle exists (and fetch podcasts)
@@ -55,9 +56,10 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: "Bundle not found" }, { status: 404 })
 		}
 
-		// Ensure membership is present for the first selected source's chosen podcast id if provided via future UI (defensive, no-op today)
-		if (bundle && bundle.bundle_podcast.length === 0) {
-			// No-op here because sources do not carry podcast_id; membership is handled in the worker using the selected podcast
+		// Validate that the selected podcast is part of the bundle
+		const isMember = bundle.bundle_podcast.some(bp => bp.podcast_id === podcastId)
+		if (!isMember) {
+			return NextResponse.json({ error: "Selected podcast is not in the chosen bundle" }, { status: 400 })
 		}
 
 		// Send event to Inngest for background processing
@@ -65,6 +67,7 @@ export async function POST(request: Request) {
 			name: "podcast/admin-generate-gemini-tts.requested",
 			data: {
 				bundleId,
+				podcastId,
 				episodeTitle: title,
 				episodeDescription: description,
 				adminCurationProfile: {

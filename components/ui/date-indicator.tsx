@@ -1,23 +1,19 @@
+import { differenceInCalendarDays } from "date-fns"
 import type React from "react"
 
 interface DateIndicatorProps {
 	indicator: Date | string
-	label: string
+	label: string | null
 	size?: "xs" | "sm"
 }
 
 function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): React.ReactElement {
-	const formatDate = (date: Date | string): string => {
+	const getTimeAgoInDays = (date: Date | string): string => {
 		if (!date) return "Unknown"
 
 		try {
-			// If it's already a Date object, use it directly
-			if (date instanceof Date) {
-				return date.toLocaleDateString()
-			}
-
-			// If it's a string, convert it to a Date first
-			const dateObject = new Date(date)
+			// If it's already a Date object, use it directly. Otherwise, convert.
+			const dateObject = date instanceof Date ? date : new Date(date)
 
 			// Check if the date is valid
 			// biome-ignore lint/suspicious/noGlobalIsNan: <suppressed>
@@ -25,7 +21,17 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 				return "Invalid date"
 			}
 
-			return dateObject.toLocaleDateString()
+			const now = new Date()
+			const daysDifference = differenceInCalendarDays(now, dateObject)
+
+			if (daysDifference < 0) {
+				const daysInFuture = Math.abs(daysDifference)
+				return `in ${daysInFuture} ${daysInFuture === 1 ? "day" : "days"}`
+			}
+			if (daysDifference === 0) {
+				return "Today"
+			}
+			return `${daysDifference} ${daysDifference === 1 ? "day" : "days"} ago`
 		} catch (error) {
 			console.warn("Failed to format date:", error)
 			return "Invalid date"
@@ -34,12 +40,18 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 
 	const sizeClasses = {
 		xs: "text-[0.5rem]",
-		sm: "text-[0.6rem]",
+		sm: "text-[0.4rem]",
 	}
-
+	if (!label) {
+		return (
+			<div className={`flex py-0 h-auto leading-none ${sizeClasses[size]} no-wrap `}>
+				Created {getTimeAgoInDays(indicator)}
+			</div>
+		)
+	}
 	return (
-		<div className={`mt-1 uppercase ${sizeClasses[size]} text-primary-foreground/60`}>
-			{label}: {formatDate(indicator)}
+		<div className={`inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-card-foreground`}>
+			{label}: {getTimeAgoInDays(indicator)}
 		</div>
 	)
 }

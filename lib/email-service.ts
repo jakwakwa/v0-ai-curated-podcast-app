@@ -1,5 +1,4 @@
-import type { Transporter } from "nodemailer"
-import nodemailer from "nodemailer"
+import { Resend } from "resend"
 import { prisma } from "@/lib/prisma"
 
 export interface EmailNotification {
@@ -29,7 +28,7 @@ export interface SubscriptionExpiringEmailData {
 }
 
 class EmailService {
-	private transporter: Transporter | null = null
+	private client: Resend | null = null
 	private initialized = false
 
 	// Remove constructor - don't initialize on import
@@ -37,56 +36,25 @@ class EmailService {
 	// 	this.initializeTransporter()
 	// }
 
-	private initializeTransporter() {
+	private initializeClient() {
 		// Skip if already initialized
 		if (this.initialized) return
 		this.initialized = true
 
-		// Check if email is configured
-		if (!(process.env.EMAIL_HOST && process.env.EMAIL_FROM)) {
-			console.warn("Email service not configured. Set EMAIL_HOST, EMAIL_FROM, EMAIL_USER, and EMAIL_PASS environment variables.")
-			console.warn("Current config:", {
-				hasHost: !!process.env.EMAIL_HOST,
-				hasFrom: !!process.env.EMAIL_FROM,
-				hasUser: !!process.env.EMAIL_USER,
-				hasPass: !!process.env.EMAIL_PASS,
-			})
+		// Check if Resend is configured
+		if (!process.env.RESEND_API_KEY) {
+			console.warn("Email service not configured. Set RESEND_API_KEY and EMAIL_FROM environment variables.")
 			return
 		}
 
 		try {
-			// Only log in development
+			this.client = new Resend(process.env.RESEND_API_KEY)
 			if (process.env.NODE_ENV === "development") {
-				console.log("Initializing email transporter with config:", {
-					host: process.env.EMAIL_HOST,
-					port: process.env.EMAIL_PORT || "587",
-					secure: process.env.EMAIL_SECURE === "true",
-					user: process.env.EMAIL_USER,
-				})
+				console.log("Resend client initialized")
 			}
-
-			this.transporter = nodemailer.createTransport({
-				host: process.env.EMAIL_HOST,
-				port: parseInt(process.env.EMAIL_PORT || "587"),
-				secure: process.env.EMAIL_SECURE === "true", // true for 465, false for other ports
-				auth: {
-					user: process.env.EMAIL_USER,
-					pass: process.env.EMAIL_PASS,
-				},
-			})
-
-			// Verify connection asynchronously
-			this.transporter.verify((error: Error | null) => {
-				if (error) {
-					console.error("Email service verification failed:", error)
-					this.transporter = null
-				} else if (process.env.NODE_ENV === "development") {
-					console.log("Email service ready and verified")
-				}
-			})
 		} catch (error) {
-			console.error("Failed to initialize email transporter:", error)
-			this.transporter = null
+			console.error("Failed to initialize Resend client:", error)
+			this.client = null
 		}
 	}
 
@@ -105,37 +73,32 @@ class EmailService {
 
 	async sendEmail(notification: EmailNotification): Promise<boolean> {
 		// Lazy initialize on first use
-		this.initializeTransporter()
+		this.initializeClient()
 
-		if (!this.transporter) {
-			console.warn("Email transporter not available - check initialization")
+		if (!this.client) {
+			console.warn("Resend client not available - check RESEND_API_KEY")
+			return false
+		}
+		if (!process.env.EMAIL_FROM) {
+			console.warn("EMAIL_FROM not set - cannot send email")
 			return false
 		}
 
 		try {
-			console.log("Attempting to send email:", {
-				from: process.env.EMAIL_FROM,
-				to: notification.to,
-				subject: notification.subject,
-			})
-
-			const info = await this.transporter.sendMail({
+			const result = await this.client.emails.send({
 				from: process.env.EMAIL_FROM,
 				to: notification.to,
 				subject: notification.subject,
 				text: notification.text,
 				html: notification.html,
 			})
-
-			console.log("Email sent successfully:", info.messageId)
+			if ((result as { error?: unknown }).error) {
+				console.error("Resend send error:", (result as { error: unknown }).error)
+				return false
+			}
 			return true
 		} catch (error) {
-			console.error("Failed to send email - detailed error:", error)
-			if (error instanceof Error) {
-				console.error("Error name:", error.name)
-				console.error("Error message:", error.message)
-				console.error("Error stack:", error.stack)
-			}
+			console.error("Failed to send email via Resend:", error)
 			return false
 		}
 	}

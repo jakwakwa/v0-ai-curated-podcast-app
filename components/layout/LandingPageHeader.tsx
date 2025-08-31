@@ -5,10 +5,10 @@ import styles from "@/styles/landing-page-content.module.css"
 
 export function LandingPageHeader() {
 	return (
-		<header className={styles.landingHeader}>
+		<header className={styles.landingHeader} suppressHydrationWarning>
 			<div className={styles.landingHeaderContainer}>
 				<Link href="/">
-					<Image src="/logo.png" width={120} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
+					<Image src="/logo.png" width={100} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
 				</Link>
 				<nav className={styles.landingNav}>
 					<Link href="/login">

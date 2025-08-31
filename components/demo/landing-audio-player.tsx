@@ -195,7 +195,7 @@ export default function LandingAudioPlayer({ title, subtitle }: LandingAudioPlay
 	return (
 		<div className={styles.audioPlayerContainer}>
 			{/** biome-ignore lint/a11y/useMediaCaption: <keep> */}
-			<audio ref={audioRef} src="/podslice-sample.mp3" onEnded={() => setIsPlaying(false)} />
+			<audio ref={audioRef} src="/Podslice_ AI's Solution to Information Overload and Content Drowning.mp3" onEnded={() => setIsPlaying(false)} />
 			<div className={styles.audioPlayerHeader}>
 				<div className={styles.audioPlayerInfo}>
 					<h5 className={styles.audioPlayerTitle}>{title}</h5>

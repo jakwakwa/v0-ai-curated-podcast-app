@@ -1,12 +1,13 @@
 "use client"
 
-import { Bell, Calendar, Check, Clock, Play, Trash2 } from "lucide-react"
+import { formatDistanceToNow } from "date-fns"
+import { Bell, Calendar, Check, Clock, Podcast, Trash2, X } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { PageHeader } from "@/components/ui/page-header"
 import type { Notification } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -104,65 +105,26 @@ export default function NotificationsPage() {
 	const getNotificationIcon = (type: Notification["type"]) => {
 		switch (type) {
 			case "episode_ready":
-				return <Play className="w-5 h-5" />
+				return <Podcast className="w-5 h-5" color="#89D7AF" />
 			case "weekly_reminder":
-				return <Calendar className="w-5 h-5" />
+				return <Calendar className="w-5 h-5" color="#FFD700" />
 			case "subscription_expiring":
-				return <Clock className="w-5 h-5" />
+				return <Clock className="w-5 h-5" color="#FFA500" />
 			case "trial_ending":
-				return <Bell className="w-5 h-5" />
+				return <Bell className="w-5 h-5" color="#FF0000" />
 			default:
-				return <Bell className="w-5 h-5" />
+				return <Bell className="w-5 h-5" color="#000000" />
 		}
 	}
 
-	const getNotificationBadge = (type: Notification["type"]) => {
+	const getNotificationColor = (type: string) => {
 		switch (type) {
 			case "episode_ready":
-				return (
-					<Badge variant="default" size="sm" className="bg-secondary text-primary-foreground font-semibold">
-						Episode Ready
-					</Badge>
-				)
+				return "text-green-500"
 			case "weekly_reminder":
-				return (
-					<Badge variant="default" size="sm" className="bg-secondary text-secondary-foreground">
-						Reminder
-					</Badge>
-				)
-			case "subscription_expiring":
-				return (
-					<Badge variant="default" size="sm" className="bg-accent text-primary-foreground">
-						Subscription
-					</Badge>
-				)
-			case "trial_ending":
-				return (
-					<Badge variant="default" size="sm" className="bg-destructive text-destructive-foreground">
-						Trial
-					</Badge>
-				)
+				return "text-amber-500"
 			default:
-				return (
-					<Badge variant="default" size="sm" className="bg-accent text-accent-foreground">
-						Notification
-					</Badge>
-				)
-		}
-	}
-
-	const formatTimeAgo = (date: Date) => {
-		const now = new Date()
-		const diffInMs = now.getTime() - date.getTime()
-		const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
-		const diffInDays = Math.floor(diffInHours / 24)
-
-		if (diffInDays > 0) {
-			return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`
-		} else if (diffInHours > 0) {
-			return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`
-		} else {
-			return "Just now"
+				return "text-gray-500"
 		}
 	}
 
@@ -182,24 +144,19 @@ export default function NotificationsPage() {
 		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12 pt-12">
 			<div className="mb-8 px-12">
 				<div className="flex justify-between items-center flex-wrap gap-4">
-					<div className="flex items-center gap-3">
-						<Bell className="w-6 h-6 text-primary" />
-						<h1 className="text-2xl font-semibold m-0">Notifications</h1>
-						{unreadCount > 0 && (
-							<Badge variant="default" size="sm" className="bg-destructive text-destructive-foreground font-semibold min-w-[20px] h-5 flex items-center justify-center rounded-full text-sm">
-								{unreadCount}
-							</Badge>
-						)}
+					<div className="flex h-12 flex-row items-center justify-center gap-3 mt-6">
+						<Bell className="w-6 h-6 mb-1 text-primary opacity-50" />
+						<PageHeader title="Notifications" className="h-14 mb-0 mt-0" />
 					</div>
 					<div className="flex gap-2 flex-wrap">
 						{unreadCount > 0 && (
-							<Button variant="default" size="sm" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
+							<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
 								<Check size={16} />
 								Mark all as read
 							</Button>
 						)}
 						{notifications.length > 0 && (
-							<Button variant="outline" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
+							<Button variant="destructive" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
 								<Trash2 size={16} />
 								Clear all
 							</Button>
@@ -208,9 +165,9 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className="min-h-[400px]">
+			<div className="min-h-[400px] px-12">
 				{notifications.length === 0 ? (
-					<Card className="text-center p-12 border-2 border-dashed border-border bg-card content">
+					<Card className="text-center px-12 py-2 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
 							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
 							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
@@ -219,50 +176,34 @@ export default function NotificationsPage() {
 					</Card>
 				) : (
 					<div className="flex flex-col gap-1 px-2 py-2">
-						{notifications.map(notification => (
+						{notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn(
-									"border transition-all duration-200 my-2 px-2 py-2 bg-card contentglass hover:translate-y-[-1px] hover:shadow-lg",
-									!notification.is_read && "border-l-4 border-l-primary bg-card content"
-								)}
-							>
-								<CardHeader className="p-6 flex justify-between items-start gap-4">
-									<div className="flex gap-4 flex-1">
-										<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#176a888f] text-primary-foreground flex-shrink-0 bg-card contentglass">
-											{getNotificationIcon(notification.type)}
-										</div>
-										<div className="flex-1 min-w-0">
-											<div className="flex items-center gap-3 mb-2 flex-wrap">
-												{getNotificationBadge(notification.type)}
-												<span className="bg-primary-foreground/10 text-sm text-muted-foreground px-2 py-0	 rounded-md border border-primary-foreground/10">
-													{formatTimeAgo(new Date(notification.created_at))}
-												</span>
-											</div>
-											<CardTitle className="text-custom-sm text-foreground mt-4">{notification.message}</CardTitle>
-										</div>
-										<div className="flex flex-col gap-1 flex-shrink-0 mt-2">
-											{!notification.is_read && (
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() => handleMarkAsRead(notification.notification_id)}
-													className="p-2 min-w-auto text-primary hover:bg-primary hover:text-primary-foreground"
-												>
-													<Check size={16} />
-												</Button>
-											)}
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() => handleDeleteNotification(notification.notification_id)}
-												className="p-2 min-w-auto text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
-											>
-												<Trash2 size={16} />
-											</Button>
-										</div>
+								className={cn("flex flex-col border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/30")}>
+								<div className=" flex flex-col">
+									<div className="flex items-start justify-between ">
+										<time className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
+										{!notification.is_read && <div className="w-2 h-2 rounded-full bg-secondary-light" />}
 									</div>
-								</CardHeader>
+
+									<div className="flex justify-start items-center gap-4 h-full py-2">
+										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
+										<p className="text-body font-medium leading-relaxed">{notification.message}</p>
+									</div>
+
+									<div className="flex gap-2 justify-end">
+										{!notification.is_read && (
+											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+												<Check size={12} />
+												Mark read
+											</Button>
+										)}
+										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+											<X size={12} />
+											Delete
+										</Button>
+									</div>
+								</div>
 							</Card>
 						))}
 					</div>

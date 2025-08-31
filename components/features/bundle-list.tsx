@@ -132,16 +132,16 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 
 								{/* Podcasts section */}
 								<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border border-border">
-									{/* Podcasts list - truncated */}
+									{/* Podcasts list */}
 									<div className="mb-0 p-4">
 										<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
 										<ul className="space-y-1 pt-2">
-											{bundle.podcasts?.slice(0, 2).map(podcast => (
+											{bundle.podcasts?.map(podcast => (
 												<li key={podcast.podcast_id} className="text-sm text-muted-foreground truncate">
 													{podcast.name}
 												</li>
 											))}
-											{bundle.podcasts && bundle.podcasts.length > 2 && <li className="text-sm text-muted-foreground">+{bundle.podcasts.length - 2} more</li>}
+											{(!bundle.podcasts || bundle.podcasts.length === 0) && <li className="text-sm text-muted-foreground">No podcasts linked yet</li>}
 										</ul>
 									</div>
 

@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "../../../../lib/prisma"
 import { withUploadTimeout } from "../../../../lib/utils"
 import { getGcsBucketName, getGcsUploader } from "../../../../lib/gcs-server"
@@ -135,12 +135,20 @@ export async function POST(request: Request) {
 		const currentWeek = new Date()
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
-		// Use the first podcast from the bundle as the podcast reference when not explicitly provided
+		// Determine final podcast id: prefer explicit podcastId, else default to first in bundle
 		const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
 		const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
 
 		if (!finalPodcastId) {
 			return NextResponse.json({ message: "podcastId is required, or the selected bundle must include at least one podcast" }, { status: 400 })
+		}
+
+		// If both bundle and podcast provided, ensure membership
+		if (bundle && providedPodcastId) {
+			const isMember = bundle.bundle_podcast.some(bp => bp.podcast_id === providedPodcastId)
+			if (!isMember) {
+				return NextResponse.json({ message: "Selected podcast is not in the chosen bundle" }, { status: 400 })
+			}
 		}
 
 		console.log("Creating episode with:", {
@@ -152,15 +160,7 @@ export async function POST(request: Request) {
 		})
 
 		const txResults = await prisma.$transaction([
-			// Ensure bundle↔podcast membership exists for visibility rules
-			...(bundleId
-				? [
-						prisma.bundlePodcast.createMany({
-							data: [{ bundle_id: bundleId, podcast_id: finalPodcastId }],
-							skipDuplicates: true,
-						}),
-					]
-				: []),
+			// Do not auto-create membership here; rely on existing relationships and validation above
 			// Create the episode with both podcast_id and bundle_id (bundle_id is for diagnostics only; reads remain membership-based)
 			prisma.episode.create({
 				data: {
@@ -171,7 +171,7 @@ export async function POST(request: Request) {
 					image_url: image_url || bundle?.image_url || null,
 					published_at: new Date(),
 					week_nr: currentWeek,
-					bundle_id: bundleId || null,
+					bundle_id: null,
 					podcast_id: finalPodcastId,
 				},
 			}),
