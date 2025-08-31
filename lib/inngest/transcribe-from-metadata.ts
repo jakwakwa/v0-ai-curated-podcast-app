@@ -44,6 +44,66 @@ async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITra
 	return (await res.json()) as AssemblyAITranscript
 }
 
+// --- Audio resolution helpers -------------------------------------------------
+function isYouTubeUrl(url: string): boolean {
+	return /youtu(be\.be|be\.com)/i.test(url)
+}
+
+function isDirectAudioUrl(url: string): boolean {
+	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || url.includes("googlevideo.com")
+}
+
+async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
+	// Attempt to derive a direct audio stream URL via YouTube player API
+	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
+	try {
+		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
+			method: "POST",
+			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
+			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
+		})
+		if (response.ok) {
+			const data = await response.json()
+			const formats = data?.streamingData?.adaptiveFormats || []
+			const audioFormats = formats.filter((f: { mimeType?: string; url?: string }) => f?.mimeType?.includes("audio") && f?.url)
+			if (audioFormats.length > 0) {
+				const preferred = audioFormats.find((f: { mimeType?: string }) => f?.mimeType?.includes("audio/webm") || f?.mimeType?.includes("audio/mp4")) || audioFormats[0]
+				return preferred.url as string
+			}
+		}
+	} catch {}
+
+	// Optional RapidAPI fallback if configured
+	const rapidApiKey = process.env.RAPIDAPI_KEY
+	if (rapidApiKey) {
+		try {
+			const resp = await fetch(`https://youtube-video-info1.p.rapidapi.com/youtube_video_info?url=${encodeURIComponent(videoUrl)}`, {
+				headers: { "X-RapidAPI-Key": rapidApiKey, "X-RapidAPI-Host": "youtube-video-info1.p.rapidapi.com" },
+			})
+			if (resp.ok) {
+				const data = await resp.json()
+				if (data?.audio_url) return data.audio_url as string
+			}
+		} catch {}
+	}
+
+	return null
+}
+
+async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
+	const source = await fetch(srcUrl)
+	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
+	const uploaded = await fetch(`${ASSEMBLY_BASE_URL}/upload`, {
+		method: "POST",
+		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
+		body: source.body as unknown as BodyInit,
+	})
+	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
+	const json = (await uploaded.json()) as { upload_url?: string }
+	if (!json.upload_url) throw new Error("AssemblyAI upload succeeded without upload_url")
+	return json.upload_url
+}
+
 export const transcribeFromMetadata = inngest.createFunction(
 	{ id: "transcribe-from-metadata", name: "Transcribe From Metadata", retries: 2 },
 	{ event: "user.episode.metadata.requested" },
@@ -94,9 +154,9 @@ export const transcribeFromMetadata = inngest.createFunction(
 					meta: {
 						attempt,
 						maxSweeps,
-						listenNotes: ln?.audioUrl ? true : false,
-						apple: ap?.audioUrl ? true : false,
-						youtube: yt ? true : false,
+						listenNotes: ln?.audioUrl ?? false,
+						apple: ap?.audioUrl ?? false,
+						youtube: yt ?? false,
 						winner,
 					},
 				})
@@ -130,7 +190,22 @@ export const transcribeFromMetadata = inngest.createFunction(
 		if (assemblyKey) {
 			const jobId = await step.run("assemblyai-start", async () => {
 				await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "start" })
-				return await startAssemblyJob(audioUrl, assemblyKey)
+				let resolvedUrl = audioUrl
+				// If it's a YouTube page, resolve a direct audio stream first
+				if (isYouTubeUrl(resolvedUrl)) {
+					const extracted = await extractYouTubeAudioUrl(resolvedUrl)
+					if (extracted) {
+						resolvedUrl = extracted
+					} else {
+						throw new Error("Failed to extract audio from YouTube URL")
+					}
+				}
+				// If not a clearly direct audio URL, proxy-upload to AssemblyAI to ensure accessibility
+				let submitUrl = resolvedUrl
+				if (!isDirectAudioUrl(resolvedUrl)) {
+					submitUrl = await uploadToAssembly(resolvedUrl, assemblyKey)
+				}
+				return await startAssemblyJob(submitUrl, assemblyKey, lang)
 			})
 
 			// Poll up to ~90 minutes total, sleeping 60s between checks
