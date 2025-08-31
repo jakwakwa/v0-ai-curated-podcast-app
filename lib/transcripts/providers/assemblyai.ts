@@ -32,6 +32,7 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 	return data.id
 }
 
+
 async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, {
 		headers: { Authorization: apiKey },

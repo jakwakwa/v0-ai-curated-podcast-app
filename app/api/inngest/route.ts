@@ -6,6 +6,7 @@ import { generateUserEpisodeMulti } from "@/lib/inngest/user-episode-generator-m
 import { transcribeFromMetadata } from "@/lib/inngest/transcribe-from-metadata"
 
 export const maxDuration = 300 // 5 minutes for Inngest job processing
+export const runtime = "nodejs"
 
 export const { GET, POST, PUT } = serve({
 	client: inngest,

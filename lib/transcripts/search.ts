@@ -87,7 +87,7 @@ export async function searchEpisodeAudioViaListenNotes(query: EpisodeSearchInput
       bestScore = s
     }
   }
-  if (!best || !isDirectAudioUrl(best.audio)) return null
+  if (!(best && isDirectAudioUrl(best.audio))) return null
 
   return { audioUrl: best.audio!, source: "listen-notes", meta: { id: best.id, listennotes_url: best.listennotes_url } }
 }
@@ -157,10 +157,10 @@ export async function searchEpisodeAudioViaApple(query: EpisodeSearchInput): Pro
       let bestScore = -Infinity
       for (const raw of items) {
         const titleMatch = raw.match(/<title>([\s\S]*?)<\/title>/i)
-        const enclosureMatch = raw.match(/enclosure[^>]*url=\"([^\"]+)\"/i)
+        const enclosureMatch = raw.match(/enclosure[^>]*url="([^"]+)"/i)
         const pubDateMatch = raw.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)
         const audio = enclosureMatch ? enclosureMatch[1] : null
-        if (!audio || !isDirectAudioUrl(audio)) continue
+        if (!(audio && isDirectAudioUrl(audio))) continue
         const title = titleMatch ? titleMatch[1] : ""
         const scoreTitle = titleSimilarity(title, query.title)
         let scoreDate = 0

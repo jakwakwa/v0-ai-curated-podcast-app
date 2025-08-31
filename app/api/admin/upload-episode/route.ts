@@ -1,46 +1,14 @@
 import { auth } from "@clerk/nextjs/server"
-import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
 import { requireAdminMiddleware } from "@/lib/admin-middleware"
 import { prisma } from "../../../../lib/prisma"
+import { getStorageUploader } from "@/lib/gcs"
 import { withUploadTimeout } from "../../../../lib/utils"
 
 // Force this API route to be dynamic since it uses auth()
 // export const dynamic = "force-dynamic"
 export const runtime = "nodejs" // Required for file system access
 export const maxDuration = 300 // 5 minutes for file uploads
-
-// Lazily initialize Google Cloud Storage uploader. Supports both JSON and key file path.
-let _storageUploader: Storage | undefined
-
-function looksLikeJson(value: string | undefined): boolean {
-	if (!value) return false
-	const trimmed = value.trim()
-	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function getUploaderRaw(): string | undefined {
-	return process.env.GCS_UPLOADER_KEY_JSON || process.env.GCS_UPLOADER_KEY || process.env.GCS_UPLOADER_KEY_PATH
-}
-
-function getStorageUploader(): Storage {
-	if (_storageUploader) return _storageUploader
-	const raw = getUploaderRaw()
-	if (!raw) {
-		// Do not leak env var names or values beyond this message
-		throw new Error("Google Cloud credentials for uploader are not configured")
-	}
-	try {
-		if (looksLikeJson(raw)) {
-			_storageUploader = new Storage({ credentials: JSON.parse(raw) })
-		} else {
-			_storageUploader = new Storage({ keyFilename: raw })
-		}
-		return _storageUploader
-	} catch (_err) {
-		throw new Error("Failed to initialize Google Cloud Storage uploader")
-	}
-}
 
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
 	try {

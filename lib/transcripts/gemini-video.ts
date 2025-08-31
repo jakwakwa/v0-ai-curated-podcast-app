@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { GoogleAIFileManager } from "@google/generative-ai/server"
 import { tmpdir } from "node:os"
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs"
+import { mkdtempSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<string | null> {
@@ -39,7 +39,7 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
   } finally {
     // Best-effort cleanup
     try {
-      const base = path.dirname(path.dirname((await import("node:url")).fileURLToPath(import.meta.url))) // noop to avoid TS unused
+      const _base = path.dirname(path.dirname((await import("node:url")).fileURLToPath(import.meta.url))) // noop to avoid TS unused
     } catch {}
   }
 }

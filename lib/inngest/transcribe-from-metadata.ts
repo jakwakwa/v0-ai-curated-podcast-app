@@ -154,9 +154,9 @@ export const transcribeFromMetadata = inngest.createFunction(
 					meta: {
 						attempt,
 						maxSweeps,
-						listenNotes: ln?.audioUrl ?? false,
-						apple: ap?.audioUrl ?? false,
-						youtube: yt ?? false,
+						listenNotes: !!ln?.audioUrl,
+						apple: !!ap?.audioUrl,
+						youtube: !!yt,
 						winner,
 					},
 				})
