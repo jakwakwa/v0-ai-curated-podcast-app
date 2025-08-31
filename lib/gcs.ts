@@ -31,11 +31,8 @@ export function ensureBucketName(): string {
 }
 
 export function ensureUserEpisodesBucketName(): string {
-	const name = process.env.GCS_USER_EPISODES_BUCKET_NAME
-	if (!name) {
-		throw new Error("GCS_USER_EPISODES_BUCKET_NAME is not set")
-	}
-	return name
+	// Deprecated: always return the primary bucket
+	return ensureBucketName()
 }
 
 function initStorageClients(): { storageUploader: Storage; storageReader: Storage } {

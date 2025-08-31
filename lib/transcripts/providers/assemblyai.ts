@@ -10,7 +10,7 @@ interface AssemblyAITranscript {
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
 async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
-	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts`, {
+	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript`, {
 		method: "POST",
 		headers: {
 			Authorization: apiKey,
@@ -33,7 +33,7 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 }
 
 async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
-	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts/${id}`, {
+	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, {
 		headers: { Authorization: apiKey },
 	})
 	if (!res.ok) {
@@ -54,9 +54,7 @@ function isAudioUrl(url: string): boolean {
 export const AssemblyAIProvider: TranscriptProvider = {
 	name: "assemblyai",
 	canHandle(request) {
-		return Boolean(request.allowPaid) && 
-			   (isYouTube(request.url) || isAudioUrl(request.url)) && 
-			   Boolean(process.env.ASSEMBLYAI_API_KEY)
+		return Boolean(request.allowPaid) && (isYouTube(request.url) || isAudioUrl(request.url)) && Boolean(process.env.ASSEMBLYAI_API_KEY)
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		const apiKey = process.env.ASSEMBLYAI_API_KEY
