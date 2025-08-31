@@ -197,34 +197,43 @@ export const transcribeFromMetadata = inngest.createFunction(
 					if (extracted) {
 						resolvedUrl = extracted
 					} else {
-						throw new Error("Failed to extract audio from YouTube URL")
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: "youtube audio extraction failed; skipping assemblyai" })
+						return null
 					}
 				}
 				// If not a clearly direct audio URL, proxy-upload to AssemblyAI to ensure accessibility
 				let submitUrl = resolvedUrl
 				if (!isDirectAudioUrl(resolvedUrl)) {
-					submitUrl = await uploadToAssembly(resolvedUrl, assemblyKey)
+					try {
+						submitUrl = await uploadToAssembly(resolvedUrl, assemblyKey)
+					} catch (_e) {
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: "upload to assembly failed; skipping assemblyai" })
+						return null
+					}
 				}
 				return await startAssemblyJob(submitUrl, assemblyKey, lang)
 			})
 
-			// Poll up to ~90 minutes total, sleeping 60s between checks
-			for (let i = 0; i < 90; i++) {
-				const job = await step.run("assemblyai-poll", async () => {
-					return await getAssemblyJob(jobId as string, assemblyKey)
-				})
-				if (job.status === "completed" && job.text) {
-					transcriptText = job.text
-					await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "success", meta: { jobId } })
-					break
+			// Only poll if job actually started
+			if (jobId) {
+				// Poll up to ~5 minutes total (5x 60s)
+				for (let i = 0; i < 5; i++) {
+					const job = await step.run("assemblyai-poll", async () => {
+						return await getAssemblyJob(jobId as string, assemblyKey)
+					})
+					if (job.status === "completed" && job.text) {
+						transcriptText = job.text
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "success", meta: { jobId } })
+						break
+					}
+					if (job.status === "error") {
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: job.error || "AssemblyAI job failed", meta: { jobId } })
+						break
+					}
+					// Wait 60 seconds before next poll
+					// @ts-expect-error - step.sleep is provided by Inngest runtime
+					await step.sleep("60s")
 				}
-				if (job.status === "error") {
-					await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: job.error || "AssemblyAI job failed", meta: { jobId } })
-					throw new Error(job.error || "AssemblyAI job failed")
-				}
-				// Wait 60 seconds before next poll
-				// @ts-expect-error - step.sleep is provided by Inngest runtime
-				await step.sleep("60s")
 			}
 		}
 
@@ -256,7 +265,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 				return await startRev()
 			})
 
-			for (let i = 0; i < 90; i++) {
+			for (let i = 0; i < 5; i++) {
 				const status = await step.run("revai-poll", async () => await getStatus(jobId as string))
 				if (status.status === "transcribed" || status.status === "completed") {
 					transcriptText = await step.run("revai-fetch", async () => await getTranscript(jobId as string))
@@ -265,7 +274,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 				}
 				if (status.status === "failed") {
 					await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "fail", message: "Rev.ai job failed", meta: { jobId } })
-					throw new Error("Rev.ai job failed")
+					break
 				}
 				// @ts-expect-error - step.sleep is provided by Inngest runtime
 				await step.sleep("60s")

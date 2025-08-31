@@ -57,8 +57,12 @@ function initStorageClients(): { storageUploader: Storage; storageReader: Storag
 	try {
 		if (looksLikeJson(uploaderRaw) && looksLikeJson(readerRaw)) {
 			// Do not log secrets or absolute paths
-			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw!) })
-			storageReader = new Storage({ credentials: JSON.parse(readerRaw!) })
+			const uploaderCreds = JSON.parse(uploaderRaw!) as { private_key?: string; project_id?: string }
+			const readerCreds = JSON.parse(readerRaw!) as { private_key?: string; project_id?: string }
+			if (typeof uploaderCreds.private_key === "string") uploaderCreds.private_key = uploaderCreds.private_key.replace(/\\n/g, "\n")
+			if (typeof readerCreds.private_key === "string") readerCreds.private_key = readerCreds.private_key.replace(/\\n/g, "\n")
+			storageUploader = new Storage({ credentials: uploaderCreds, projectId: uploaderCreds.project_id })
+			storageReader = new Storage({ credentials: readerCreds, projectId: readerCreds.project_id })
 		} else {
 			// Treat as key file paths
 			storageUploader = new Storage({ keyFilename: uploaderRaw! })
