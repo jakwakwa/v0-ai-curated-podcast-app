@@ -10,7 +10,7 @@ interface AssemblyAITranscript {
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
 async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
-	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts`, {
+	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript`, {
 		method: "POST",
 		headers: {
 			Authorization: apiKey,
@@ -32,8 +32,9 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 	return data.id
 }
 
+
 async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
-	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts/${id}`, {
+	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, {
 		headers: { Authorization: apiKey },
 	})
 	if (!res.ok) {

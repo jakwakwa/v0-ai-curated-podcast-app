@@ -28,7 +28,7 @@ interface AssemblyAITranscript {
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
 async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
-  const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts`, {
+  const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript`, {
     method: "POST",
     headers: { Authorization: apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({ audio_url: audioUrl, language_code: languageCode ?? undefined, speaker_labels: false, punctuate: true, format_text: true }),
@@ -39,7 +39,7 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 }
 
 async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
-  const res = await fetch(`${ASSEMBLY_BASE_URL}/transcripts/${id}`, { headers: { Authorization: apiKey } })
+  const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, { headers: { Authorization: apiKey } })
   if (!res.ok) throw new Error(`AssemblyAI job fetch failed: ${await res.text()}`)
   return (await res.json()) as AssemblyAITranscript
 }
@@ -87,9 +87,9 @@ export const transcribeFromMetadata = inngest.createFunction(
           meta: {
             attempt,
             maxSweeps,
-            listenNotes: ln?.audioUrl ? true : false,
-            apple: ap?.audioUrl ? true : false,
-            youtube: yt ? true : false,
+            listenNotes: !!ln?.audioUrl,
+            apple: !!ap?.audioUrl,
+            youtube: !!yt,
             winner,
           },
         })
