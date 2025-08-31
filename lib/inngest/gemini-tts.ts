@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma"
 import type { Podcast as PodcastModel } from "@/lib/types"
 import { getEnv } from "@/utils/helpers"
 import { inngest } from "./client"
+import { getGcsBucketName, getGcsReader, getGcsUploader } from "@/lib/gcs-server"
 
 type SourceWithTranscript = Omit<PodcastModel, "created_at"> & {
 	createdAt: string
@@ -86,8 +87,8 @@ function initStorageClients(): { storageUploader: Storage; storageReader: Storag
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
-		const { storageUploader } = initStorageClients()
-		const bucketName = ensureBucketName()
+		const storageUploader = getGcsUploader()
+		const bucketName = getGcsBucketName()
 		console.log(`Uploading to bucket: ${bucketName}`)
 
 		const [exists] = await storageUploader.bucket(bucketName).exists()
@@ -109,8 +110,8 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 
 async function _readContentFromBucket(fileName: string): Promise<Buffer> {
 	try {
-		const { storageReader } = initStorageClients()
-		const bucketName = ensureBucketName()
+		const storageReader = getGcsReader()
+		const bucketName = getGcsBucketName()
 		const [fileBuffer] = await storageReader.bucket(bucketName).file(fileName).download()
 		return fileBuffer
 	} catch {

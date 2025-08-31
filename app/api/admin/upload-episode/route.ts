@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
 import { prisma } from "../../../../lib/prisma"
 import { withUploadTimeout } from "../../../../lib/utils"
+import { getGcsBucketName, getGcsUploader } from "../../../../lib/gcs-server"
 
 // Force this API route to be dynamic since it uses auth()
 // export const dynamic = "force-dynamic"
@@ -25,21 +26,8 @@ function getUploaderRaw(): string | undefined {
 
 function getStorageUploader(): Storage {
 	if (_storageUploader) return _storageUploader
-	const raw = getUploaderRaw()
-	if (!raw) {
-		// Do not leak env var names or values beyond this message
-		throw new Error("Google Cloud credentials for uploader are not configured")
-	}
-	try {
-		if (looksLikeJson(raw)) {
-			_storageUploader = new Storage({ credentials: JSON.parse(raw) })
-		} else {
-			_storageUploader = new Storage({ keyFilename: raw })
-		}
-		return _storageUploader
-	} catch (_err) {
-		throw new Error("Failed to initialize Google Cloud Storage uploader")
-	}
+	_storageUploader = getGcsUploader()
+	return _storageUploader
 }
 
 async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
@@ -129,7 +117,7 @@ export async function POST(request: Request) {
 			const audioFileName = `podcasts/${bundleId}-${Date.now()}.mp3`
 
 			// Upload to the same Google Cloud Storage bucket
-			const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!
+			const bucketName = getGcsBucketName()
 			const uploadResult = await uploadContentToBucket(bucketName, buffer, audioFileName)
 
 			if (!uploadResult.success) {
