@@ -6,7 +6,7 @@ import { z } from "zod"
 
 import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
-import { ensureUserEpisodesBucketName, getStorageUploader } from "@/lib/gcs"
+import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 import { inngest } from "./client"
 
@@ -14,7 +14,7 @@ import { inngest } from "./client"
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const uploader = getStorageUploader()
-		const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME || ensureUserEpisodesBucketName()
+		const bucketName = ensureBucketName()
 		const [exists] = await uploader.bucket(bucketName).exists()
 		if (!exists) {
 			throw new Error(`Bucket ${bucketName} does not exist`)

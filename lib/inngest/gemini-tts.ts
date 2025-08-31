@@ -620,7 +620,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 						episode_id: randomUUID(),
 						title: episodeTitle,
 						description: episodeDescription || script,
-						audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+						audio_url: `https://storage.cloud.google.com/${ensureBucketName()}/${publicUrl}`,
 						image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
 						published_at: new Date(),
 						week_nr: currentWeek,
@@ -694,7 +694,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 		return {
 			success: true,
 			bundleId,
-			audioUrl: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+			audioUrl: `https://storage.cloud.google.com/${ensureBucketName()}/${publicUrl}`,
 			isSimulated: aiConfig.simulateAudioSynthesis,
 			title: episodeTitle,
 		}

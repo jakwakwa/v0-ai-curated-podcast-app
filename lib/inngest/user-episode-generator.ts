@@ -6,19 +6,17 @@ import mime from "mime"
 
 import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
-import { ensureUserEpisodesBucketName, getStorageUploader } from "@/lib/gcs"
+import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 import { inngest } from "./client"
 
-// ensure we store to correct bucket with  GCS_USER_EPISODES_BUCKET_NAME when user creates an episode
-// ensure we store to correct bucket name when admin creates episode with GOOGLE_CLOUD_STORAGE_BUCKET_NAME
+// All uploads use the primary bucket defined by GOOGLE_CLOUD_STORAGE_BUCKET_NAME
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const uploader = getStorageUploader()
-		// Temporarily use admin bucket for testing (same as admin episodes)
-		const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME || ensureUserEpisodesBucketName()
-		console.log(`Uploading to bucket: ${bucketName} (using admin bucket for testing)`)
+		const bucketName = ensureBucketName()
+		console.log(`Uploading to bucket: ${bucketName}`)
 
 		const [exists] = await uploader.bucket(bucketName).exists()
 
@@ -314,7 +312,7 @@ export const generateUserEpisode = inngest.createFunction(
 The script should include:
 - An engaging introduction that hooks the listener
 - Clear narrative structure with smooth transitions
-- Key insights and takeaways from the transcript  
+- Key insights and takeaways from the transcript
 - Interesting examples and explanations
 - A compelling conclusion with actionable advice or thought-provoking questions
 
