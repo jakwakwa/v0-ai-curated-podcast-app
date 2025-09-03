@@ -2,10 +2,6 @@
 const nextConfig = {
     // Suppress hydration warnings from browser extensions like Dark Reader
     reactStrictMode: true,
-    experimental: {
-        // Suppress hydration warnings
-        suppressHydrationWarning: true,
-    },
     images: {
         remotePatterns: [{
                 protocol: 'https',

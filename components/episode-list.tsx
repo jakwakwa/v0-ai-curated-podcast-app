@@ -102,7 +102,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	}
 
 	return (
-		<Card className="w-full min-h-none md:min-h-[300px]">
+		<Card className=" rounded-3xl transition-all duration-200 episode-card-wrapper border text-card-foreground episode-card-wrapper px-12 border-dark border-b-darkh-none md:min-h-[300px]">
 			<CardHeader>
 				<CardTitle>All Episodes</CardTitle>
 			</CardHeader>
