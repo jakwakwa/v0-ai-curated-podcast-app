@@ -13,7 +13,7 @@ const buttonVariants = cva(
 				destructive:
 					"btn-destructive hover:text-destructive-background hover:border-destructive",
 				outline:
-					"btn-ghost-outline",
+					"scale-[1.2] mx-1 btn-ghost-outline",
 
 				icon: "flex items-center justify-center gap-2",
 
@@ -28,6 +28,7 @@ const buttonVariants = cva(
 				bundles: "h-auto px-2 md:px-4 py-8",
 				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
 				xs: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
+				md: "h-10 px-4",
 				lg: "h-10 px-2 md:px-6 rounded-lg md:rounded-xl",
 				play: " w-auto inline-block align-middle leading-none text-xs px-0 py-0 my-0 leading-none flex flex-row items-center justify-center gap-1",
 			},
@@ -35,6 +36,7 @@ const buttonVariants = cva(
 		defaultVariants: {
 			size: "default",
 		},
+
 	}
 )
 
@@ -48,7 +50,7 @@ function Button({
 	...props
 }: React.ComponentProps<"button"> & {
 	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play" | "icon"
-	size?: "default" | "bundles" | "sm" | "xs" | "lg" | "play"
+	size?: "default" | "bundles" | "sm" | "xs" | "md" | "lg" | "play"
 	asChild?: boolean
 	icon?: React.ReactNode
 }) {

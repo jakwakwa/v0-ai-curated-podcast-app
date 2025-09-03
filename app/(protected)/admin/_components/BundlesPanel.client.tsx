@@ -264,7 +264,7 @@ export default function BundlesPanelClient({
 									<div className="flex items-center gap-2">
 										{isEditing ? (
 											<>
-												<Button variant="outline" size="sm" onClick={cancelEdit}>
+												<Button variant="outline" size="md" onClick={cancelEdit}>
 													Cancel
 												</Button>
 												<Button variant="default" size="sm" onClick={saveEdit} disabled={isPending || !editForm.name.trim()}>

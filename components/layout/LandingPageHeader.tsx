@@ -12,7 +12,7 @@ export function LandingPageHeader() {
 				</Link>
 				<nav className={styles.landingNav}>
 					<Link href="/login">
-						<Button variant="ghost" size="sm">
+						<Button variant="outline" size="lg">
 							Sign In
 						</Button>
 					</Link>

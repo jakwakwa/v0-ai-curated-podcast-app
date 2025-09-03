@@ -136,7 +136,7 @@ export default function CurationProfileManagementPage() {
 				</div>
 			) : userCurationProfile ? (
 				<div className=" mx-auto px-0 pb-12 pt-6 md:pt-4 md:px-0 lg:flex">
-					<div className="grid grid-cols-1  md:grid-cols-7 gap-2">
+					<div className="grid grid-cols-1  md:grid-cols-1 :grid-cols-7 gap-2">
 						<Card className="episode-card col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0 mb-6">
 								<CardTitle className=" my-4 max-w-[70&[">Current Weekly Feed Profile</CardTitle>
@@ -159,8 +159,6 @@ export default function CurationProfileManagementPage() {
 
 										<div className="bg-card-plain px-0 py-3 border-dark rounded">
 											<Typography className="text-sm font-bold uppercase text-secondary-foreground">{userCurationProfile.selectedBundle.name}</Typography>
-
-
 										</div>
 									</div>
 								</Card>
