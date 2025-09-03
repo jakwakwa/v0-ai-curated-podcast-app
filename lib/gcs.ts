@@ -4,22 +4,14 @@ import { getEnv } from "@/utils/helpers"
 let storageUploader: Storage | undefined
 let storageReader: Storage | undefined
 
-function looksLikeJson(value: string | undefined): boolean {
-	if (!value) return false
-	const trimmed = value.trim()
-	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function maybeDecodeBase64(value: string | undefined): string | undefined {
-	if (!value) return value
-	try {
-		// Heuristic: base64 strings are long and valid base64 chars; try decoding
-		if (/^[A-Za-z0-9+/=\n\r]+$/.test(value) && value.length > 200) {
-			const decoded = Buffer.from(value, "base64").toString("utf8")
-			return decoded
-		}
-	} catch {}
-	return value
+function getEnvironment(): "development" | "production" | "preview" {
+	// Use VERCEL_ENV if present (production, preview, development), otherwise fall back to NODE_ENV
+	const env = process.env.VERCEL_ENV || process.env.NODE_ENV || "development"
+	if (env === "production" || env === "preview" || env === "development") {
+		return env
+	}
+	// Default to development for unknown environments
+	return "development"
 }
 
 export function ensureBucketName(): string {
@@ -40,32 +32,51 @@ function initStorageClients(): { storageUploader: Storage; storageReader: Storag
 		return { storageUploader, storageReader }
 	}
 
-	const uploaderRaw0 = getEnv("GCS_UPLOADER_KEY_JSON") ?? getEnv("GCS_UPLOADER_KEY") ?? getEnv("GCS_UPLOADER_KEY_PATH")
-	const readerRaw0 = getEnv("GCS_READER_KEY_JSON") ?? getEnv("GCS_READER_KEY") ?? getEnv("GCS_READER_KEY_PATH")
+	const environment = getEnvironment()
 
-	if (!(uploaderRaw0 && readerRaw0)) {
-		const missing: string[] = []
-		if (!uploaderRaw0) missing.push("GCS_UPLOADER_KEY_JSON|GCS_UPLOADER_KEY|GCS_UPLOADER_KEY_PATH")
-		if (!readerRaw0) missing.push("GCS_READER_KEY_JSON|GCS_READER_KEY|GCS_READER_KEY_PATH")
-		throw new Error(`Missing Google Cloud credentials: ${missing.join(", ")}`)
-	}
+	let uploaderRaw: string | undefined
+	let readerRaw: string | undefined
+	const missing: string[] = []
 
-	// Support base64-encoded JSON blobs from Vercel env
-	const uploaderRaw = maybeDecodeBase64(uploaderRaw0)
-	const readerRaw = maybeDecodeBase64(readerRaw0)
+	if (environment === "development") {
+		// Development: only support PATH variables
+		uploaderRaw = getEnv("GCS_UPLOADER_KEY_PATH")
+		readerRaw = getEnv("GCS_READER_KEY_PATH")
 
-	try {
-		if (looksLikeJson(uploaderRaw) && looksLikeJson(readerRaw)) {
-			// Do not log secrets or absolute paths
+		if (!uploaderRaw) missing.push("GCS_UPLOADER_KEY_PATH")
+		if (!readerRaw) missing.push("GCS_READER_KEY_PATH")
+
+		if (missing.length > 0) {
+			throw new Error(`Missing Google Cloud credentials for development environment: ${missing.join(", ")}`)
+		}
+
+		try {
+			if (process.env.NODE_ENV === "development") {
+				console.log("Initializing Storage clients (development - key file paths)")
+			}
+			storageUploader = new Storage({ keyFilename: uploaderRaw })
+			storageReader = new Storage({ keyFilename: readerRaw })
+		} catch (_error) {
+			throw new Error("Failed to initialize Google Cloud Storage clients with key file paths")
+		}
+	} else {
+		// Production/Preview: only support JSON variables
+		uploaderRaw = getEnv("GCS_UPLOADER_KEY_JSON")
+		readerRaw = getEnv("GCS_READER_KEY_JSON")
+
+		if (!uploaderRaw) missing.push("GCS_UPLOADER_KEY_JSON")
+		if (!readerRaw) missing.push("GCS_READER_KEY_JSON")
+
+		if (missing.length > 0) {
+			throw new Error(`Missing Google Cloud credentials for ${environment} environment: ${missing.join(", ")}`)
+		}
+
+		try {
 			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw!) })
 			storageReader = new Storage({ credentials: JSON.parse(readerRaw!) })
-		} else {
-			// Treat as key file paths
-			storageUploader = new Storage({ keyFilename: uploaderRaw! })
-			storageReader = new Storage({ keyFilename: readerRaw! })
+		} catch (_error) {
+			throw new Error("Failed to initialize Google Cloud Storage clients with JSON credentials")
 		}
-	} catch {
-		throw new Error("Failed to initialize Google Cloud Storage clients")
 	}
 
 	return { storageUploader: storageUploader!, storageReader: storageReader! }
