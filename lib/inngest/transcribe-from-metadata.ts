@@ -73,7 +73,6 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> 
 	}
 	try {
 		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
-
 			method: "POST",
 			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
 			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
