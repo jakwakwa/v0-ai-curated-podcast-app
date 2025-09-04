@@ -23,6 +23,8 @@ export const transcriptionCoordinator = inngest.createFunction(
 		const input = TranscriptionRequestedSchema.parse(event.data)
 		const { jobId, userEpisodeId, srcUrl, lang, generationMode, voiceA, voiceB } = input
 
+		const startedAt = Date.now()
+
 		await step.run("mark-processing", async () => {
 			await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "PROCESSING", youtube_url: srcUrl } })
 			await writeEpisodeDebugLog(userEpisodeId, { step: "status", status: "start", message: "PROCESSING" })
@@ -42,7 +44,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 		})
 
 		// Wait for success; if timeout or failure without success, trigger fallbacks
-		const firstWindow = Number(process.env.PROVIDER_A_WINDOW_SECONDS || 60)
+		const firstWindow = Number(process.env.PROVIDER_A_WINDOW_SECONDS || 55)
 		const successEvent = await step.waitForEvent("wait-aai", {
 			event: Events.Succeeded,
 			timeout: `${firstWindow}s`,
@@ -61,13 +63,17 @@ export const transcriptionCoordinator = inngest.createFunction(
 				data: { jobId, userEpisodeId, srcUrl, provider: "gemini", lang },
 			})
 
-			// Wait for anyone to succeed within total budget
-			const totalWindow = Number(process.env.PROVIDER_TOTAL_WINDOW_SECONDS || 300)
-			successEvent2 = await step.waitForEvent("wait-fallbacks", {
-				event: Events.Succeeded,
-				timeout: `${totalWindow - firstWindow}s`,
-				if: `event.data.jobId == "${jobId}"`,
-			})
+			// Wait for anyone to succeed within total budget without exceeding route max
+			const totalWindow = Number(process.env.PROVIDER_TOTAL_WINDOW_SECONDS || 240)
+			const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+			const remaining = Math.max(0, totalWindow - elapsedSec)
+			if (remaining > 0) {
+				successEvent2 = await step.waitForEvent("wait-fallbacks", {
+					event: Events.Succeeded,
+					timeout: `${remaining}s`,
+					if: `event.data.jobId == "${jobId}"`,
+				})
+			}
 			if (!successEvent2) {
 				await step.run("mark-failed", async () => {
 					await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } })

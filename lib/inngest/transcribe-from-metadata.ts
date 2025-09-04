@@ -203,13 +203,10 @@ export const transcribeFromMetadata = inngest.createFunction(
 		})
 
 		// 3) Dispatch event-driven saga and let it orchestrate providers and fallbacks
-		const jobId = await step.run("dispatch-transcription-saga", async () => {
-			const id = `ue-${userEpisodeId}-${Date.now()}`
-			await step.sendEvent("start-saga", {
-				name: "transcription.job.requested",
-				data: { jobId: id, userEpisodeId, srcUrl: audioUrl, lang, generationMode, voiceA, voiceB },
-			})
-			return id
+		const jobId = `ue-${userEpisodeId}-${Date.now()}`
+		await step.sendEvent("start-saga", {
+			name: "transcription.job.requested",
+			data: { jobId, userEpisodeId, srcUrl: audioUrl, lang, generationMode, voiceA, voiceB },
 		})
 
 		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "info", meta: { jobId, state: "queued" } })
