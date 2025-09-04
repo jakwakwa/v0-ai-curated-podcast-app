@@ -6,7 +6,23 @@ const QuerySchema = z.object({
 	url: z
 		.string()
 		.url()
-		.refine(u => new URL(u).hostname.endsWith("youtube.com") || new URL(u).hostname.endsWith("googlevideo.com"), {
+		.refine(u => {
+			try {
+				const hostname = new URL(u).hostname;
+				const allowedHosts = [
+					"youtube.com",
+					"www.youtube.com",
+					"googlevideo.com",
+				];
+				// Check for exact host or valid subdomain (prevents evil 'youtube.com.evil.com')
+				const isAllowed = allowedHosts.includes(hostname) ||
+					hostname.endsWith(".youtube.com") ||
+					hostname.endsWith(".googlevideo.com");
+				return isAllowed;
+			} catch {
+				return false;
+			}
+		}, {
 			message: "Invalid captions host",
 		}),
 })
