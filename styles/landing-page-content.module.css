@@ -304,7 +304,7 @@
 }
 
 @media (min-width: 768px) {
-  .landingLogo { height: 40x; }
+  .landingLogo { height: 40px; }
   .heroSection { padding: 4rem 2rem 2.5rem; }
   .heroTitle { font-size: 3.75rem; }
   .heroHeading { font-size: 4.5rem; }
