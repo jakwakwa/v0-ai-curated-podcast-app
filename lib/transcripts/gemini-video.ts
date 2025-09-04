@@ -20,7 +20,7 @@ export async function transcribeWithGeminiFromUrl(srcUrl: string): Promise<strin
   if (isYouTube) {
     try {
       const result = await model.generateContent([
-        { text: srcUrl },
+        { fileData: { fileUri: srcUrl, mimeType: "video/*" } },
         { text: prompt },
       ])
       const text = result.response.text()
@@ -33,36 +33,15 @@ export async function transcribeWithGeminiFromUrl(srcUrl: string): Promise<strin
   // Otherwise, treat as a direct media URL; upload via Files API then call the model
   let tempDir: string | null = null
   try {
+    // Fallback: download and upload via Files API
     const res = await fetch(srcUrl)
     if (!res.ok) return null
     const contentType = res.headers.get("content-type") || "application/octet-stream"
-
-    // Avoid mistakenly uploading HTML (e.g., a watch page) as audio
-    if (contentType.includes("text/html")) {
-      return null
-    }
+    if (contentType.includes("text/html")) return null
 
     const arrayBuffer = await res.arrayBuffer()
     tempDir = mkdtempSync(path.join(tmpdir(), "gemini-"))
-
-    // Infer extension from content-type
-    const ext = contentType.includes("wav")
-      ? ".wav"
-      : contentType.includes("m4a")
-      ? ".m4a"
-      : contentType.includes("aac")
-      ? ".aac"
-      : contentType.includes("flac")
-      ? ".flac"
-      : contentType.includes("mp4")
-      ? ".mp4"
-      : contentType.includes("webm")
-      ? ".webm"
-      : contentType.includes("mpeg") || contentType.includes("mp3")
-      ? ".mp3"
-      : ""
-
-    const filePath = path.join(tempDir, `media${ext}`)
+    const filePath = path.join(tempDir, `media`)
     writeFileSync(filePath, Buffer.from(new Uint8Array(arrayBuffer)))
     const uploaded = await fileManager.uploadFile(filePath, { mimeType: contentType, displayName: "episode-media" })
 
