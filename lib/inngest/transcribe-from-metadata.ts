@@ -50,15 +50,16 @@ function isYouTubeUrl(url: string): boolean {
 }
 
 function isDirectAudioUrl(url: string): boolean {
-	try {
-		const parsed = new URL(url);
-		const hostname = parsed.hostname.toLowerCase();
-		const isGoogleVideoHost = hostname === "googlevideo.com" || hostname.endsWith(".googlevideo.com");
-		return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || isGoogleVideoHost;
-	} catch {
-		// If the URL fails to parse, fall back to extension test only.
-		return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url);
-	}
+	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
+		try {
+			const { hostname, protocol } = new URL(url)
+			if (protocol !== "http:" && protocol !== "https:") return false
+			const host = hostname.toLowerCase()
+			return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+		} catch {
+			return false
+		}
+	})()
 }
 
 async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {

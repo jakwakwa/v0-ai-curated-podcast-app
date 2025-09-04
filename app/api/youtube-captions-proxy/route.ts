@@ -6,25 +6,21 @@ const QuerySchema = z.object({
 	url: z
 		.string()
 		.url()
-		.refine(u => {
-			try {
-				const hostname = new URL(u).hostname;
-				const allowedHosts = [
-					"youtube.com",
-					"www.youtube.com",
-					"googlevideo.com",
-				];
-				// Check for exact host or valid subdomain (prevents evil 'youtube.com.evil.com')
-				const isAllowed = allowedHosts.includes(hostname) ||
-					hostname.endsWith(".youtube.com") ||
-					hostname.endsWith(".googlevideo.com");
-				return isAllowed;
-			} catch {
-				return false;
+		.refine(
+			u => {
+				try {
+					const { hostname, protocol } = new URL(u)
+					if (protocol !== "http:" && protocol !== "https:") return false
+					const allowed = ["youtube.com", "googlevideo.com"]
+					return allowed.some(base => hostname === base || hostname.endsWith(`.${base}`))
+				} catch {
+					return false
+				}
+			},
+			{
+				message: "Invalid captions host",
 			}
-		}, {
-			message: "Invalid captions host",
-		}),
+		),
 })
 
 export const runtime = "edge"
