@@ -112,7 +112,7 @@ async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string>
 		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
 		body: source.body as unknown as BodyInit,
 		duplex: "half",
-	} as RequestInit) // <-- Cast the entire options object)
+	} as RequestInit) // <-- Cast the entire options object
 
 	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
 	const json = (await uploaded.json()) as { upload_url?: string }
