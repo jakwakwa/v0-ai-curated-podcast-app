@@ -139,7 +139,7 @@ export default function CurationProfileManagementPage() {
 					<div className="grid grid-cols-1  md:grid-cols-1 :grid-cols-7 gap-2">
 						<Card className="episode-card col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0 mb-6">
-								<CardTitle className=" my-4 max-w-[70&[">Current Weekly Feed Profile</CardTitle>
+								<CardTitle className=" my-4 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
 								<CardDescription className="m-0 opacity-90">
 									Track, change and modify your weekly bundled feeds. If you're a "Curate and Control" member. Generate a total of 30 podcast episode summaries per month from virtually any youtube
 									channel.
