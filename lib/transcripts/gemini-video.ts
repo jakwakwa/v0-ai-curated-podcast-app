@@ -31,7 +31,7 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
             "User-Agent": "Mozilla/5.0",
             Referer: "https://www.youtube.com/",
           },
-          body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
+          body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: process.env.YOUTUBE_CLIENT_VERSION || "2.20240101.00.00" } }, videoId }),
         })
         if (resp.ok) {
           const data = await resp.json()
