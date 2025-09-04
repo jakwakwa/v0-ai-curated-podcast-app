@@ -54,7 +54,7 @@ Resolvers run in parallel within each sweep. The pool repeats sweeps periodicall
 - AssemblyAI (polling): short-interval loop up to ~90 minutes total.
 - Rev.ai (polling): similar loop.
 - Gemini video understanding: `lib/transcripts/gemini-video.ts`
-  - Uses Files API (`@google/generative-ai/server`) to upload the media (audio/YouTube-derived) and call `gemini-1.5-flash`.
+  - Uses Files API (`@google/generative-ai/server`) to upload direct media or passes YouTube URLs directly, and calls `gemini-2.5-flash`.
   - Returns a single transcript string; result logged and persisted if present.
 
 ### 5) Admin-only Debugging & Reports
