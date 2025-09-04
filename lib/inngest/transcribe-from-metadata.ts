@@ -65,8 +65,13 @@ function isDirectAudioUrl(url: string): boolean {
 async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
 	// Attempt to derive a direct audio stream URL via YouTube player API
 	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
+	const youtubeApiKey = process.env.YOUTUBE_API_KEY
+	if (!youtubeApiKey) {
+		// Optionally, you could throw an error or log a warning here
+		return null
+	}
 	try {
-		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
+		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
 			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
