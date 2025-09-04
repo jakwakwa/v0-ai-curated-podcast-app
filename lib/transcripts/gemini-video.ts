@@ -86,7 +86,7 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
       try {
         const prompt = "Transcribe this video into plain text. Return only the transcript, no timestamps or speakers."
         const ytResult = await model.generateContent([
-          { fileData: { fileUri: fetchUrl } },
+          { fileData: { fileUri: fetchUrl, mimeType: "video/mp4" } },
           { text: prompt },
         ])
         const ytText = ytResult.response.text()?.trim() || ""
