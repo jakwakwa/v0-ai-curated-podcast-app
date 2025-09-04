@@ -74,7 +74,7 @@ export const assemblyAiWorker = inngest.createFunction(
 					return
 				}
 				if (res.status === "error") throw new Error(res.error || "AssemblyAI job failed")
-				// @ts-expect-error runtime provided
+				// @ts-expect-error Inngest step.sleep is provided at runtime
 				await step.sleep("15s")
 			}
 			await step.sendEvent("failed", {
