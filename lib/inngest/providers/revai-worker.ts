@@ -49,7 +49,7 @@ export const revAiWorker = inngest.createFunction(
 					})
 					return
 				}
-				// @ts-expect-error runtime provided
+				// @ts-expect-error Inngest step.sleep is provided at runtime but not in types
 				await step.sleep("15s")
 			}
 			await step.sendEvent("failed", {
