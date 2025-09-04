@@ -286,9 +286,6 @@ export const transcribeFromMetadata = inngest.createFunction(
 					break
 				}
 				if (status.status === "failed") {
-					await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "fail", message: "Rev.ai job failed", meta: { jobId } })
-					throw new Error("Rev.ai job failed")
-					break
 				}
 				// @ts-expect-error - step.sleep is provided by Inngest runtime
 				await step.sleep("60s")
