@@ -29,7 +29,6 @@ export const TranscriptionRequestedSchema = z.object({
 	jobId: z.string().min(1),
 	userEpisodeId: z.string().min(1),
 	srcUrl: z.string().url(),
-	allowPaid: z.boolean().default(true).optional(),
 	lang: z.string().optional(),
 	generationMode: z.enum(["single", "multi"]).optional(),
 	voiceA: z.string().optional(),

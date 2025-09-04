@@ -35,7 +35,8 @@ async function startJob(audioUrl: string, apiKey: string, languageCode?: string)
 async function pollJob(id: string, apiKey: string): Promise<{ status: string; text?: string; error?: string }> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, { headers: { Authorization: apiKey } })
 	if (!res.ok) throw new Error(`AssemblyAI job fetch failed: ${await res.text()}`)
-	return (await res.json()) as any
+	const data = (await res.json()) as { status: string; text?: string; error?: string }
+	return data
 }
 
 export const assemblyAiWorker = inngest.createFunction(

@@ -21,7 +21,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 	{ event: Events.JobRequested },
 	async ({ event, step }) => {
 		const input = TranscriptionRequestedSchema.parse(event.data)
-		const { jobId, userEpisodeId, srcUrl, allowPaid, lang, generationMode, voiceA, voiceB } = input
+		const { jobId, userEpisodeId, srcUrl, lang, generationMode, voiceA, voiceB } = input
 
 		await step.run("mark-processing", async () => {
 			await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "PROCESSING", youtube_url: srcUrl } })
@@ -49,6 +49,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 			if: `event.data.jobId == "${jobId}"`,
 		})
 
+		let successEvent2: typeof successEvent | null = null
 		if (!successEvent) {
 			// Start fallbacks (in parallel)
 			await step.sendEvent("start-revai", {
@@ -62,7 +63,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 
 			// Wait for anyone to succeed within total budget
 			const totalWindow = Number(process.env.PROVIDER_TOTAL_WINDOW_SECONDS || 300)
-			const successEvent2 = await step.waitForEvent("wait-fallbacks", {
+			successEvent2 = await step.waitForEvent("wait-fallbacks", {
 				event: Events.Succeeded,
 				timeout: `${totalWindow - firstWindow}s`,
 				if: `event.data.jobId == "${jobId}"`,
@@ -81,7 +82,16 @@ export const transcriptionCoordinator = inngest.createFunction(
 		}
 
 		// Read the winning success (either successEvent or successEvent2)
-		const successPayload = ProviderSucceededSchema.parse((successEvent ?? ({} as any)).data)
+		const winning = successEvent ?? successEvent2
+		if (!winning) {
+			await step.run("mark-failed-missing-winner", async () => {
+				await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } })
+				await writeEpisodeDebugLog(userEpisodeId, { step: "transcription", status: "fail", message: "No success event captured" })
+			})
+			await step.sendEvent("finalize-failed-no-winner", { name: Events.Finalized, data: { jobId, userEpisodeId, status: "failed" } })
+			return { ok: false, jobId }
+		}
+		const successPayload = ProviderSucceededSchema.parse(winning.data)
 		const transcriptText = successPayload.transcript
 
 		await step.run("store-transcript", async () => {
