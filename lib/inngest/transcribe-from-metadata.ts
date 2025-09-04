@@ -105,7 +105,7 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> 
 }
 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
-	const source = await fetch(srcUrl)
+	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
 	const bodyStream = source.body
 	if (!bodyStream) throw new Error("Missing response body stream")
