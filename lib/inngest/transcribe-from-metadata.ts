@@ -65,6 +65,7 @@ function isDirectAudioUrl(url: string): boolean {
 async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
 	// Attempt to derive a direct audio stream URL via YouTube player API
 	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
+
 	const youtubeApiKey = process.env.YOUTUBE_API_KEY
 	if (!youtubeApiKey) {
 		// Optionally, you could throw an error or log a warning here
@@ -72,6 +73,7 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> 
 	}
 	try {
 		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
+
 			method: "POST",
 			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
 			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
@@ -171,6 +173,8 @@ export const transcribeFromMetadata = inngest.createFunction(
 						attempt,
 						maxSweeps,
 						youtube: Boolean(yt),
+						listenNotes: ln?.audioUrl ?? false,
+						apple: ap?.audioUrl ?? false,
 						winner,
 					},
 				})
@@ -212,6 +216,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 						resolvedUrl = extracted
 					} else {
 						throw new Error("Failed to extract audio from YouTube URL")
+
 					}
 				}
 				// If not a clearly direct audio URL, proxy-upload to AssemblyAI to ensure accessibility
@@ -222,23 +227,26 @@ export const transcribeFromMetadata = inngest.createFunction(
 				return await startAssemblyJob(submitUrl, assemblyKey, lang)
 			})
 
-			// Poll up to ~90 minutes total, sleeping 60s between checks
-			for (let i = 0; i < 90; i++) {
-				const job = await step.run("assemblyai-poll", async () => {
-					return await getAssemblyJob(jobId as string, assemblyKey)
-				})
-				if (job.status === "completed" && job.text) {
-					transcriptText = job.text
-					await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "success", meta: { jobId } })
-					break
+			// Only poll if job actually started
+			if (jobId) {
+				// Poll up to ~5 minutes total (5x 60s)
+				for (let i = 0; i < 5; i++) {
+					const job = await step.run("assemblyai-poll", async () => {
+						return await getAssemblyJob(jobId as string, assemblyKey)
+					})
+					if (job.status === "completed" && job.text) {
+						transcriptText = job.text
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "success", meta: { jobId } })
+						break
+					}
+					if (job.status === "error") {
+						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: job.error || "AssemblyAI job failed", meta: { jobId } })
+						break
+					}
+					// Wait 60 seconds before next poll
+					// @ts-expect-error - step.sleep is provided by Inngest runtime
+					await step.sleep("60s")
 				}
-				if (job.status === "error") {
-					await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: job.error || "AssemblyAI job failed", meta: { jobId } })
-					throw new Error(job.error || "AssemblyAI job failed")
-				}
-				// Wait 60 seconds before next poll
-				// @ts-expect-error - step.sleep is provided by Inngest runtime
-				await step.sleep("60s")
 			}
 		}
 
@@ -270,7 +278,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 				return await startRev()
 			})
 
-			for (let i = 0; i < 90; i++) {
+			for (let i = 0; i < 5; i++) {
 				const status = await step.run("revai-poll", async () => await getStatus(jobId as string))
 				if (status.status === "transcribed" || status.status === "completed") {
 					transcriptText = await step.run("revai-fetch", async () => await getTranscript(jobId as string))
@@ -280,6 +288,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 				if (status.status === "failed") {
 					await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "fail", message: "Rev.ai job failed", meta: { jobId } })
 					throw new Error("Rev.ai job failed")
+					break
 				}
 				// @ts-expect-error - step.sleep is provided by Inngest runtime
 				await step.sleep("60s")
