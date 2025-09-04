@@ -19,7 +19,10 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 			if (ct?.startsWith("audio/") && (cl === undefined || cl > 0)) {
 				return success({ url, contentType: ct, contentLength: cl, suspectedAudio: true })
 			}
-		} catch {}
+		} catch (err) {
+			// HEAD requests may be blocked or not supported; we log and continue to a small GET probe
+			console.warn(`HEAD request failed for ${url}:`, err)
+		}
 
 		const controller2 = new AbortController()
 		const t2 = setTimeout(() => controller2.abort(), timeoutMs)
