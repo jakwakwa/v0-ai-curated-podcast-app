@@ -10,6 +10,8 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
   if (!apiKey) return null
   const client = new GoogleGenerativeAI(apiKey)
   const fileManager = new GoogleAIFileManager(apiKey)
+  const modelName = aiConfig.geminiModel || "gemini-1.5-pro"
+  const model = client.getGenerativeModel({ model: modelName })
 
   // Helper: quick YouTube detector
   const isYouTubeUrl = (url: string): boolean => /youtu(be\.be|be\.com)/i.test(url)
@@ -80,6 +82,33 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
 
     // If a YouTube URL was provided, resolve to a direct audio stream first
     if (isYouTubeUrl(fetchUrl)) {
+      // First attempt: use YouTube URL directly as a fileData part (preview feature)
+      try {
+        const prompt = "Transcribe this video into plain text. Return only the transcript, no timestamps or speakers."
+        const ytResult = await model.generateContent([
+          { fileData: { fileUri: fetchUrl } },
+          { text: prompt },
+        ])
+        const ytText = ytResult.response.text()?.trim() || ""
+        if (ytText.length > 0) {
+          const lower = ytText.toLowerCase()
+          const badPhrases = [
+            "i cannot transcribe",
+            "i am a large language model",
+            "i can't transcribe",
+            "cannot access or process the data",
+            "i am unable to process audio",
+            "as an ai",
+            "i cannot access",
+          ]
+          if (!badPhrases.some(p => lower.includes(p))) {
+            return ytText
+          }
+        }
+      } catch {
+        // Ignore and fall back to audio extraction
+      }
+
       const resolved = await resolveYouTubeDirectAudio(fetchUrl)
       if (!resolved) return null
       fetchUrl = resolved.url
@@ -104,9 +133,6 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
     const filePath = path.join(tempDir, `media${extForMime(contentType)}`)
     writeFileSync(filePath, Buffer.from(new Uint8Array(arrayBuffer)))
     const uploaded = await fileManager.uploadFile(filePath, { mimeType: contentType, displayName: "episode-media" })
-
-    const modelName = aiConfig.geminiModel || "gemini-1.5-pro"
-    const model = client.getGenerativeModel({ model: modelName })
     const prompt = "Transcribe this audio/video into plain text. Return only the transcript, no timestamps or speakers."
 
     const result = await model.generateContent([
