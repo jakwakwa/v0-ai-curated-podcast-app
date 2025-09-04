@@ -11,15 +11,17 @@ function extractVideoId(url: string): string | null {
 
 async function fetchYouTubeCaption(videoId: string): Promise<string> {
 	// Try YouTube's innertube API which works better from servers
-	const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+	const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY
 	if (!YOUTUBE_API_KEY) {
-		throw new Error("Missing YOUTUBE_API_KEY environment variable");
+		throw new Error("Missing YOUTUBE_API_KEY environment variable")
 	}
-	const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${YOUTUBE_API_KEY}`, {
+	const response = await fetch("https://www.youtube.com/youtubei/v1/player", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+			"X-Goog-Api-Key": YOUTUBE_API_KEY,
+			Origin: "https://www.youtube.com",
 		},
 		body: JSON.stringify({
 			context: {
@@ -49,11 +51,9 @@ async function fetchYouTubeCaption(videoId: string): Promise<string> {
 		kind?: string
 		baseUrl?: string
 	}
-	
-	const selectedTrack: CaptionTrack = 
-		captionTracks.find((track: CaptionTrack) => track.languageCode === "en" && track.kind === "asr") ||
-		captionTracks.find((track: CaptionTrack) => track.languageCode === "en") ||
-		captionTracks[0]
+
+	const selectedTrack: CaptionTrack =
+		captionTracks.find((track: CaptionTrack) => track.languageCode === "en" && track.kind === "asr") || captionTracks.find((track: CaptionTrack) => track.languageCode === "en") || captionTracks[0]
 
 	if (!selectedTrack?.baseUrl) {
 		throw new Error("No suitable caption track found")
@@ -71,7 +71,7 @@ async function fetchYouTubeCaption(videoId: string): Promise<string> {
 	}
 
 	const xmlText = await transcriptResponse.text()
-	
+
 	// Parse XML to extract text
 	const textMatches = xmlText.match(/<text[^>]*>([^<]+)</g)
 	if (!textMatches) {
@@ -104,15 +104,15 @@ export const YouTubeClientProvider: TranscriptProvider = {
 		try {
 			const videoId = extractVideoId(request.url)
 			if (!videoId) {
-				return { 
-					success: false, 
-					error: "Invalid YouTube URL", 
-					provider: this.name 
+				return {
+					success: false,
+					error: "Invalid YouTube URL",
+					provider: this.name,
 				}
 			}
 
 			const transcript = await fetchYouTubeCaption(videoId)
-			
+
 			if (!transcript || transcript.length < 10) {
 				return {
 					success: false,
@@ -125,7 +125,7 @@ export const YouTubeClientProvider: TranscriptProvider = {
 				success: true,
 				transcript,
 				provider: this.name,
-				meta: { videoId, method: "server-side-captions" }
+				meta: { videoId, method: "server-side-captions" },
 			}
 		} catch (error) {
 			return {
