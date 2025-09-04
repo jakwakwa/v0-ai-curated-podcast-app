@@ -79,7 +79,7 @@
 	"editor.codeLensFontSize": 8,
 	"editor.inlayHints.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
 	"editor.inlayHints.fontSize": 4,
-	"editor.fontLigaturaas": true,
+	"editor.fontLigatures": true,
 	"terminal.integrated.fontLigatures.enabled": true,
 	"editor.fontVariations": true,
 }
