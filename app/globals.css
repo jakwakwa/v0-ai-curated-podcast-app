@@ -369,13 +369,15 @@ button.bg-btn-default {
 }
 
 button.btn-ghost-outline {
-	/* background: none !important; */
+	background: oklch(0.27 0.11 271.53 / 0.1) !important;
 	text-shadow: 0px 2px 0px 1px #15065380;
-	outline: 1px solid #874B843C !important;
-	border: 2px solid #00000070 !important;
-	padding: 5px 15px !important;
+	outline: 1px solid #8174803C !important;
+	border: 3px solid #060607D7 !important;
+	padding: 15px 15px !important;
 	height: 25px !important;
-	outline-offset: 0px;
+	font-size: 0.7rem;
+	font-weight: 500;
+	outline-offset: 1px;
 	color: #F7CBCBCB !important;
 
 }
@@ -706,7 +708,7 @@ textarea {
 		opacity: 0.7 !important;
 		line-clamp: 2;
 		color: #FFE5E8D6;
-		max-width: 90%;
+		max-width: 60%;
 		font-weight: 500 !important;
 	}
 
@@ -747,7 +749,7 @@ textarea {
 		font-weight: 400;
 		font-style: italic;
 
-		/* max-width: 300px; */
+		max-width: 300px;
 		padding: 0 80px 0  0;
 		margin-bottom: 0.5rem;
 		letter-spacing: 0.025em;

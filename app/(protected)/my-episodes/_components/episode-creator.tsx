@@ -86,7 +86,7 @@ export function EpisodeCreator() {
 	const hasReachedLimit = usage.count >= usage.limit
 
 	return (
-		<div className="w-full lg:w/full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12">
+		<div className="w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-12">
 			<Card>
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>

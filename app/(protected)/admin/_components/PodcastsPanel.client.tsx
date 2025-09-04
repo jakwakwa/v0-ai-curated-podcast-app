@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import type { Podcast } from "@/lib/types"
-import { createPodcastAction, deletePodcastAction, updatePodcastAction } from "./podcasts.actions"
 import PanelHeader from "./PanelHeader"
+import { createPodcastAction, deletePodcastAction, updatePodcastAction } from "./podcasts.actions"
 
 export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] }) {
 	const router = useRouter()
@@ -155,7 +155,7 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 				description="Create, edit, and manage curated podcasts"
 				actionButton={{
 					label: showCreateForm ? "Hide" : podcasts.length === 0 ? "Add your first podcast" : "Add another podcast",
-					onClick: () => setShowCreateForm(s => !s)
+					onClick: () => setShowCreateForm(s => !s),
 				}}
 			/>
 			<CardContent className="p-4 space-y-6">
@@ -245,7 +245,7 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 													</div>
 												</div>
 												<DialogFooter>
-													<Button variant="outline" onClick={() => setEditOpen(false)}>
+													<Button variant="outline" size="md" onClick={() => setEditOpen(false)}>
 														Cancel
 													</Button>
 													<Button variant="default" onClick={saveEdit} disabled={isPending || !editForm.name.trim() || !editForm.url.trim()}>

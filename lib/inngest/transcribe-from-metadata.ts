@@ -50,14 +50,29 @@ function isYouTubeUrl(url: string): boolean {
 }
 
 function isDirectAudioUrl(url: string): boolean {
-	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || url.includes("googlevideo.com")
+	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
+		try {
+			const { hostname, protocol } = new URL(url)
+			if (protocol !== "http:" && protocol !== "https:") return false
+			const host = hostname.toLowerCase()
+			return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+		} catch {
+			return false
+		}
+	})()
 }
 
 async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
 	// Attempt to derive a direct audio stream URL via YouTube player API
 	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
+
+	const youtubeApiKey = process.env.YOUTUBE_API_KEY
+	if (!youtubeApiKey) {
+		// Optionally, you could throw an error or log a warning here
+		return null
+	}
 	try {
-		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
+		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
 			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
@@ -97,7 +112,9 @@ async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string>
 		method: "POST",
 		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
 		body: source.body as unknown as BodyInit,
-	})
+		duplex: "half",
+	} as RequestInit) // <-- Cast the entire options object
+
 	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
 	const json = (await uploaded.json()) as { upload_url?: string }
 	if (!json.upload_url) throw new Error("AssemblyAI upload succeeded without upload_url")
@@ -154,9 +171,9 @@ export const transcribeFromMetadata = inngest.createFunction(
 					meta: {
 						attempt,
 						maxSweeps,
+						youtube: Boolean(yt),
 						listenNotes: ln?.audioUrl ?? false,
 						apple: ap?.audioUrl ?? false,
-						youtube: yt ?? false,
 						winner,
 					},
 				})
@@ -197,19 +214,14 @@ export const transcribeFromMetadata = inngest.createFunction(
 					if (extracted) {
 						resolvedUrl = extracted
 					} else {
-						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: "youtube audio extraction failed; skipping assemblyai" })
-						return null
+						throw new Error("Failed to extract audio from YouTube URL")
+
 					}
 				}
 				// If not a clearly direct audio URL, proxy-upload to AssemblyAI to ensure accessibility
 				let submitUrl = resolvedUrl
 				if (!isDirectAudioUrl(resolvedUrl)) {
-					try {
-						submitUrl = await uploadToAssembly(resolvedUrl, assemblyKey)
-					} catch (_e) {
-						await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "fail", message: "upload to assembly failed; skipping assemblyai" })
-						return null
-					}
+					submitUrl = await uploadToAssembly(resolvedUrl, assemblyKey)
 				}
 				return await startAssemblyJob(submitUrl, assemblyKey, lang)
 			})
@@ -273,8 +285,6 @@ export const transcribeFromMetadata = inngest.createFunction(
 					break
 				}
 				if (status.status === "failed") {
-					await writeEpisodeDebugLog(userEpisodeId, { step: "revai", status: "fail", message: "Rev.ai job failed", meta: { jobId } })
-					break
 				}
 				// @ts-expect-error - step.sleep is provided by Inngest runtime
 				await step.sleep("60s")

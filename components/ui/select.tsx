@@ -30,7 +30,7 @@ function SelectTrigger({
 			data-slot="select-trigger"
 			data-size={size}
 			className={cn(
-				"bg-[#000] my-4 p-8 border-[#6B7D99]  focus-visible:border-accent focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#000] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-md border-1 px-3 py-3 whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-10 data-[size=sm]:h-9  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex jusstiy-between *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-0 mr-2 w-full max-w-[200px] text-[1px]",
+				"bg-[#055240] my-4 p-8 border-[#6B7D99]  focus-visible:border-accent focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#1E192E] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-md border-1 px-3 py-3 whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-10 data-[size=sm]:h-9  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex justify-between *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-0 mr-2 w-full max-w-[200px] text-[1px] shadow-sm",
 				className
 			)}
 			{...props}
@@ -52,7 +52,7 @@ function SelectContent({ className, children, position = "popper", ...props }: R
 					className={cn(
 						"p-1 overflow-y-auto",
 						position === "popper" &&
-						"bg-[#19564C88] py-4 px-5 border-1 border-[#25D8C9AC] rounded-xl max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-4 "
+						"bg-[#44006E4B] py-4 px-5 border-1 border-[#25D8C9AC] rounded-xl max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-4 "
 					)}
 				>
 					{children}

@@ -48,7 +48,16 @@ function isYouTube(url: string): boolean {
 }
 
 function isAudioUrl(url: string): boolean {
-	return /\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$)/i.test(url) || url.includes("googlevideo.com")
+	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
+		try {
+			const { hostname, protocol } = new URL(url)
+			if (protocol !== "http:" && protocol !== "https:") return false
+			const host = hostname.toLowerCase()
+			return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+		} catch {
+			return false
+		}
+	})()
 }
 
 export const AssemblyAIProvider: TranscriptProvider = {

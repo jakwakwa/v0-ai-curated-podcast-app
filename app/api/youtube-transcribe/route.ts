@@ -74,7 +74,17 @@ export async function POST(request: Request) {
 	} catch (error) {
 		console.error("[YOUTUBE_TRANSCRIBE_POST]", error)
 		if (error instanceof Error) {
-			return new NextResponse(error.message, { status: 500 })
+			const escapeHtml = (unsafe: string) =>
+				unsafe
+					.replace(/&/g, "&amp;")
+					.replace(/</g, "&lt;")
+					.replace(/>/g, "&gt;")
+					.replace(/"/g, "&quot;")
+					.replace(/'/g, "&#039;");
+			return new NextResponse(escapeHtml(error.message), {
+				status: 500,
+				headers: { "content-type": "text/plain" }
+			})
 		}
 		return new NextResponse("Internal Error", { status: 500 })
 	}

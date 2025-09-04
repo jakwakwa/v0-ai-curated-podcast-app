@@ -6,9 +6,21 @@ const QuerySchema = z.object({
 	url: z
 		.string()
 		.url()
-		.refine(u => new URL(u).hostname.endsWith("youtube.com") || new URL(u).hostname.endsWith("googlevideo.com"), {
-			message: "Invalid captions host",
-		}),
+		.refine(
+			u => {
+				try {
+					const { hostname, protocol } = new URL(u)
+					if (protocol !== "http:" && protocol !== "https:") return false
+					const allowed = ["youtube.com", "googlevideo.com"]
+					return allowed.some(base => hostname === base || hostname.endsWith(`.${base}`))
+				} catch {
+					return false
+				}
+			},
+			{
+				message: "Invalid captions host",
+			}
+		),
 })
 
 export const runtime = "edge"
