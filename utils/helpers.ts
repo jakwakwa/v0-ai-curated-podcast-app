@@ -1,10 +1,5 @@
-import * as dotenvx from "@dotenvx/dotenvx"
-
 function getEnv(key: string): string | undefined {
-	try {
-		const value = dotenvx.get(key) as string | undefined
-		if (typeof value === "string" && value.length > 0) return value
-	} catch {}
+	// Read directly from process.env. Vercel injects env vars at runtime.
 	return process.env[key]
 }
 
