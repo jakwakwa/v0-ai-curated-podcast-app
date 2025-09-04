@@ -79,11 +79,11 @@ async function fetchYouTubeCaption(videoId: string): Promise<string> {
 			const textContent = match.replace(/<text[^>]*>/, "").replace(/<\/text>/, "")
 			// Decode HTML entities
 			return textContent
-				.replace(/&amp;/g, "&")
 				.replace(/&lt;/g, "<")
 				.replace(/&gt;/g, ">")
 				.replace(/&quot;/g, '"')
 				.replace(/&#39;/g, "'")
+				.replace(/&amp;/g, "&")
 		})
 		.join(" ")
 		.trim()
