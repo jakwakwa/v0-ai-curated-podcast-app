@@ -12,13 +12,6 @@ type BundleWithPodcasts = Prisma.BundleGetPayload<{ include: { bundle_podcast: {
 function resolveAllowedGates(plan: string | null | undefined): PlanGateEnum[] {
 	const normalized = (plan || "").toString().trim().toLowerCase()
 
-	// Implement hierarchical access model:
-	// NONE = only NONE access
-	// FREE_SLICE = NONE + FREE_SLICE access
-	// CASUAL = NONE + FREE_SLICE + CASUAL access
-	// CURATE_CONTROL = ALL access (NONE + FREE_SLICE + CASUAL + CURATE_CONTROL)
-
-	// Handle various plan type formats that might be stored in the database
 	if (normalized === "curate_control" || normalized === "curate control") {
 		return [PlanGateEnum.NONE, PlanGateEnum.FREE_SLICE, PlanGateEnum.CASUAL_LISTENER, PlanGateEnum.CURATE_CONTROL]
 	}
@@ -83,10 +76,7 @@ export async function GET(_request: NextRequest) {
 
 		return NextResponse.json(transformedBundles, { headers: { "Cache-Control": "no-store" } })
 	} catch (error) {
-		console.error("[CURATED_BUNDLES_GET]", error)
-		// Return empty array instead of error during build or if database schema is not ready
 		if (process.env.NODE_ENV === "production" || (error instanceof Error && error.message.includes("does not exist"))) {
-			console.log("[CURATED_BUNDLES_GET] Returning empty array due to database issue during build")
 			return NextResponse.json([])
 		}
 		// Return more specific error message

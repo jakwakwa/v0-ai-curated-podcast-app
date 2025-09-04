@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
-import { Storage } from "@google-cloud/storage"
 import { NextResponse } from "next/server"
-import { requireAdminMiddleware } from "../../../../lib/admin-middleware"
+import { requireAdminMiddleware } from "@/lib/admin-middleware"
+import { ensureBucketName, getStorageUploader } from "../../../../lib/gcs"
 import { prisma } from "../../../../lib/prisma"
 import { withUploadTimeout } from "../../../../lib/utils"
 
@@ -10,41 +10,10 @@ import { withUploadTimeout } from "../../../../lib/utils"
 export const runtime = "nodejs" // Required for file system access
 export const maxDuration = 300 // 5 minutes for file uploads
 
-// Lazily initialize Google Cloud Storage uploader. Supports both JSON and key file path.
-let _storageUploader: Storage | undefined
-
-function looksLikeJson(value: string | undefined): boolean {
-	if (!value) return false
-	const trimmed = value.trim()
-	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function getUploaderRaw(): string | undefined {
-	return process.env.GCS_UPLOADER_KEY_JSON || process.env.GCS_UPLOADER_KEY || process.env.GCS_UPLOADER_KEY_PATH
-}
-
-function getStorageUploader(): Storage {
-	if (_storageUploader) return _storageUploader
-	const raw = getUploaderRaw()
-	if (!raw) {
-		// Do not leak env var names or values beyond this message
-		throw new Error("Google Cloud credentials for uploader are not configured")
-	}
-	try {
-		if (looksLikeJson(raw)) {
-			_storageUploader = new Storage({ credentials: JSON.parse(raw) })
-		} else {
-			_storageUploader = new Storage({ keyFilename: raw })
-		}
-		return _storageUploader
-	} catch (_err) {
-		throw new Error("Failed to initialize Google Cloud Storage uploader")
-	}
-}
-
-async function uploadContentToBucket(bucketName: string, data: Buffer, destinationFileName: string) {
+async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const storage = getStorageUploader()
+		const bucketName = ensureBucketName()
 		const [exists] = await storage.bucket(bucketName).exists()
 
 		if (!exists) {
@@ -129,15 +98,14 @@ export async function POST(request: Request) {
 			const audioFileName = `podcasts/${bundleId}-${Date.now()}.mp3`
 
 			// Upload to the same Google Cloud Storage bucket
-			const bucketName = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME!
-			const uploadResult = await uploadContentToBucket(bucketName, buffer, audioFileName)
+			const uploadResult = await uploadContentToBucket(buffer, audioFileName)
 
 			if (!uploadResult.success) {
 				return NextResponse.json({ message: "Failed to upload file to storage" }, { status: 500 })
 			}
 
 			// Create the full URL following the same pattern as functions.ts
-			finalAudioUrl = `https://storage.cloud.google.com/${bucketName}/${audioFileName}`
+			finalAudioUrl = `https://storage.cloud.google.com/${ensureBucketName()}/${audioFileName}`
 		} else {
 			// Use the provided audio URL directly
 			finalAudioUrl = audioUrl!
@@ -147,12 +115,20 @@ export async function POST(request: Request) {
 		const currentWeek = new Date()
 		currentWeek.setHours(0, 0, 0, 0) // Start of day
 
-		// Use the first podcast from the bundle as the podcast reference when not explicitly provided
+		// Determine final podcast id: prefer explicit podcastId, else default to first in bundle
 		const firstPodcast = bundle?.bundle_podcast?.[0]?.podcast
 		const finalPodcastId = providedPodcastId || firstPodcast?.podcast_id || ""
 
 		if (!finalPodcastId) {
 			return NextResponse.json({ message: "podcastId is required, or the selected bundle must include at least one podcast" }, { status: 400 })
+		}
+
+		// If both bundle and podcast provided, ensure membership
+		if (bundle && providedPodcastId) {
+			const isMember = bundle.bundle_podcast.some(bp => bp.podcast_id === providedPodcastId)
+			if (!isMember) {
+				return NextResponse.json({ message: "Selected podcast is not in the chosen bundle" }, { status: 400 })
+			}
 		}
 
 		console.log("Creating episode with:", {
@@ -164,15 +140,7 @@ export async function POST(request: Request) {
 		})
 
 		const txResults = await prisma.$transaction([
-			// Ensure bundle↔podcast membership exists for visibility rules
-			...(bundleId
-				? [
-						prisma.bundlePodcast.createMany({
-							data: [{ bundle_id: bundleId, podcast_id: finalPodcastId }],
-							skipDuplicates: true,
-						}),
-					]
-				: []),
+			// Do not auto-create membership here; rely on existing relationships and validation above
 			// Create the episode with both podcast_id and bundle_id (bundle_id is for diagnostics only; reads remain membership-based)
 			prisma.episode.create({
 				data: {
@@ -183,7 +151,7 @@ export async function POST(request: Request) {
 					image_url: image_url || bundle?.image_url || null,
 					published_at: new Date(),
 					week_nr: currentWeek,
-					bundle_id: bundleId || null,
+					bundle_id: null,
 					podcast_id: finalPodcastId,
 				},
 			}),

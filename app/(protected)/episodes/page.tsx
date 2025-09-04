@@ -59,7 +59,7 @@ export default function EpisodesPage() {
 	}
 
 	return (
-		<div className="wrapper w-full">
+		<div className="default-card mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
 			<PageHeader title="Weekly Episodes" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
 
 			{isLoading ? (

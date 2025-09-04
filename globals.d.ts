@@ -1,5 +1,6 @@
 // declare IProcessEnv {
 // 	NODE_ENV: "development" | "production" | "staging"
+// 	VERCEL_ENV: "development" | "preview" | "production"
 // 	XAI_API_KEY: string
 // 	ELEVEN_LABS_PROD: string
 // 	ELEVEN_LABS_DEV: string
@@ -12,10 +13,10 @@
 // 	INNGEST_EVENT_KEY: string
 // 	INNGEST_SIGNING_KEY: string
 // 	DATABASE_URL: string
-// 	GCS_UPLOADER_KEY_PATH: Blob
-// 	GCS_READER_KEY_PATH: Blob
-// 	GCS_UPLOADER_KEY: string
-// 	GCS_READER_KEY: string
+// 	GCS_UPLOADER_KEY_PATH: string
+// 	GCS_READER_KEY_PATH: string
+// 	GCS_UPLOADER_KEY_JSON: string
+// 	GCS_READER_KEY_JSON: string
 // }
 
 declare global {

@@ -35,3 +35,15 @@ next-env.d.ts
 /.clerk/
 # /src/generated/prisma
 .vscode/v0-ai-curated-podcast-app.code-workspace
+.env*.local
+
+.flaskenv*
+!.env.project
+!.env.vault
+!.env.production
+!.env.staging
+# never commit raw creds
+*service*account*.json
+*gcs*.json
+*uploader*.json
+*reader*.json

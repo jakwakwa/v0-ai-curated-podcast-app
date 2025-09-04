@@ -80,7 +80,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 							</SelectTrigger>
 							<SelectContent className="bg-[#000] border border-border h-auto min-h-[100px] ">
 								{["Active", "Inactive"].map(s => (
-									<SelectItem key={s} className="text-primary font-semibold leading-6 tracking-tight hover:bg-background" value={s}>
+									<SelectItem key={s} value={s}>
 										{s}
 									</SelectItem>
 								))}
@@ -101,7 +101,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 										</SelectItem>
 									) : availableBundles.length > 0 ? (
 										availableBundles.map((bundle: Bundle) => (
-											<SelectItem key={bundle.bundle_id} className="text-primary font-semibold leading-6 tracking-tight hover:bg-background" value={bundle.bundle_id}>
+											<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
 												{bundle.name}
 											</SelectItem>
 										))
@@ -114,8 +114,9 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 							</Select>
 						</div>
 					)}
-					<div className="flex justify-end gap-2 pt-4">
-						<Button type="button" variant="outline" onClick={onClose}>
+
+					<div className="flex justify-between gap-2 pt-4">
+						<Button type="button" variant="outline" size="md" onClick={onClose}>
 							Cancel
 						</Button>
 						<Button type="submit" disabled={isLoading} variant="default">

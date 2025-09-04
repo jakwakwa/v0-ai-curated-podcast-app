@@ -10,13 +10,15 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLElement>, HeaderProps
 }
 
 const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ className, spacing, title, description, level = 1, ...props }, ref) => {
-	const HeadingComponent = level === 1 ? H1 : level === 2 ? H2 : H3
+	const _HeadingComponent = level === 1 ? H1 : level === 2 ? H2 : H3
 
 	return (
 		<div className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
-			<HeadingComponent className="mt-2 mb-6 text-h1 font-bold">{title}</HeadingComponent>
+			<Typography className="flex text-custom-h2 leading-[1.4] font-medium py-3.5 my-1text-primary leading-[1.5] max-w-screen md:max-w-4xl">
+				{title}
+			</Typography>
 			{description && (
-				<Typography as="h4" variant="h4" className="text-custom-md text-primary text-custom-subtitle leading-[1.3] max-w-screen md:max-w-4xl">
+				<Typography as="p" variant="body" className="text-base text-primary/80 leading-[1.5] max-w-screen md:max-w-4xl">
 					{description}
 				</Typography>
 			)}

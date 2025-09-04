@@ -1,4 +1,6 @@
-// Payment provider configuration
+// Payment
+// provider
+// configuration
 export const PAYMENT_CONFIG = {
 	// Payment provider selection
 	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
@@ -15,14 +17,12 @@ export const PAYMENT_CONFIG = {
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model
-	maxSources: 1, // Maximum number of sources allowed per collection
+	geminiTTSModel: "gemini-2.5-flash-preview-tts",
+	maxSources: 2, // Maximum number of sources allowed per collection
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
-	// Add other AI-related configurations here if needed]
-	/* **HOPE** */
-	synthVoice: "uYXf8XasLslADfZ2MB4u",
-	/* **VINCE** */
-	// synthVoicd: "zZLmKvCp1i04X8E0FJ8B",
-	synthModel: "eleven_flash_v2",
+
+	// Episode generation settings
+	useShortEpisodes: true,
 }
 
 // "TX3LPaxmHKxFdv7VOQHJ", // Liam

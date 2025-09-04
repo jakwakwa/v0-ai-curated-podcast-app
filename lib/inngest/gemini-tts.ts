@@ -1,15 +1,14 @@
 import { randomUUID } from "node:crypto"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { GoogleGenAI } from "@google/genai"
-import { Storage } from "@google-cloud/storage"
 import { generateText } from "ai"
 import mime from "mime"
-import { YoutubeTranscript } from "youtube-transcript"
 import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
+import { ensureBucketName, getStorageReader, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
+import { getTranscriptOrchestrated } from "@/lib/transcripts"
 import type { Podcast as PodcastModel } from "@/lib/types"
-import { getEnv } from "@/utils/helpers"
 import { inngest } from "./client"
 
 type SourceWithTranscript = Omit<PodcastModel, "created_at"> & {
@@ -29,64 +28,9 @@ type AdminSourceWithTranscript = AdminSourceData & {
 	transcript: string
 }
 
-// Lazily initialize Storage clients and support both JSON content and key file paths
-let storageUploader: Storage | undefined
-let storageReader: Storage | undefined
-
-function looksLikeJson(value: string | undefined): boolean {
-	if (!value) return false
-	const trimmed = value.trim()
-	return trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes('"type"')
-}
-
-function ensureBucketName(): string {
-	const name = process.env.GOOGLE_CLOUD_STORAGE_BUCKET_NAME
-	if (!name) {
-		throw new Error("GOOGLE_CLOUD_STORAGE_BUCKET_NAME is not set")
-	}
-	return name
-}
-
-function initStorageClients(): { storageUploader: Storage; storageReader: Storage } {
-	if (storageUploader && storageReader) {
-		return { storageUploader, storageReader }
-	}
-
-	const isDevelopment = process.env.NODE_ENV === "development" || !process.env.NODE_ENV
-
-	// Accept multiple env var names to reduce configuration friction
-	const uploaderRaw = getEnv("GCS_UPLOADER_KEY_JSON") ?? getEnv("GCS_UPLOADER_KEY") ?? getEnv("GCS_UPLOADER_KEY_PATH")
-	const readerRaw = getEnv("GCS_READER_KEY_JSON") ?? getEnv("GCS_READER_KEY") ?? getEnv("GCS_READER_KEY_PATH")
-
-	if (!(uploaderRaw && readerRaw)) {
-		const missing: string[] = []
-		if (!uploaderRaw) missing.push("GCS_UPLOADER_KEY_JSON|GCS_UPLOADER_KEY|GCS_UPLOADER_KEY_PATH")
-		if (!readerRaw) missing.push("GCS_READER_KEY_JSON|GCS_READER_KEY|GCS_READER_KEY_PATH")
-		throw new Error(`Missing Google Cloud credentials: ${missing.join(", ")}`)
-	}
-
-	try {
-		if (isDevelopment && looksLikeJson(uploaderRaw) && looksLikeJson(readerRaw)) {
-			console.log("Initializing Storage clients (JSON credentials)")
-			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw) })
-			storageReader = new Storage({ credentials: JSON.parse(readerRaw) })
-		} else {
-			console.log("Initializing Storage clients (key file paths)")
-			storageUploader = new Storage({ keyFilename: uploaderRaw })
-			storageReader = new Storage({ keyFilename: readerRaw })
-		}
-		console.log("Storage clients initialized")
-	} catch {
-		// Do not leak credential contents or paths
-		throw new Error("Failed to initialize Google Cloud Storage clients")
-	}
-
-	return { storageUploader: storageUploader!, storageReader: storageReader! }
-}
-
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
-		const { storageUploader } = initStorageClients()
+		const storageUploader = getStorageUploader()
 		const bucketName = ensureBucketName()
 		console.log(`Uploading to bucket: ${bucketName}`)
 
@@ -109,7 +53,7 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 
 async function _readContentFromBucket(fileName: string): Promise<Buffer> {
 	try {
-		const { storageReader } = initStorageClients()
+		const storageReader = getStorageReader()
 		const bucketName = ensureBucketName()
 		const [fileBuffer] = await storageReader.bucket(bucketName).file(fileName).download()
 		return fileBuffer
@@ -309,8 +253,12 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const transcriptData = await YoutubeTranscript.fetchTranscript(videoId)
-						transcriptContent = transcriptData.map(entry => entry.text).join(" ")
+						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true })
+						if (result.success) {
+							transcriptContent = result.transcript
+						} else {
+							transcriptContent = `Transcript unavailable for ${s.name}: ${result.error ?? "Unknown error"}`
+						}
 					} catch (error) {
 						transcriptContent = `Failed to retrieve transcript for ${s.name} from ${s.url}. Error: ${(error as Error).message}`
 					}
@@ -483,7 +431,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 		event: "podcast/admin-generate-gemini-tts.requested",
 	},
 	async ({ event, step }) => {
-		const { adminCurationProfile, bundleId, episodeTitle, episodeDescription } = event.data
+		const { adminCurationProfile, bundleId, podcastId, episodeTitle, episodeDescription } = event.data
 
 		// Stage 1: Content Aggregation
 		const sourcesWithTranscripts: AdminSourceWithTranscript[] = await Promise.all(
@@ -496,8 +444,12 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const transcriptData = await YoutubeTranscript.fetchTranscript(videoId)
-						transcriptContent = transcriptData.map(entry => entry.text).join(" ")
+						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true })
+						if (result.success) {
+							transcriptContent = result.transcript
+						} else {
+							transcriptContent = `Transcript unavailable for ${s.name}: ${result.error ?? "Unknown error"}`
+						}
 					} catch (error) {
 						transcriptContent = `Failed to retrieve transcript for ${s.name} from ${s.url}. Error: ${(error as Error).message}`
 					}
@@ -598,25 +550,26 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				throw new Error(`Bundle ${bundleId} not found or has no associated podcasts`)
 			}
 
-			// Use the first podcast from the bundle as the podcast reference
-			const firstPodcast = bundleWithPodcasts.bundle_podcast[0].podcast
+			// Use the explicitly selected podcast from the admin UI and ensure it belongs to the bundle
+			const membership = bundleWithPodcasts.bundle_podcast.find(bp => bp.podcast_id === podcastId)
+			if (!membership) {
+				throw new Error(`Podcast ${podcastId} is not a member of bundle ${bundleId}`)
+			}
+			const selectedPodcast = membership.podcast
 
 			const txResults = await prisma.$transaction([
-				prisma.bundlePodcast.createMany({
-					data: [{ bundle_id: bundleId, podcast_id: firstPodcast.podcast_id }],
-					skipDuplicates: true,
-				}),
+				// Avoid creating membership here; assume existing membership as validated above
 				prisma.episode.create({
 					data: {
 						episode_id: randomUUID(),
 						title: episodeTitle,
 						description: episodeDescription || script,
-						audio_url: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+						audio_url: `https://storage.cloud.google.com/${ensureBucketName()}/${publicUrl}`,
 						image_url: adminCurationProfile.image_url || bundleWithPodcasts.image_url || null,
 						published_at: new Date(),
 						week_nr: currentWeek,
 						bundle_id: bundleId, // diagnostics only; reads remain membership-based
-						podcast_id: firstPodcast.podcast_id,
+						podcast_id: selectedPodcast.podcast_id,
 					},
 				}),
 			])
@@ -685,7 +638,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 		return {
 			success: true,
 			bundleId,
-			audioUrl: `https://storage.cloud.google.com/ai-weekly-curator-app-bucket/${publicUrl}`,
+			audioUrl: `https://storage.cloud.google.com/${ensureBucketName()}/${publicUrl}`,
 			isSimulated: aiConfig.simulateAudioSynthesis,
 			title: episodeTitle,
 		}
