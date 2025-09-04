@@ -10,8 +10,8 @@ function getEnvironment(): "development" | "production" | "preview" {
 	if (env === "production" || env === "preview" || env === "development") {
 		return env
 	}
-	// Default to development for unknown environments
-	return "development"
+	// Throw an error for unknown environments to avoid unsafe defaults
+	throw new Error(`Unknown environment value: "${env}". Expected "development", "production", or "preview".`)
 }
 
 export function ensureBucketName(): string {
