@@ -212,7 +212,7 @@ export const transcribeFromMetadata = inngest.createFunction(
 			return id
 		})
 
-		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "queued", meta: { jobId } })
+		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "info", meta: { jobId, state: "queued" } })
 		return { message: "Transcription saga dispatched", userEpisodeId, jobId }
 	}
 )
