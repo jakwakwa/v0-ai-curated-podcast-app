@@ -108,12 +108,15 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl)
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
+	const bodyStream = source.body
+	if (!bodyStream) throw new Error("Missing response body stream")
 	const uploaded = await fetch(`${ASSEMBLY_BASE_URL}/upload`, {
 		method: "POST",
 		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
-		body: source.body as unknown as BodyInit,
+		// @ts-expect-error Node.js fetch streaming request bodies require duplex property
 		duplex: "half",
-	} as RequestInit) // <-- Cast the entire options object
+		body: bodyStream,
+	})
 
 	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
 	const json = (await uploaded.json()) as { upload_url?: string }

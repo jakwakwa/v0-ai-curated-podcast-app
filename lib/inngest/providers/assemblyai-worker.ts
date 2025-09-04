@@ -9,12 +9,15 @@ const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source (${source.status})`)
+	const bodyStream = source.body
+	if (!bodyStream) throw new Error("Missing response body stream")
 	const uploaded = await fetch(`${ASSEMBLY_BASE_URL}/upload`, {
 		method: "POST",
 		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
-		body: source.body as unknown as BodyInit,
+		// @ts-expect-error Node.js fetch streaming request bodies require duplex property
 		duplex: "half",
-	} as RequestInit)
+		body: bodyStream,
+	})
 	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
 	const json = (await uploaded.json()) as { upload_url?: string }
 	if (!json.upload_url) throw new Error("AssemblyAI upload ok but missing upload_url")
