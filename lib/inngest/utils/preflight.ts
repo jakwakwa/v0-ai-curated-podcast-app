@@ -22,6 +22,8 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 		} catch (err) {
 			// HEAD requests may be blocked or not supported; we log and continue to a small GET probe
 			console.warn(`HEAD request failed for ${url}:`, err)
+		} finally {
+			clearTimeout(_t)
 		}
 
 		const controller2 = new AbortController()
