@@ -6,6 +6,16 @@ import { classifyError, ProviderStartedSchema } from "../utils/results"
 
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
+function isGoogleVideoUrl(url: string): boolean {
+	try {
+		const { hostname } = new URL(url)
+		const host = hostname.toLowerCase()
+		return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+	} catch {
+		return false
+	}
+}
+
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source (${source.status})`)
@@ -51,15 +61,35 @@ export const assemblyAiWorker = inngest.createFunction(
 		if (!apiKey) return
 
 		await step.run("log-start", async () => {
-			await writeEpisodeDebugLog(userEpisodeId, { step: "assemblyai", status: "start", meta: { jobId } })
+			await writeEpisodeDebugLog(userEpisodeId, { 
+				step: "assemblyai", 
+				status: "start", 
+				meta: { jobId, srcUrl, looksLikeAudio: /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(srcUrl) || isGoogleVideoUrl(srcUrl) } 
+			})
 		})
 
 		try {
 			// Direct submit if audio-like; else proxy-upload to AAI to avoid 403/HTML
 			let submitUrl = srcUrl
-			const looksLikeAudio = /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(srcUrl)
+			const looksLikeAudio = /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(srcUrl) || isGoogleVideoUrl(srcUrl)
 			if (!looksLikeAudio) {
+				await step.run("log-upload-needed", async () => {
+					await writeEpisodeDebugLog(userEpisodeId, { 
+						step: "assemblyai", 
+						status: "info", 
+						message: "URL doesn't look like audio, uploading to AssemblyAI", 
+						meta: { srcUrl } 
+					})
+				})
 				submitUrl = await step.run("upload", async () => await uploadToAssembly(srcUrl, apiKey))
+				await step.run("log-upload-success", async () => {
+					await writeEpisodeDebugLog(userEpisodeId, { 
+						step: "assemblyai", 
+						status: "info", 
+						message: "Upload to AssemblyAI successful", 
+						meta: { uploadUrl: submitUrl } 
+					})
+				})
 			}
 			const job = await step.run("start", async () => await startJob(submitUrl, apiKey, lang))
 			// Short poll with budget; we only need first completion
@@ -83,6 +113,14 @@ export const assemblyAiWorker = inngest.createFunction(
 			})
 		} catch (e) {
 			const { errorType, errorMessage } = classifyError(e)
+			await step.run("log-error", async () => {
+				await writeEpisodeDebugLog(userEpisodeId, { 
+					step: "assemblyai", 
+					status: "fail", 
+					message: `AssemblyAI failed: ${errorMessage}`, 
+					meta: { jobId, errorType, srcUrl } 
+				})
+			})
 			await step.sendEvent("failed", {
 				name: "transcription.failed",
 				data: { jobId, userEpisodeId, provider: "assemblyai", errorType, errorMessage },

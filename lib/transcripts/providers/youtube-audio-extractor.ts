@@ -19,57 +19,68 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 	// Try multiple methods to get audio URL
 
 	// Method 1: Use YouTube's own API to get stream info
-	try {
-		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-				"Referer": "https://www.youtube.com/",
-			},
-			body: JSON.stringify({
-				context: {
-					client: {
-						clientName: "WEB",
-						clientVersion: "2.20240101.00.00",
-					},
+	const youtubeApiKey = process.env.YOUTUBE_API_KEY || process.env.YOUTUBE_API_KEY_INTERNAL
+	if (youtubeApiKey) {
+		try {
+			const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+					"Referer": "https://www.youtube.com/",
 				},
-				videoId: videoId,
-			}),
-		})
+				body: JSON.stringify({
+					context: {
+						client: {
+							clientName: "WEB",
+							clientVersion: "2.20240101.00.00",
+						},
+					},
+					videoId: videoId,
+				}),
+			})
 
-		if (response.ok) {
-			const data = await response.json()
-			const streamingData = data?.streamingData
-			const videoDetails = data?.videoDetails
+			if (response.ok) {
+				const data = await response.json()
+				const streamingData = data?.streamingData
+				const videoDetails = data?.videoDetails
 
-			if (streamingData?.adaptiveFormats) {
-				interface AudioFormat {
-					mimeType?: string
-					url?: string
-				}
-				
-				// Find the best audio-only format
-				const audioFormats = streamingData.adaptiveFormats.filter((format: AudioFormat) => 
-					format.mimeType?.includes("audio") && format.url
-				)
-
-				if (audioFormats.length > 0) {
-					// Prefer webm or mp4 audio formats
-					const preferredFormat = audioFormats.find((format: AudioFormat) => 
-						format.mimeType?.includes("audio/webm") || format.mimeType?.includes("audio/mp4")
-					) || audioFormats[0]
-
-					return {
-						audioUrl: preferredFormat.url,
-						title: videoDetails?.title || "Unknown",
-						duration: parseInt(videoDetails?.lengthSeconds || "0"),
+				if (streamingData?.adaptiveFormats) {
+					interface AudioFormat {
+						mimeType?: string
+						url?: string
 					}
+					
+					// Find the best audio-only format
+					const audioFormats = streamingData.adaptiveFormats.filter((format: AudioFormat) => 
+						format.mimeType?.includes("audio") && format.url
+					)
+
+					if (audioFormats.length > 0) {
+						// Prefer webm or mp4 audio formats
+						const preferredFormat = audioFormats.find((format: AudioFormat) => 
+							format.mimeType?.includes("audio/webm") || format.mimeType?.includes("audio/mp4")
+						) || audioFormats[0]
+
+						return {
+							audioUrl: preferredFormat.url,
+							title: videoDetails?.title || "Unknown",
+							duration: parseInt(videoDetails?.lengthSeconds || "0"),
+						}
+					} else {
+						console.warn("No audio formats found in YouTube response for video:", videoId)
+					}
+				} else {
+					console.warn("No streaming data found in YouTube response for video:", videoId)
 				}
+			} else {
+				console.warn("YouTube API responded with error:", response.status, response.statusText)
 			}
+		} catch (error) {
+			console.warn("YouTube API method failed:", error)
 		}
-	} catch (error) {
-		console.warn("YouTube API method failed:", error)
+	} else {
+		console.warn("YouTube API key not available for audio extraction")
 	}
 
 	// Method 2: Use a fallback service if available
@@ -102,10 +113,22 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 }
 
 function extractVideoId(url: string): string | null {
-	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/]
+	const patterns = [
+		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+	]
 	for (const pattern of patterns) {
 		const match = url.match(pattern)
-		if (match) return match[1]
+		if (match?.[1]) {
+			// Validate video ID is exactly 11 characters (YouTube standard)
+			const videoId = match[1]
+			if (videoId.length === 11 && /^[a-zA-Z0-9_-]+$/.test(videoId)) {
+				return videoId
+			}
+		}
+	}
+	// Only try raw video ID pattern if it looks like a video ID
+	if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+		return url
 	}
 	return null
 }
