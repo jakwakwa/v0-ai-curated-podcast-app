@@ -10,17 +10,21 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
   const client = new GoogleGenerativeAI(apiKey)
   const fileManager = new GoogleAIFileManager(apiKey)
 
+  let tempDir: string | null = null
   try {
     // Stream fetch the audio and upload using Files API
-    const res = await fetch(audioUrl)
-    if (!res.ok) return null
+    const res = await fetch(audioUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
+    if (!res.ok) {
+      console.error(`Failed to download audio from URL. Status: ${res.status}`)
+      return null
+    }
     const contentType = res.headers.get("content-type") || "audio/mpeg"
     const arrayBuffer = await res.arrayBuffer()
 
     // Write to a temp file to satisfy FileManager upload API
-    const dir = mkdtempSync(path.join(tmpdir(), "gemini-"))
+    tempDir = mkdtempSync(path.join(tmpdir(), "gemini-"))
     const ext = contentType.includes("wav") ? ".wav" : contentType.includes("m4a") ? ".m4a" : contentType.includes("aac") ? ".aac" : contentType.includes("flac") ? ".flac" : ".mp3"
-    const filePath = path.join(dir, `audio${ext}`)
+    const filePath = path.join(tempDir, `audio${ext}`)
     writeFileSync(filePath, Buffer.from(new Uint8Array(arrayBuffer)))
     const uploaded = await fileManager.uploadFile(filePath, { mimeType: contentType, displayName: "episode-audio" })
 
@@ -34,13 +38,18 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
 
     const text = result.response.text()
     return text && text.trim().length > 0 ? text : null
-  } catch {
+  } catch (error) {
+    console.error("Gemini transcription failed:", error)
     return null
   } finally {
-    // Best-effort cleanup
-    try {
-      const base = path.dirname(path.dirname((await import("node:url")).fileURLToPath(import.meta.url))) // noop to avoid TS unused
-    } catch {}
+    // Best-effort cleanup of temporary directory
+    if (tempDir) {
+      try {
+        rmSync(tempDir, { recursive: true, force: true })
+      } catch (cleanupError) {
+        console.warn("Failed to cleanup temporary directory:", cleanupError)
+      }
+    }
   }
 }
 

@@ -15,11 +15,11 @@ interface AudioFormat {
 function extractVideoId(url: string): string | null {
 	const patterns = [
 		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-		/^([a-zA-Z0-9_-]{11})$/,
+		/^[a-zA-Z0-9_-]{11}$/, // Only match if the entire string is exactly 11 YouTube-valid characters
 	]
 	for (const pattern of patterns) {
 		const match = url.match(pattern)
-		if (match) return match[1]
+		if (match) return match[1] || match[0] // For the first pattern, use capture group; for second, use full match
 	}
 	return null
 }
