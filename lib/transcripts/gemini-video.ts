@@ -60,14 +60,8 @@ export async function transcribeWithGeminiFromUrl(url: string): Promise<string |
 		const genAI = new GoogleGenerativeAI(apiKey)
 		const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
-		const result = await model.generateContent([
-			PROMPT,
-			{
-				fileData: {
-					fileUri: url,
-				},
-			} as { fileData: { fileUri: string } },
-		])
+		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } }
+		const result = await model.generateContent([PROMPT, mediaPart])
 
 		return result.response.text()
 	} catch (error) {
