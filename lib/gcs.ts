@@ -71,13 +71,11 @@ function initStorageClients(): { storageUploader: Storage; storageReader: Storag
 			throw new Error(`Missing Google Cloud credentials for ${environment} environment: ${missing.join(", ")}`)
 		}
 
-
 		try {
 			storageUploader = new Storage({ credentials: JSON.parse(uploaderRaw!) })
 			storageReader = new Storage({ credentials: JSON.parse(readerRaw!) })
 		} catch (_error) {
 			throw new Error("Failed to initialize Google Cloud Storage clients with JSON credentials")
-
 		}
 	}
 

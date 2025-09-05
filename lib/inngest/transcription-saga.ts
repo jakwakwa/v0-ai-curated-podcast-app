@@ -1,9 +1,8 @@
 import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger"
+import { ensureBucketName, storeUrlInGCS } from "@/lib/gcs"
 import { inngest } from "@/lib/inngest/client"
 import { prisma } from "@/lib/prisma"
 import { preflightProbe } from "./utils/preflight"
-import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
-import { storeUrlInGCS } from "@/lib/gcs"
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results"
 
 const Events = {
@@ -41,22 +40,22 @@ export const transcriptionCoordinator = inngest.createFunction(
 
 		// Download-once: store source audio in GCS and use the permanent URL for all providers
 		const permanentUrl = await step.run("download-and-store-audio", async () => {
-			const bucket = ensureBucketName()
+			const _bucket = ensureBucketName()
 			const objectName = `transcripts/${userEpisodeId}/source-audio`
 			const stored = await storeUrlInGCS(srcUrl, objectName)
 			return stored
 		})
 		await writeEpisodeDebugLog(userEpisodeId, { step: "storage", status: "success", message: "Stored source audio", meta: { url: permanentUrl } })
 
-		// Kick off primary provider
-		await step.sendEvent("start-assemblyai", {
-			name: Events.ProviderStart.AssemblyAI,
-			data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "assemblyai", lang },
+		// Kick off primary provider (Gemini first)
+		await step.sendEvent("start-gemini", {
+			name: Events.ProviderStart.Gemini,
+			data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "gemini", lang },
 		})
 
 		// Wait for success; if timeout or failure without success, trigger fallbacks
 		const firstWindow = Number(process.env.PROVIDER_A_WINDOW_SECONDS || 55)
-		const successEvent = await step.waitForEvent("wait-aai", {
+		const successEvent = await step.waitForEvent("wait-gemini", {
 			event: Events.Succeeded,
 			timeout: `${firstWindow}s`,
 			if: `event.data.jobId == "${jobId}"`,
@@ -64,14 +63,14 @@ export const transcriptionCoordinator = inngest.createFunction(
 
 		let successEvent2: typeof successEvent | null = null
 		if (!successEvent) {
-			// Start fallbacks (in parallel)
+			// Start fallbacks (AssemblyAI and RevAi in parallel)
+			await step.sendEvent("start-assemblyai", {
+				name: Events.ProviderStart.AssemblyAI,
+				data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "assemblyai", lang },
+			})
 			await step.sendEvent("start-revai", {
 				name: Events.ProviderStart.RevAi,
 				data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "revai", lang },
-			})
-			await step.sendEvent("start-gemini", {
-				name: Events.ProviderStart.Gemini,
-				data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "gemini", lang },
 			})
 
 			// Wait for anyone to succeed within total budget without exceeding route max

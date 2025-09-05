@@ -1,10 +1,9 @@
 import { z } from "zod"
-import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger"
+import { writeEpisodeDebugLog } from "@/lib/debug-logger"
 import { prisma } from "@/lib/prisma"
 import { searchEpisodeAudioViaApple, searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
 import { searchYouTubeByMetadata } from "@/lib/transcripts/search-youtube"
 import { inngest } from "./client"
-import { extractYouTubeAudioUrl as extractYT } from "@/lib/transcripts/utils/youtube-audio"
 
 type MetadataPayload = {
 	userEpisodeId: string
@@ -27,7 +26,7 @@ interface AssemblyAITranscript {
 
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
-async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
+async function _startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript`, {
 		method: "POST",
 		headers: { Authorization: apiKey, "Content-Type": "application/json" },
@@ -38,33 +37,36 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 	return data.id
 }
 
-async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
+async function _getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, { headers: { Authorization: apiKey } })
 	if (!res.ok) throw new Error(`AssemblyAI job fetch failed: ${await res.text()}`)
 	return (await res.json()) as AssemblyAITranscript
 }
 
 // --- Audio resolution helpers -------------------------------------------------
-function isYouTubeUrl(url: string): boolean {
+function _isYouTubeUrl(url: string): boolean {
 	return /youtu(be\.be|be\.com)/i.test(url)
 }
 
-function isDirectAudioUrl(url: string): boolean {
-	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
-		try {
-			const { hostname, protocol } = new URL(url)
-			if (protocol !== "http:" && protocol !== "https:") return false
-			const host = hostname.toLowerCase()
-			return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
-		} catch {
-			return false
-		}
-	})()
+function _isDirectAudioUrl(url: string): boolean {
+	return (
+		/(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) ||
+		(() => {
+			try {
+				const { hostname, protocol } = new URL(url)
+				if (protocol !== "http:" && protocol !== "https:") return false
+				const host = hostname.toLowerCase()
+				return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+			} catch {
+				return false
+			}
+		})()
+	)
 }
 
 // NOTE: duplicate YouTube extraction removed; use shared util if needed elsewhere
 
-async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
+async function _uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
 	const bodyStream = source.body
