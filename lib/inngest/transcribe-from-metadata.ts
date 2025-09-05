@@ -3,6 +3,7 @@ import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logge
 import { prisma } from "@/lib/prisma"
 import { searchEpisodeAudioViaApple, searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
 import { searchYouTubeByMetadata } from "@/lib/transcripts/search-youtube"
+import { extractYouTubeAudioUrl } from "@/lib/transcripts/providers/youtube-audio-extractor"
 import { inngest } from "./client"
 
 type MetadataPayload = {
@@ -59,49 +60,6 @@ function isDirectAudioUrl(url: string): boolean {
 			return false
 		}
 	})()
-}
-
-async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
-	// Attempt to derive a direct audio stream URL via YouTube player API
-	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
-
-	const youtubeApiKey = process.env.YOUTUBE_API_KEY
-	if (!youtubeApiKey) {
-		// Optionally, you could throw an error or log a warning here
-		return null
-	}
-	try {
-		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
-			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
-		})
-		if (response.ok) {
-			const data = await response.json()
-			const formats = data?.streamingData?.adaptiveFormats || []
-			const audioFormats = formats.filter((f: { mimeType?: string; url?: string }) => f?.mimeType?.includes("audio") && f?.url)
-			if (audioFormats.length > 0) {
-				const preferred = audioFormats.find((f: { mimeType?: string }) => f?.mimeType?.includes("audio/webm") || f?.mimeType?.includes("audio/mp4")) || audioFormats[0]
-				return preferred.url as string
-			}
-		}
-	} catch {}
-
-	// Optional RapidAPI fallback if configured
-	const rapidApiKey = process.env.RAPIDAPI_KEY
-	if (rapidApiKey) {
-		try {
-			const resp = await fetch(`https://youtube-video-info1.p.rapidapi.com/youtube_video_info?url=${encodeURIComponent(videoUrl)}`, {
-				headers: { "X-RapidAPI-Key": rapidApiKey, "X-RapidAPI-Host": "youtube-video-info1.p.rapidapi.com" },
-			})
-			if (resp.ok) {
-				const data = await resp.json()
-				if (data?.audio_url) return data.audio_url as string
-			}
-		} catch {}
-	}
-
-	return null
 }
 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
