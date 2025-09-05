@@ -11,9 +11,7 @@ async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string>
 	const sourceResponse = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(sourceResponse.ok && sourceResponse.body)) {
 		const errorText = await sourceResponse.text()
-		throw new Error(
-			`Failed to download source audio from URL. Status: ${sourceResponse.status}. Body: ${errorText.slice(0, 500)}`
-		)
+		throw new Error(`Failed to download source audio from URL. Status: ${sourceResponse.status}. Body: ${errorText.slice(0, 500)}`)
 	}
 
 	// 2. Stream the response body directly to AssemblyAI's upload endpoint
@@ -100,8 +98,8 @@ export const assemblyAiWorker = inngest.createFunction(
 				if (res.status === "error") {
 					throw new Error(res.error || "AssemblyAI job failed without a specific error message.")
 				}
-				
-				if(i < maxPolls - 1) {
+
+				if (i < maxPolls - 1) {
 					await step.sleep(`poll-wait-${i + 1}`, "15s")
 				}
 			}
