@@ -21,7 +21,7 @@ export const geminiVideoWorker = inngest.createFunction(
 					data: { jobId, userEpisodeId, provider: "gemini", transcript, meta: {} },
 				})
 			} else {
-				await writeEpisodeDebugLog(userEpisodeId, { step: "gemini", status: "fail", message: "empty transcript" })
+				await writeEpisodeDebugLog(userEpisodeId, { step: "gemini", status: "fail", message: "empty transcript or failure; check server logs" })
 				await step.sendEvent("failed", {
 					name: "transcription.failed",
 					data: { jobId, userEpisodeId, provider: "gemini", errorType: "unknown", errorMessage: "Gemini returned empty transcript" },

@@ -105,8 +105,9 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
             return ytText
           }
         }
-      } catch {
-        // Ignore and fall back to audio extraction
+      } catch (err) {
+        // Log and fall back to audio extraction
+        console.error("[GEMINI][youtube-url]", err)
       }
 
       const resolved = await resolveYouTubeDirectAudio(fetchUrl)
@@ -116,7 +117,12 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
     }
 
     const res = await fetch(fetchUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
-    if (!res.ok) return null
+    if (!res.ok) {
+      let bodySnippet = ""
+      try { bodySnippet = (await res.text()).slice(0, 500) } catch {}
+      console.error(`[GEMINI][fetch-media] status=${res.status} body=${bodySnippet}`)
+      return null
+    }
     const contentTypeRaw = res.headers.get("content-type") || hintedMimeType || "audio/mpeg"
     const contentType = contentTypeRaw.split(";")[0].trim()
 
@@ -156,13 +162,16 @@ export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<str
     ]
     if (badPhrases.some(p => lower.includes(p))) return null
     return cleaned
-  } catch {
+  } catch (err) {
+    console.error("[GEMINI][transcribeWithGeminiFromUrl]", err)
     return null
   } finally {
     if (tempDir) {
       try {
         rmSync(tempDir, { recursive: true, force: true })
-      } catch {}
+      } catch (e) {
+        console.error("[GEMINI][cleanup]", e)
+      }
     }
   }
 }
