@@ -38,7 +38,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 			meta: probe.ok ? probe.value : probe,
 		})
 
-		// Download-once: store source audio in GCS and use the permanent URL for all providers
+		// Download-once: store source audio in GCS for non-Gemini providers; Gemini needs the original YouTube URL
 		const permanentUrl = await step.run("download-and-store-audio", async () => {
 			const _bucket = ensureBucketName()
 			const objectName = `transcripts/${userEpisodeId}/source-audio`
@@ -50,7 +50,8 @@ export const transcriptionCoordinator = inngest.createFunction(
 		// Kick off primary provider (Gemini first)
 		await step.sendEvent("start-gemini", {
 			name: Events.ProviderStart.Gemini,
-			data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "gemini", lang },
+			// Important: Gemini must receive the original source URL (e.g., YouTube), not the GCS mirror
+			data: { jobId, userEpisodeId, srcUrl, provider: "gemini", lang },
 		})
 
 		// Wait for success; if timeout or failure without success, trigger fallbacks
