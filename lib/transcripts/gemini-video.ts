@@ -63,11 +63,10 @@ export async function transcribeWithGeminiFromUrl(url: string): Promise<string |
 		const result = await model.generateContent([
 			PROMPT,
 			{
-				//@ts-ignore
 				fileData: {
 					fileUri: url,
 				},
-			},
+			} as { fileData: { fileUri: string } },
 		])
 
 		return result.response.text()
