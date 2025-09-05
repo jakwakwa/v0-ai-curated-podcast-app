@@ -102,7 +102,6 @@ export const assemblyAiWorker = inngest.createFunction(
 				}
 				
 				if(i < maxPolls - 1) {
-					// @ts-expect-error Inngest step.sleep is provided at runtime
 					await step.sleep(`poll-wait-${i + 1}`, "15s")
 				}
 			}
