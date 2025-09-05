@@ -8,7 +8,13 @@ const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
-	if (!(source.ok && source.body)) throw new Error(`Failed to download source (${source.status})`)
+	if (!source.ok || !source.body) {
+		let bodySnippet = ""
+		try {
+			bodySnippet = (await source.text()).slice(0, 500)
+		} catch {}
+		throw new Error(`Failed to download source audio. status=${source.status} body=${bodySnippet}`)
+	}
 	const bodyStream = source.body
 	if (!bodyStream) throw new Error("Missing response body stream")
 	const uploaded = await fetch(`${ASSEMBLY_BASE_URL}/upload`, {
@@ -18,7 +24,13 @@ async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string>
 		duplex: "half",
 		body: bodyStream,
 	})
-	if (!uploaded.ok) throw new Error(`AssemblyAI upload failed: ${await uploaded.text()}`)
+	if (!uploaded.ok) {
+		let bodySnippet = ""
+		try {
+			bodySnippet = (await uploaded.text()).slice(0, 500)
+		} catch {}
+		throw new Error(`AssemblyAI upload failed. status=${uploaded.status} body=${bodySnippet}`)
+	}
 	const json = (await uploaded.json()) as { upload_url?: string }
 	if (!json.upload_url) throw new Error("AssemblyAI upload ok but missing upload_url")
 	return json.upload_url
@@ -55,12 +67,8 @@ export const assemblyAiWorker = inngest.createFunction(
 		})
 
 		try {
-			// Direct submit if audio-like; else proxy-upload to AAI to avoid 403/HTML
-			let submitUrl = srcUrl
-			const looksLikeAudio = /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(srcUrl)
-			if (!looksLikeAudio) {
-				submitUrl = await step.run("upload", async () => await uploadToAssembly(srcUrl, apiKey))
-			}
+			// Always proxy-upload to avoid ephemeral/geo/IP-bound URLs
+			const submitUrl = await step.run("upload", async () => await uploadToAssembly(srcUrl, apiKey))
 			const job = await step.run("start", async () => await startJob(submitUrl, apiKey, lang))
 			// Short poll with budget; we only need first completion
 			const maxPolls = 8

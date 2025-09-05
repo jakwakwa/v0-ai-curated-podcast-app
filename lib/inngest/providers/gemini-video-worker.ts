@@ -21,12 +21,14 @@ export const geminiVideoWorker = inngest.createFunction(
 					data: { jobId, userEpisodeId, provider: "gemini", transcript, meta: {} },
 				})
 			} else {
+				await writeEpisodeDebugLog(userEpisodeId, { step: "gemini", status: "fail", message: "empty transcript" })
 				await step.sendEvent("failed", {
 					name: "transcription.failed",
 					data: { jobId, userEpisodeId, provider: "gemini", errorType: "unknown", errorMessage: "Gemini returned empty transcript" },
 				})
 			}
 		} catch (e) {
+			await writeEpisodeDebugLog(userEpisodeId, { step: "gemini", status: "fail", message: e instanceof Error ? e.message : String(e) })
 			const { errorType, errorMessage } = classifyError(e)
 			await step.sendEvent("failed", {
 				name: "transcription.failed",
