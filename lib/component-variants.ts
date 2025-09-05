@@ -23,7 +23,7 @@ export const cardVariants = cva("rounded-3xl px-3 border transition-all duration
 	variants: {
 		variant: {
 			toggle: "bg-dark",
-			default: "episode-card-wrapper border text-card-foreground",
+			default: "episode-card-wrapper border text-card-foreground px-0",
 			glass: "bg-cardglass	backdrop-blur-[2px]",
 			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
 			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",

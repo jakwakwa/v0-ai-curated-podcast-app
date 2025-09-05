@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { VOICE_OPTIONS } from "@/lib/constants/voices"
 
-const EPISODE_LIMIT = 10
+const EPISODE_LIMIT = 20
 
 export function EpisodeCreator() {
 	const router = useRouter()
@@ -86,7 +86,7 @@ export function EpisodeCreator() {
 	const hasReachedLimit = usage.count >= usage.limit
 
 	return (
-		<div className="w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-12">
+		<div className="w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-0 md:px-12">
 			<Card>
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>
