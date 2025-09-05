@@ -192,6 +192,9 @@ export default function NotificationsPage() {
 									</div>
 
 									<div className="flex gap-2 justify-end">
+										<Button asChild variant="secondary" size="sm" className="text-xs px-2 py-1 h-auto">
+											<a href="/my-episodes">View my episodes</a>
+										</Button>
 										{!notification.is_read && (
 											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />
