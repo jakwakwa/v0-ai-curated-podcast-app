@@ -2,6 +2,8 @@ import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logge
 import { inngest } from "@/lib/inngest/client"
 import { prisma } from "@/lib/prisma"
 import { preflightProbe } from "./utils/preflight"
+import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
+import { storeUrlInGCS } from "@/lib/gcs"
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results"
 
 const Events = {
@@ -37,10 +39,19 @@ export const transcriptionCoordinator = inngest.createFunction(
 			meta: probe.ok ? probe.value : probe,
 		})
 
+		// Download-once: store source audio in GCS and use the permanent URL for all providers
+		const permanentUrl = await step.run("download-and-store-audio", async () => {
+			const bucket = ensureBucketName()
+			const objectName = `transcripts/${userEpisodeId}/source-audio`
+			const stored = await storeUrlInGCS(srcUrl, objectName)
+			return stored
+		})
+		await writeEpisodeDebugLog(userEpisodeId, { step: "storage", status: "success", message: "Stored source audio", meta: { url: permanentUrl } })
+
 		// Kick off primary provider
 		await step.sendEvent("start-assemblyai", {
 			name: Events.ProviderStart.AssemblyAI,
-			data: { jobId, userEpisodeId, srcUrl, provider: "assemblyai", lang },
+			data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "assemblyai", lang },
 		})
 
 		// Wait for success; if timeout or failure without success, trigger fallbacks
@@ -56,11 +67,11 @@ export const transcriptionCoordinator = inngest.createFunction(
 			// Start fallbacks (in parallel)
 			await step.sendEvent("start-revai", {
 				name: Events.ProviderStart.RevAi,
-				data: { jobId, userEpisodeId, srcUrl, provider: "revai", lang },
+				data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "revai", lang },
 			})
 			await step.sendEvent("start-gemini", {
 				name: Events.ProviderStart.Gemini,
-				data: { jobId, userEpisodeId, srcUrl, provider: "gemini", lang },
+				data: { jobId, userEpisodeId, srcUrl: permanentUrl, provider: "gemini", lang },
 			})
 
 			// Wait for anyone to succeed within total budget without exceeding route max

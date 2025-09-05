@@ -101,3 +101,17 @@ export function parseGcsUri(uri: string): { bucket: string; object: string } | n
 	const object = withoutScheme.slice(slash + 1)
 	return { bucket, object }
 }
+
+export async function storeUrlInGCS(url: string, destinationObjectName: string, contentTypeHint?: string): Promise<string> {
+	const uploader = getStorageUploader()
+	const bucketName = ensureBucketName()
+	const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } })
+	if (!res.ok) {
+		const body = await res.text().catch(() => "")
+		throw new Error(`Failed to download source. status=${res.status} body=${body.slice(0, 500)}`)
+	}
+	const buf = Buffer.from(await res.arrayBuffer())
+	const contentType = (res.headers.get("content-type") || contentTypeHint || "audio/mpeg").split(";")[0]
+	await uploader.bucket(bucketName).file(destinationObjectName).save(buf, { contentType, public: true })
+	return `https://storage.googleapis.com/${bucketName}/${encodeURIComponent(destinationObjectName)}`
+}
