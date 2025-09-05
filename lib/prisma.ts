@@ -2,9 +2,14 @@ import { PrismaClient } from "@prisma/client"
 
 import { withAccelerate } from "@prisma/extension-accelerate"
 
+const shouldUseAccelerate = (() => {
+	const url = process.env.DATABASE_URL || ""
+	return url.startsWith("prisma://") || url.startsWith("prisma+postgres://")
+})()
+
 const prismaClientSingleton = () => {
-	// return new PrismaClient()
-	return new PrismaClient().$extends(withAccelerate())
+	const client = new PrismaClient()
+	return shouldUseAccelerate ? client.$extends(withAccelerate()) : client
 }
 
 declare global {
