@@ -117,6 +117,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 								title={episode.title}
 								description={episode.description}
 								publishedAt={episode.published_at || new Date()}
+								durationSeconds={episode.duration_seconds ?? null}
 								actions={
 									<>
 										{episode.audio_url && onPlayEpisode && (

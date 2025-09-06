@@ -4,6 +4,7 @@ import Image from "next/image"
 import type React from "react"
 import { Badge } from "./badge"
 import DateIndicator from "./date-indicator"
+import DurationIndicator from "./duration-indicator"
 import { Body } from "./typography"
 
 type EpisodeCardProps = {
@@ -12,10 +13,11 @@ type EpisodeCardProps = {
 	title: string
 	description?: string | null
 	publishedAt?: Date | string | null
+	durationSeconds?: number | null
 	actions?: React.ReactNode
 }
 
-export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, actions }: EpisodeCardProps) {
+export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions }: EpisodeCardProps) {
 	// biome-ignore lint/suspicious/noExplicitAny: <temp>
 	const Root: any = as
 	const date: Date = publishedAt ? new Date(publishedAt) : new Date()
@@ -33,6 +35,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 				<Badge size="sm" variant="default" className="w-fit text-card-foreground">
 					<DateIndicator size="sm" indicator={date} label={null} />
 				</Badge>
+				<DurationIndicator size="sm" seconds={durationSeconds ?? null} />
 				<div className="absolute bottom-3 right-3 flex-self-end flex justify-end ">{actions}</div>
 			</div>
 
