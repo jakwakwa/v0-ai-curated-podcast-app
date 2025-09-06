@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="w-full">
+		<div>
 			{/* Thin top progress bar */}
 			<GlobalProgressBar />
 			{/* Tabs */}
 			<AdminTabs />
-			<div className="max-w-6xl mx-auto px-4">{children}</div>
+			<div className="max-w-6xl mx-auto">{children}</div>
 		</div>
 	)
 }

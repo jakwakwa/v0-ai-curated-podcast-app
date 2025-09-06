@@ -126,34 +126,30 @@ export default function CurationProfileManagementPage() {
 	}
 
 	return (
-		<div className="default-card mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+		<div className="mx-auto px-0 w-full">
 			<PageHeader title="Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
 			{isLoading ? (
-				<div className="p-8 max-w-[1200px] mx-auto">
+				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">
 						<AppSpinner variant="wave" size="lg" label="Loading Personalized Feed..." />
 					</div>
 				</div>
 			) : userCurationProfile ? (
-				<div className="mx-auto px-0 pb-12 pt-0 md:pt-6 md:pt-4 md:px-0 lg:flex">
+				<div className="mx-auto px-0 pb-12 pt-0  md:px-0 lg:flex">
 					<div className="w-full flex flex-col md:grid grid-cols-1 lg:grid-cols-7 gap-3">
-						<Card className="episode-card col-span-3 border-dark border-b-dark">
-							<div className="w-full flex flex-col justify-between pb-0 mb-6">
-								<CardTitle className=" my-4 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
-								<CardDescription className="m-0 opacity-90">
-									Track, change and modify your weekly bundled feeds. If you're a "Curate and Control" member. Generate a total of 30 podcast episode summaries per month from virtually any youtube
-									channel.
-								</CardDescription>
+						<Card className="episode-card-wrapper col-span-3 border-dark border-b-dark">
+							<div className="w-full flex flex-col justify-between pb-0">
+								<CardTitle className=" my-0 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
 								<Button className="mb-4 max-w-[50%]" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 									Update Feed
 								</Button>
 							</div>
 
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<Card variant="bundle" className="mb-6">
-									<div className="py-4 px-1">
-										<Typography as="h2" className="text-custom-h2 w-full text-foreground p-0 m-0 my-4">
-											<span className=" text-md text-foreground font-medium my-2">{userCurationProfile?.name}</span>
+								<Card variant="bundle" className="bg-black/30 px-0 mt-4 mb-6">
+									<div className="py-0 px-2">
+										<Typography as="h2" className="text-custom-h2 w-full text-foreground p-0 mb-2">
+											<span className=" text-md text-foreground/50 font-normal my-2">{userCurationProfile?.name}</span>
 										</Typography>
 										{/* <Typography className="text-xs text-muted-foreground mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
 
@@ -215,7 +211,16 @@ export default function CurationProfileManagementPage() {
 														title={episode.episode_title}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
-														actions={<Button size="play" variant="play" onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} />}
+														actions={
+
+
+															<Button
+																onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)}
+																variant="play"
+																size="play"
+																className={episode.episode_id ? "m-0 w-4 h-4" : ""}
+															/>
+														}
 													/>
 												</li>
 											))}

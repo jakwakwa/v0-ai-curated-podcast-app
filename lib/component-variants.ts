@@ -4,11 +4,11 @@ import { cva, type VariantProps } from "class-variance-authority"
 export const typographyVariants = cva("", {
 	variants: {
 		variant: {
-			h1: "font-heading font-normal text-foreground-muted",
-			h2: "font-heading font-bold leading-[2.5] text-foreground",
-			h3: "font-heading font-normal text-secondary-foreground my-4 leading-[3]",
-			h4: "font-sans",
-			h5: "font-sans uppercase font-semibold text-foreground leading-[4px]",
+			h1: "text-[var(--text-h1)]  font-bold font-heading text-foreground-muted",
+			h2: "text-custom-h2 font-bold leading-[2.5] text-foreground",
+			h3: "text-custom-h3 font-bold text-secondary-foreground my-4 leading-[3]",
+			h4: "text-custom-h4 font-bold",
+			h5: "text-[var(--text-h5)] font-sans uppercase font-semibold text-foreground leading-[4px]",
 			body: "font-sans leading-[2]",
 			muted: "text-[var(--text-body-sm)] text-muted-foreground",
 			link: "text-[var(--text-body-sm)] text-link",
@@ -19,11 +19,11 @@ export const typographyVariants = cva("", {
 })
 
 // Card variants - ONE unified card system to replace all your different card implementations
-export const cardVariants = cva("rounded-3xl px-3 border transition-all duration-200", {
+export const cardVariants = cva("border px-8 transition-all duration-200", {
 	variants: {
 		variant: {
 			toggle: "bg-dark",
-			default: "episode-card-wrapper border text-card-foreground px-0",
+			default: " border text-card-foreground px-4 pt-2 pb-4",
 			glass: "bg-cardglass	backdrop-blur-[2px]",
 			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
 			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",
@@ -57,7 +57,7 @@ export const headerVariants = cva("text-left", {
 	variants: {
 		spacing: {
 			tight: "mb-4",
-			default: "mb-8",
+			default: "mb-0 my-8 px-4 flex flex-col gap-2",
 			loose: "mb-12",
 		},
 	},
@@ -68,7 +68,7 @@ export const headerVariants = cva("text-left", {
 
 // Input variants - unified form field styling
 export const inputVariants = cva(
-	"flex w-full rounded-md border transition-all duration-200 outline-none file:border-0 file:bg-transparent file:text-sm file:font-medium selection:bg-primary selection:text-primary-foreground",
+	"flex w-full rounded-md border transition-all duration-200 outline-none file:border-0 file:bg-transparent file:text-sm file:font-bold selection:bg-primary selection:text-primary-foreground",
 	{
 		variants: {
 			variant: {
@@ -127,7 +127,7 @@ export const selectVariants = cva("", {
 })
 
 // Label variants - form label styling
-export const labelVariants = cva("text-sm font-medium text-[var(--color-form-input-text)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", {
+export const labelVariants = cva("text-sm font-bold text-[var(--color-form-input-text)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", {
 	variants: {
 		size: {
 			default: "text-sm",
@@ -157,22 +157,22 @@ export const switchVariants = cva(
 
 // Badge variants - status and label styling
 export const badgeVariants = cva(
-	" w-fit  flex items-center justify-center rounded-md  px-0.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 leading-none border-custom-sm",
+	" w-fit  flex items-center justify-center rounded  px-0.5 py-0.8 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 leading-none border-custom-sm",
 	{
 		variants: {
 			variant: {
-				default: " text-primary-foreground shadow min-h-[initial]",
-				secondary: " text-primary-foreground min-h-[initial]",
+				default: " bg-red text-primary-foreground shadow",
+				secondary: " tbg-red  ext-primary-foreground min-h-[initial]",
 				destructive: " bg-destructive text-destructive-foreground shadow min-h-[initial]	",
 				outline: "text-foreground border-1 border-foreground/40 min-h-[initial]",
-				card: " my-0 bg-[rgba(21 22 22 / 0.76) text-card-foreground shadow-sm min-h-[initial]",
-				primarycard: "bg-primary-card  min-h-[initial]",
+				card: " my-0 bg-[rgba(27 27 182 / 0.76) text-card-foreground shadow-sm min-h-[initial]",
+				primarycard: "bg-red  min-h-[initial]",
 			},
 			size: {
-				sm: "px-1 py-0 text-xs h-fit leading-none",
-				md: "px-2.5 py-0 text-xs h-fit leading-none",
-				lg: "px-3 py-0 text-sm h-fit leading-none",
-				xl: "px-4 py-0 text-sm h-fit leading-none",
+				sm: "px-0 py-[2px] text-xs h-fit leading-none",
+				md: "px-1 py-1 text-xs h-fit",
+				lg: "px-3 py-3 text-sm h-fit leading-none",
+				xl: "px-4 py-4 text-sm h-fit leading-none",
 			},
 		},
 		defaultVariants: {

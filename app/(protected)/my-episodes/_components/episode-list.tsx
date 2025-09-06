@@ -12,131 +12,136 @@ import type { UserEpisode } from "@/lib/types"
 type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null }
 
 type EpisodeListProps = {
-    completedOnly?: boolean
+	completedOnly?: boolean
 }
 
 export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
-    const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null)
-    const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null)
-    const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", [])
+	const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([])
+	const [isLoading, setIsLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+	const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null)
+	const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null)
+	const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", [])
 
-    useEffect(() => {
-        const fetchEpisodes = async () => {
-            try {
-                const res = await fetch("/api/user-episodes/list")
-                if (!res.ok) {
-                    throw new Error("Failed to fetch episodes.")
-                }
-                const data: UserEpisodeWithSignedUrl[] = await res.json()
-                setEpisodes(completedOnly ? data.filter(e => e.status === "COMPLETED") : data)
-            } catch (err) {
-                setError(err instanceof Error ? err.message : "An unknown error occurred.")
-            } finally {
-                setIsLoading(false)
-            }
-        }
+	useEffect(() => {
+		const fetchEpisodes = async () => {
+			try {
+				const res = await fetch("/api/user-episodes/list")
+				if (!res.ok) {
+					throw new Error("Failed to fetch episodes.")
+				}
+				const data: UserEpisodeWithSignedUrl[] = await res.json()
+				setEpisodes(completedOnly ? data.filter(e => e.status === "COMPLETED") : data)
+			} catch (err) {
+				setError(err instanceof Error ? err.message : "An unknown error occurred.")
+			} finally {
+				setIsLoading(false)
+			}
+		}
 
-        fetchEpisodes()
-    }, [completedOnly])
+		fetchEpisodes()
+	}, [completedOnly])
 
-    if (isLoading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>My Generated Episodes</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                </CardContent>
-            </Card>
-        )
-    }
+	if (isLoading) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>My Generated Episodes</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<Skeleton className="h-16 w-full" />
+					<Skeleton className="h-16 w-full" />
+					<Skeleton className="h-16 w-full" />
+				</CardContent>
+			</Card>
+		)
+	}
 
-    if (error) {
-        return <p className="text-red-500">{error}</p>
-    }
+	if (error) {
+		return <p className="text-red-500">{error}</p>
+	}
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>My Generated Episodes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {episodes.length === 0 ? (
-                    <p>You haven't created any episodes yet.</p>
-                ) : (
-                    episodes.map(episode => (
-                        <div key={episode.episode_id} className="p-1">
-                            <EpisodeCard
-                                imageUrl={null}
-                                title={episode.episode_title}
-                                description={episode.summary}
-                                publishedAt={episode.created_at}
-                                actions={
-                                    <>
-                                        <Badge size="sm" variant={episode.status === "COMPLETED" ? "default" : "destructive"} className="text-xs">
-                                            {episode.status}
-                                        </Badge>
-                                        {episode.status === "COMPLETED" && episode.signedAudioUrl && (
-                                            <Button size="play" variant="play" onClick={() => setActiveEpisodeId(episode.episode_id)} />
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>My Generated Episodes</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				{episodes.length === 0 ? (
+					<p>You haven't created any episodes yet.</p>
+				) : (
+					episodes.map(episode => (
+						<div key={episode.episode_id} className="p-1">
+							<EpisodeCard
+								imageUrl={null}
+								title={episode.episode_title}
+								description={episode.summary}
+								publishedAt={episode.created_at}
+								actions={
+									<>
+										<Badge size="sm" variant={episode.status === "COMPLETED" ? "default" : "destructive"} className="text-xs">
+											{episode.status}
+										</Badge>
+										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
 
 
-                                        )}
-                                        {enableDebug && (
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                className="ml-2"
-                                                onClick={async () => {
-                                                    try {
-                                                        const res = await fetch(`/api/user-episodes/${episode.episode_id}/debug/logs`)
-                                                        if (!res.ok) throw new Error(await res.text())
-                                                        const data = await res.json()
-                                                        setDebugLogs(prev => ({ ...(prev || {}), [episode.episode_id]: data.events }))
-                                                    } catch (e) {
-                                                        console.error(e)
-                                                    }
-                                                }}
-                                            >
-                                                View Run Log
-                                            </Button>
-                                        )}
-                                    </>
-                                }
-                            />
-                            {enableDebug && debugLogs && debugLogs[episode.episode_id] && (
-                                <div className="mt-2 p-2 bg-gray-50 rounded border">
-                                    <pre className="text-[11px] whitespace-pre-wrap break-words">{JSON.stringify(debugLogs[episode.episode_id], null, 2)}</pre>
-                                </div>
-                            )}
-                            {episode.status === "COMPLETED" && episode.signedAudioUrl && activeEpisodeId === episode.episode_id && (
-                                <div className="mt-2">
-                                    <UserEpisodeAudioPlayer
-                                        episode={{
-                                            episode_id: episode.episode_id,
-                                            episode_title: episode.episode_title,
-                                            gcs_audio_url: episode.signedAudioUrl,
-                                            summary: episode.summary,
-                                            created_at: episode.created_at,
-                                            updated_at: episode.updated_at,
-                                            user_id: episode.user_id,
-                                            youtube_url: episode.youtube_url,
-                                            transcript: episode.transcript,
-                                            status: episode.status,
-                                        }}
-                                        onClose={() => setActiveEpisodeId(null)}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    ))
-                )}
-            </CardContent>
-        </Card>
-    )
+											<Button
+												onClick={() => setActiveEpisodeId(episode.episode_id)}
+												variant="play"
+												size="play"
+												className={episode.episode_id ? " m-0" : ""}
+											/>
+										)}
+										{enableDebug && (
+											<Button
+												size="sm"
+												variant="secondary"
+												className="ml-2"
+												onClick={async () => {
+													try {
+														const res = await fetch(`/api/user-episodes/${episode.episode_id}/debug/logs`)
+														if (!res.ok) throw new Error(await res.text())
+														const data = await res.json()
+														setDebugLogs(prev => ({ ...(prev || {}), [episode.episode_id]: data.events }))
+													} catch (e) {
+														console.error(e)
+													}
+												}}
+											>
+												View Run Log
+											</Button>
+										)}
+									</>
+								}
+							/>
+							{enableDebug && debugLogs && debugLogs[episode.episode_id] && (
+								<div className="mt-2 p-2 bg-gray-50 rounded border">
+									<pre className="text-[11px] whitespace-pre-wrap break-words">{JSON.stringify(debugLogs[episode.episode_id], null, 2)}</pre>
+								</div>
+							)}
+							{episode.status === "COMPLETED" && episode.signedAudioUrl && activeEpisodeId === episode.episode_id && (
+								<div className="mt-2">
+									<UserEpisodeAudioPlayer
+										episode={{
+											episode_id: episode.episode_id,
+											episode_title: episode.episode_title,
+											gcs_audio_url: episode.signedAudioUrl,
+											summary: episode.summary,
+											created_at: episode.created_at,
+											updated_at: episode.updated_at,
+											user_id: episode.user_id,
+											youtube_url: episode.youtube_url,
+											transcript: episode.transcript,
+											status: episode.status,
+										}}
+										onClose={() => setActiveEpisodeId(null)}
+									/>
+								</div>
+							)}
+						</div>
+					))
+				)}
+			</CardContent>
+		</Card>
+	)
 }

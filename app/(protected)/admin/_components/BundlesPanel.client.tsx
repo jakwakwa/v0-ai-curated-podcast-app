@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -182,23 +182,23 @@ export default function BundlesPanelClient({
 	const createButtonLabel = bundles.length === 0 ? "Add your first bundle" : "Add Another Bundle"
 
 	return (
-		<Card>
+		<div className="episode-card-wrapper">
 			<PanelHeader
 				title="Bundle Management"
 				description="Create new bundles and manage existing ones"
 				actionButton={{
 					label: showCreateForm ? "Hide" : createButtonLabel,
-					onClick: () => setShowCreateForm(s => !s)
+					onClick: () => setShowCreateForm(s => !s),
 				}}
 				secondaryButton={{
 					label: "Refresh",
-					onClick: () => router.refresh()
+					onClick: () => router.refresh(),
 				}}
 			/>
 			<CardContent className="p-4 space-y-6">
 				{/* CREATE FORM */}
 				{showCreateForm && (
-					<div className="space-y-3 p-4 border rounded-lg">
+					<div className="space-y-3 p-4 border rounded-lg w-full max-w-[500px]">
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
 								<Label htmlFor="bundleName">Bundle Name</Label>
@@ -246,12 +246,12 @@ export default function BundlesPanelClient({
 						const isEditing = editingBundleId === bundle.bundle_id
 
 						return (
-							<div key={bundle.bundle_id} className={`p-4 border rounded-lg ${bundleOriginal.canInteract === false ? "opacity-60" : ""}`}>
+							<div key={bundle.bundle_id} className={`episode-card p-4 border rounded-lg ${bundleOriginal.canInteract === false ? "opacity-60" : ""}`}>
 								{/* Header */}
 								<div className="flex items-start justify-between mb-2">
 									<div className="flex-1">
-										<h4 className="font-semibold">{bundle.name}</h4>
-										<p className="text-sm text-muted-foreground mb-2">{bundle.description}</p>
+										<p className="text-primary/70 text-custom-sm font-semibold">{bundle.name}</p>
+										<p className="text-xxs mt-1 episode-card-description text-foreground/50 mb-2">{bundle.description}</p>
 										<div className="flex flex-wrap gap-1 mb-1">
 											{bundle.podcasts.map(p => (
 												<Badge size="sm" key={p.podcast_id} variant="outline" className="text-xs">
@@ -332,6 +332,6 @@ export default function BundlesPanelClient({
 					{bundles.length === 0 && <p className="text-center text-muted-foreground py-8">No bundles created yet.</p>}
 				</div>
 			</CardContent>
-		</Card>
+		</div>
 	)
 }
