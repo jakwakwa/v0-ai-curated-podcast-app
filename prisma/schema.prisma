@@ -16,6 +16,7 @@ model User {
   image                  String?              @map("image")
   email_verified         DateTime?            @map("email_verified")
   is_admin               Boolean              @default(false) @map("is_admin")
+  role                   UserRole             @default(USER) @map("role")
   email_notifications    Boolean              @default(true) @map("email_notifications")
   in_app_notifications   Boolean              @default(true) @map("in_app_notifications")
   created_at             DateTime             @default(now()) @map("created_at")
@@ -242,4 +243,9 @@ enum PlanGate {
   CASUAL_LISTENER
   CURATE_CONTROL
   FREE_SLICE
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }

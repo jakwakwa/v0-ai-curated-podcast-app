@@ -73,11 +73,11 @@ async function main() {
 	// --- 1. Admin User ---
 	const adminUser = await prisma.user.upsert({
 		where: { email: "admin@test.com" },
-		update: { is_admin: true },
+		update: { role: "ADMIN" },
 		create: {
 			email: "admin@test.com",
 			name: "Admin User",
-			is_admin: true,
+			role: "ADMIN",
 			password: "password_placeholder", // Not used by Clerk, but required by schema
 		},
 	})
