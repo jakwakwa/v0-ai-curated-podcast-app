@@ -9,6 +9,12 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',
             },
+						{
+							protocol: 'https',
+							hostname: 'youtu.be',
+							port: '',
+							pathname: '/**',
+						},
             {
                 protocol: 'https',
                 hostname: 'storage.cloud.google.com',

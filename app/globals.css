@@ -66,7 +66,7 @@
 
 	--color-popover: oklch(0.21 0.01 297.14);
 	--color-popover-foreground: oklch(0.985 0 0);
-	--color-primary: oklch(0.79 0.0306 248.22 / 0.98);
+	--color-primary: oklch(0.97 0.01 242.84);
 
 
 	/* Accent colors for selection states */
@@ -252,7 +252,7 @@
 	--custom-a30: rgb(47.5% 69% 4.31%);
 
 	/* inspector tool rgb(27 116 249) */
-	--foreground: rgba(239 246 250 / 0.86);
+	--foreground: rgb(245 251 255);
 	--foreground-muted: rgb(110 124 144);
 	--primary-foreground: rgba(240, 244, 250, 1);
 	--card-foreground: rgb(198 216 242);
@@ -260,7 +260,7 @@
 	--color-foreground: var(--foreground);
 	--color-foreground-muted: var(--foreground-muted);
 		/* MAIN BG  */
-	--background: oklch(0.18 0.06 277.91 / 0.95);
+	--background: oklch(0.3 0.02 314.44 / 0.95);
 	--dark: oklch(0.15 0.01 303.32 / 0.95);
 
 	--card: rgba(29, 41, 11, 1);
@@ -276,9 +276,9 @@
 	--secondary-foreground: rgba(240, 244, 250, 1);
 
 	--accent: rgb(121 75 191);
-	--accent-dark: rgb(60 1 147);
+	--accent-dark: rgb(21 18 26);
 	--color-accent: var(--accent-light);
-
+--color-accent-dark: var(--accent-dark);
 	--accent-light: rgb(209 180 253);
 	--color-accent-foreground: var(--accent-light);
 	--color-accent-background: var(--accent-dark);
@@ -351,7 +351,8 @@
 button {
 	border-radius: 8px;
 	margin: 10px 0;
-	font-size: 0.25rem;
+	font-size: 0.75rem;
+	cursor: pointer;
 }
 
 
@@ -519,7 +520,12 @@ textarea {
 @layer base {
 	body {
 		overflow-x: hidden;
-		width: 100%;
+		background: var(--color-background);
+		/* pointer-events: none; */
+		height: 100vh !important;
+		background:  url('/assets/background/checkout-bottom-gradient-original.svg') no-repeat,  url('/assets/background/grid-bg.svg') no-repeat;
+		background-color: oklch(0.14 0.08 297.5 / 0.46);
+		/* width: 100%; */
 	}
 
 	button:hover {
@@ -649,24 +655,12 @@ textarea {
 		backdrop-filter: blur(3px) !important;
 	}
 
-	.default-card {
-		background: oklch(0.32 0.06 221.09 / 0.14) !important;
-		background-image: linear-gradient(to  bottom, oklch(0.35 0.14 293.99 / 0.36), oklch(0.8 0.11 215.26 / 0.02)) !important;
-		border-radius: 28px;
-		outline: 1px solid #151B1FEB !important;
-		transition: all 0.2s ease-in-out;
-		padding: 20px 30px 20px 30px;
-		outline-offset: 1px !important;
-		backdrop-filter: blur(1px);
-		margin-top: 30px;
-		background-blend-mode: multiply, multiply;
-		backdrop-filter: blur(10px) !important;
-	}
+
 
 
 	.main-card {
 
-		background-image: linear-gradient(to right bottom, oklch(0.73 0.12 217.75 / 0.31), oklch(0.31 0.02 211.26 / 0.02)) !important;
+		/* background-image: linear-gradient(to right bottom, oklch(0.73 0.12 217.75 / 0.31), oklch(0.31 0.02 211.26 / 0.02)) !important; */
 		border-radius: 28px;
 		background-color: transparent !important;
 		outline: 1px solid #151B1FEB !important;
@@ -677,14 +671,21 @@ textarea {
 		outline-offset: 1px !important;
 		/* backdrop-filter: blur(10px) !important; */
 	}
+
+	.border {
+		border: 1px solid transparent !important;
+		outline: 1px solid transparent !important;
+		box-shadow: 0 0 0 transparent !important;
+	}
+
 	.episode-card-wrapper {
 
 		background: linear-gradient(to bottom,  oklch(0.3 0.07 340.07 / 0.38),  	oklch(0.26 0.02 311.78 / 0.98), oklch(0.15 0.01 285.61));
-		border-radius: 20px !important;
-		border: 1px solid #000000F6 !important;
-		box-shadow: var(--shadow-sm);
+
+		border: 1px solid #00000030 !important;
+		box-shadow: 2px 13px 13px black !important;
 		transition: all 0.2s ease-in-out;
-		padding: 24px 30px 25px 30px !important;
+
 
 		margin: 0 !important;
 	}
@@ -698,9 +699,9 @@ textarea {
 		border: 1px solid #000000F6;
 		box-shadow: var(--shadow-sm);
 		transition: all 0.2s ease-in-out;
-		padding: 4px 10px 5px 10px;
-		background-blend-mode: multiply,screen;
-		backdrop-filter: blur(10px) !important;
+		padding: 11px 10px 5px 10px;
+		/* background-blend-mode: multiply,screen; */
+		/* backdrop-filter: blur(10px) !important; */
 	}
 	.episode-card-title {
 		font-size: 0.85rem !important;
@@ -741,47 +742,46 @@ textarea {
 
 
 
-	.episode-card-description {
-		font-size: 0.6rem !important;
-		line-height: 0.8rem;
+	p.episode-card-description {
+		font-size:0.72rem !important;
+		/* line-height: 1rem; */
 		opacity: 0.7 !important;
 
-		font-weight: 400;
+		font-weight: 300;
 		font-style: italic;
 
-		max-width: 300px;
-		padding: 0 80px 0  0;
-		margin-bottom: 0.5rem;
+		max-width: 90%;
+		margin-top: 0.5rem;
+		margin-bottom: 0.9rem;
 		letter-spacing: 0.025em;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		color: lab(91.46 -1.32 6.45 / 0.57);
-		-webkit-line-clamp: 1;
+		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 	}
 
 
 	/* SELECT MENU */
 	.bg-card {
-		background: #373547D4;
+		background: #18181DD4;
 		border: 1px solid oklch(0.41 0.02 292.48 / 0.39) !important;
 		box-shadow: inset 0px 1px 0px #000712E1, 2px 2px 11px oklch(0.22 0.065 7.34 / 0.34), 1px 8px 10px 2px oklch(0% 0 0 / 0.171);
 		outline: 1px solid transparent !important;
 		border-radius: 30px;
-
-
-
+		padding: 10px !important;
 	}
 
 
 	.dialog-padding {
 		padding: 40px 53px;
-		background-image: linear-gradient(130deg, oklch(0.4 0.19 312.27 / 0.55), oklch(0.28 0.13 292.29 / 0.86));
+		background-image: linear-gradient(130deg, oklch(0.4 0.19 312.27 / 0.55), oklch(0.28 0.13 292.36 / 0.75));
 	}
 	.bg-sidebar {
-		background-image: linear-gradient(to top, #040417, #0D264859);
+		background-image: linear-gradient(to top, #171B1F, #1B1B26F6);
 		border-right: 1px solid #73CEC218 !important;
+
 	}
 	.bg-sidebar-menu {
 		background-image: linear-gradient(to right top, oklch(0.47 0.17 291.3 / 0.03), oklch(0.75 0.04 298.59 / 0.05)) !important;
@@ -870,12 +870,7 @@ textarea {
 			/* min-width: initial !important; */
 			/* padding-bottom: 0rem !important; */
 			height: fit-content !important;
-			/* margin: 0 !important; */
-			/* padding-bottom: 0.5rem; */
-			/* padding-top: 0.5rem; */
-			/* font-size: 0.77rem !important; */
-			/* font-weight: 700; */
-			/* letter-spacing: 0.004rem !important; */
+
 			transition: all 150ms ease-in !important;
 			/* transform: translateY(1) !important; */
 
@@ -884,7 +879,7 @@ textarea {
 			border-radius: 30px !important;
 			border-radius: 10px !important;
 
-			background:#15C1C4E2 !important;
+			background:#5AB0B1E2 !important;
 			}
 
 
@@ -926,7 +921,7 @@ textarea {
 
 	.bg-btn-default {
 		/* background-color: var(--dark) !important; */
-		background-image: radial-gradient(ellipse 125% 140% at -30% 0%, rgba(16 205 123 / 0.76), rgb(16 67 114)) !important;
+		background-image: radial-gradient(ellipse 125% 140% at -30% 0%, rgba(16 117 205 / 0.76), rgb(44 15 75)) !important;
 	}
 
 	card-glass,
@@ -1128,17 +1123,17 @@ textarea {
 	@media screen and (min-width: 320px) {
 		/* CSS rules for screens 320px and wider */
 		.container {
-			background-color: oklch(0.48 0.03 173.65 / 0.19);
-
-			border-radius: 30px;
+			padding: 0;
+			margin: 0 !important;
+			border-radius: 0px;
+			width: 100vw !important;
+			max-width: 80% !important;
 		}
-		.main-layouts {
-			/* background: red;
-			background-color: red; */
 
-			/* Layered subtle gradients; */
-			/* background-position: 110% 11180%, 110% 110%  ; */
-
+		.episode-card-wrapper {
+			padding: 24px 20px 25px 20px !important;
+			margin: 0 !important;
+			/* border-radius: 0; */
 		}
 
 	}
@@ -1146,46 +1141,28 @@ textarea {
 	@media screen and (max-width: 1200px) {
 		/* CSS rules for screens 320px and wider */
 		.container {
-			background-color: oklch(0.48 0.03 173.65 / 0.19);
 
 			border-radius: 30px;
 		}
-		.main-layouts {
-			 /* background: red;
-			background-color: red; */
-
-			/* Layered subtle gradients; */
-			/* background-position: 110% 11150%, 110% 110% ; */
-
-		}
-		/* @keyframes heroGradientShift {
-			0% { background-position: 110% 110%, 110% 110%, 110% 100%, 110% 150%; }
-			0% { background-position: 110% 110%, 110% 110%, 110% 100%, 110% 150%; }
-			0% { background-position: 110% 110%, 110% 110%, 110% 100%, 110% 150%; }
-		} */
 
 	}
 	@media screen and (max-width: 767px) {
 		.container {
+			max-width: 100% !important;
 			background: oklch(0.19 0.03 282.99);			border-radius: 0;
 		}
 
 		/* CSS rules for screens 320px and wider */
 		.default-card {
-			padding: 20px 10px 20px 10px !important;
+			/* padding: 20px 10px 20px 10px !important; */
 			border-radius: 0px;
 			margin-top: 0px;
-			padding: 0px 10px 0 10px !important;
+			padding: 0px !important;
 			width: 100vw !important;
+			margin: 0px !important;
+			width: 99% !important;
 		}
-		.main-layouts {
-			/* background: red;
-		 background-color: red; */
 
-		 /* Layered subtle gradients; */
-		 /* background-position: 110% 1110%, 110% 110% ; */
-
-	 }
 
 
 		.episode-card {
@@ -1195,8 +1172,9 @@ textarea {
 		}
 
 		.episode-card-wrapper {
-			padding: 0 !important;
+			padding: 24px 10px 25px 10px !important;
 			margin: 0 !important;
+			width: 99% !important;
 		}
 
 		.episode-card {
@@ -1209,6 +1187,7 @@ textarea {
 			width: 100% !important;
 			max-width: 100%;
 			min-width: 100%;
+			padding: 4px 10px 5px 10px !important;
 
 	}
 }
@@ -1287,7 +1266,7 @@ textarea {
 	}
 
 	.text-custom-h2 {
-		font-size: var(--text-h2) !important;
+		font-size: 1.5rem !important;
 		line-height: 1.2 !important;
 		font-weight: 600 !important;
 	}
@@ -1322,7 +1301,7 @@ textarea {
 	}
 
 	.bg-bundle {
-		background-image: linear-gradient(to right bottom, oklch(0.46 0.15 303.18 / 0.79), oklch(0.37 0.12 260.89 / 0.6)) !important;
+		/* background-image: linear-gradient(to right bottom, oklch(0.46 0.15 303.18 / 0.79), oklch(0.37 0.12 260.89 / 0.6)) !important; */
 		/* border: 1px solid #29B4F068 !important; */
 		border-radius: 18px;
 		box-shadow: inset -5px -4px 59px 2px #0E0E10EA, inset 0.5px 1px 0px 0px #4CE3DB72, 3px 2px 3px 1px #000000CD, 0px 4px 10px 0px #00000062 !important ;
@@ -1398,6 +1377,25 @@ textarea {
 		border: 1px solid var(--color-destructive-light) !important;
 	}
 
+	.btn-play {
+		position: absolute;
+		top: 10px;
+		cursor: pointer;
+		right: 0px;
+		padding: 0.4rem 0.6rem !important;
+		margin: 0 !important;
+		background-color: oklch(0.53 0.08 171.08 / 0.84) !important;
+		border: 1px solid hsla(189.23 92.86% 5.49% / 0.75) !important;
+		outline: 1px solid transparent !important;
+		box-shadow:    inset 1px 1px 1px 0px hsla(175.08 89.04% 42.94% / 0.25) , inset  -5px 1px 8px 0px hsla(258.46 82.28% 15.49% / 0.49), inset 0px 1px 2px 0px hsla(0 0% 3.14% / 0.43), inset 0px -1px 13px 0px hsla(183.36 60.98% 40.2% / 0.17),  1px 1.5px 1px 1px hsla(188 88.24% 3.33% / 0.35);
+
+	}
+
+	button.btn-play:hover {
+		padding: 0.4rem 0.6rem !important;
+		background: #19CF9FD7 !important;
+	}
+
 
 
 
@@ -1445,19 +1443,7 @@ textarea {
 		/* box-shadow: 0px 0px 0px 1px oklch(0.88 0.2 158.39), 0px 2px 4px 1.5px oklch(0.91 0.1 201.27 / 0.3), inset 0px 0px 5px 0px oklch(0.85 0.12 195.07 / 0.5) !important; */
 	}
 
-	button.btn-play {
-		padding: 0.4rem 0.6rem !important;
-		margin: 0 !important;
-		/* background: #052F35D7 !important; */
-		border: 1px solid hsla(189.23 92.86% 5.49% / 0.75) !important;
-		/* outline: 1px solid transparent !important; */
-		box-shadow:    inset 1px 1px 1px 0px hsla(175.08 89.04% 42.94% / 0.25) , inset  -5px 1px 8px 0px hsla(258.46 82.28% 15.49% / 0.49), inset 0px 1px 2px 0px hsla(0 0% 3.14% / 0.43), inset 0px -1px 13px 0px hsla(183.36 60.98% 40.2% / 0.17),  1px 1.5px 1px 1px hsla(188 88.24% 3.33% / 0.35);
-		background: #171A1BD7 !important;
-	}
 
-	button.btn-play:hover {
-		background: #094B97D7 !important;
-	}
 
 
 
@@ -1466,11 +1452,12 @@ textarea {
 /* Base Styles */
 @layer base {
 
+
 	body {
 		overflow-x: hidden;
 		width: 100%;
 
-}
+	}
 	.content {
 		/* background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(38 114 201 / 0.6), rgba(78, 38, 120, 0.3)) !important; */
 		/* background: var(--color-accent-dark); */
@@ -1478,21 +1465,22 @@ textarea {
 	}
 
 	.main-layouts {
-		 position: absolute;
+		 position: fixed;
 		inset: 0;
-		pointer-events: none;
+		/* pointer-events: none;
+		height: 100vh !important;
 		background:  url('/assets/background/checkout-bottom-gradient-original.svg') no-repeat,  url('/assets/background/grid-bg.svg') no-repeat;
-		background-color: oklch(0.12 0.04 300.35 / 0.39);
+		background-color: oklch(0.22 0.08 293.14 / 0.61); */
 		/* Layered subtle gradients; */
 
 		 /* Layered subtle gradients; */
 		 /* background-position: 30% 	80%, 110% 110% ; */
 
 		 /* background-position: 130% 30%, 110% 110% ; */
-		background-size: 130% 130%, 80% 80% !important;
-		animation: heroGradientShift 15s ease-in-out infinite alternate;
-		filter: blur(1px) !important;
-		mix-blend-mode: multiply, multiply;
+		/* background-size: 130% 130%, 80% 80% !important; */
+		/* animation: heroGradientShift 15s ease-in-out infinite alternate; */
+		/* filter: blur(1px) !important; */
+		/* mix-blend-mode: multiply, multiply; */
 		/* ... existing code ... */
 	}
 

@@ -1,5 +1,5 @@
 // Import Prisma types and enums (now as a value too)
-import { PlanGate, type Prisma, type FeedbackRating as PrismaFeedbackRating } from "@prisma/client"
+import { PlanGate, UserRole, type Prisma, type FeedbackRating as PrismaFeedbackRating } from "@prisma/client"
 
 // Base scalar model shapes derived from Prisma payloads (compatible with Prisma v6)
 export type User = Prisma.$UserPayload["scalars"]
@@ -14,6 +14,7 @@ export type Subscription = Prisma.$SubscriptionPayload["scalars"]
 export type EpisodeFeedback = Prisma.$EpisodeFeedbackPayload["scalars"]
 export type FeedbackRating = PrismaFeedbackRating
 export type UserEpisode = Prisma.$UserEpisodePayload["scalars"]
+export { UserRole }
 
 // Custom types that combine Prisma types with relations
 export type UserCurationProfileWithRelations = UserCurationProfile & {

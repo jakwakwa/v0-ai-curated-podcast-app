@@ -145,9 +145,7 @@ export function NotificationBell() {
 									<p className="mb-3 text-sm font-medium  text-foreground/90 leading-relaxed">{notification.message}</p>
 
 									<div className="flex gap-2 justify-end">
-										<Button asChild variant="secondary" size="sm" className="text-xs px-2 py-1 h-auto">
-											<a href="/my-episodes">View my episodes</a>
-										</Button>
+
 										{!notification.is_read && (
 											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />

@@ -20,7 +20,7 @@ interface PanelHeaderProps {
 
 export default function PanelHeader({ title, description, actionButton, secondaryButton }: PanelHeaderProps) {
 	return (
-		<CardHeader className="flex flex-row items-center justify-between">
+		<CardHeader className="flex flex-col md:flex-row md:items-center justify-between">
 			<div>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{description}</CardDescription>
