@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger"
+import { writeEpisodeDebugLog } from "@/lib/debug-logger"
 import { prisma } from "@/lib/prisma"
 import { searchEpisodeAudioViaApple, searchEpisodeAudioViaListenNotes } from "@/lib/transcripts/search"
 import { searchYouTubeByMetadata } from "@/lib/transcripts/search-youtube"
@@ -26,7 +26,7 @@ interface AssemblyAITranscript {
 
 const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
-async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
+async function _startAssemblyJob(audioUrl: string, apiKey: string, languageCode?: string): Promise<string> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript`, {
 		method: "POST",
 		headers: { Authorization: apiKey, "Content-Type": "application/json" },
@@ -37,74 +37,36 @@ async function startAssemblyJob(audioUrl: string, apiKey: string, languageCode?:
 	return data.id
 }
 
-async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
+async function _getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITranscript> {
 	const res = await fetch(`${ASSEMBLY_BASE_URL}/transcript/${id}`, { headers: { Authorization: apiKey } })
 	if (!res.ok) throw new Error(`AssemblyAI job fetch failed: ${await res.text()}`)
 	return (await res.json()) as AssemblyAITranscript
 }
 
 // --- Audio resolution helpers -------------------------------------------------
-function isYouTubeUrl(url: string): boolean {
+function _isYouTubeUrl(url: string): boolean {
 	return /youtu(be\.be|be\.com)/i.test(url)
 }
 
-function isDirectAudioUrl(url: string): boolean {
-	return /(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
-		try {
-			const { hostname, protocol } = new URL(url)
-			if (protocol !== "http:" && protocol !== "https:") return false
-			const host = hostname.toLowerCase()
-			return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
-		} catch {
-			return false
-		}
-	})()
+function _isDirectAudioUrl(url: string): boolean {
+	return (
+		/(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) ||
+		(() => {
+			try {
+				const { hostname, protocol } = new URL(url)
+				if (protocol !== "http:" && protocol !== "https:") return false
+				const host = hostname.toLowerCase()
+				return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+			} catch {
+				return false
+			}
+		})()
+	)
 }
 
-async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> {
-	// Attempt to derive a direct audio stream URL via YouTube player API
-	const videoId = (videoUrl.match(/(?:v=|\/)([\w-]{11})/) || [])[1]
+// NOTE: duplicate YouTube extraction removed; use shared util if needed elsewhere
 
-	const youtubeApiKey = process.env.YOUTUBE_API_KEY
-	if (!youtubeApiKey) {
-		// Optionally, you could throw an error or log a warning here
-		return null
-	}
-	try {
-		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${youtubeApiKey}`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
-			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
-		})
-		if (response.ok) {
-			const data = await response.json()
-			const formats = data?.streamingData?.adaptiveFormats || []
-			const audioFormats = formats.filter((f: { mimeType?: string; url?: string }) => f?.mimeType?.includes("audio") && f?.url)
-			if (audioFormats.length > 0) {
-				const preferred = audioFormats.find((f: { mimeType?: string }) => f?.mimeType?.includes("audio/webm") || f?.mimeType?.includes("audio/mp4")) || audioFormats[0]
-				return preferred.url as string
-			}
-		}
-	} catch {}
-
-	// Optional RapidAPI fallback if configured
-	const rapidApiKey = process.env.RAPIDAPI_KEY
-	if (rapidApiKey) {
-		try {
-			const resp = await fetch(`https://youtube-video-info1.p.rapidapi.com/youtube_video_info?url=${encodeURIComponent(videoUrl)}`, {
-				headers: { "X-RapidAPI-Key": rapidApiKey, "X-RapidAPI-Host": "youtube-video-info1.p.rapidapi.com" },
-			})
-			if (resp.ok) {
-				const data = await resp.json()
-				if (data?.audio_url) return data.audio_url as string
-			}
-		} catch {}
-	}
-
-	return null
-}
-
-async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
+async function _uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
 	const bodyStream = source.body

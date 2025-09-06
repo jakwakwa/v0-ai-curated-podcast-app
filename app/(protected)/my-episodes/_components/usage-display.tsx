@@ -12,7 +12,7 @@ export function UsageDisplay() {
 	// const subscription = useSubscriptionStore(state => state.subscription)
 
 	// ALWAYS CURATE_CONTROL PLAN
-	const episodeLimit = PRICING_TIER.find(tier => tier.planId === "CURATE_CONTROL")?.episodeLimit || 16;
+	const episodeLimit = PRICING_TIER.find(tier => tier.planId === "CURATE_CONTROL")?.episodeLimit || 20;
 
 	const fetchCompletedEpisodeCount = useUserEpisodesStore(state => state.fetchCompletedEpisodeCount)
 	const completedEpisodeCount = useUserEpisodesStore(state => state.completedEpisodeCount)

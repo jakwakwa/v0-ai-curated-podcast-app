@@ -135,8 +135,8 @@ export default function CurationProfileManagementPage() {
 					</div>
 				</div>
 			) : userCurationProfile ? (
-				<div className=" mx-auto px-0 pb-12 pt-6 md:pt-4 md:px-0 lg:flex">
-					<div className="grid grid-cols-1  md:grid-cols-1 :grid-cols-7 gap-2">
+				<div className="mx-auto px-0 pb-12 pt-0 md:pt-6 md:pt-4 md:px-0 lg:flex">
+					<div className="w-full flex flex-col md:grid grid-cols-1 lg:grid-cols-7 gap-3">
 						<Card className="episode-card col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0 mb-6">
 								<CardTitle className=" my-4 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
@@ -157,8 +157,8 @@ export default function CurationProfileManagementPage() {
 										</Typography>
 										{/* <Typography className="text-xs text-muted-foreground mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
 
-										<div className="bg-card-plain px-0 py-3 border-dark rounded">
-											<Typography className="text-sm font-bold uppercase text-secondary-foreground">{userCurationProfile.selectedBundle.name}</Typography>
+										<div className="px-0 rounded">
+											<Typography className="text-sm font-bold uppercase"><span className="text-sm text-accent-foreground">Selected:</span> {userCurationProfile.selectedBundle.name}</Typography>
 										</div>
 									</div>
 								</Card>
@@ -183,7 +183,7 @@ export default function CurationProfileManagementPage() {
 								</div>
 							</Card>
 						</Card>
-						<Card className="episode-card-wrapper col-span-4  px-12 border-dark border-b-dark" style={{ padding: "20rem !important" }}>
+						<Card className="episode-card-wrapper col-span-4  px-4 mx-0 md:px-12 border-dark border-b-dark " style={{ padding: "20rem !important" }}>
 							<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
 							<CardDescription className="opacity-90">View and manage your recently generated episodes.</CardDescription>
 							{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (

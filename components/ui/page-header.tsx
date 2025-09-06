@@ -14,11 +14,11 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 
 	return (
 		<div className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
-			<Typography className="flex text-custom-h2 leading-[1.4] font-medium py-3.5 my-1text-primary leading-[1.5] max-w-screen md:max-w-4xl">
+			<Typography className="flex text-custom-h2 leading-[1.4] font-medium px-2 md:px-0 pt-6 pb-4 md:py-3.5  text-primary leading-[1.5] max-w-screen md:max-w-4xl">
 				{title}
 			</Typography>
 			{description && (
-				<Typography as="p" variant="body" className="text-base text-primary/80 leading-[1.5] max-w-screen md:max-w-4xl">
+				<Typography as="p" variant="body" className="text-base px-2  md:px-0  md:py-3.5 text-primary/80 leading-[1.5] max-w-screen md:max-w-4xl">
 					{description}
 				</Typography>
 			)}

@@ -1,46 +1,71 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import { GoogleAIFileManager } from "@google/generative-ai/server"
-import { tmpdir } from "node:os"
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs"
-import path from "node:path"
+import { GoogleGenerativeAI, type Part } from "@google/generative-ai"
 
-export async function transcribeWithGeminiFromUrl(audioUrl: string): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY
-  if (!apiKey) return null
-  const client = new GoogleGenerativeAI(apiKey)
-  const fileManager = new GoogleAIFileManager(apiKey)
+// Point fluent-ffmpeg to the installed binary
 
-  try {
-    // Stream fetch the audio and upload using Files API
-    const res = await fetch(audioUrl)
-    if (!res.ok) return null
-    const contentType = res.headers.get("content-type") || "audio/mpeg"
-    const arrayBuffer = await res.arrayBuffer()
+const PROMPT = `Please transcribe the following audio segment accurately. Provide only the transcribed text. Do not include any additional commentary, introductory phrases like "Here is the transcription:", or summaries. The audio is a segment of a larger file, so do not add a beginning or an end.`
 
-    // Write to a temp file to satisfy FileManager upload API
-    const dir = mkdtempSync(path.join(tmpdir(), "gemini-"))
-    const ext = contentType.includes("wav") ? ".wav" : contentType.includes("m4a") ? ".m4a" : contentType.includes("aac") ? ".aac" : contentType.includes("flac") ? ".flac" : ".mp3"
-    const filePath = path.join(dir, `audio${ext}`)
-    writeFileSync(filePath, Buffer.from(new Uint8Array(arrayBuffer)))
-    const uploaded = await fileManager.uploadFile(filePath, { mimeType: contentType, displayName: "episode-audio" })
-
-    const model = client.getGenerativeModel({ model: "gemini-1.5-flash" })
-    const prompt = "Transcribe this audio into plain text. Return only the transcript, no timestamps or speakers."
-
-    const result = await model.generateContent([
-      { fileData: { fileUri: uploaded.file.uri, mimeType: contentType } },
-      { text: prompt },
-    ])
-
-    const text = result.response.text()
-    return text && text.trim().length > 0 ? text : null
-  } catch {
-    return null
-  } finally {
-    // Best-effort cleanup
-    try {
-      const base = path.dirname(path.dirname((await import("node:url")).fileURLToPath(import.meta.url))) // noop to avoid TS unused
-    } catch {}
-  }
+/**
+ * Converts a local file buffer into the format required for a Gemini API call.
+ */
+function _bufferToGenerativePart(buffer: Buffer, mimeType: string): Part {
+	return {
+		inlineData: {
+			data: buffer.toString("base64"),
+			mimeType,
+		},
+	}
 }
 
+/**
+ * Uses ffprobe (part of ffmpeg) to get the duration of an audio file in seconds.
+ */
+// function _getAudioDuration(filePath: string): Promise<number> {
+// 	return new Promise((resolve, reject) => {
+// 		ffmpeg.ffprobe(filePath, (err, metadata) => {
+// 			if (err) {
+// 				return reject(new Error(`ffprobe failed: ${err.message}`))
+// 			}
+// 			resolve(metadata.format.duration || 0)
+// 		})
+// 	})
+// }
+
+/**
+ * Uses ffmpeg to extract a segment from a larger audio file and returns it as a buffer.
+ */
+// function _createAudioChunk(inputPath: string, outputPath: string, startTime: number, duration: number): Promise<Buffer> {
+// 	return new Promise((resolve, reject) => {
+// 		ffmpeg(inputPath)
+// 			.setStartTime(startTime)
+// 			.setDuration(duration)
+// 			.toFormat("mp3") // Standardise to mp3 for smaller size and API compatibility
+// 			.on("error", err => reject(new Error(`ffmpeg processing failed: ${err.message}`)))
+// 			.on("end", () => {
+// 				fs.readFile(outputPath).then(resolve).catch(reject)
+// 			})
+// 			.save(outputPath)
+// 	})
+// }
+
+/**
+ * Transcribes a media URL using Gemini by breaking it into manageable chunks.
+ */
+export async function transcribeWithGeminiFromUrl(url: string): Promise<string | null> {
+	const apiKey = process.env.GEMINI_API_KEY
+	if (!apiKey) {
+		throw new Error("GEMINI_API_KEY is not set.")
+	}
+
+	try {
+		const genAI = new GoogleGenerativeAI(apiKey)
+		const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+
+		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } }
+		const result = await model.generateContent([PROMPT, mediaPart])
+
+		return result.response.text()
+	} catch (error) {
+		console.error("[GEMINI][youtube-url] Error:", error)
+		throw error // Re-throw so the Inngest step can catch and log it properly
+	}
+}
