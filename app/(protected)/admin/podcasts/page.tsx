@@ -4,14 +4,14 @@ import PodcastsPanel from "../_components/PodcastsPanel.server"
 export const dynamic = "force-dynamic"
 
 export default function PodcastsPage() {
-  return (
-    <div className="container mx-auto p-6 max-w-6xl space-y-6">
-      <h1 className="text-2xl font-semibold">Podcast Management</h1>
-      <Suspense fallback={<div>Loading podcasts…</div>}>
-        <PodcastsPanel />
-      </Suspense>
-    </div>
-  )
+	return (
+		<div className="container mx-auto max-w-6xl">
+
+			<Suspense fallback={<div>Loading podcasts…</div>}>
+				<PodcastsPanel />
+			</Suspense>
+		</div>
+	)
 }
 
 

@@ -3,9 +3,10 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
 import EpisodeCard from "./ui/episode-card"
+import { H3 } from "./ui/typography"
 
 interface EpisodeListProps {
 	episodes: Episode[]
@@ -102,10 +103,9 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	}
 
 	return (
-		<Card className="rounded-3xl transition-all duration-200 border text-card-foreground episode-card-wrapper px-12 border-dark border-b-darkh-none md:min-h-[300px]">
-			<CardHeader>
-				<CardTitle>All Episodes</CardTitle>
-			</CardHeader>
+		<Card className="rounded-3xl transition-all duration-200 text-card-foreground episode-card-wrapper px-0 md:min-h-[300px] w-ful">
+			<H3>Bundle Roundup Epidsodes</H3>
+
 			<CardContent>
 				{episodes.length > 0 ? (
 					<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
@@ -125,7 +125,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 												onClick={() => onPlayEpisode(episode.episode_id)}
 												variant="play"
 												size="play"
-												className={playingEpisodeId === episode.episode_id ? "bg-[black]/90 m-0 p-0 w-4 h-4" : "bg-[black]"} />
+												className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""}
+											/>
 										)}
 										{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
 											<Button

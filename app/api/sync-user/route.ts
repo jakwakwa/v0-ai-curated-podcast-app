@@ -20,12 +20,9 @@ export async function POST() {
 			return NextResponse.json({ error: "User not found in Clerk" }, { status: 404 })
 		}
 
-		// Check if a user record exists by id or by email (tolerate legacy rows)
-		const primaryEmail = clerkUser.emailAddresses[0]?.emailAddress || undefined
-		const existingUser = await prisma.user.findFirst({
-			where: {
-				OR: [{ user_id: userId }, ...(primaryEmail ? [{ email: primaryEmail }] : [])],
-			},
+		// Check if a user record exists by Clerk ID only (avoid race conditions with email changes)
+		const existingUser = await prisma.user.findUnique({
+			where: { user_id: userId }
 		})
 
 		if (existingUser) {
@@ -48,7 +45,7 @@ export async function POST() {
 			})
 		}
 
-		// User doesn't exist - create new user record (tolerate unique email race)
+		// User doesn't exist - create new user record
 		let newUser: Awaited<ReturnType<typeof prisma.user.create>> | undefined
 		try {
 			newUser = await prisma.user.create({
@@ -62,8 +59,9 @@ export async function POST() {
 					updated_at: new Date(),
 				},
 			})
-		} catch {
-			return NextResponse.json({ message: "User already exists", isNew: false })
+		} catch (error) {
+			console.error("Error creating user:", error)
+			return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
 		}
 
 		return NextResponse.json({

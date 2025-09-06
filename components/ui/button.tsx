@@ -5,23 +5,18 @@ import type * as React from "react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-	"bg-none inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+	"inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
 	{
 		variants: {
 			variant: {
-				default: "bg-btn-default  border-bord-light hover:bg-secondary-dark",
-				destructive:
-					"btn-destructive hover:text-destructive-background hover:border-destructive",
-				outline:
-					"scale-[1.2] mx-1 btn-ghost-outline",
-
+				default: "bg-btn-default border-bord-light hover:bg-secondary-dark px-4 py-2",
+				destructive: "btn-destructive hover:text-destructive-background hover:border-destructive",
+				outline: "scale-[1] mx-1 btn-ghost-outline",
 				icon: "flex items-center justify-center gap-2",
-
 				secondary: "btn-secondary px-2 md:px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)] focus:bg-accent",
 				ghost: "bg-none border-none outline-none text-foreground hover:color-[var(--color-secondary)] hover:text-accent-foreground",
 				link: "bg-none outline-none text-[var(--color-button-default-bg)] underline-offset-4 hover:underline p-0 h-auto w-auto inline-block align-middle leading-none text-base",
-
-				play: "flex flex-row items-center justify-center gap-2 bg-none outline-none text-[#2CE083E4] p-0 h-auto w-auto inline-block align-middle leading-none px-0 py-0 m-0 underline-offset-0  hover:underline-offset-0 text-[0.1rem] leading-none my-0 btn-play shadow-none",
+				play: " flex flex-row items-center justify-center gap-2 outline-none text-[#C5E8D6E4] p-0 h-auto w-auto inline-block align-middle leading-none px-0 py-0 m-0 underline-offset-0  hover:underline-offset-0 text-[0.1rem] leading-none my-0 btn-play shadow-none",
 			},
 			size: {
 				default: "h-12 px-2 md:px-4 py-2",
@@ -36,7 +31,6 @@ const buttonVariants = cva(
 		defaultVariants: {
 			size: "default",
 		},
-
 	}
 )
 
@@ -58,9 +52,8 @@ function Button({
 
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
-			{icon && variant === "icon" && icon}
 			{children}
-			{variant === "play" && <PlayIcon color="#068B84A7" className="w-5 h-5" />}
+			{variant === "play" && <PlayIcon color="#04413EF7" className="w-6 h-9" />}
 		</Comp>
 	)
 }
