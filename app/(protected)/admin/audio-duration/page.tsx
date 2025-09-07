@@ -10,6 +10,8 @@ export default function AudioDurationPage() {
 	const [isLoading, setIsLoading] = useState(false)
 	const [result, setResult] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
+	const [userStats, setUserStats] = useState<{ updated: number; failed: number } | null>(null)
+	const [episodeStats, setEpisodeStats] = useState<{ updated: number; failed: number } | null>(null)
 
 	const extractDurations = async (type: "user-episodes" | "episodes") => {
 		setIsLoading(true)
@@ -32,6 +34,11 @@ export default function AudioDurationPage() {
 			}
 
 			setResult(data.message)
+			if (type === "user-episodes") {
+				setUserStats({ updated: Number(data.updated ?? 0), failed: Number(data.failed ?? 0) })
+			} else {
+				setEpisodeStats({ updated: Number(data.updated ?? 0), failed: Number(data.failed ?? 0) })
+			}
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "An error occurred")
 		} finally {
@@ -69,6 +76,9 @@ export default function AudioDurationPage() {
 								"Extract User Episode Durations"
 							)}
 						</Button>
+						{userStats && (
+							<p className="mt-2 text-sm text-muted-foreground">Updated {userStats.updated}, failed {userStats.failed}</p>
+						)}
 					</CardContent>
 				</Card>
 
@@ -93,6 +103,9 @@ export default function AudioDurationPage() {
 								"Extract Episode Durations"
 							)}
 						</Button>
+						{episodeStats && (
+							<p className="mt-2 text-sm text-muted-foreground">Updated {episodeStats.updated}, failed {episodeStats.failed}</p>
+						)}
 					</CardContent>
 				</Card>
 			</div>
@@ -120,7 +133,7 @@ export default function AudioDurationPage() {
 							<strong>User Episodes:</strong> Will process all completed user episodes with audio files but missing duration data
 						</li>
 						<li>
-							<strong>Regular Episodes:</strong> Will only process episodes stored in our GCS bucket (URLs starting with gs://), external URLs are skipped
+							<strong>Regular Episodes:</strong> Will only process episodes stored in our GCS bucket; external sources are skipped
 						</li>
 						<li>Regular episodes are processed in batches of 50 to avoid timeouts - you may need to run multiple times for large datasets</li>
 						<li>The tool uses the same audio metadata extraction logic used for new episode generation</li>

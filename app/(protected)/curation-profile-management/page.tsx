@@ -160,7 +160,7 @@ export default function CurationProfileManagementPage() {
 										</div>
 									</div>
 								)}
-								<Button className="mb-4 max-w-[50%]" variant="default" size="xs" onClick={() => setIsModalOpen(true)}>
+								<Button className="mb-4 max-w-[50%]" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
 									Update Bundle
 								</Button>
 							</div>
@@ -215,10 +215,18 @@ export default function CurationProfileManagementPage() {
 												<li key={episode.episode_id} className="list-none">
 													<EpisodeCard
 														imageUrl={null}
-														title={episode.episode_title}
+														title={`USER: ${episode.episode_title}`}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
-														actions={<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? "m-0 w-4 h-4" : ""} />}
+														actions={
+
+
+															episode.status === "COMPLETED" && episode.signedAudioUrl && (
+																<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
+															)
+
+
+														}
 													/>
 												</li>
 											))}

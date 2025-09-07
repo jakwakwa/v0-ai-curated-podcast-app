@@ -370,7 +370,7 @@ button.bg-btn-default {
 }
 
 button.btn-ghost-outline {
-	background: oklch(0.27 0.11 271.53 / 0.1) !important;
+	/* background: oklch(0.27 0.11 271.53 / 0.1) !important; */
 	text-shadow: 0px 2px 0px 1px #15065380;
 	outline: 1px solid #8174803C !important;
 	border: 3px solid #060607D7 !important;
@@ -382,6 +382,35 @@ button.btn-ghost-outline {
 	color: #F7CBCBCB !important;
 
 }
+button.btn-ghost-outline-sm {
+	/* background: oklch(0.27 0.11 271.53 / 0.1) !important; */
+	text-shadow: 0px 2px 0px 1px #15065380;
+	outline: 1px solid #8174803C !important;
+	border: 3px solid #060607D7 !important;
+	padding: 15px 25px !important;
+	/* height: 25px !important; */
+	font-size: 0.7rem;
+	font-weight: 500;
+	outline-offset: 1px;
+	color: #F7CBCBCB !important;
+	outline: 1px solid #B639623C !important;
+	/* border: 2px solid #7A343FD7 !important; */
+	/* padding: 8px 2px !important; */
+}
+
+button.btn-ghost-sm {
+	background: oklch(0.31 0.11 10.07 / 0.85) !important;
+	text-shadow: 0px 2px 0px 1px #B30F48B1;
+	outline: 1px solid #B639623C !important;
+	border: 2px solid #25040954 !important;
+	padding: 8px 2px !important;
+	/* height: 25px !important; */
+	font-size: 0.4rem;
+	font-weight: 800;
+	outline-offset: 2px;
+	color: #F7CBCBCB !important;
+
+}
 
 button.btn-ghost-outline:hover {
 	text-shadow: 0px 2px 0px 1px #15065380;
@@ -389,6 +418,14 @@ button.btn-ghost-outline:hover {
 	border: 2px solid #00000070 !important;
 	background: #00000018 !important;
 	text-shadow: 0px 2px 0px 1px #15065380;
+
+}
+button.btn-ghost-sm:hover {
+	text-shadow: 0px 2px 0px 1px #B67B0C80;
+	outline: 1px solid #E84D2EA9 !important;
+	border: 1px solid #CC681C70 !important;
+	background: #00000018 !important;
+	text-shadow: 0px 2px 0px 1px #532C0680;
 
 }
 
@@ -723,15 +760,7 @@ position: relative;
 		/* background-blend-mode: multiply,screen; */
 		/* backdrop-filter: blur(10px) !important; */
 	}
-	.episode-card-title {
-		font-size: 0.85rem !important;
-		line-height: 1rem;
-		opacity: 0.7 !important;
-		line-clamp: 2;
-		color: #FFE5E8D6;
-		max-width: 60%;
-		font-weight: 500 !important;
-	}
+
 
 
 	.episode-card:hover {
@@ -760,8 +789,29 @@ position: relative;
 		transition: all 0.2s ease-in-out;
 	}
 
+	.closeButton {
+    background-color: transparent !important;
+    border: 1px solid #F48D687C;
+    color: #E4B16F;
+    cursor: pointer;
+		font-size: 12px !important;
+    padding: 1rem !important;
+    border-radius: 99999px !important;
+    height: 20px !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 0px 0px transparent !important;
+    flex-shrink: 0;
+    /* display: flex; */
+    width: 24px !important;
+	height: 24px !important;
+		padding: 0px !important;
+		padding-bottom: 3px !important;
+    margin-left: 10px;
+    margin-right: 0px;
+}
 
 
+	.episode-card-title,
 	p.episode-card-description {
 		font-size:0.72rem !important;
 		/* line-height: 1rem; */
@@ -770,16 +820,28 @@ position: relative;
 		font-weight: 300;
 		font-style: italic;
 
-		max-width: 90%;
-		margin-top: 0.5rem;
-		margin-bottom: 0.9rem;
+		max-width: 85%;
+		margin-top: 0rem;
+		margin-bottom: 0.4rem;
 		letter-spacing: 0.025em;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		color: lab(91.46 -1.32 6.45 / 0.57);
-		-webkit-line-clamp: 3;
+		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
+	}
+
+	.episode-card-title {
+		font-size: 0.85rem !important;
+		/* line-height: 1rem; */
+		opacity: 0.7 !important;
+		line-clamp: 2;
+		color: #FFE5E8D6;
+		max-width: 80%;
+		-webkit-line-clamp: 1;
+
+		font-weight: 500 !important;
 	}
 
 
@@ -1408,10 +1470,10 @@ header.bg-sidebar-header {
 	}
 
 	.btn-play {
-		position: absolute;
-		top: 10px;
+		position: relative;
+		top: 30px;
 		cursor: pointer;
-		right: 0px;
+		/* right: 0px; */
 		padding: 0.4rem 0.6rem !important;
 		margin: 0 !important;
 		background-color: oklch(0.53 0.08 171.08 / 0.84) !important;

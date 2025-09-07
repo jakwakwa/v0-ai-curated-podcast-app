@@ -2,15 +2,53 @@ import { extractAudioDuration } from "@/lib/audio-metadata"
 import { getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
 
+type ParsedGcs = { bucket: string; filePath: string }
+
+function parseGcsUrl(rawUrl: string): ParsedGcs | null {
+	try {
+		const url = new URL(rawUrl)
+		const host = url.hostname
+		const path = url.pathname.startsWith("/") ? url.pathname.slice(1) : url.pathname
+
+		// gs://bucket/path
+		if (rawUrl.startsWith("gs://")) {
+			const withoutScheme = rawUrl.slice("gs://".length)
+			const firstSlash = withoutScheme.indexOf("/")
+			if (firstSlash === -1) return null
+			return { bucket: withoutScheme.slice(0, firstSlash), filePath: withoutScheme.slice(firstSlash + 1) }
+		}
+
+		// https://storage.googleapis.com/bucket/path or https://storage.cloud.google.com/bucket/path
+		if (host === "storage.googleapis.com" || host === "storage.cloud.google.com") {
+			const firstSlash = path.indexOf("/")
+			if (firstSlash === -1) return null
+			return { bucket: path.slice(0, firstSlash), filePath: decodeURIComponent(path.slice(firstSlash + 1)) }
+		}
+
+		// https://<bucket>.storage.googleapis.com/path
+		if (host.endsWith(".storage.googleapis.com")) {
+			const bucket = host.replace(".storage.googleapis.com", "")
+			return { bucket, filePath: decodeURIComponent(path) }
+		}
+
+		return null
+	} catch {
+		return null
+	}
+}
+
 /**
  * Extract duration from existing audio files stored in GCS
  */
 export async function extractDurationFromGCSFile(gcsUrl: string): Promise<number | null> {
 	try {
-		// Parse GCS URL to get bucket and file path
-		const url = new URL(gcsUrl.replace("gs://", "gs://"))
-		const bucketName = url.hostname
-		const filePath = url.pathname.substring(1) // Remove leading slash
+		// Parse GCS URL (supports gs:// and HTTPS GCS URL variants)
+		const parsed = parseGcsUrl(gcsUrl)
+		if (!parsed) {
+			console.warn(`Not a GCS URL, skipping: ${gcsUrl}`)
+			return null
+		}
+		const { bucket: bucketName, filePath } = parsed
 
 		console.log(`Downloading audio file from GCS: ${bucketName}/${filePath}`)
 
@@ -24,14 +62,65 @@ export async function extractDurationFromGCSFile(gcsUrl: string): Promise<number
 			return null
 		}
 
-		// Download file content
-		const [buffer] = await file.download()
+		// If WAV, download only the header and extract from header
+		if (filePath.toLowerCase().endsWith(".wav")) {
+			const headerBuffer: Buffer = await new Promise((resolve, reject) => {
+				const chunks: Buffer[] = []
+				file
+					.createReadStream({ start: 0, end: 255 })
+					.on("data", chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)))
+					.on("error", reject)
+					.on("end", () => resolve(Buffer.concat(chunks)))
+			})
 
-		// Extract duration using our existing audio metadata library
-		const duration = extractAudioDuration(buffer, "audio/wav")
+			const duration = extractAudioDuration(headerBuffer, "audio/wav")
+			console.log(`Extracted duration for ${filePath}: ${duration ? `${duration}s` : "unknown"}`)
+			return duration
+		}
 
-		console.log(`Extracted duration for ${filePath}: ${duration ? `${duration}s` : "unknown"}`)
-		return duration
+		// For non-WAV (e.g., MP3), attempt metadata first
+		try {
+			console.log(`Reading object metadata for ${filePath}...`)
+			const [meta] = await file.getMetadata()
+			const custom = meta.metadata || {}
+			const candidates = [custom.duration_seconds, custom.durationSeconds, custom.duration, custom.audio_duration_seconds, custom.audioDurationSeconds]
+			for (const v of candidates) {
+				const n = typeof v === "string" ? Number.parseInt(v, 10) : typeof v === "number" ? v : NaN
+				if (Number.isFinite(n) && n > 0) {
+					console.log(`Using custom metadata duration for ${filePath}: ${n}s`)
+					return n
+				}
+			}
+			console.log(`No usable duration in metadata for ${filePath}`)
+		} catch (e) {
+			console.warn(`Failed to read metadata for ${filePath}`, e)
+		}
+
+		// Parse duration from stream using music-metadata for MP3/others with timeout guard
+		try {
+			console.log(`Parsing duration via music-metadata for ${filePath}...`)
+			const mm = await import("music-metadata")
+			const stream = file.createReadStream()
+			const parsePromise = mm.parseStream(stream as unknown as NodeJS.ReadableStream, undefined, { duration: true })
+			const timeoutMs = 10000
+			const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("parse timeout")), timeoutMs))
+			const metadata = await Promise.race([parsePromise, timeoutPromise])
+			try {
+				stream.destroy()
+			} catch {}
+			const seconds = (metadata as any).format?.duration && Number.isFinite((metadata as any).format?.duration) ? Math.round((metadata as any).format.duration) : null
+			if (seconds && seconds > 0) {
+				console.log(`Extracted duration via music-metadata for ${filePath}: ${seconds}s`)
+				return seconds
+			}
+			console.warn(`music-metadata returned no duration for ${filePath}`)
+		} catch (e) {
+			console.warn(`music-metadata failed for ${filePath}`, e)
+		}
+
+		// Fallback: unsupported type
+		console.warn(`Unsupported audio format for duration extraction: ${filePath}`)
+		return null
 	} catch (error) {
 		console.error(`Failed to extract duration from ${gcsUrl}:`, error)
 		return null
@@ -107,10 +196,9 @@ export async function updateMissingEpisodeDurations(): Promise<{ updated: number
 	for (const episode of episodesWithoutDuration) {
 		console.log(`Processing episode: ${episode.title}`)
 
-		// For regular episodes, we can only extract duration if they're stored in our GCS
-		// Skip external URLs that don't start with gs://
-		if (!episode.audio_url.startsWith("gs://")) {
-			console.log(`⏭️ Skipping external URL: ${episode.audio_url}`)
+		// Proceed only if the audio URL points to a GCS object we can access
+		if (!parseGcsUrl(episode.audio_url)) {
+			console.log(`⏭️ Skipping non-GCS URL: ${episode.audio_url}`)
 			failed++
 			continue
 		}
