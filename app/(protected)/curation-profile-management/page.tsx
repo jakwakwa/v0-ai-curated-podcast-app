@@ -270,6 +270,7 @@ export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: 
 		youtube_url: episode.youtube_url,
 		transcript: episode.transcript,
 		status: episode.status,
+		duration_seconds: episode.duration_seconds,
 	}
 
 	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />

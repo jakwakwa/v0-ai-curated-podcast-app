@@ -26,6 +26,11 @@ export default function AdminIndexPage() {
                                 Episodes
 													</Link>
                         </li>
+                        <li>
+                            <Link className="underline" href="/admin/audio-duration">
+                                Audio Duration Extractor
+													</Link>
+                        </li>
                     </ul>
 							</CardContent>
 						</Card>
