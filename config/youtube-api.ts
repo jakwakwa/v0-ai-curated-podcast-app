@@ -119,7 +119,7 @@ export function buildYouTubePlayerApiUrl(apiKey?: string): string {
 /**
  * Build request body for YouTube player API
  */
-export function buildYouTubePlayerRequestBody(videoId: string, context?: any) {
+export function buildYouTubePlayerRequestBody(videoId: string, context?: { client?: { clientName: string; clientVersion: string } }) {
   return {
     context: context || {
       client: YOUTUBE_API_CONFIG.DEFAULT_CLIENT
