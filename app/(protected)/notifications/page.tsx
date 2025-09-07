@@ -2,6 +2,7 @@
 
 import { formatDistanceToNow } from "date-fns"
 import { Bell, Calendar, Check, Clock, Podcast, Trash2, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
@@ -35,6 +36,8 @@ export default function NotificationsPage() {
 		fetchNotifications()
 	}, [fetchNotifications])
 
+
+	const router = useRouter()
 	const handleMarkAsRead = async (notificationId: string) => {
 		try {
 			const response = await fetch(`/api/notifications/${notificationId}/read`, {
@@ -141,11 +144,10 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-12 pt-12">
-			<div className="mb-8 px-12">
-				<div className="flex justify-between items-center flex-wrap gap-4">
-					<div className="flex h-12 flex-row items-center justify-center gap-3 mt-6">
-						<Bell className="w-6 h-6 mb-1 text-primary opacity-50" />
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-2 pt-12">
+			<div className="mb-8 flex flex-col  items-center justify-start">
+				<div className="w-full flex items-center justify-between flex-wrap gap-4">
+					<div className="flex flex-row gap-3 mt-6 h-14">
 						<PageHeader title="Notifications" className="h-14 mb-0 mt-0" />
 					</div>
 					<div className="flex gap-2 flex-wrap">
@@ -156,7 +158,7 @@ export default function NotificationsPage() {
 							</Button>
 						)}
 						{notifications.length > 0 && (
-							<Button variant="destructive" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
+							<Button variant="default" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
 								<Trash2 size={16} />
 								Clear all
 							</Button>
@@ -165,9 +167,9 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className="min-h-[400px] px-12">
+			<div className="min-h-[400px] px-0">
 				{notifications.length === 0 ? (
-					<Card className="text-center px-12 py-2 border-2 border-dashed border-border bg-card content">
+					<Card variant={"episode"} className="text-center px-0 py-2 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
 							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
 							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
@@ -175,14 +177,12 @@ export default function NotificationsPage() {
 						</CardContent>
 					</Card>
 				) : (
-					<div className="flex flex-col gap-1 px-2 py-2">
+					<div className="w-full flex flex-col gap-2 px-2 py-2">
 						{notifications.slice(0, 10).map(notification => (
-							<Card
-								key={notification.notification_id}
-								className={cn("flex flex-col border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/30")}>
+							<Card variant="default" className="py-1 bg-accent-dark" key={notification.notification_id}>
 								<div className=" flex flex-col">
-									<div className="flex items-start justify-between ">
-										<time className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
+									<div className="flex items-start justify-between py-2 ">
+										<time className="text-sm text-foreground/40">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
 										{!notification.is_read && <div className="w-2 h-2 rounded-full bg-secondary-light" />}
 									</div>
 
@@ -191,7 +191,10 @@ export default function NotificationsPage() {
 										<p className="text-body font-medium leading-relaxed">{notification.message}</p>
 									</div>
 
-									<div className="flex gap-2 justify-end">
+									<div className="flex gap-2 items-center justify-end">
+										<Button variant="default" size="sm" className="text-xs px-2 " onClick={() => router.push("/my-episodes")}>
+											My Episodes
+										</Button>
 										{!notification.is_read && (
 											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />

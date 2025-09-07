@@ -24,7 +24,7 @@ function Badge({
 	 */
 
 	if (size === "sm" && variant === "outline") {
-		return <div className={`text-[0.6rem] bg-[000]  border-1 px-3 py-0 leading-normal border-[#FFFFFF7A] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-[0.6rem] bg-[000]  border-1 px-3 py-0 leading-normal border-[hsla(164.76 32.64% 37.84% / 0.73)] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
 	}
 
 	if (size === "md") {

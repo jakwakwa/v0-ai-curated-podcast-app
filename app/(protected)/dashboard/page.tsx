@@ -119,13 +119,13 @@ export default function Page() {
 	}
 
 	return (
-		<div className="default-card mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+		<div className="default-card">
 			{/* MAIN CONTAINER */}
 
 			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-			<Card variant="glass" className="flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
-				<div className="flex flex-col lg:flex-row gap-6">
+			<Card variant="glass" className="bg-card flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+				<div className="flex flex-col lg:flex-row gap-2">
 					<div className="w-full  md:w-full">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} />

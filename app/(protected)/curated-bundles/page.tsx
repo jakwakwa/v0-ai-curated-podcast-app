@@ -54,7 +54,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 	}
 
 	return (
-		<div className="default-card mx-auto px-0 pb-12 w-full pt-6 md:pt-4 md:px-0">
+		<div className="default-card">
 			<PageHeader
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."
@@ -100,7 +100,6 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 								<div className="w-full flex flex-col gap-3">
 									<div className="flex flex-col gap-3">
 										<CardTitle className="text-[0.85rem] text-secondary-foreground font-bold mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</CardTitle>
-
 									</div>
 									{/* <div className="relative border-2 border-lines-light bg-black block rounded-lg overflow-hidden w-full h-24">
 										{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}

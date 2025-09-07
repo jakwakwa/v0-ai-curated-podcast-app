@@ -198,30 +198,28 @@ The PODSLICE Team`
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 32px;">
-            <h1 style="color: #1e293b; font-size: 28px; margin: 0;">🎧 Your Episode is Ready!</h1>
+				<h1 style="color: #64748b; font-size: 14px; line-height: 1.5;">
+            Hi ${data.userFirstName}
+				</h1><br><br>
+        <p style="text-size: 14px; margin-bottom: 32px;>Great news! Your weekly podcast episode has been generated and is ready for you to enjoy.
+            Click the button above to start listening to your personalized content.
+        </p>
+            <h1 style="color: #222222; font-size: 28px; margin: 0;">🎧 Your Episode is Ready!</h1>
         </div>
 
-        <div style="background-color: #f1f5f9; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
-            <h2 style="color: #334155; font-size: 20px; margin: 0 0 12px 0;">${data.episodeTitle}</h2>
-            <p style="color: #64748b; margin: 0; font-size: 14px;">From your "${data.profileName}" personalized feed</p>
+        <div style="background-color: #DAD0FE; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
+            <h2 style="color: #361349; font-size: 20px; margin: 0 0 12px 0;">${data.episodeTitle}</h2>
         </div>
 
         <div style="text-align: center; margin-bottom: 32px;">
-            <a href="${data.episodeUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Listen Now</a>
+            <a href="${data.episodeUrl}" style="display: inline-block; color: #573BF6; padding: 12px 24px; text-decoration: underline; border-radius: 6px; font-weight: 500;">Listen Now</a>
         </div>
-
-        <p style="color: #64748b; font-size: 14px; line-height: 1.5;">
-            Hi ${data.userFirstName},<br><br>
-            Great news! Your weekly podcast episode has been generated and is ready for you to enjoy.
-            Click the button above to start listening to your personalized content.
-        </p>
-
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
+        <hr style="border: none; border-top: 1px solid #26574E; margin: 32px 0; height: 2px; background:26574E;">
 
         <div style="text-align: center;">
-            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+            <p style="color: #29223E; font-size: 12px; margin: 0;">
                 Happy listening!<br>
-                The PODSLICE Team
+                The PODSLICE.ai Team
             </p>
         </div>
     </div>

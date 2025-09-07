@@ -1,11 +1,18 @@
 import { auth } from "@clerk/nextjs/server"
+import { prisma } from "@/lib/prisma"
 
 export async function isAdmin(): Promise<boolean> {
 	try {
 		const { userId } = await auth()
 		if (!userId) return false
-		const ADMIN_USER_ID = (process.env.ADMIN_USER_ID || "").trim()
-		return ADMIN_USER_ID.length > 0 && userId === ADMIN_USER_ID
+		
+		// Check user role in database instead of environment variable
+		const user = await prisma.user.findUnique({
+			where: { user_id: userId },
+			select: { role: true }
+		})
+		
+		return user?.role === "ADMIN"
 	} catch (error) {
 		console.error("Error checking admin status:", error)
 		return false

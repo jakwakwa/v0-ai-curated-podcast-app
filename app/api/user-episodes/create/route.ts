@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { z } from "zod"
+import { VOICE_NAMES } from "@/lib/constants/voices"
 import { inngest } from "@/lib/inngest/client"
 import { prisma } from "@/lib/prisma"
-import { VOICE_NAMES } from "@/lib/constants/voices"
 
 const createEpisodeSchema = z.object({
 	youtubeUrl: z.string().url(),
@@ -33,14 +33,14 @@ export async function POST(request: Request) {
 
 		// Count only completed user episodes for this user
 		const existingEpisodeCount = await prisma.userEpisode.count({
-			where: { 
+			where: {
 				user_id: userId,
-				status: "COMPLETED"
+				status: "COMPLETED",
 			},
 		})
 
 		// Get episode limit from plan configuration
-		const EPISODE_LIMIT = 16 // CURATE_CONTROL plan limit
+		const EPISODE_LIMIT = 20 // CURATE_CONTROL plan limit
 		if (existingEpisodeCount >= EPISODE_LIMIT) {
 			return new NextResponse("You have reached your monthly episode creation limit.", { status: 403 })
 		}

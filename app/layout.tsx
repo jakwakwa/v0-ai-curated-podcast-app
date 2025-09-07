@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
-import { Theme } from "@radix-ui/themes"
+
 import { Analytics } from "@vercel/analytics/react"
 import type { Metadata } from "next"
 import { Work_Sans } from "next/font/google"
@@ -114,12 +114,11 @@ export default function RootLayout({
 						},
 					}}>
 					<ClientProviders>
-						<Theme accentColor="teal" grayColor="slate" radius="large" scaling="90%">
-							{children}
-							<Toaster />
 
-							{/* Global Footer for Terms and Privacy */}
-						</Theme>
+						{children}
+						<Toaster />
+
+
 					</ClientProviders>
 				</ClerkProvider>
 				<Analytics />
