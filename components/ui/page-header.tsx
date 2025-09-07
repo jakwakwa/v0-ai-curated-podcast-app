@@ -42,7 +42,7 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 				)}
 
 				{isPathAllowed && (
-					<div className="flex flex-row justify-end w-full gap-2">
+					<div className="absolute top-24 right-4 z-110 flex flex-row justify-end w-full gap-2">
 						{!hasAccess &&
 							(
 								<Tooltip>
