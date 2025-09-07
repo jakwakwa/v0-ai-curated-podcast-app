@@ -106,11 +106,13 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<string | null> 
 }
 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
-	const source = await fetch(srcUrl)
+	const source = await fetch(srcUrl, {
+		headers: { "User-Agent": "Mozilla/5.0" },
+	})
 	if (!(source.ok && source.body)) throw new Error(`Failed to download source audio (${source.status})`)
 	const uploaded = await fetch(`${ASSEMBLY_BASE_URL}/upload`, {
 		method: "POST",
-		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream" },
+		headers: { Authorization: apiKey, "Content-Type": "application/octet-stream", "User-Agent": "Mozilla/5.0" },
 		body: source.body as unknown as BodyInit,
 		duplex: "half",
 	} as RequestInit) // <-- Cast the entire options object
