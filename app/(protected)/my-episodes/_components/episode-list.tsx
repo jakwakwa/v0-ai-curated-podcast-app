@@ -133,6 +133,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 											user_id: episode.user_id,
 											youtube_url: episode.youtube_url,
 											transcript: episode.transcript,
+											duration_seconds: episode.duration_seconds,
 											status: episode.status,
 										}}
 										onClose={() => setActiveEpisodeId(null)}
