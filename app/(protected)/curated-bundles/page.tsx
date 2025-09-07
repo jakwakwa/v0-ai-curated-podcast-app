@@ -57,7 +57,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 		<div className=" w-full ">
 			<PageHeader
 				title="Explore our Bundles"
-				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also create your own bundles with your own selection of shows."
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also Notificationscreate your own bundles with your own selection of shows."
 			/>
 
 			{/* Filters */}

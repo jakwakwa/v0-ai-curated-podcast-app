@@ -21,7 +21,7 @@ const buttonVariants = cva(
 			size: {
 				default: "h-12 px-2 md:px-4 py-2",
 				bundles: "h-auto px-2 md:px-4 py-8",
-				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl",
+				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl btn-ghost-outline-sm ",
 				xs: "h-2 px-0 md:px-0 rounded-sm  btn-ghost-sm",
 				md: "h-auto px-4",
 				lg: "h-auto px-2 md:px-6 rounded-lg md:rounded-xl",

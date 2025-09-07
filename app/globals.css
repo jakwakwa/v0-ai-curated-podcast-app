@@ -385,45 +385,52 @@ button.btn-ghost-outline {
 button.btn-ghost-outline-sm {
 	/* background: oklch(0.27 0.11 271.53 / 0.1) !important; */
 	text-shadow: 0px 2px 0px 1px #15065380;
-	outline: 1px solid #8174803C !important;
-	border: 3px solid #060607D7 !important;
+	outline: 1px solid #4756733C !important;
+	border: 3px solid #273030D7 !important;
 	padding: 15px 25px !important;
 	/* height: 25px !important; */
 	font-size: 0.7rem;
 	font-weight: 500;
 	outline-offset: 1px;
 	color: #F7CBCBCB !important;
-	outline: 1px solid #B639623C !important;
+	outline: 1px solid #7186E73C !important;
 	/* border: 2px solid #7A343FD7 !important; */
 	/* padding: 8px 2px !important; */
 }
 
-button.btn-ghost-sm {
+button.btn-destructive-ghost {
 	background: oklch(0.31 0.11 10.07 / 0.85) !important;
 	text-shadow: 0px 2px 0px 1px #B30F48B1;
-	outline: 1px solid #B639623C !important;
+	outline: 1px solid #B639623C;
 	border: 2px solid #25040954 !important;
+}
+
+button.btn-destructive-ghost:hover {
+	text-shadow: 0px 2px 0px 1px #B67B0C80;
+	outline: 1px solid #E84D2EA9 !important;
+	border: 1px solid #CC681C70 !important;
+}
+
+button.btn-ghost-sm {
+
 	padding: 8px 2px !important;
 	/* height: 25px !important; */
 	font-size: 0.4rem;
 	font-weight: 800;
 	outline-offset: 2px;
-	color: #F7CBCBCB !important;
 
 }
 
 button.btn-ghost-outline:hover {
 	text-shadow: 0px 2px 0px 1px #15065380;
-	outline: 1px solid #E82EDFA9 !important;
+	outline: 1px solid #E8A12EA9 !important;
 	border: 2px solid #00000070 !important;
 	background: #00000018 !important;
 	text-shadow: 0px 2px 0px 1px #15065380;
 
 }
 button.btn-ghost-sm:hover {
-	text-shadow: 0px 2px 0px 1px #B67B0C80;
-	outline: 1px solid #E84D2EA9 !important;
-	border: 1px solid #CC681C70 !important;
+
 	background: #00000018 !important;
 	text-shadow: 0px 2px 0px 1px #532C0680;
 
