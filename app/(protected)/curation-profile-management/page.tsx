@@ -190,7 +190,7 @@ export default function CurationProfileManagementPage() {
 							<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
 							<CardDescription className="opacity-90">View and manage your recently generated episodes.</CardDescription>
 							{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
-								<Link href="/my-episodes" passHref>
+								<Link href="/my-episodes" passHref className="mr-4">
 									<Button variant="default" size="sm" className="mt-4">
 										My Episodes
 									</Button>
@@ -215,7 +215,7 @@ export default function CurationProfileManagementPage() {
 												<li key={episode.episode_id} className="list-none">
 													<EpisodeCard
 														imageUrl={null}
-														title={`USER: ${episode.episode_title}`}
+														title={`${episode.episode_title}`}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
 														actions={

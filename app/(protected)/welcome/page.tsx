@@ -40,11 +40,11 @@ export default function WelcomePage() {
 	return (
 		<div className="default-card">
 			{/* Short Intro */}
-			<section className="text-left  w-full pt-8 md:pt-0 pb-4 mb-0">
-				<div className="w-full mx-auto">
+			<section className="text-left mt-12  w-full pt-8 md:pt-0 pb-4 mb-0">
+				<div className="w-full px-2 md:px-4">
 					<Typography className="text-custom-display  font-bold text-left">Welcome!</Typography>
 					{/* <Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} className="scale-[0.5] mx-auto mb-8" /> */}
-					<p className="text-custom-h4 leading-6 font-normal tracking-wide mb-12 max-w-[600px] w-full">
+					<p className="text-custom-h4 leading-6 mt-4 font-normal tracking-wide mb-0  max-w-[600px] w-full">
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>
 					<div className="flex justify-end items-center space-x-4 text-foreground/70 mt-8">
@@ -67,11 +67,11 @@ export default function WelcomePage() {
 					</p>
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8 pb-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-0 pb-8">
 					{howItWorks.map(step => (
-						<Card key={step.step} variant={"default"} className="transition-all duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg main-card py-12">
-							<div className="flex flex-row items-center justify-center w-full gap-4 h-10 my-8">
-								<div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1D7558] border-2 mx-0 border-[#3C8C7091] text-primary-foreground font-semibold text-h5 mb-4">{step.step}</div>
+						<Card key={step.step} variant={"default"} className="transition-all episode-card-wrapper duration-200 ease-in-out h-full relative hover:-translate-y-1 hover:shadow-lg main-card py-12">
+							<div className="flex flex-col	 items-start justify-center w-full gap-4 h-10 my-8">
+								<div className="flex items-center justify-center w-12 h-10 rounded-full bg-[#1D7558] border-2 mx-0 border-[#3C8C7091] text-primary-foreground font-semibold text-h5 mb-4">{step.step}</div>
 								<Typography variant="h3" className="text-xl font-semibold tracking-tight mb-2 mt-0 w-full">
 									{step.title}
 								</Typography>

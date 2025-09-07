@@ -10,9 +10,13 @@ import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
 import { NotificationBell } from "@/components/ui/notification-bell"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { useSubscriptionInit } from "@/hooks/useSubscriptionInit"
 
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 	const { state } = useSidebar()
+
+	// Initialize subscription data
+	useSubscriptionInit()
 
 	return (
 		<>

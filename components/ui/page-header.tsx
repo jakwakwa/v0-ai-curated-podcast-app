@@ -22,6 +22,7 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 	const router = useRouter()
 	const pathname = usePathname()
 	const subscription = useSubscriptionStore(state => state.subscription)
+	const isLoading = useSubscriptionStore(state => state.isLoading)
 
 	// Check if user has Curate Control access
 	const hasAccess = hasCurateControlAccess(subscription?.plan_type)
@@ -62,11 +63,15 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 									</TooltipContent>
 								</Tooltip>
 							)}
-						<Button onClick={() => router.push("/generate-my-episodes")} variant="default" disabled={!hasAccess}>
+						<Button
+							onClick={() => router.push("/generate-my-episodes")}
+							variant="default"
+							disabled={isLoading || !hasAccess}
+						>
 							<span>
 								<Podcast className="scale-[1.4] w-[30px] h-[30px] mr-2" size={40} />
 							</span>
-							Generate Custom Episodes
+							{isLoading ? "Loading..." : "Generate Custom Episodes"}
 						</Button>
 					</div>
 				)}

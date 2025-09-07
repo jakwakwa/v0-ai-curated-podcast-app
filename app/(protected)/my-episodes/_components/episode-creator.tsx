@@ -37,6 +37,7 @@ export function EpisodeCreator() {
 	const [isLoadingUsage, setIsLoadingUsage] = useState(true)
 
 	const isBusy = isCreating
+	const isAudioPlaying = isPlaying !== null
 	const canSubmit = Boolean(title) && !isBusy
 
 	useEffect(() => {
@@ -196,7 +197,7 @@ export function EpisodeCreator() {
 											</SelectContent>
 										</Select>
 										<div className="mt-2">
-											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceA)} disabled={isBusy}>
+											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceA)} disabled={isBusy || isAudioPlaying}>
 												<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceA ? "Playing" : "Play sample"}
 											</Button>
 										</div>
@@ -232,7 +233,7 @@ export function EpisodeCreator() {
 											</SelectContent>
 										</Select>
 										<div className="mt-2">
-											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceB)} disabled={isBusy}>
+											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceB)} disabled={isBusy || isAudioPlaying}>
 												<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceB ? "Playing" : "Play sample"}
 											</Button>
 										</div>

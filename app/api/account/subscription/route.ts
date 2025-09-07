@@ -152,7 +152,11 @@ export async function GET() {
 		if (!subscription) {
 			return new Response(null, { status: 204 })
 		}
-		return NextResponse.json(subscription)
+
+		// Add caching headers - cache for 5 minutes since subscription data doesn't change frequently
+		const response = NextResponse.json(subscription)
+		response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600")
+		return response
 	} catch (error) {
 		console.error("Failed to fetch subscription", error)
 		return new Response("Internal Server Error", { status: 500 })
