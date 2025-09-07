@@ -1,4 +1,3 @@
-import { Readable } from "stream"
 import { extractAudioDuration } from "@/lib/audio-metadata"
 import { getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
@@ -102,13 +101,12 @@ export async function extractDurationFromGCSFile(gcsUrl: string): Promise<number
 			console.log(`Parsing duration via music-metadata for ${filePath}...`)
 			const mm = await import("music-metadata")
 			const stream = file.createReadStream()
-			const nodeStream = Readable.fromWeb(stream)
-			const parsePromise = mm.parseStream(nodeStream, undefined, { duration: true })
+			const parsePromise = mm.parseStream(stream, undefined, { duration: true })
 			const timeoutMs = 10000
 			const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("parse timeout")), timeoutMs))
 			const metadata = await Promise.race([parsePromise, timeoutPromise])
 			try {
-				nodeStream.destroy()
+				stream.destroy()
 			} catch {}
 			const seconds = (metadata as any).format?.duration && Number.isFinite((metadata as any).format?.duration) ? Math.round((metadata as any).format.duration) : null
 			if (seconds && seconds > 0) {
