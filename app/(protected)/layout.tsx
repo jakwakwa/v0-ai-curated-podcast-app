@@ -38,7 +38,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 
 				</header>
 
-				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-14 px-0 md:px-0 mt-8 md:mt-8 mb-2 ${state === "expanded" ? "ml-6 w-full md:max-w-[80vw]" : "ml-12 w-full md:max-w-[90vw]"}`}>
+				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-14 px-0 md:px-0 mt-8 md:mt-8 mb-2 ${state === "expanded" ? "ml-0 w-full md:ml-6 md:max-w-[80vw]" : "ml-12 w-full md:max-w-[90vw]"}`}>
 
 					<div className=" w-full p-0 flex flex-col md:flex-row gap-2 px-2 min-w-full md:px-4 h-full my-0">{children}</div>
 				</div>
