@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth-options"
+import { auth } from "@clerk/nextjs/server"
+import { prisma } from "@/lib/prisma"
 import { updateMissingUserEpisodeDurations, updateMissingEpisodeDurations } from "@/app/(protected)/admin/audio-duration/duration-extractor"
 
 export async function POST(request: Request) {
   try {
-    // Check if user is admin
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.is_admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    // Check if user is authenticated and admin
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await prisma.user.findUnique({ 
+      where: { user_id: userId }, 
+      select: { is_admin: true } 
+    })
+
+    if (!user?.is_admin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     const { type } = await request.json()
