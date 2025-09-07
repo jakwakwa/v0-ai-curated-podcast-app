@@ -144,10 +144,10 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-2 pt-12">
-			<div className="mb-8 flex flex-col  items-center justify-start">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
+			<div className="mb-8 mt-4 flex flex-col items-center justify-start">
 				<div className="w-full flex items-center justify-between flex-wrap gap-4">
-					<div className="flex flex-row gap-3 mt-6 h-14">
+					<div className="flex flex-row gap-3 h-14">
 						<PageHeader title="Notifications" className="h-14 mb-0 mt-0" />
 					</div>
 					<div className="flex gap-2 flex-wrap">

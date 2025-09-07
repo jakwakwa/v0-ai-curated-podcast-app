@@ -1,11 +1,12 @@
 "use client"
+import { X } from "lucide-react"
 import Image from "next/image"
 import type React from "react"
 import { type JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import styles from "@/components/ui/audio-player.module.css"
 import type { Episode } from "@/lib/types"
-
+import { cn } from "@/lib/utils"
 import { Button } from "./button"
 import { Typography } from "./typography"
 
@@ -102,7 +103,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	const volumeIcon = useMemo(() => {
 		if (isMuted || volume === 0) {
 			return (
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+				<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
 					<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
 				</svg>
 			)
@@ -251,15 +252,13 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 			</div>
 
 			<div className={styles.volumeControl}>
-				<Button onClick={toggleMute} className={styles.volumeButton} variant="default">
+				<Button onClick={toggleMute} className={styles.volumeButton} variant="outline" size="xs">
 					{volumeIcon}
 				</Button>
-				<input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={styles.volumeSlider} />
+				<input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className={` ${cn(styles.volumeSlider)} h-3`} />
 				{onClose && (
-					<Button variant="ghost" onClick={onClose} size="sm" className="ml-2 h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-						</svg>
+					<Button onClick={() => onClose()} className={` ${cn(styles.volumeButton)} bg-destructive-background`} variant="ghost" size="sm">
+						<X />
 					</Button>
 				)}
 			</div>
