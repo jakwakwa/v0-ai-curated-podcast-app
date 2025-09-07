@@ -77,6 +77,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 								title={episode.episode_title}
 								description={episode.summary}
 								publishedAt={episode.created_at}
+								durationSeconds={episode.duration_seconds ?? null}
 								actions={
 									<>
 										<Badge size="sm" variant={episode.status === "COMPLETED" ? "default" : "destructive"} className="text-xs">

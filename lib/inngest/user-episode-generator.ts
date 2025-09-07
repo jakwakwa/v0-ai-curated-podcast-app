@@ -8,6 +8,7 @@ import { aiConfig } from "@/config/ai"
 import emailService from "@/lib/email-service"
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs"
 import { prisma } from "@/lib/prisma"
+import { extractAudioDuration } from "@/lib/audio-metadata"
 import { inngest } from "./client"
 
 // All uploads use the primary bucket defined by GOOGLE_CLOUD_STORAGE_BUCKET_NAME
@@ -334,12 +335,18 @@ Transcript: ${transcript}`,
 		})
 
 		// Step 3: Convert to Audio and Upload to GCS (combined to avoid large data transfer)
-		const gcsAudioUrl = await step.run("convert-to-audio-and-upload", async () => {
+		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
 			console.log("🎤 Generating audio and uploading directly to GCS...")
 			const audioBuffer = await generateAudioWithGeminiTTS(summary)
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`
 			console.log(`📁 Uploading ${audioBuffer.length} bytes to GCS...`)
-			return await uploadContentToBucket(audioBuffer, fileName)
+			
+			// Extract duration from the generated audio
+			const duration = extractAudioDuration(audioBuffer, 'audio/wav')
+			console.log(`🎵 Extracted audio duration: ${duration ? `${duration}s` : 'unknown'}`)
+			
+			const gcsUrl = await uploadContentToBucket(audioBuffer, fileName)
+			return { gcsAudioUrl: gcsUrl, durationSeconds: duration }
 		})
 
 		// Step 4: Finalize Episode
@@ -348,6 +355,7 @@ Transcript: ${transcript}`,
 				where: { episode_id: userEpisodeId },
 				data: {
 					gcs_audio_url: gcsAudioUrl,
+					duration_seconds: durationSeconds,
 					status: "COMPLETED",
 				},
 			})
