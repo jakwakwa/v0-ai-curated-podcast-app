@@ -180,6 +180,8 @@ function UserFeedSelectorWizard() {
 								onClick={() => {
 									setIsBundleSelection(true)
 									setStep(2)
+									// Fetch bundles when user selects bundle option
+									fetchBundles()
 								}}
 								variant="default"
 								size="bundles"
@@ -217,46 +219,68 @@ function UserFeedSelectorWizard() {
 					</Typography>
 					{isBundleSelection ? (
 						<div className="w-full max-w-md">
-							<div className="mb-4">
-								<Label htmlFor="bundle-select" className="block text-sm font-medium mb-2">
-									Choose a Bundle
-								</Label>
-								<Select
-									value={selectedBundleId || ""}
-									onValueChange={(value) => {
-										setSelectedBundleId(value)
-										// Fetch bundles if not already loaded
-										if (bundles.length === 0) {
-											fetchBundles()
-										}
-									}}
-								>
-									<SelectTrigger id="bundle-select" className="w-full">
-										<SelectValue placeholder="Select a bundle..." />
-									</SelectTrigger>
-									<SelectContent>
-										{isLoadingBundles ? (
-											<SelectItem value="" disabled>
-												<AppSpinner size="sm" label="Loading bundles..." />
-											</SelectItem>
-										) : (
-											bundles.map((bundle) => (
-												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
-													{bundle.name}
-												</SelectItem>
-											))
-										)}
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="text-sm text-muted-foreground">
-								<Typography variant="body" className="mb-2">
-									Need more details about the bundles?{" "}
-									<Link href="/curated-bundles" className="text-primary hover:underline">
-										View bundle details here
-									</Link>
-								</Typography>
-							</div>
+							{isLoadingBundles ? (
+								<div className="text-center py-8">
+									<AppSpinner size="lg" label="Loading bundles..." />
+								</div>
+							) : bundles.length === 0 ? (
+								<div className="text-center py-8">
+									<Typography variant="h4" className="mb-4 text-muted-foreground">
+										No Bundles Available
+									</Typography>
+									<Typography variant="body" className="mb-4 text-muted-foreground">
+										There are currently no PODSLICE bundles available. Please check back later or contact support if this issue persists.
+									</Typography>
+									<Button
+										variant="outline"
+										onClick={fetchBundles}
+										className="mb-4"
+									>
+										Try Again
+									</Button>
+									<div className="text-sm text-muted-foreground">
+										<Typography variant="body">
+											Need more details about bundles?{" "}
+											<Link href="/curated-bundles" className="text-primary hover:underline">
+												View bundle details here
+											</Link>
+										</Typography>
+									</div>
+								</div>
+							) : (
+								<>
+									<div className="mb-4">
+										<Label htmlFor="bundle-select" className="block text-sm font-medium mb-2">
+											Choose a Bundle
+										</Label>
+										<Select
+											value={selectedBundleId || ""}
+											onValueChange={(value) => {
+												setSelectedBundleId(value)
+											}}
+										>
+											<SelectTrigger id="bundle-select" className="w-full">
+												<SelectValue placeholder="Select a bundle..." />
+											</SelectTrigger>
+											<SelectContent>
+												{bundles.map((bundle) => (
+													<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
+														{bundle.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="text-sm text-muted-foreground">
+										<Typography variant="body" className="mb-2">
+											Need more details about the bundles?{" "}
+											<Link href="/curated-bundles" className="text-primary hover:underline">
+												View bundle details here
+											</Link>
+										</Typography>
+									</div>
+								</>
+							)}
 						</div>
 					) : (
 						<CuratedPodcastList
@@ -279,7 +303,7 @@ function UserFeedSelectorWizard() {
 						<Button variant="default" onClick={() => setStep(1)}>
 							Back
 						</Button>
-						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
+						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? (!selectedBundleId || bundles.length === 0) : selectedPodcasts.length === 0}>
 							Next
 						</Button>
 					</div>
