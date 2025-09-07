@@ -25,7 +25,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 		<Root className="flex flex-row items-center hover:bg-card content/10 active:bg-card justify-between px-8 pt-2 pb-0 w-full gap-8 episode-card w-full relative">
 			{imageUrl ? (
 				<div className="w-full items-center max-w-[50px]  ">
-					<Image src={imageUrl} alt={title} className="absolute top-4 left-2 h-14 w-14 max-w-14 md:h-14 md:w-full border-2 m-2  shadow-md border-[#98CAD35C] rounded-xl object-fill" width={100} height={60} />
+					<Image src={imageUrl} alt={title} className="absolute top-4 left-2 h-14 w-14 md:h-14 md:w-full border-2 m-2  shadow-md border-[#98CAD35C] rounded-xl object-fill" width={100} height={60} />
 				</div>
 			) : null}
 			<div className=" flex w-full max-width-[900px] flex-col justify-around pb-4  px-0 md:px-0 gap-1">

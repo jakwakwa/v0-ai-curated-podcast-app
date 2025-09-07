@@ -161,4 +161,4 @@ function SettingsToggle({
 	)
 }
 
-export type { SettingsToggle }
+export { SettingsToggle }
