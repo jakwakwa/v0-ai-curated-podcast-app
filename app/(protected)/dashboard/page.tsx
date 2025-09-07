@@ -131,7 +131,7 @@ export default function Page() {
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} />
 						) : (
 							<EmptyStateCard
-								title="No Personalized Feed Found"
+								title="Personalized Feed"
 								message={{
 									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
 									notificationTitle: "No Personalized Feed Found",
@@ -143,10 +143,10 @@ export default function Page() {
 						)}
 					</div>
 
-					<div className="w-full min-w-none max-w-screen md:min-w-[800px]">
+					<div className="w-full">
 						{combinedEpisodes.length === 0 ? (
 							<EmptyStateCard
-								title="No Episodes Found"
+								title="Episodes"
 								message={{
 									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
 									notificationTitle: "No Episodes Found",

@@ -16,15 +16,15 @@ interface EmptyStateCardProps {
 
 const EmptyStateCard = ({ title, message, selectStateAction }: EmptyStateCardProps): React.ReactElement => {
 	return (
-		<Card variant="glass">
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 max-w-1/2">
+		<Card variant="default" className="bg-card">
+			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">{title}</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<Alert>
+				<Alert className="bg-slate-500/40">
 					<AlertCircle className="h-4 w-4" />
 					<AlertTitle>{message.notificationTitle}</AlertTitle>
-					<AlertDescription className="text-base leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-muted-foreground">{message.description}</AlertDescription>
+					<AlertDescription className="text-[11px] leading-6 font-normal tracking-[0.025em] mt-2 mb-4 text-foreground/60">{message.description}</AlertDescription>
 				</Alert>
 				{selectStateAction && (
 					<div className="mt-6 text-center">
