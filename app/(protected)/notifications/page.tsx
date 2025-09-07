@@ -167,12 +167,12 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className="min-h-[400px] px-0">
+			<div className="min-h-[400px] px-0 episode-card-wrapper-dark">
 				{notifications.length === 0 ? (
-					<Card variant={"episode"} className="text-center px-0 py-2 border-2 border-dashed border-border bg-card content">
+					<Card variant={"episode"} className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
-							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
-							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
+							<Bell className="w-8 h-8 text-muted-foreground opacity-50" />
+							<h3 className="text-xl font-semibold text-foreground m-0">No notifications</h3>
 							<p className="text-muted-foreground max-w-md text-base m-0">You're all caught up! New notifications will appear here when they arrive.</p>
 						</CardContent>
 					</Card>

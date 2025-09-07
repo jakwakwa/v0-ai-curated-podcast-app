@@ -43,7 +43,6 @@ export default function WelcomePage() {
 			<section className="text-left mt-12  w-full pt-8 md:pt-0 pb-4 mb-0">
 				<div className="w-full px-2 md:px-4">
 					<Typography className="text-custom-display  font-bold text-left">Welcome!</Typography>
-					{/* <Image src={"/logo.png"} alt="PODSLICE Logo" width={200} height={200} className="scale-[0.5] mx-auto mb-8" /> */}
 					<p className="text-custom-h4 leading-6 mt-4 font-normal tracking-wide mb-0  max-w-[600px] w-full">
 						Your personal AI-powered podcast curator that creates weekly episodes tailored to your interests. Choose from hand-picked content or create your own custom Personalized Feed.
 					</p>

@@ -554,14 +554,24 @@ textarea {
 /* Explicit border color defaults */
 @layer base {
 	body {
+		width: 100%;
+		max-width: 100%;
+		margin: 0;
+		padding: 0;
+		text-align: left;
+		overflow: hidden;
+
+		background: linear-gradient(140deg, oklch(0.26 0.07 286.23 / 0.55), rgba(40 32 44 / 0.6),  oklch(0.24 0.03 220.42), rgba(9 9 11 / 0.95));
+		backdrop-filter: blur(0px);
+		/* mix-blend-mode: multiply; */
 		overflow-x: hidden;
 
 		/* pointer-events: none; */
 		height: 100vh !important;
-		background:   url('/assets/background/grid-bg.svg') no-repeat;
+
 		background-blend-mode: multiply, screen;
 		width: 100%;
-		background-color	: color(a98-rgb 0.22 0.27 0.37 / 0.48) !important;
+		/* background-color	: color(a98-rgb 0.22 0.27 0.37 / 0.48) !important; */
 	}
 
 	button:hover {
@@ -726,15 +736,15 @@ textarea {
 	}
 
 	.episode-card-wrapper-dark {
-position: relative;
+		position: relative;
 		background: linear-gradient(to bottom,  oklch(0.18 0.01 300.35 / 0.8),  	oklch(0.11 0 285.76));
-
+		/* height: 100%; */
 		border: 1px solid #050606 !important;
 		box-shadow:
 		 0px 13px 13px oklch(0 0 	0 / 0.39),
 		 0px 24px 40px oklch(0.16 0 17.51 / 0.4) !important;
 		transition: all 0.2s ease-in-out;
-		z-index: 30;
+		/* z-index: 30; */
 		padding: 10px 20px;
 		margin: 0 !important;
 		border-top-right-radius: 20px;
@@ -1617,7 +1627,7 @@ header.bg-sidebar-header {
 	}
 
 	.main-layouts {
-		 position: fixed;
+		 /* position: fixed; */
 		inset: 0;
 		/* pointer-events: none;
 		height: 100vh !important;

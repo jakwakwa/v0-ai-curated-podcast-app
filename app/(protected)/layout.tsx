@@ -125,10 +125,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 			<div
 				id="global-audio-player"
 				className="fixed bottom-0 left-64 right-0 z-[9999] pointer-events-auto"
-				style={{
-					// @ts-ignore
-					position: "fixed !important",
-				}}
+
 			/>
 		</SidebarProvider>
 	)

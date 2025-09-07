@@ -1,6 +1,7 @@
 import { PlanGate, type Prisma } from "@prisma/client"
 import { AlertCircle, Lock } from "lucide-react"
 import { unstable_noStore as noStore } from "next/cache"
+import Image from "next/image"
 import Link from "next/link"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -54,7 +55,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 	}
 
 	return (
-		<div className=" w-full ">
+		<div className=" w-full	 episode-card-wrapper  overflow-x-hidden">
 			<PageHeader
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 5 carefully selected shows and cannot be modified once selected. You can also Notificationscreate your own bundles with your own selection of shows."
@@ -62,82 +63,77 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 
 			{/* Filters */}
 
-			<div className="episode-card-wrapper min-h-[65vh]">
-				<CuratedBundlesFilters />
+			<CuratedBundlesFilters />
 
-				{!!error && (
-					<div className="max-w-2xl mx-auto mt-8">
-						<Alert variant="destructive">
-							<AlertCircle className="h-4 w-4" />
-							<AlertTitle>Unable to Load PODSLICE Bundles</AlertTitle>
-							<AlertDescription className="mt-2">{error}</AlertDescription>
-						</Alert>
-						<div className="mt-6 text-center">
-							<Button asChild variant="outline">
-								<Link href="/curated-bundles">Try Again</Link>
-							</Button>
-						</div>
+			{!!error && (
+				<div className="max-w-2xl mx-auto mt-8">
+					<Alert variant="destructive">
+						<AlertCircle className="h-4 w-4" />
+						<AlertTitle>Unable to Load PODSLICE Bundles</AlertTitle>
+						<AlertDescription className="mt-2">{error}</AlertDescription>
+					</Alert>
+					<div className="mt-6 text-center">
+						<Button asChild variant="outline">
+							<Link href="/curated-bundles">Try Again</Link>
+						</Button>
 					</div>
-				)}
-				{curatedBundles.length === 0 ? (
-					<div className="max-w-2xl mx-auto mt-8">
-						<Alert>
-							<AlertCircle className="h-4 w-4" />
-							<AlertTitle>No PODSLICE Bundles Available</AlertTitle>
-							<AlertDescription className="mt-2">There are no PODSLICE Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
-						</Alert>
-						{/* <div className="mt-6 text-center">
+				</div>
+			)}
+			{curatedBundles.length === 0 ? (
+				<div className="max-w-2xl mx-auto mt-8">
+					<Alert>
+						<AlertCircle className="h-4 w-4" />
+						<AlertTitle>No PODSLICE Bundles Available</AlertTitle>
+						<AlertDescription className="mt-2">There are no PODSLICE Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
+					</Alert>
+					{/* <div className="mt-6 text-center">
 						<Button asChild variant="default">
 							<Link href="/curated-bundles">Refresh</Link>
 						</Button>
 					</div> */}
-					</div>
-				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-1 mb-0">
-						{curatedBundles.map(bundle => (
-							<Card variant="default" key={bundle.bundle_id} className="h-auto flex flex-col max-h-[500px] episode-card shadow-lg">
-								<CardHeader className="px-2 pb-2 pt-4">
-									<div className="w-full flex flex-col gap-3">
-										<div className="flex flex-col gap-3">
-											<H3 className="text-[1rem] text-secondary-foreground font-black font-sans mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
-										</div>
-										{/* <div className="relative border-2 border-lines-light bg-black block rounded-lg overflow-hidden w-full h-24">
-										{bundle.image_url && <Image src={bundle.image_url} alt={bundle.name} className="object-cover w-full h-full" fill />}
-									</div> */}
+				</div>
+			) : (
+				<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 w-full overflow-y-scroll z-1 grid grid-cols-1 md:grid-cols-2 gap-5 h-full max-h-[250px]  ">
+					{curatedBundles.map(bundle => (
+						<Card variant="default" key={bundle.bundle_id} className="h-auto flex flex-col px-4 episode-card shadow-lg h-[250px] w-full">
+							<CardHeader className=" w-full py-4">
+								<div className="w-full flex flex-row gap-3">
+									<div className="flex items-start gap-3 text-sm font-normal tracking-wide flex-col w-full max-w-[240px]">
+										<H3 className="text-[1rem] text-secondary-foreground font-black font-sans mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">
+											{bundle.name}
+										</H3>
 
-										<div className="flex items-center justify-between text-custom-sm font-semibold pb-3">
-											<Badge variant="outline" size="sm" className="font-normal tracking-wide">
-												{bundle.podcasts.length} Shows
-											</Badge>
+										<Badge variant="outline" size="sm" className="font-normal tracking-wide">
+											<Lock size={8} className="mr-2" />
+											<Typography className="text-xxs">Fixed Podcast Shows</Typography>
+										</Badge>
 
-											<div className="flex items-center gap-2 text-sm font-normal tracking-wide">
-												<Lock size={8} />
-												<Typography className="text-xxs">Fixed Selection</Typography>
-											</div>
+										<CardContent className="bg-cardglass mx-auto shadow-sm rounded-md w-full p-3 m-0 pb-8 mt-2">
+											<ul className="list-none p-0 m-0 flex flex-col gap-1.5">
+												{bundle.podcasts.slice(1).map((podcast: Podcast) => (
+													<li key={podcast.podcast_id} className="flex w-full justify-end gap-0">
+														<div className="w-full flex flex-col gap-0">
+															<Typography as="p" className="text-md font-bold uppercase leading-normal tracking-tight my-0 px-1 mx-0 opacity-80">
+																{podcast.name}
+															</Typography>
+														</div>
+													</li>
+												))}
+											</ul>
+										</CardContent>
+									</div>
+
+									<div className="flex items-center gap-2 text-sm font-normal tracking-wide w-full">
+										<div className="relative my-2 rounded-lg outline-4 overflow-hidden w-full min-w-[100px] h-28">
+											{bundle.image_url && <Image className="w-full" src={bundle.image_url} alt={bundle.name} width={160} height={190} objectFit="cover" />}
 										</div>
 									</div>
-								</CardHeader>
-
-								<CardContent className="bg-cardglass mx-auto shadow-sm rounded-md w-full p-3 m-0 pb-8">
-									{/* <p className="text-[0.7rem] pb-4  leading-6 font-normal tracking-tight leading-[1] line-clamp-2 max-h-[3rem] truncate text-foreground/80 mb-0">{bundle.description}</p> */}
-									<p className="text-[0.7rem] pb-2  text-xxs leading-6 font-semibold tracking-tight leading-[1] line-clamp-2 uppercase truncate text-foreground/60 mb-0">Included Shows</p>
-									<ul className="list-none p-0 m-0 flex flex-col max-h-[20rem] overflow-scroll">
-										{bundle.podcasts.slice(1).map((podcast: Podcast) => (
-											<li key={podcast.podcast_id} className="flex w-full justify-end gap-0 w-full">
-												<div className="w-full flex flex-col gap-0">
-													<Typography as="p" className="text-xs font-normal leading-normal tracking-tight my-0 px-0 mx-0 opacity-80">
-														{podcast.name}
-													</Typography>
-												</div>
-											</li>
-										))}
-									</ul>
-								</CardContent>
-							</Card>
-						))}
-					</div>
-				)}
-			</div>
+								</div>
+							</CardHeader>
+						</Card>
+					))}
+				</div>
+			)}
 		</div>
 	)
 }
