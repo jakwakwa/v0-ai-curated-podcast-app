@@ -10,7 +10,9 @@ function extractVideoId(url: string): string | null {
 }
 
 async function fetchYouTubeCaption(videoId: string): Promise<string> {
-	// Try YouTube's innertube API which works better from servers
+	// ⚠️ RISK: Using YouTube's internal/undocumented API
+	// This endpoint (youtubei/v1/player) is not officially supported and may break without notice.
+	// See docs/YOUTUBE_API_RISKS.md for risk analysis and mitigation strategies.
 	const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY
 	if (!YOUTUBE_API_KEY) {
 		throw new Error("Missing YOUTUBE_API_KEY environment variable")

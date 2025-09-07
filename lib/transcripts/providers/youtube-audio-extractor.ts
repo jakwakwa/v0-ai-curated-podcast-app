@@ -19,6 +19,9 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 	// Try multiple methods to get audio URL
 
 	// Method 1: Use YouTube's own API to get stream info
+	// ⚠️ RISK: Using YouTube's internal/undocumented API
+	// This endpoint (youtubei/v1/player) is not officially supported and may break without notice.
+	// See docs/YOUTUBE_API_RISKS.md for risk analysis and mitigation strategies.
 	try {
 		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
 			method: "POST",

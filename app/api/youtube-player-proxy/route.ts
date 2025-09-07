@@ -24,6 +24,9 @@ export async function POST(request: Request) {
 		const parsed = PlayerBodySchema.safeParse(body)
 		if (!parsed.success) return new NextResponse(parsed.error.message, { status: 400 })
 
+		// ⚠️ RISK: Using YouTube's internal/undocumented API
+		// This endpoint (youtubei/v1/player) is not officially supported and may break without notice.
+		// See docs/YOUTUBE_API_RISKS.md for risk analysis and mitigation strategies.
 		const resp = await fetch("https://www.youtube.com/youtubei/v1/player", {
 			method: "POST",
 			headers: {

@@ -25,30 +25,48 @@ export function extractVideoId(url: string): string | null {
 
 async function fetchFromYouTubeAPI(videoId: string): Promise<YouTubeAudioInfo | null> {
 	const playerKey = process.env.YOUTUBE_PLAYER_API_KEY || process.env.YOUTUBE_API_KEY
-	if (!playerKey) return null
-	const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${playerKey}`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
-		body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
-	})
-	if (!response.ok) {
+	if (!playerKey) {
+		console.warn("[YouTube API] No API key available for internal API call")
 		return null
 	}
-	const data = await response.json()
-	const streamingData = data?.streamingData
-	const videoDetails = data?.videoDetails
-	if (streamingData?.adaptiveFormats) {
-		const audioFormats = streamingData.adaptiveFormats.filter((f: AudioFormat) => f?.mimeType?.includes("audio") && f?.url)
-		if (audioFormats.length > 0) {
-			const preferred = audioFormats.find((f: AudioFormat) => f?.mimeType?.includes("audio/webm") || f?.mimeType?.includes("audio/mp4")) || audioFormats[0]
-			return {
-				audioUrl: preferred.url as string,
-				title: videoDetails?.title || "Unknown",
-				duration: parseInt(videoDetails?.lengthSeconds || "0", 10),
+	
+	try {
+		// ⚠️ RISK: Using YouTube's internal/undocumented API
+		// This endpoint (youtubei/v1/player) is not officially supported and may break without notice.
+		// See docs/YOUTUBE_API_RISKS.md for risk analysis and mitigation strategies.
+		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${playerKey}`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
+			body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
+		})
+		
+		if (!response.ok) {
+			console.error(`[YouTube API] Request failed with status ${response.status} for video ${videoId}`)
+			return null
+		}
+		
+		const data = await response.json()
+		const streamingData = data?.streamingData
+		const videoDetails = data?.videoDetails
+		
+		if (streamingData?.adaptiveFormats) {
+			const audioFormats = streamingData.adaptiveFormats.filter((f: AudioFormat) => f?.mimeType?.includes("audio") && f?.url)
+			if (audioFormats.length > 0) {
+				const preferred = audioFormats.find((f: AudioFormat) => f?.mimeType?.includes("audio/webm") || f?.mimeType?.includes("audio/mp4")) || audioFormats[0]
+				return {
+					audioUrl: preferred.url as string,
+					title: videoDetails?.title || "Unknown",
+					duration: parseInt(videoDetails?.lengthSeconds || "0", 10),
+				}
 			}
 		}
+		
+		console.warn(`[YouTube API] No audio formats found for video ${videoId}`)
+		return null
+	} catch (error) {
+		console.error(`[YouTube API] Error fetching audio info for video ${videoId}:`, error)
+		return null
 	}
-	return null
 }
 
 async function fetchFromRapidAPI(videoUrl: string): Promise<YouTubeAudioInfo | null> {

@@ -102,6 +102,16 @@ Be among the first to experience the future of podcast summaries
   <img src="https://raw.githubusercontent.com/onemarc/tech-icons/main/icons/radixui-dark.svg" alt="Radix UI" width="40" height="40"/>
 </p>
 
+## ⚠️ Important Notice: YouTube API Dependencies
+
+**This application uses YouTube's internal/undocumented APIs** (`youtubei/v1/player`) which carry significant risks:
+
+- **Service may break without notice** - These APIs are not officially supported
+- **No guarantees of availability** - YouTube can change or disable them at any time
+- **Potential Terms of Service issues** - Using undocumented APIs may violate YouTube's ToS
+
+For detailed risk analysis and mitigation strategies, see [YouTube API Risks Documentation](docs/YOUTUBE_API_RISKS.md).
+
 ## Getting Started
 
 Follow these instructions to get a copy of the project up and running on your local machine.
