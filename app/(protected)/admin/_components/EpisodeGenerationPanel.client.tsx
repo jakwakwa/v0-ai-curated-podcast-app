@@ -41,7 +41,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 	const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
-	const selectedPodcast = selectedBundle?.podcasts.find(p => p.podcast_id === selectedPodcastId)
+	const selectedPodcast = selectedBundle?.podcasts.find((p: any) => p.podcast_id === selectedPodcastId)
 
 	const hasBundles = bundles && bundles.length > 0
 
@@ -52,7 +52,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			setSelectedPodcastId("")
 			return
 		}
-		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id)
+		const podcastIds = selectedBundle.podcasts.map((p: any) => p.podcast_id)
 		if (!podcastIds.includes(selectedPodcastId)) {
 			setSelectedPodcastId(podcastIds[0] ?? "")
 		}
@@ -212,7 +212,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 							<h4 className="font-semibold mb-2">{selectedBundle.name}</h4>
 							<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 							<div className="flex flex-wrap gap-2">
-								{selectedBundle.podcasts.map(p => (
+								{selectedBundle.podcasts.map((p: any) => (
 									<Badge size="sm" key={p.podcast_id} variant="outline">
 										{p.name}
 									</Badge>
@@ -240,7 +240,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 								<SelectValue placeholder="Select a podcast..." />
 							</SelectTrigger>
 							<SelectContent>
-								{selectedBundle.podcasts.map(p => (
+								{selectedBundle.podcasts.map((p: any) => (
 									<SelectItem key={p.podcast_id} value={p.podcast_id}>
 										{p.name}
 									</SelectItem>

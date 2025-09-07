@@ -3,11 +3,11 @@ import { type NextRequest, NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-import type { Prisma } from "@prisma/client"
-import { PlanGate as PlanGateEnum } from "@prisma/client"
+import type { Bundle, Podcast } from "@/lib/types"
+import { PlanGate as PlanGateEnum } from "@/types/prisma-fallback"
 import { prisma } from "../../../lib/prisma"
 
-type BundleWithPodcasts = Prisma.BundleGetPayload<{ include: { bundle_podcast: { include: { podcast: true } } } }>
+type BundleWithPodcasts = Bundle & { bundle_podcast: Array<{ podcast: Podcast }> }
 
 function resolveAllowedGates(plan: string | null | undefined): PlanGateEnum[] {
 	const normalized = (plan || "").toString().trim().toLowerCase()
@@ -68,7 +68,7 @@ export async function GET(_request: NextRequest) {
 
 			return {
 				...bundle,
-				podcasts: bundle.bundle_podcast.map(bp => bp.podcast),
+				podcasts: bundle.bundle_podcast.map((bp: any) => bp.podcast),
 				canInteract,
 				lockReason,
 			}

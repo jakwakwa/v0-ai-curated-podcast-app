@@ -39,7 +39,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 			FAILED: { step: 0, total: 5, message: "Generation failed" },
 		}
 
-		const progress = progressInfo[episode.status] || progressInfo.PENDING
+		const progress = progressInfo[episode.status as keyof typeof progressInfo] || progressInfo.PENDING
 
 		return NextResponse.json({
 			...episode,

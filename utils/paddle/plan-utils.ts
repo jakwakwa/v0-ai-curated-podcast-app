@@ -1,4 +1,4 @@
-import type { PlanGate } from "@prisma/client"
+import type { PlanGate } from "@/types/prisma-fallback"
 import { PRICING_TIER } from "@/config/paddle-config"
 
 function planGateToDbString(plan: PlanGate): string {

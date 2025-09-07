@@ -1,6 +1,6 @@
 "use client"
 
-import type { Podcast, UserCurationProfile } from "@prisma/client"
+import type { Podcast, UserCurationProfile } from "@/lib/types"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"

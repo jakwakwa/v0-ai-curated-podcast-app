@@ -125,7 +125,7 @@ export async function POST(request: Request) {
 
 		// If both bundle and podcast provided, ensure membership
 		if (bundle && providedPodcastId) {
-			const isMember = bundle.bundle_podcast.some(bp => bp.podcast_id === providedPodcastId)
+			const isMember = bundle.bundle_podcast.some((bp: any) => bp.podcast_id === providedPodcastId)
 			if (!isMember) {
 				return NextResponse.json({ message: "Selected podcast is not in the chosen bundle" }, { status: 400 })
 			}

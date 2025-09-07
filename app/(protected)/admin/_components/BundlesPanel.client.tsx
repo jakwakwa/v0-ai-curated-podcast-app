@@ -105,7 +105,7 @@ export default function BundlesPanelClient({
 			name: b.name || "",
 			description: b.description || "",
 			min_plan: (b.min_plan as string) || "NONE",
-			selectedPodcastIds: b.podcasts.map(p => p.podcast_id),
+			selectedPodcastIds: b.podcasts.map((p: any) => p.podcast_id),
 		})
 	}
 
@@ -253,7 +253,7 @@ export default function BundlesPanelClient({
 										<p className="text-primary/70 text-custom-sm font-semibold">{bundle.name}</p>
 										<p className="text-xxs mt-1 episode-card-description text-foreground/50 mb-2">{bundle.description}</p>
 										<div className="flex flex-wrap gap-1 mb-1">
-											{bundle.podcasts.map(p => (
+											{bundle.podcasts.map((p: any) => (
 												<Badge size="sm" key={p.podcast_id} variant="outline" className="text-xs">
 													{p.name}
 												</Badge>

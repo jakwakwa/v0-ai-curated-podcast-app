@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import { PlanGate } from "@prisma/client"
+import { PlanGate } from "@/types/prisma-fallback"
 import { requireAdmin } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 

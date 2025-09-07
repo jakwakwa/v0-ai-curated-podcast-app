@@ -11,9 +11,9 @@ export default async function BundlesPanel() {
 		prisma.podcast.findMany({ where: { is_active: true }, orderBy: { name: "asc" } }),
 	])
 
-	const bundles: (Bundle & { podcasts: Podcast[] })[] = bundlesDb.map(b => ({
+	const bundles: (Bundle & { podcasts: Podcast[] })[] = bundlesDb.map((b: any) => ({
 		...(b as unknown as Bundle),
-		podcasts: b.bundle_podcast.map(bp => bp.podcast as unknown as Podcast),
+		podcasts: b.bundle_podcast.map((bp: any) => bp.podcast as unknown as Podcast),
 	}))
 	const availablePodcasts = podcastsDb as unknown as Podcast[]
 

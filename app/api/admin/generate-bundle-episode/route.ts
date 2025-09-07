@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 		}
 
 		// Validate that the selected podcast is part of the bundle
-		const isMember = bundle.bundle_podcast.some(bp => bp.podcast_id === podcastId)
+		const isMember = bundle.bundle_podcast.some((bp: any) => bp.podcast_id === podcastId)
 		if (!isMember) {
 			return NextResponse.json({ error: "Selected podcast is not in the chosen bundle" }, { status: 400 })
 		}

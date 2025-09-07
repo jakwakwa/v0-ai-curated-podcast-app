@@ -18,7 +18,7 @@ export async function GET(_request: Request) {
 		const storageReader = getStorageReader()
 
 		const episodesWithSignedUrls = await Promise.all(
-			episodes.map(async episode => {
+			episodes.map(async (episode: any) => {
 				let signedAudioUrl: string | null = null
 				if (episode.gcs_audio_url) {
 					const parsed = parseGcsUri(episode.gcs_audio_url)

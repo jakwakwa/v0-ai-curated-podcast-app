@@ -65,6 +65,7 @@ export default function AudioDurationPage() {
           </CardHeader>
           <CardContent>
             <Button
+              variant="default"
               onClick={() => extractDurations("user-episodes")}
               disabled={isLoading}
               className="w-full"
@@ -94,6 +95,7 @@ export default function AudioDurationPage() {
           </CardHeader>
           <CardContent>
             <Button
+              variant="default"
               onClick={() => extractDurations("episodes")}
               disabled={isLoading}
               className="w-full"

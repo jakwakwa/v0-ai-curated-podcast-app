@@ -9,9 +9,9 @@ export default async function EpisodeGenerationPanel() {
 			include: { bundle_podcast: { include: { podcast: true } } },
 			orderBy: { created_at: "desc" },
 		})
-		const bundles = bundlesDb.map(b => ({
+		const bundles = bundlesDb.map((b: any) => ({
 			...(b as unknown as Bundle),
-			podcasts: b.bundle_podcast.map(bp => bp.podcast as unknown as Podcast),
+			podcasts: b.bundle_podcast.map((bp: any) => bp.podcast as unknown as Podcast),
 		})) as (Bundle & { podcasts: Podcast[]; canInteract?: boolean; lockReason?: string | null; min_plan?: string })[]
 		return <EpisodeGenerationPanelClient bundles={bundles} />
 	} catch {

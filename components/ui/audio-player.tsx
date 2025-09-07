@@ -93,7 +93,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	// Memoized expensive calculations
 	const formattedCurrentTime = useMemo(() => formatTime(currentTime), [currentTime])
 	const formattedDuration = useMemo(() => formatTime(duration), [duration])
-	const _truncatedDescription = useMemo(() => truncateDescription(episode.description, 100), [episode.description])
+	const _truncatedDescription = useMemo(() => truncateDescription(episode.description || "", 100), [episode.description])
 
 	const audioSource = useMemo(() => {
 		return episode.audio_url !== "sample-for-simulated-tests.mp3" ? episode.audio_url : "/sample-for-simulated-tests.mp3"

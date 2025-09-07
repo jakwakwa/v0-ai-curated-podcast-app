@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { PlanGate } from "@prisma/client"
+import { PlanGate } from "@/types/prisma-fallback"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 

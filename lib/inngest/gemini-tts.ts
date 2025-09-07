@@ -243,7 +243,7 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 		})
 
 		const sourcesWithTranscripts: SourceWithTranscript[] = await Promise.all(
-			userCurationProfile.profile_podcast.map(async selection => {
+			userCurationProfile.profile_podcast.map(async (selection: any) => {
 				const s = selection.podcast
 				// Extract video ID from YouTube URL
 				const videoIdMatch = s.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/)
@@ -551,7 +551,7 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			}
 
 			// Use the explicitly selected podcast from the admin UI and ensure it belongs to the bundle
-			const membership = bundleWithPodcasts.bundle_podcast.find(bp => bp.podcast_id === podcastId)
+			const membership = bundleWithPodcasts.bundle_podcast.find((bp: any) => bp.podcast_id === podcastId)
 			if (!membership) {
 				throw new Error(`Podcast ${podcastId} is not a member of bundle ${bundleId}`)
 			}

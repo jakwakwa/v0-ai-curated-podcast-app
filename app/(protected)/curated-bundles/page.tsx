@@ -1,4 +1,4 @@
-import { PlanGate, type Prisma } from "@prisma/client"
+import { PlanGate } from "@/types/prisma-fallback"
 import { AlertCircle, Lock } from "lucide-react"
 import { unstable_noStore as noStore } from "next/cache"
 import Link from "next/link"
@@ -27,7 +27,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 		const minPlanParam = searchParams?.min_plan?.toString().trim()
 		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined
 
-		const where: Prisma.BundleWhereInput = {
+		const where: any = {
 			is_active: true,
 			...(q
 				? {
@@ -45,9 +45,9 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 			orderBy: { created_at: "desc" },
 		})
 
-		curatedBundles = bundles.map(b => ({
+		curatedBundles = bundles.map((b: any) => ({
 			...(b as unknown as Bundle),
-			podcasts: b.bundle_podcast.map(bp => bp.podcast as unknown as Podcast),
+			podcasts: b.bundle_podcast.map((bp: any) => bp.podcast as unknown as Podcast),
 		}))
 	} catch (e) {
 		error = e instanceof Error ? e.message : "Failed to load PODSLICE Bundles."

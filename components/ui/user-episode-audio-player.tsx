@@ -86,7 +86,7 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
     // Memoized expensive calculations
     const formattedCurrentTime = useMemo(() => formatTime(currentTime), [currentTime])
     const formattedDuration = useMemo(() => formatTime(duration), [duration])
-    const _truncatedDescription = useMemo(() => truncateDescription(episode.summary, 100), [episode.summary])
+    const _truncatedDescription = useMemo(() => truncateDescription(episode.summary || "", 100), [episode.summary])
 
     const audioSource = useMemo(() => {
         return episode.gcs_audio_url !== "sample-for-simulated-tests.mp3" ? episode.gcs_audio_url : "/sample-for-simulated-tests.mp3"

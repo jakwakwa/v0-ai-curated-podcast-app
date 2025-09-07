@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 		const bucketName = ensureBucketName()
 
 		const episodesWithSignedUrls = await Promise.all(
-			episodes.map(async episode => {
+			episodes.map(async (episode: any) => {
 				let signedAudioUrl: string | null = null
 				if (episode.gcs_audio_url) {
 					// GCS URL is in gs://<bucket>/<object> format

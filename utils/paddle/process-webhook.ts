@@ -101,7 +101,7 @@ export class ProcessWebhook {
 				const storage = getStorageUploader()
 				const bucketName = ensureBucketName()
 
-				const deletePromises = episodes.map(episode => {
+				const deletePromises = episodes.map((episode: any) => {
 					if (episode.gcs_audio_url) {
 						const objectName = episode.gcs_audio_url.replace(`gs://${bucketName}/`, "")
 						return storage.bucket(bucketName).file(objectName).delete()

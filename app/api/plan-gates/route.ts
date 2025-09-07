@@ -1,4 +1,4 @@
-import { PlanGate } from "@prisma/client"
+import { PlanGate } from "@/types/prisma-fallback"
 import { NextResponse } from "next/server"
 
 type PlanGateOption = {

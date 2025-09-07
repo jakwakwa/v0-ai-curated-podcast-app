@@ -72,7 +72,7 @@ export async function deletePodcastAction(podcastId: string) {
 	})
 	if (!podcast) throw new Error("Podcast not found")
 
-	const activeUsage = podcast.bundle_podcast.some(bp => bp.bundle.user_curation_profile.length > 0)
+	const activeUsage = podcast.bundle_podcast.some((bp: any) => bp.bundle.user_curation_profile.length > 0)
 	if (activeUsage) throw new Error("Cannot delete podcast; it is used by active user profiles. Consider deactivating instead.")
 
 	await prisma.bundlePodcast.deleteMany({ where: { podcast_id: podcastId } })
