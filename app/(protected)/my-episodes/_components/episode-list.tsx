@@ -85,7 +85,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 						<div key={episode.episode_id} className="p-1">
 							<EpisodeCard
 								imageUrl={null}
-								title={`WEEKLY PAGE: ${episode.episode_title}`}
+								title={episode.episode_title}
 								description={episode.summary}
 								publishedAt={episode.created_at}
 								durationSeconds={episode.duration_seconds ?? null}
