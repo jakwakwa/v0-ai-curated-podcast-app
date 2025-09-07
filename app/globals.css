@@ -1241,7 +1241,7 @@ header.bg-sidebar-header {
 	@media screen and (max-width: 767px) {
 		.container {
 			max-width: 100% !important;
-			background: oklch(0.19 0.03 282.99);			border-radius: 0;
+			background: oklch(0.21 0 286.07);			border-radius: 0;
 		}
 
 		/* CSS rules for screens 320px and wider */
