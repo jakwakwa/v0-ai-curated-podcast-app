@@ -23,7 +23,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 			<AppSidebar />
 
 			<SidebarInset>
-				<header className=" flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4 " >
+				<header className=" flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4  bg-[#000000]" >
 					<div className="flex items-center justify-between gap-2 px-2 md:px-4">
 						{/* @ts-ignore */}
 						<SidebarTrigger className=" w-10" />
@@ -38,7 +38,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 
 				</header>
 
-				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-0 md:px-0 mt-8 md:mt-8 mb-2 ${state === "expanded" ? "w-full max-w-[80vw]" : "ml-12 w-full max-w-[90vw]"}`}>
+				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-14 px-0 md:px-0 mt-8 md:mt-8 mb-2 ${state === "expanded" ? "ml-6 w-full md:max-w-[80vw]" : "ml-12 w-full md:max-w-[90vw]"}`}>
 
 					<div className=" w-full p-0 flex flex-col md:flex-row gap-2 px-2 min-w-full md:px-4 h-full my-0">{children}</div>
 				</div>

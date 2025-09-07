@@ -361,38 +361,38 @@ button {
 }
 
 button.bg-btn-default {
-	background: #2E1D75 !important;
-	text-shadow: 0px 2px 0px 1px #15065380;
-	box-shadow:inset 0px 1px 1px 0px #2EF09637,  inset  0px -1px 1px #A00EA59D, 0px 0px 0px 0px #1B1B1B1C, 0px 3px 6px 0px #0B0B0BA9, 0px 1px 0px 1px #050505D7;
+	background: #362C5C !important;
+	text-shadow: 0px 2px 0px 1px #26223480;
+	box-shadow:inset 0px 1px 1px 0px #2EF09637,  inset  0px -2px 3px #1F1C279D, 0px 0px 0px 0px #1B1B1B1C, 0px 3px 3px 0px #0B0B0BA9, 0px 1px 0px 0px #050505D7;
 	padding: 1.2rem 1rem !important;
 	font-size: 0.91rem !important;
 	font-weight: 600 !important;
 }
 
 button.btn-ghost-outline {
-	/* background: oklch(0.27 0.11 271.53 / 0.1) !important; */
+	/* background: oklch(0.2 0.01 237.38 / 0.68) !important; */
 	text-shadow: 0px 2px 0px 1px #15065380;
-	outline: 1px solid #8174803C !important;
-	border: 3px solid #060607D7 !important;
+	outline: 1px solid #5A4C593C !important;
+	border: 2px solid #060607D7 !important;
 	padding: 15px 25px !important;
 	/* height: 25px !important; */
 	font-size: 0.7rem;
 	font-weight: 500;
-	outline-offset: 1px;
-	color: #F7CBCBCB !important;
+	/* outline-offset: 1px; */
+	color: #C7DBDBCB !important;
 
 }
 button.btn-ghost-outline-sm {
 	/* background: oklch(0.27 0.11 271.53 / 0.1) !important; */
 	text-shadow: 0px 2px 0px 1px #15065380;
 	outline: 1px solid #4756733C !important;
-	border: 3px solid #273030D7 !important;
+	border: 1px solid #273030D7 !important;
 	padding: 15px 25px !important;
 	/* height: 25px !important; */
 	font-size: 0.7rem;
 	font-weight: 500;
-	outline-offset: 1px;
-	color: #F7CBCBCB !important;
+	outline-offset: 0px;
+	color: #F4E0E0CB !important;
 	outline: 1px solid #7186E73C !important;
 	/* border: 2px solid #7A343FD7 !important; */
 	/* padding: 8px 2px !important; */
@@ -401,13 +401,13 @@ button.btn-ghost-outline-sm {
 button.btn-destructive-ghost {
 	background: oklch(0.31 0.11 10.07 / 0.85) !important;
 	text-shadow: 0px 2px 0px 1px #B30F48B1;
-	outline: 1px solid #B639623C;
+	outline: 1px solid #3978B63C;
 	border: 2px solid #25040954 !important;
 }
 
 button.btn-destructive-ghost:hover {
 	text-shadow: 0px 2px 0px 1px #B67B0C80;
-	outline: 1px solid #E84D2EA9 !important;
+	outline: 1px solid #2EE8BDA9 !important;
 	border: 1px solid #CC681C70 !important;
 }
 
@@ -417,7 +417,7 @@ button.btn-ghost-sm {
 	/* height: 25px !important; */
 	font-size: 0.4rem;
 	font-weight: 800;
-	outline-offset: 2px;
+	/* outline-offset: 1px; */
 
 }
 
@@ -561,7 +561,7 @@ textarea {
 		background:   url('/assets/background/grid-bg.svg') no-repeat;
 		background-blend-mode: multiply, screen;
 		width: 100%;
-		background-color	: color(a98-rgb 0.19 0.22 0.35 / 0.42) !important;
+		background-color	: color(a98-rgb 0.22 0.27 0.37 / 0.48) !important;
 	}
 
 	button:hover {
@@ -734,7 +734,7 @@ position: relative;
 		 0px 13px 13px oklch(0 0 	0 / 0.39),
 		 0px 24px 40px oklch(0.16 0 17.51 / 0.4) !important;
 		transition: all 0.2s ease-in-out;
-		z-index: 199;
+		z-index: 30;
 		padding: 10px 20px;
 		margin: 0 !important;
 		border-top-right-radius: 20px;
@@ -744,13 +744,14 @@ position: relative;
 	.episode-card-wrapper {
 
 		/* background: linear-gradient(to bottom,  oklch(0.3 0.07 340.07 / 0.38),  	oklch(0.26 0.02 311.78 / 0.98), oklch(0.15 0.01 285.61)); */
-		background: linear-gradient(to bottom,  oklch(0.34 0.03 257.1 / 0.86),  	oklch(0.25 0.03 304.28), oklch(0.2 0.02 302.83 / 0.81));
+		background: linear-gradient(0deg , oklch(0.22 0.03 303.78),	oklch(0.34 0.04 248.07));
 
 				border: 1px solid #1C546B3B !important;
 				box-shadow: inset 0px -13px 13px oklch(0 0 0 / 0), inset 0px 1px 1px oklch(0.87 0.14 169.13 / 0), inset 0px -13px 13px oklch(0 0 0 / 0.1),  -10px 20px 21px oklch(0.12 0 0 / 0.33) !important;
 				/* z-index: 9999; */
-				border-radius: 20px !important;
+				border-radius: 10px !important;
 				margin: 0 !important;
+				margin-bottom: 50px !important;
 			}
 
 
@@ -1021,7 +1022,8 @@ header.bg-sidebar-header {
 
 	.bg-btn-default {
 		/* background-color: var(--dark) !important; */
-		background-image: radial-gradient(ellipse 125% 140% at -30% 0%, rgba(16 117 205 / 0.76), rgb(44 15 75)) !important;
+		background-image: radial-gradient(ellipse 125% 140% at -30% 0%, rgba(50 97 134 / 0.95), rgb(53 40 73)) !important;
+		border-radius: 10px;
 	}
 
 	card-glass,
@@ -1229,6 +1231,56 @@ header.bg-sidebar-header {
 			width: 100vw !important;
 			max-width: 80% !important;
 		}
+		.episode-card-title,
+	p.episode-card-description {
+		font-size:0.72rem !important;
+		/* line-height: 1rem; */
+		opacity: 0.7 !important;
+
+		font-weight: 300;
+		font-style: italic;
+
+		max-width: 85%;
+		margin-top: 0rem;
+		margin-bottom: 0.4rem;
+		letter-spacing: 0.025em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		color: lab(91.46 -1.32 6.45 / 0.57);
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+
+	.episode-card-title {
+		font-size: 0.85rem !important;
+		/* line-height: 1rem; */
+		opacity: 0.7 !important;
+		line-clamp: 2;
+		color: #FFE5E8D6;
+		max-width: 80%;
+		-webkit-line-clamp: 1;
+		font-style: normal;
+
+		font-weight:700 !important;
+	}
+	p.episode-card-description  {
+		display: none;
+	}
+
+	.episode-card {
+		padding-top: 15px;
+		padding-bottom: 10px;
+		display: flex;
+		align-items: center !important;
+		min-height: 100px !important;
+		border-radius: 13px !important;
+	}
+
+		.episode-card-wrapper-dark {
+			border-radius: 10px !important;
+			padding: 10px !important;
+		}
 
 		.episode-card-wrapper {
 			padding: 24px 20px 25px 20px !important;
@@ -1415,7 +1467,7 @@ header.bg-sidebar-header {
 		font-size: 1rem !important;
 		background-image: linear-gradient(to right top, oklch(0.25 0.01 285.56 / 0.79), oklch(0.31 0.02 211.26 / 0.02)) !important;
 		border-radius: 8px;
-		outline: 1px solid #151B1FEB !important;
+		outline: 1px solid #000000 !important;
 		box-shadow: inset -5px -4px 59px 2px #141519EA, inset 0px 1px 0px 0.5px #44DFD234, 3px 8px 7px 3px #0C0D0D97 !important ;
 		transition: all 0.2s ease-in-out;
 		/* padding: 12px 20px 12px 20px; */
@@ -1671,7 +1723,7 @@ header.bg-sidebar-header {
 		font-weight: 600 !important;
 
 
-		color: #DAF1ECAB !important;
+		color: #E4EDEBC0 !important;
 
 		background-size: cover;
 		background-repeat: no-repeat;

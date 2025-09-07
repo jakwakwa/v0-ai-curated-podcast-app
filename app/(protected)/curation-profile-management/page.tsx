@@ -137,7 +137,7 @@ export default function CurationProfileManagementPage() {
 			) : userCurationProfile ? (
 				<div className="mx-auto px-0 pb-12 pt-0  md:px-0 lg:flex">
 					<div className="w-full flex flex-col md:grid grid-cols-1 lg:grid-cols-7 gap-3">
-						<Card className="episode-card-wrapper col-span-3 border-dark border-b-dark">
+						<Card className="episode-card-wrapper-dark col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0">
 								<CardTitle className=" mb-4 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
 								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (

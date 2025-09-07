@@ -124,9 +124,9 @@ export default function Page() {
 
 			<PageHeader title=" Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-			<Card className="episode-card-wrapper flex flex-col pb-12 w-full px-4 gap-4 md:p-2 ">
+			<Card className="episode-card-wrapper-dark flex flex-col pb-12 w-full px-4 gap-4 md:p-2 ">
 				<div className="flex flex-col lg:flex-row gap-2">
-					<div className="w-full  md:w-full">
+					<div className="w-full  md:w-1/2">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} />
 						) : (

@@ -83,7 +83,7 @@ export default function EpisodesPage() {
 					</div>
 				</div>
 			) : episodes.length === 0 ? (
-				<div className="w-full max-w-[1000px] mx-auto mt-8">
+				<div className="w-full  max-w-[1000px] mx-auto mt-8">
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
 						<AlertTitle>No Episodes Available</AlertTitle>
@@ -97,7 +97,7 @@ export default function EpisodesPage() {
 					</div>
 				</div>
 			) : (
-				<div className="flex flex-col justify-center px-2 mx-auto w-screen md:w-full mt-0">
+				<div className="flex episode-card-wrapper flex-col justify-center px-2 mx-auto w-screen md:w-full mt-0">
 					<H3>Total Episodes ({episodes.length})</H3>
 					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 

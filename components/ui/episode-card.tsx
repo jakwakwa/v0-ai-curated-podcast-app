@@ -29,7 +29,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 				</div>
 			) : null}
 			<div className="relative flex w-full flex-col justify-around pb-4 px-0 md:px-0 gap-1">
-				<div className=" episode-card-title leading-normal font-bold m-0 w-full max-w-full block text-[#fff]/90">{title}</div>
+				<div className="episode-card-title leading-normal font-bold m-0 w-full max-w-full block text-[#fff]/90">{title}</div>
 				<p className="text-card-foreground episode-card-description mb-0 w-full m-0 p-0">{description || "No description available."}</p>
 
 				<div className=" flex flex-col justify-end w-full">
