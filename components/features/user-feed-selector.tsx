@@ -1,6 +1,6 @@
 "use client"
 
-import type { Podcast, UserCurationProfile } from "@prisma/client"
+import type { Bundle, Podcast, UserCurationProfile } from "@prisma/client"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUserCurationProfileStore } from "@/lib/stores"
 import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Typography } from "../ui/typography"
-import { BundleList } from "./bundle-list"
 
 function UserFeedSelectorWizard() {
 	const [step, setStep] = useState(1)
@@ -23,6 +23,8 @@ function UserFeedSelectorWizard() {
 	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([])
 	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
+	const [bundles, setBundles] = useState<Bundle[]>([])
+	const [isLoadingBundles, setIsLoadingBundles] = useState(false)
 
 	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
 	const canCreateUserCurationProfile = () => true
@@ -47,6 +49,25 @@ function UserFeedSelectorWizard() {
 
 		checkExistingProfile()
 	}, [])
+
+	// Fetch bundles when bundle selection is needed
+	const fetchBundles = async () => {
+		if (bundles.length > 0) return // Already loaded
+
+		setIsLoadingBundles(true)
+		try {
+			const response = await fetch("/api/curated-bundles")
+			if (response.ok) {
+				const data = await response.json()
+				setBundles(data)
+			}
+		} catch (error) {
+			console.error("Error fetching bundles:", error)
+			toast.error("Failed to load bundles. Please try again.")
+		} finally {
+			setIsLoadingBundles(false)
+		}
+	}
 
 	const handleCreateUserCurationProfile = async () => {
 		if (!canCreateUserCurationProfile()) {
@@ -195,7 +216,48 @@ function UserFeedSelectorWizard() {
 						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
 					</Typography>
 					{isBundleSelection ? (
-						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} selectedBundleId={selectedBundleId} />
+						<div className="w-full max-w-md">
+							<div className="mb-4">
+								<Label htmlFor="bundle-select" className="block text-sm font-medium mb-2">
+									Choose a Bundle
+								</Label>
+								<Select
+									value={selectedBundleId || ""}
+									onValueChange={(value) => {
+										setSelectedBundleId(value)
+										// Fetch bundles if not already loaded
+										if (bundles.length === 0) {
+											fetchBundles()
+										}
+									}}
+								>
+									<SelectTrigger id="bundle-select" className="w-full">
+										<SelectValue placeholder="Select a bundle..." />
+									</SelectTrigger>
+									<SelectContent>
+										{isLoadingBundles ? (
+											<SelectItem value="" disabled>
+												<AppSpinner size="sm" label="Loading bundles..." />
+											</SelectItem>
+										) : (
+											bundles.map((bundle) => (
+												<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
+													{bundle.name}
+												</SelectItem>
+											))
+										)}
+									</SelectContent>
+								</Select>
+							</div>
+							<div className="text-sm text-muted-foreground">
+								<Typography variant="body" className="mb-2">
+									Need more details about the bundles?{" "}
+									<Link href="/curated-bundles" className="text-primary hover:underline">
+										View bundle details here
+									</Link>
+								</Typography>
+							</div>
+						</div>
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {
@@ -254,7 +316,9 @@ function UserFeedSelectorWizard() {
 									Selected Content:
 								</Typography>
 								{isBundleSelection && selectedBundleId ? (
-									<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
+									<Typography variant="body">
+										Bundle: {bundles.find(b => b.bundle_id === selectedBundleId)?.name || selectedBundleId}
+									</Typography>
 								) : (
 									<ul className="space-y-2">
 										{selectedPodcasts.map(p => (
