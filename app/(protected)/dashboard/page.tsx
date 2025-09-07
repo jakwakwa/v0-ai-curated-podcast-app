@@ -119,12 +119,12 @@ export default function Page() {
 	}
 
 	return (
-		<div className="default-card">
+		<div className=" w-full">
 			{/* MAIN CONTAINER */}
 
-			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
+			<PageHeader title=" Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-			<Card variant="glass" className="bg-card flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+			<Card className="episode-card-wrapper flex flex-col pb-12 w-full px-4 gap-4 md:p-2 ">
 				<div className="flex flex-col lg:flex-row gap-2">
 					<div className="w-full  md:w-full">
 						{userCurationProfile ? (
@@ -143,7 +143,7 @@ export default function Page() {
 						)}
 					</div>
 
-					<div className="w-full min-w-none max-w-screen md:min-w-[700px]">
+					<div className="w-full min-w-none max-w-screen md:min-w-[800px]">
 						{combinedEpisodes.length === 0 ? (
 							<EmptyStateCard
 								title="No Episodes Found"

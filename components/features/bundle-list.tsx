@@ -87,7 +87,7 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 	}
 
 	return (
-		<div className="flex flex-col gap-4 justify-center items-center w-full max-w-md">
+		<div className="flex flex-col gap-2 justify-center items-center w-full max-w-md">
 			{curatedBundles.map(bundle => {
 				const isSelected = selectedBundleId === bundle.bundle_id
 				const disabled = bundle.canInteract === false
@@ -134,7 +134,7 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 								<div className="flex flex-col rounded-lg w-full min-w-0 bg-background/50 border border-border">
 									{/* Podcasts list */}
 									<div className="mb-0 p-4">
-										<h5 className="font-medium mb-1 text-sm">Included Podcasts:</h5>
+										<h5 className="font-medium mb-1 text-body">Included Podcasts:</h5>
 										<ul className="space-y-1 pt-2">
 											{bundle.podcasts?.map(podcast => (
 												<li key={podcast.podcast_id} className="text-sm text-muted-foreground truncate">

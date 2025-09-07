@@ -20,7 +20,7 @@ export function EpisodeCreator() {
 	const [podcastName, setPodcastName] = useState("")
 	const [publishedDate, setPublishedDate] = useState("")
 	const [youtubeUrl, setYouTubeUrl] = useState("")
-	const [lang, setLang] = useState("")
+	const [lang, _setLang] = useState("")
 
 	// Generation options
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
@@ -86,7 +86,7 @@ export function EpisodeCreator() {
 	const hasReachedLimit = usage.count >= usage.limit
 
 	return (
-		<div className="w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-0 md:px-12">
+		<div className="episode-card-wrapper w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-0 md:px-12">
 			<Card>
 				<CardHeader>
 					<CardTitle>Create New Episode</CardTitle>
@@ -98,15 +98,23 @@ export function EpisodeCreator() {
 					) : hasReachedLimit ? (
 						<p className="text-red-500">You have reached your monthly limit for episode creation.</p>
 					) : (
-						<form className="space-y-6" onSubmit={e => { e.preventDefault(); void handleCreate() }}>
-							<div className="space-y-2">
-								<Label htmlFor="title">Episode Title</Label>
-								<Input id="title" placeholder="Exact episode title" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
-							</div>
+						<form
+							className="space-y-6"
+							onSubmit={e => {
+								e.preventDefault()
+								void handleCreate()
+							}}>
 
-							<div className="space-y-2">
-								<Label htmlFor="podcastName">Podcast Name (optional)</Label>
-								<Input id="podcastName" placeholder="Podcast show name" value={podcastName} onChange={e => setPodcastName(e.target.value)} disabled={isBusy} />
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="title">Episode Title</Label>
+									<Input id="title" placeholder="Exact episode title" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="podcastName">Podcast Name (optional)</Label>
+									<Input id="podcastName" placeholder="Podcast show name" value={podcastName} onChange={e => setPodcastName(e.target.value)} disabled={isBusy} />
+								</div>
 							</div>
 
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -121,15 +129,14 @@ export function EpisodeCreator() {
 							</div>
 
 							<div className="space-y-2">
-								<Label htmlFor="lang">Preferred language (optional)</Label>
-								<Input id="lang" placeholder="en" value={lang} onChange={e => setLang(e.target.value)} disabled={isBusy} />
-							</div>
-
-							<div className="space-y-2">
 								<Label>Episode Type</Label>
-								<div className="grid grid-cols-2 gap-2">
-									<Button type="button" variant={generationMode === "single" ? "default" : "secondary"} onClick={() => setGenerationMode("single")} disabled={isBusy}>Single speaker</Button>
-									<Button type="button" variant={generationMode === "multi" ? "default" : "secondary"} onClick={() => setGenerationMode("multi")} disabled={isBusy}>Multi speaker</Button>
+								<div className="md:max-w-1/2 grid grid-cols-2 gap-2 ">
+									<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md">
+										Single speaker
+									</Button>
+									<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="lg">
+										Multi speaker
+									</Button>
 								</div>
 							</div>
 
@@ -143,7 +150,9 @@ export function EpisodeCreator() {
 											</SelectTrigger>
 											<SelectContent>
 												{VOICE_OPTIONS.map(v => (
-													<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+													<SelectItem key={v.name} value={v.name}>
+														{v.label}
+													</SelectItem>
 												))}
 											</SelectContent>
 										</Select>
@@ -156,7 +165,9 @@ export function EpisodeCreator() {
 											</SelectTrigger>
 											<SelectContent>
 												{VOICE_OPTIONS.map(v => (
-													<SelectItem key={v.name} value={v.name}>{v.label}</SelectItem>
+													<SelectItem key={v.name} value={v.name}>
+														{v.label}
+													</SelectItem>
 												))}
 											</SelectContent>
 										</Select>
@@ -164,7 +175,9 @@ export function EpisodeCreator() {
 								</div>
 							)}
 
-							<Button type="submit" variant="default" disabled={!canSubmit} className="w-full">{isCreating ? "Creating..." : "Create & Generate"}</Button>
+							<Button type="submit" variant="default" disabled={!canSubmit} className="w-full">
+								{isCreating ? "Creating..." : "Create & Generate"}
+							</Button>
 						</form>
 					)}
 					{error && <p className="text-red-500 mt-4">{error}</p>}

@@ -23,7 +23,7 @@
 
 	/* works */
 	/* --color-secondary: oklch(0.47 0.0798 185.52); */
-	--color-secondary-foreground: oklch(0.89 0.1 165.1 / 0.94);
+	--color-secondary-foreground: oklch(0.8 0.03 214.51 / 0.94);
 	--color-secondary-background: var(--color-secondary-dark);
 	--color-secondary-light: oklch(0.79 0.13 192.97 / 0.73);
 	--color-secondary-dark: oklch(0.45 0.08 193.57 / 0.73);
@@ -88,8 +88,8 @@
 	--color-form-error-ring: oklch(0.62 0.22 25 / 0.2);
 
 	/* Button-specific colors */
-	--color-button-primary-foreground: oklch(0.94 0.02 177.44);
-	--color-button-secondary-foreground: oklch(0.95 0.06 159.46);
+	--color-button-primary-foreground: oklch(0.94 0.02 177.44 / 0.84);
+	--color-button-secondary-foreground: oklch(0.95 0.06 158.85 / 0.8);
 	--color-button-destructive-foreground: oklch(0.84 0.0483 18.16);
 	--color-button-outline: oklch(0.75 0.02 240 / 0.4);
 	--color-button-outline-hover: oklch(0.8 0.02 240 / 0.5);
@@ -230,7 +230,7 @@
 
 	--tertiary-gradient-accent: linear-gradient(to bottom left, hsla(var(--tertiary-gradient-end-hsl)), hsla(var(--tertiary-gradient-start-hsl)));
 
-	--tertiary-gradient-end: rgb(165, 229, 228);
+	--tertiary-gradient-end: rgb(157 194 194);
 	--tertiary-gradient-end-hsl: 170, 80%, 68%;
 	--tertiary-gradient-start: hsla(242, 94%, 60%, 0.896);
 	--tertiary-gradient-start-hsl: 242, 94%, 60%, 0.896;
@@ -272,14 +272,14 @@
 	--primary: rgb(232 216 254);
 	--primary-foreground: rgba(240, 244, 250, 1);
 
-	--secondary: rgb(7 98 87);
+	--secondary: rgb(8 83 74);
 	--secondary-foreground: rgba(240, 244, 250, 1);
 
-	--accent: rgb(121 75 191);
-	--accent-dark: rgb(21 18 26);
+	--accent: rgba(26 15 41 / 0.57);
+	--accent-dark: rgb(16 20 28);
 	--color-accent: var(--accent-light);
 --color-accent-dark: var(--accent-dark);
-	--accent-light: rgb(209 180 253);
+	--accent-light: rgba(190 180 253 / 0.84);
 	--color-accent-foreground: var(--accent-light);
 	--color-accent-background: var(--accent-dark);
 	--accent-foreground: var(--accent-light);
@@ -374,8 +374,8 @@ button.btn-ghost-outline {
 	text-shadow: 0px 2px 0px 1px #15065380;
 	outline: 1px solid #8174803C !important;
 	border: 3px solid #060607D7 !important;
-	padding: 15px 15px !important;
-	height: 25px !important;
+	padding: 15px 25px !important;
+	/* height: 25px !important; */
 	font-size: 0.7rem;
 	font-weight: 500;
 	outline-offset: 1px;
@@ -409,16 +409,12 @@ header {
 
 input::placeholder,
 textarea::placeholder {
-	color: oklch(0.91 0.02 196.77 / 0.57);
+	color: oklch(0.69 0.04 212.96 / 0.7);
 	font-weight: 300 !important;
-	font-size: 0.9rem !important;
+	font-style: italic;
 	opacity: 0.7;
-	line-height: 1.5 !important;
 	display: flex;
 	align-items: center;
-	/* height: auto; */
-	padding: 0px !important;
-	margin: 0 !important;
 }
 
 input:focus-visible,
@@ -445,43 +441,40 @@ input[type="checkbox"] {
 	transition: all 0.2s ease-in-out;
 }
 
-textarea {
 
-	padding: initial !important;
-	padding: 1.5rem 1rem !important;
-	padding-bottom: 0rem !important;
-	height: auto;
-	min-height: 90px;
-}
 
 
 input,
 textarea {
-	font-size:0.85rem ;
+	font-size:0.85rem;
 	line-height: 1rem;
-	height: auto;
-	color: oklch(0.92 0.01 17.34 / 0.72);
-	border: 1px solid #D30AFB2C !important;
-	box-shadow: inset 1px 1px 0px 0px #0681756E, 1px 1px 5px 0px #00000052, inset 0px 8px 4px 1px #0000001F,  inset 0px 5px 3px 0px #00000045;
+	font-weight: 500;
+	border: 1px solid #E4A2F12C !important;
 	margin: 10px 0 !important;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	letter-spacing: 0.0015em;
-	padding: 1.1rem 0.9rem ;
+	padding: 1.4rem 0.7rem ;
 	/* border: 1px solid var(--color-border); */
 	/* border-radius: 0.375rem; */
 
-	background-color: #3A4153BE  !important;
-	/* outline: 1px solid transparent !important; */
-	border-radius: 13px;
-	height: auto;
+	/* background-color: #21252FBE  !important; */
+		/* outline: 1px solid transparent !important; */
+		border-radius: 6px;
+	background-color: #1E1B25;
+
 	width: 100% !important;
-	color: oklch(0.95 0.04 172.66 / 0.8);
-	/* box-shadow: inset -1px 3px 3px 0px #09090A53, inset 0px 2px 2px 0px #1212155D; */
+	color: oklch(0.92 0.04 173.12 / 0.8);
+	box-shadow: inset 0px 2px 3px 2px #1212136A !important;
 	border: 1px solid oklab(0.95 -0.04 -0.02 / 0.11);
-	background-color: #1F2021;
+
 	transition: all 0.2s ease-in-out;
+}
+
+.textarea {
+	height:auto;
+	min-height: 200px !important;
 }
 
 
@@ -507,9 +500,7 @@ textarea:focus-visible {
 
 textarea {
 
-	padding: initial !important;
-	padding: 1.5rem 1rem !important;
-	padding-bottom: 0rem !important;
+
 	height: auto;
 	min-height: 190px;
 }
@@ -520,12 +511,13 @@ textarea {
 @layer base {
 	body {
 		overflow-x: hidden;
-		background: var(--color-background);
+
 		/* pointer-events: none; */
 		height: 100vh !important;
-		background:  url('/assets/background/checkout-bottom-gradient-original.svg') no-repeat,  url('/assets/background/grid-bg.svg') no-repeat;
-		background-color: oklch(0.14 0.08 297.5 / 0.46);
-		/* width: 100%; */
+		background:   url('/assets/background/grid-bg.svg') no-repeat;
+		background-blend-mode: multiply, screen;
+		width: 100%;
+		background-color	: color(a98-rgb 0.1 0.09 0.12 / 0.42) !important;
 	}
 
 	button:hover {
@@ -554,8 +546,7 @@ textarea {
 	}
 
 	.btn-primary {
-		/* background: var(--color-primary) !important; */
-		/* background-color: #A81414!important; */
+
 		font-family: var(--font-sans);
 		font-size: var(--text-body);
 		height: auto;
@@ -626,7 +617,7 @@ textarea {
 		padding-bottom: 10px !important;
 		height: 12.425rem !important;
 		width: 100% !important;
-		border: 1px solid #61706f45 !important;
+		border: 1px solid #16201F45 !important;
 		/* box-shadow: var(--shadow-sm) !important; */
 		transition: all 0.2s ease-in-out;
 	}
@@ -678,28 +669,57 @@ textarea {
 		box-shadow: 0 0 0 transparent !important;
 	}
 
+	.top-shadow {
+		position: absolute !important;
+		top: 0px;
+		left: 0px;
+		background-color: transparent !important;
+		height:12%;
+		width: 100%;
+		box-shadow: inset 0px 19px 20px oklch(0.12 0 0 / 0.7)  !important;
+		z-index: 200 !important;
+		display: none;
+	}
+
+	.episode-card-wrapper-dark {
+position: relative;
+		background: linear-gradient(to bottom,  oklch(0.18 0.01 300.35 / 0.8),  	oklch(0.11 0 285.76));
+
+		border: 1px solid #050606 !important;
+		box-shadow:
+		 0px 13px 13px oklch(0 0 	0 / 0.39),
+		 0px 24px 40px oklch(0.16 0 17.51 / 0.4) !important;
+		transition: all 0.2s ease-in-out;
+		z-index: 199;
+		padding: 10px 20px;
+		margin: 0 !important;
+		border-top-right-radius: 20px;
+		border-top-left-radius: 20px;
+	}
+
 	.episode-card-wrapper {
 
-		background: linear-gradient(to bottom,  oklch(0.3 0.07 340.07 / 0.38),  	oklch(0.26 0.02 311.78 / 0.98), oklch(0.15 0.01 285.61));
+		/* background: linear-gradient(to bottom,  oklch(0.3 0.07 340.07 / 0.38),  	oklch(0.26 0.02 311.78 / 0.98), oklch(0.15 0.01 285.61)); */
+		background: linear-gradient(to bottom,  oklch(0.34 0.03 257.1 / 0.86),  	oklch(0.25 0.03 304.28), oklch(0.2 0.02 302.83 / 0.81));
 
-		border: 1px solid #00000030 !important;
-		box-shadow: 2px 13px 13px black !important;
-		transition: all 0.2s ease-in-out;
-
-
-		margin: 0 !important;
-	}
+				border: 1px solid #1C546B3B !important;
+				box-shadow: inset 0px -13px 13px oklch(0 0 0 / 0), inset 0px 1px 1px oklch(0.87 0.14 169.13 / 0), inset 0px -13px 13px oklch(0 0 0 / 0.1),  -10px 20px 21px oklch(0.12 0 0 / 0.33) !important;
+				/* z-index: 9999; */
+				border-radius: 20px !important;
+				margin: 0 !important;
+			}
 
 
 
 	.episode-card {
-		background-image: linear-gradient(to right top, #0F0E11, #191D27);
+		background-image: linear-gradient(to right top, #121215, #332C38);
 		/* background-image: linear-gradient(to right top, oklch(0.17 0 285.97 / 0.94), oklch(0.21 0.01 314.52 / 0.86),  oklch(0.23 0.01 277.95 / 0.86),  oklch(0.27 0.02 246.29), oklch(0.34 0.02 185.64 / 0.77)); */
-		border-radius: 10px;
-		border: 1px solid #000000F6;
+		border-radius: 30px !important;
+		border: 1px solid #000000CF;
 		box-shadow: var(--shadow-sm);
 		transition: all 0.2s ease-in-out;
-		padding: 11px 10px 5px 10px;
+		padding: 15px 20px 5px 20px;
+		box-shadow: inset 0px -13px 13px oklch(0 0 0 / 0), inset 0px 1px 1px oklch(0.87 0.14 169.13 / 0),  0px 13px 13px oklch(0 0 0 / 0.25),  0px 1px 1px oklch(0.87 0.14 168.75 / 0) !important;
 		/* background-blend-mode: multiply,screen; */
 		/* backdrop-filter: blur(10px) !important; */
 	}
@@ -776,10 +796,20 @@ textarea {
 
 	.dialog-padding {
 		padding: 40px 53px;
-		background-image: linear-gradient(130deg, oklch(0.4 0.19 312.27 / 0.55), oklch(0.28 0.13 292.36 / 0.75));
+		background-image: linear-gradient(130deg, oklch(0.35 0.09 258.13 / 0.55), oklch(0.28 0.13 292.36 / 0.75));
 	}
+
+header.bg-sidebar-header {
+	background: #31175B75 !important;
+}
+
+.border-sidebar-container {
+	border: 1px solid #000 !important;
+	box-shadow: 1px 1px #000 !;
+}
+
 	.bg-sidebar {
-		background-image: linear-gradient(to top, #171B1F, #1B1B26F6);
+		background-image: linear-gradient(to top, #15151835, #26212E5E);
 		border-right: 1px solid #73CEC218 !important;
 
 	}
@@ -787,7 +817,7 @@ textarea {
 		background-image: linear-gradient(to right top, oklch(0.47 0.17 291.3 / 0.03), oklch(0.75 0.04 298.59 / 0.05)) !important;
 		border:none !important;
 		outline:none !important;
-		box-shadow:0px 0px 0px 0px !important;
+		box-shadow: 0px 0px 0px 0px !important;
 		border-radius: 10px !important;
 		transition: all 0.2s ease-in-out;
 
@@ -1567,11 +1597,11 @@ textarea {
 
 	body {
 
-		font-family: 'Work Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif !important;
-		font-weight: 300;
+		font-family: 'Inter', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif !important;
+		font-weight: 600 !important;
 
 
-
+		color: #B9CCC8AB !important;
 
 		background-size: cover;
 		background-repeat: no-repeat;

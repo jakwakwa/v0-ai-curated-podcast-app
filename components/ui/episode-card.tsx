@@ -22,20 +22,20 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 	const date: Date = publishedAt ? new Date(publishedAt) : new Date()
 
 	return (
-		<Root className="flex flex-row items-center hover:bg-card content/10 active:bg-card justify-between px-8 py-2 w-full gap-8 episode-card w-full ">
+		<Root className="flex flex-row items-center hover:bg-card content/10 active:bg-card justify-between px-8 pt-2 pb-0 w-full gap-8 episode-card w-full relative">
 			{imageUrl ? (
-				<div className="  w-full items-center max-w-[50px]  ">
-					<Image src={imageUrl} alt={title} className="h-13 w-full max-w-[70px] md:h-14 md:w-full border-1 m-2   shadow-md border-[#201326F3] rounded-2xl object-fill" width={100} height={60} />
+				<div className="w-full items-center max-w-[50px]  ">
+					<Image src={imageUrl} alt={title} className="absolute top-4 left-2 h-14 w-14 max-w-14 md:h-14 md:w-full border-2 m-2  shadow-md border-[#98CAD35C] rounded-xl object-fill" width={100} height={60} />
 				</div>
 			) : null}
-			<div className="relative flex w-full max-width-[900px] flex-col justify-around py-2  px-0 md:px-0 gap-1">
-				<div className="relative episode-card-title leading-normal font-bold truncate m-0 w-full max-w-[100px] block text-[#fff]/90">{title}</div>
+			<div className=" flex w-full max-width-[900px] flex-col justify-around pb-4  px-0 md:px-0 gap-1">
+				<div className=" episode-card-title leading-normal font-bold truncate m-0 w-full max-w-[100px] block text-[#fff]/90">{title}</div>
 				<p className="text-card-foreground episode-card-description mb-0 w-full m-0 p-0">{description || "No description available."}</p>
 				<Badge size="sm" variant="default" className="w-fit text-card-foreground">
 					<DateIndicator size="sm" indicator={date} label={null} />
 				</Badge>
 				<DurationIndicator size="sm" seconds={durationSeconds ?? null} />
-				<div className="absolute bottom-3 right-3 flex-self-end flex justify-end ">{actions}</div>
+				<div className="absolute top-2 right-8 flex-self-end flex justify-end z-3 hover:z-3 hover:absolute hover:top-0 ">{actions}</div>
 			</div>
 		</Root>
 	)

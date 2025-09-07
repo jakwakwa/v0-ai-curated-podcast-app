@@ -8,7 +8,7 @@ export const typographyVariants = cva("", {
 			h2: "text-custom-h2 font-bold leading-[2.5] text-foreground",
 			h3: "text-custom-h3 font-bold text-secondary-foreground my-4 leading-[3]",
 			h4: "text-custom-h4 font-bold",
-			h5: "text-[var(--text-h5)] font-sans uppercase font-semibold text-foreground leading-[4px]",
+			h5: "text-[var(--text-h5)] font-sans uppercase font-semibold leading-[4px]",
 			body: "font-sans leading-[2]",
 			muted: "text-[var(--text-body-sm)] text-muted-foreground",
 			link: "text-[var(--text-body-sm)] text-link",
@@ -19,11 +19,11 @@ export const typographyVariants = cva("", {
 })
 
 // Card variants - ONE unified card system to replace all your different card implementations
-export const cardVariants = cva("border px-8 transition-all duration-200", {
+export const cardVariants = cva("border sm:px-24 md:px-4 transition-all duration-200 pt-0	 pb-0 md:pb-1 w-full", {
 	variants: {
 		variant: {
 			toggle: "bg-dark",
-			default: " border text-card-foreground px-4 pt-2 pb-4",
+			default: " border text-card-foreground px-4",
 			glass: "bg-cardglass	backdrop-blur-[2px]",
 			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
 			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",
@@ -67,28 +67,25 @@ export const headerVariants = cva("text-left", {
 })
 
 // Input variants - unified form field styling
-export const inputVariants = cva(
-	"flex w-full rounded-md border transition-all duration-200 outline-none file:border-0 file:bg-transparent file:text-sm file:font-bold selection:bg-primary selection:text-primary-foreground",
-	{
-		variants: {
-			variant: {
-				default:
-					"bg-[#2a1f3d] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
-				glass:
-					"bg-[var(--color-form-input-bg)]/50 backdrop-blur-sm border-white/20 text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)]",
-			},
-			size: {
-				default: "h-9 px-3 md:px-4 py-2 text-sm",
-				sm: "h-8 px-2 md:px-3 py-1 text-xs",
-				lg: "h-12 px-4 md:px-6 py-3 text-base",
-			},
+export const inputVariants = cva(" ", {
+	variants: {
+		variant: {
+			default:
+				"bg-[#2a1f3d] border-[var(--color-form-border)] text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] active:border-[var(--color-form-border-active)] disabled:bg-[var(--color-form-bg-disabled)] disabled:border-[var(--color-form-border-disabled)] disabled:text-[var(--color-form-text-disabled)] disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-[var(--color-form-error-border)] aria-invalid:ring-[3px] aria-invalid:ring-[var(--color-form-error-ring)]",
+			glass:
+				"bg-[var(--color-form-input-bg)]/50 backdrop-blur-sm border-white/20 text-[var(--color-form-input-text)] placeholder:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)]",
 		},
-		defaultVariants: {
-			variant: "default",
-			size: "default",
+		size: {
+			default: "h-9 px-3 md:px-4 py-2 text-sm",
+			sm: "h-8 px-2 md:px-3 py-1 text-xs",
+			lg: "h-12 px-4 md:px-6 py-3 text-base",
 		},
-	}
-)
+	},
+	defaultVariants: {
+		variant: "default",
+		size: "default",
+	},
+})
 
 // Textarea variants - consistent with input styling
 export const textareaVariants = cva("flex min-h-[60px] w-full rounded-md border resize-vertical transition-all duration-200 outline-none selection:bg-primary selection:text-primary-foreground", {

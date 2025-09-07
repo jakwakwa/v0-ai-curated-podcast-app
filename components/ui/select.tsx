@@ -46,7 +46,7 @@ function SelectTrigger({
 function SelectContent({ className, children, position = "popper", ...props }: React.ComponentProps<typeof SelectPrimitive.Content>) {
 	return (
 		<SelectPrimitive.Portal>
-			<SelectPrimitive.Content data-slot="select-content" position={position} {...props} className={cn("bg-transparent z-50", className)} sideOffset={4}>
+			<SelectPrimitive.Content data-slot="select-content" position={position} {...props} className={cn("bg-transparent z-160", className)} sideOffset={4}>
 				<SelectScrollUpButton />
 				<SelectPrimitive.Viewport
 					className={cn(

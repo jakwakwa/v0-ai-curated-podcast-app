@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, BoxesIcon } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
@@ -139,33 +139,40 @@ export default function CurationProfileManagementPage() {
 					<div className="w-full flex flex-col md:grid grid-cols-1 lg:grid-cols-7 gap-3">
 						<Card className="episode-card-wrapper col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0">
-								<CardTitle className=" my-0 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
-								<Button className="mb-4 max-w-[50%]" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
-									Update Feed
+								<CardTitle className=" mb-4 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
+								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
+									<div className="bg-black/30 p-4">
+										<div className="py-0 px-2">
+											<Typography as="h2" className="text-[16px uppercase w-full text-foreground p-0 mb-3"><BoxesIcon className="pb-2" width={40} height={40} />
+												{userCurationProfile?.name}
+											</Typography>
+											<Typography className="text-xs text-foreground/50 mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography>
+
+											<div className="px-0 rounded">
+												<Typography className="text-[14px] font-bold uppercase">
+													<span className="text-[10px] text-accent-foreground">
+														Podslice Bundle
+														<br /> Selected:
+													</span>{" "}
+													{userCurationProfile.selectedBundle.name}
+												</Typography>
+											</div>
+										</div>
+									</div>
+								)}
+								<Button className="mb-4 max-w-[50%]" variant="default" size="xs" onClick={() => setIsModalOpen(true)}>
+									Update Bundle
 								</Button>
 							</div>
 
-							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<Card variant="bundle" className="bg-black/30 px-0 mt-4 mb-6">
-									<div className="py-0 px-2">
-										<Typography as="h2" className="text-custom-h2 w-full text-foreground p-0 mb-2">
-											<span className=" text-md text-foreground/50 font-normal my-2">{userCurationProfile?.name}</span>
-										</Typography>
-										{/* <Typography className="text-xs text-muted-foreground mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
 
-										<div className="px-0 rounded">
-											<Typography className="text-sm font-bold uppercase"><span className="text-sm text-accent-foreground">Selected:</span> {userCurationProfile.selectedBundle.name}</Typography>
-										</div>
-									</div>
-								</Card>
-							)}
 
-							<Card variant="bundle">
+							<div>
 								<div className="px-1 p-4">
 									<Typography className="pt-4 font-medium" as="h5">
 										Weekly Bundled Feed Summary
 									</Typography>
-									<div className="flex flex-col justify-start gap-2 items-start my-4 py-1 px-1 w-full bg-glass border-b-dark border rounded-md overflow-hidden px-1 pb-6 pt-4">
+									<div className="flex flex-col justify-start gap-2 items-start my-4 py-1 px-1 w-full border rounded-md overflow-hidden px-1 pb-6 pt-4">
 										<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary bg-muted-foreground/10 py-4 px-1">
 											<span className="text-foreground/80 text-xs">Bundle Episode/s:</span>
 											<span className="text-xs opacity-[0.5]">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
@@ -177,7 +184,7 @@ export default function CurationProfileManagementPage() {
 										</div>
 									</div>
 								</div>
-							</Card>
+							</div>
 						</Card>
 						<Card className="episode-card-wrapper col-span-4  px-4 mx-0 md:px-12 border-dark border-b-dark " style={{ padding: "20rem !important" }}>
 							<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
@@ -211,16 +218,7 @@ export default function CurationProfileManagementPage() {
 														title={episode.episode_title}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
-														actions={
-
-
-															<Button
-																onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)}
-																variant="play"
-																size="play"
-																className={episode.episode_id ? "m-0 w-4 h-4" : ""}
-															/>
-														}
+														actions={<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? "m-0 w-4 h-4" : ""} />}
 													/>
 												</li>
 											))}
@@ -239,7 +237,6 @@ export default function CurationProfileManagementPage() {
 					</Alert>
 				</div>
 			)}
-
 
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
 
