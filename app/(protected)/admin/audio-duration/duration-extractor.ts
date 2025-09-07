@@ -89,7 +89,6 @@ export async function updateMissingUserEpisodeDurations(): Promise<{ updated: nu
 export async function updateMissingEpisodeDurations(): Promise<{ updated: number; failed: number }> {
   const episodesWithoutDuration = await prisma.episode.findMany({
     where: {
-      audio_url: { not: null },
       duration_seconds: null
     },
     select: {
