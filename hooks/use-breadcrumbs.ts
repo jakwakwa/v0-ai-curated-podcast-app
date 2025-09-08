@@ -35,7 +35,7 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
 		// Always include home/dashboard as the first item
 		const breadcrumbs: BreadcrumbItem[] = [
 			{
-				label: "🎧",
+				label: "Dashboard",
 				href: "/dashboard",
 			},
 		]
@@ -67,5 +67,5 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
 		}
 
 		return breadcrumbs
-	}, [pathname]);
+	}, [pathname])
 }

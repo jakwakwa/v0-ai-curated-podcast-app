@@ -233,9 +233,8 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 		<Button
 			data-sidebar="trigger"
 			data-slot="sidebar-trigger"
-
 			size="sm"
-			className={cn("size-7 bg-card text-white", className)}
+			className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2focus-visible:outline-ring rounded-[1px] bg-[#000]/40", className)}
 			onClick={event => {
 				onClick?.(event)
 				toggleSidebar()
@@ -243,7 +242,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 			{...props}
 		>
 			<PanelLeftIcon />
-			<span className="sr-only">Toggle Sidebar</span>
+			<span className="sr-only"></span>
 		</Button>
 	)
 }
