@@ -113,7 +113,7 @@ function extractVideoId(url: string): string | null {
 export const YouTubeAudioExtractorProvider: TranscriptProvider = {
 	name: "youtube-audio-extractor",
 	canHandle(request) {
-		return Boolean(request.allowPaid) && /youtu(be\.be|be\.com)/i.test(request.url)
+		return Boolean(request.allowPaid) && /youtu(be\.be|be\.com)/i.test(request.url);
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {

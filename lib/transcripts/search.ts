@@ -27,7 +27,7 @@ export interface EpisodeSearchResult {
 }
 
 function isDirectAudioUrl(url: string | undefined): url is string {
-  return Boolean(url && /\.(mp3|m4a|wav|aac|flac)(\b|$)/i.test(url))
+  return Boolean(url && /\.(mp3|m4a|wav|aac|flac)(\b|$)/i.test(url));
 }
 
 function scoreEpisodeMatch(ep: ListenNotesEpisode, query: EpisodeSearchInput): number {

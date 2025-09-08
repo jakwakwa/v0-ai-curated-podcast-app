@@ -93,7 +93,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 			audio_url: episode.audio_url,
 			title: episode.title,
 			filename: `${episode.title.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_")}.mp3`,
-		})
+		});
 	} catch (error) {
 		console.error("Episode download API error:", error)
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -62,7 +62,7 @@ function decodeHTMLEntities(text: string): string {
 		.replace(/&gt;/g, ">")
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;/g, "'")
-		.replace(/&amp;/g, "&")
+		.replace(/&amp;/g, "&");
 }
 
 export function extractYouTubeVideoId(urlOrId: string): string | null {
@@ -182,7 +182,7 @@ async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptIte
 					offset: parseFloat(startMatch?.[1] || "0"),
 					duration: parseFloat(durMatch?.[1] || "1"),
 				}
-			})
+			});
 		}
 
 		// Fallback to XML parser

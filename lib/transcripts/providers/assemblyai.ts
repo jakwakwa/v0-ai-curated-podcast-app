@@ -44,7 +44,7 @@ async function getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITra
 }
 
 function isYouTube(url: string): boolean {
-	return /youtu(be\.be|be\.com)/i.test(url)
+	return /youtu(be\.be|be\.com)/i.test(url);
 }
 
 function isAudioUrl(url: string): boolean {
@@ -57,7 +57,7 @@ function isAudioUrl(url: string): boolean {
 		} catch {
 			return false
 		}
-	})()
+	})();
 }
 
 export const AssemblyAIProvider: TranscriptProvider = {

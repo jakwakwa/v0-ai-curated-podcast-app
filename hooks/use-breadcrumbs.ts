@@ -67,5 +67,5 @@ export function useBreadcrumbs(): BreadcrumbItem[] {
 		}
 
 		return breadcrumbs
-	}, [pathname])
+	}, [pathname]);
 }

@@ -142,7 +142,7 @@ type DialogueLine = { speaker: "A" | "B"; text: string }
 const DialogueSchema = z.object({ speaker: z.enum(["A", "B"]), text: z.string().min(1) })
 
 function stripMarkdownJsonFences(input: string): string {
-	return input.replace(/```json\n?|\n?```/g, "").trim()
+	return input.replace(/```json\n?|\n?```/g, "").trim();
 }
 
 function coerceJsonArray(input: string): DialogueLine[] {

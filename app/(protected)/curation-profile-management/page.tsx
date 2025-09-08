@@ -126,9 +126,9 @@ export default function CurationProfileManagementPage() {
 	}
 
 	return (
-		<div className="mx-auto px-0 w-full">
-			<PageHeader title="Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
-			{isLoading ? (
+        <div className="mx-auto px-0 w-full">
+            <PageHeader title="Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
+            {isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">
 						<AppSpinner variant="wave" size="lg" label="Loading Personalized Feed..." />
@@ -240,10 +240,8 @@ export default function CurationProfileManagementPage() {
 					</Alert>
 				</div>
 			)}
-
-			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
-
-			{currentlyPlayingUserEpisodeId &&
+            {userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
+            {currentlyPlayingUserEpisodeId &&
 				portalContainer &&
 				createPortal(
 					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
@@ -251,8 +249,8 @@ export default function CurationProfileManagementPage() {
 					</div>,
 					portalContainer
 				)}
-		</div>
-	)
+        </div>
+    );
 }
 
 export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
