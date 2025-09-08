@@ -49,6 +49,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Personal Feed",
 			url: "/curation-profile-management",
 			icon: Settings,
+			separator: true,
+		},
+		{
+			title: "Generate a Personalised Summary",
+			url: "/generate-my-episodes",
+			icon: Info,
 		},
 	]
 

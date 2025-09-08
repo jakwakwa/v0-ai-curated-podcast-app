@@ -144,10 +144,10 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-2 pt-12">
-			<div className="mb-8 flex flex-col  items-center justify-start">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
+			<div className="mb-8 mt-4 flex flex-col items-center justify-start">
 				<div className="w-full flex items-center justify-between flex-wrap gap-4">
-					<div className="flex flex-row gap-3 mt-6 h-14">
+					<div className="flex flex-row gap-3 h-14">
 						<PageHeader title="Notifications" className="h-14 mb-0 mt-0" />
 					</div>
 					<div className="flex gap-2 flex-wrap">
@@ -167,12 +167,12 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className="min-h-[400px] px-0">
+			<div className="min-h-[400px] px-0 episode-card-wrapper-dark">
 				{notifications.length === 0 ? (
-					<Card variant={"episode"} className="text-center px-0 py-2 border-2 border-dashed border-border bg-card content">
+					<Card variant={"episode"} className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
-							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
-							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
+							<Bell className="w-8 h-8 text-muted-foreground opacity-50" />
+							<h3 className="text-xl font-semibold text-foreground m-0">No notifications</h3>
 							<p className="text-muted-foreground max-w-md text-base m-0">You're all caught up! New notifications will appear here when they arrive.</p>
 						</CardContent>
 					</Card>

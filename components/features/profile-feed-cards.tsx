@@ -15,12 +15,12 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 
 	return (
 		<div className="flex flex-col gap-8 p-0 w-full md:w-[100%]">
-			<div className="w-full">
+			<div className="w-full ">
 				{/* Profile Card - using default variant */}
 				{showProfileCard && (
 					<Card variant="default" className=" mb-4">
 						<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-							<Typography as="h2" className="text-left font-semibold tracking-tight mt-2 mb-2 text-h3">
+							<Typography as="h2" className=" text-left font-semibold tracking-tight mt-2 mb-2 text-h3">
 								Bundle Selection
 							</Typography>
 						</CardHeader>

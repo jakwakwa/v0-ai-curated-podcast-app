@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, BoxesIcon, Edit } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 import EpisodeCard from "@/components/ui/episode-card"
 import { PageHeader } from "@/components/ui/page-header"
-import { Typography } from "@/components/ui/typography"
+import { Body, Typography } from "@/components/ui/typography"
 import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player"
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types"
 
@@ -137,53 +137,58 @@ export default function CurationProfileManagementPage() {
 			) : userCurationProfile ? (
 				<div className="mx-auto px-0 pb-12 pt-0  md:px-0 lg:flex">
 					<div className="w-full flex flex-col md:grid grid-cols-1 lg:grid-cols-7 gap-3">
-						<Card className="episode-card-wrapper col-span-3 border-dark border-b-dark">
+						<Card className="episode-card-wrapper-dark col-span-3 border-dark border-b-dark">
 							<div className="w-full flex flex-col justify-between pb-0">
-								<CardTitle className=" my-0 max-w-[70%]">Current Weekly Feed Profile</CardTitle>
-								<Button className="mb-4 max-w-[50%]" variant="default" size="sm" onClick={() => setIsModalOpen(true)}>
-									Update Feed
-								</Button>
+								<CardTitle className=" mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
+
+								{/*  */}
+								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
+									<div className="bg-[#1C719923] rounded-md  p-4">
+										<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
+											<Edit />
+										</Button>
+										<div className="mb-4 flex flex-col">
+											<Typography as="h2" className="text-[13px]  w-full uppercase font-sans font-bold text-[#A7D1E4]/70 p-0 mb-4">
+												FEED @id:<div className="text-foreground">{userCurationProfile?.name}</div>
+											</Typography>
+											{/* <Typography className="text-xs text-foreground/50 mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
+
+											<div className="px-2 py-1 border-[#BD77D9] rounded border-1 w-fit">
+												<Typography className="text-[12px] font-bold uppercase">
+													<span className="text-[11px] text-[#31C7C7] flex gap-2 items-center font-sans font-bold">
+														<BoxesIcon color={"#764AF0"} size={16} />
+														{userCurationProfile.selectedBundle.name}
+													</span>
+												</Typography>
+											</div>
+										</div>
+
+									</div>
+								)}
 							</div>
 
-							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<Card variant="bundle" className="bg-black/30 px-0 mt-4 mb-6">
-									<div className="py-0 px-2">
-										<Typography as="h2" className="text-custom-h2 w-full text-foreground p-0 mb-2">
-											<span className=" text-md text-foreground/50 font-normal my-2">{userCurationProfile?.name}</span>
-										</Typography>
-										{/* <Typography className="text-xs text-muted-foreground mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
-
-										<div className="px-0 rounded">
-											<Typography className="text-sm font-bold uppercase"><span className="text-sm text-accent-foreground">Selected:</span> {userCurationProfile.selectedBundle.name}</Typography>
-										</div>
-									</div>
-								</Card>
-							)}
-
-							<Card variant="bundle">
-								<div className="px-1 p-4">
-									<Typography className="pt-4 font-medium" as="h5">
-										Weekly Bundled Feed Summary
-									</Typography>
-									<div className="flex flex-col justify-start gap-2 items-start my-4 py-1 px-1 w-full bg-glass border-b-dark border rounded-md overflow-hidden px-1 pb-6 pt-4">
+							<div>
+								<div className="bg-glass rounded-b-2xl  shadow-none border-none px-4 p-4">
+									<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
+									<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden px-1 pb-6 pt-4">
 										<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary bg-muted-foreground/10 py-4 px-1">
-											<span className="text-foreground/80 text-xs">Bundle Episode/s:</span>
-											<span className="text-xs opacity-[0.5]">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
+											<span className="font-sans text-foreground/60 text-sm">Bundle Episode/s:</span>
+											<span className="uppercase left text-cyan-500/70 text-sm font-sans font-bold">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 										</div>
 
 										<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-1">
-											<span className="text-foreground/80 text-xs">Plan Tier:</span>
-											<span className="text-xs opacity-[0.5]">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
+											<span className="text-foreground/60 text-sm font-sans">Plan Tier:</span>
+											<span className="uppercase left text-cyan-500/70 text-sm font-bold font-sans">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
 										</div>
 									</div>
 								</div>
-							</Card>
+							</div>
 						</Card>
 						<Card className="episode-card-wrapper col-span-4  px-4 mx-0 md:px-12 border-dark border-b-dark " style={{ padding: "20rem !important" }}>
 							<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
-							<CardDescription className="opacity-90">View and manage your recently generated episodes.</CardDescription>
+							<CardDescription className="text-sm opacity-90">View and manage your recently generated episodes.</CardDescription>
 							{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
-								<Link href="/my-episodes" passHref>
+								<Link href="/my-episodes" passHref className="mr-4">
 									<Button variant="default" size="sm" className="mt-4">
 										My Episodes
 									</Button>
@@ -208,18 +213,14 @@ export default function CurationProfileManagementPage() {
 												<li key={episode.episode_id} className="list-none">
 													<EpisodeCard
 														imageUrl={null}
-														title={episode.episode_title}
+														title={`${episode.episode_title}`}
 														description={episode.summary}
 														publishedAt={episode.updated_at}
 														actions={
-
-
-															<Button
-																onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)}
-																variant="play"
-																size="play"
-																className={episode.episode_id ? "m-0 w-4 h-4" : ""}
-															/>
+															episode.status === "COMPLETED" &&
+															episode.signedAudioUrl && (
+																<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
+															)
 														}
 													/>
 												</li>
@@ -239,7 +240,6 @@ export default function CurationProfileManagementPage() {
 					</Alert>
 				</div>
 			)}
-
 
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
 
@@ -273,6 +273,7 @@ export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: 
 		youtube_url: episode.youtube_url,
 		transcript: episode.transcript,
 		status: episode.status,
+		duration_seconds: episode.duration_seconds,
 	}
 
 	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />

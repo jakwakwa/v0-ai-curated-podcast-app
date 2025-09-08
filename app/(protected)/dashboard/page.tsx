@@ -119,19 +119,19 @@ export default function Page() {
 	}
 
 	return (
-		<div className="default-card">
+		<div className=" w-full">
 			{/* MAIN CONTAINER */}
 
-			<PageHeader title="Your Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
+			<PageHeader title=" Dashboard" description="Overview of your episodes, selected bundles, feeds etc." level={1} spacing="default" />
 
-			<Card variant="glass" className="bg-card flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+			<Card className="episode-card-wrapper-dark flex flex-col pb-12 w-full px-4 gap-4 md:p-2 ">
 				<div className="flex flex-col lg:flex-row gap-2">
-					<div className="w-full  md:w-full">
+					<div className="w-full  md:w-1/2">
 						{userCurationProfile ? (
 							<ProfileFeedCards userCurationProfile={userCurationProfile} showProfileCard={true} />
 						) : (
 							<EmptyStateCard
-								title="No Personalized Feed Found"
+								title="Personalized Feed"
 								message={{
 									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
 									notificationTitle: "No Personalized Feed Found",
@@ -143,10 +143,10 @@ export default function Page() {
 						)}
 					</div>
 
-					<div className="w-full min-w-none max-w-screen md:min-w-[700px]">
+					<div className="w-full">
 						{combinedEpisodes.length === 0 ? (
 							<EmptyStateCard
-								title="No Episodes Found"
+								title="Episodes"
 								message={{
 									description: "It looks like you haven't created a Personalized Feed yet. Start by creating one!",
 									notificationTitle: "No Episodes Found",

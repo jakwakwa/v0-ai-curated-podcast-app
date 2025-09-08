@@ -42,6 +42,17 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 		fetchEpisodes()
 	}, [completedOnly])
 
+	const handleViewRunLog = async (episodeId: string): Promise<void> => {
+		try {
+			const res = await fetch(`/api/user-episodes/${episodeId}/debug/logs`)
+			if (!res.ok) throw new Error(await res.text())
+			const data: { events: unknown[] } = await res.json()
+			setDebugLogs(prev => ({ ...(prev || {}), [episodeId]: data.events }))
+		} catch (e) {
+			console.error(e)
+		}
+	}
+
 	if (isLoading) {
 		return (
 			<Card>
@@ -77,36 +88,21 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 								title={episode.episode_title}
 								description={episode.summary}
 								publishedAt={episode.created_at}
+								durationSeconds={episode.duration_seconds ?? null}
 								actions={
 									<>
 										<Badge size="sm" variant={episode.status === "COMPLETED" ? "default" : "destructive"} className="text-xs">
 											{episode.status}
 										</Badge>
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
-
-
-											<Button
-												onClick={() => setActiveEpisodeId(episode.episode_id)}
-												variant="play"
-												size="play"
-												className={episode.episode_id ? " m-0" : ""}
-											/>
+											<Button onClick={() => setActiveEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
 										)}
 										{enableDebug && (
 											<Button
 												size="sm"
 												variant="secondary"
 												className="ml-2"
-												onClick={async () => {
-													try {
-														const res = await fetch(`/api/user-episodes/${episode.episode_id}/debug/logs`)
-														if (!res.ok) throw new Error(await res.text())
-														const data = await res.json()
-														setDebugLogs(prev => ({ ...(prev || {}), [episode.episode_id]: data.events }))
-													} catch (e) {
-														console.error(e)
-													}
-												}}
+												onClick={() => handleViewRunLog(episode.episode_id)}
 											>
 												View Run Log
 											</Button>
@@ -132,6 +128,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 											user_id: episode.user_id,
 											youtube_url: episode.youtube_url,
 											transcript: episode.transcript,
+											duration_seconds: episode.duration_seconds,
 											status: episode.status,
 										}}
 										onClose={() => setActiveEpisodeId(null)}

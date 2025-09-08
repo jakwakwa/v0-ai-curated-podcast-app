@@ -13,6 +13,7 @@
 		"dev": "npx prisma generate --no-engine && next dev",
 		"dev:turbo": "npx prisma generate --no-engine && next dev --turbopack",
 		"dev:legacy": "npx prisma generate --no-engine && npx @tailwindcss/cli -i ./app/globals.css -o ./dist/styles.css --watch & next dev --turbo",
+		"prebuild": "pnpm prisma:generate",
 		"build": "next build",
 		"build:fast": "NODE_OPTIONS='--max-old-space-size=8192' SKIP_ENV_VALIDATION=true next build",
 		"prisma:generate": "prisma generate --no-engine",
@@ -30,7 +31,10 @@
 		"test:db:deploy": "bash -lc 'set -a; [ -f .env.test ] && source .env.test; set +a; DATABASE_URL=${TEST_POSTGRES_PRISMA_URL:-$TEST_DATABASE_URL} pnpm prisma migrate deploy'",
 		"test": "vitest run",
 		"test:watch": "vitest --watch",
-		"test:ci": "vitest run --coverage"
+		"test:ci": "vitest run --coverage",
+		"durations:update": "tsx scripts/update-existing-durations.ts all",
+		"durations:update:episodes": "tsx scripts/update-existing-durations.ts episodes",
+		"durations:update:user": "tsx scripts/update-existing-durations.ts user-episodes"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "latest",
@@ -76,6 +80,7 @@
 		"lodash.throttle": "^4.1.1",
 		"lucide-react": "^0.541.0",
 		"mime": "^4.0.7",
+		"music-metadata": "^11.8.3",
 		"next": "15.2.4",
 		"next-themes": "^0.4.6",
 		"openai": "^5.15.0",

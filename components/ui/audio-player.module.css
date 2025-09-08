@@ -6,10 +6,10 @@
     left: 0;
     right: 0;
     display: flex;
-    padding-left: 0px;
-    justify-content: space-between;
-    padding-right: 100px;
-    padding-top: 20px;
+    padding-left: 10px !important;
+    justify-content: space-evenly;
+	padding-right: 10px !important;
+    padding-top: 10px !important;
     padding-bottom: 15px;
     background: linear-gradient(135deg, #1a1a1a 0%, #3b220584 100%);
     border-top: 1px solid #333;
@@ -19,9 +19,9 @@
     display: flex;
     width: 100%;
     align-items: center;
-
+		height: 70px;
     gap: 1.5rem;
-    max-height: 120px;
+    /* max-height: 120px; */
     backdrop-filter: blur(10px);
 }
 
@@ -32,16 +32,17 @@
     justify-content: flex-start;
     min-width: 100px !important;
     display: flex;
-    width: 50%;
+    width: 100% !important;
+		max-width: 150px !important;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 1rem;
     text-align: left;
 
 }
 
 .info h3 {
     color: #ffffff;
-  
+		font-size: 0.5rem;
 		line-height: 1.1;
     margin: 0;
     white-space: nowrap;
@@ -51,7 +52,7 @@
 
 .info p {
     color: #b3b3b3;
-
+		font-size: 0.3rem;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -61,10 +62,14 @@
 .controls {
     /* background-color: red; */
     display: flex;
+		flex-direction: row;
+		justify-content: space-between;
     align-items: center;
+		align-content: flex-start;
+		height: 20px;
     gap: 1rem;
-    width: 50%;
-    flex-shrink: 0;
+    width: 100%;
+    flex-shrink: 2;
 }
 
 .playPauseButton {
@@ -72,8 +77,7 @@
     color: rgb(45, 39, 39);
     border: none;
     border-radius: 99999rem !important;
-    width: 28px;
-    height: 28px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -90,7 +94,7 @@
 }
 
 .playPauseButton:active {
-    /* transform: scale(0.98); */
+    transform: scale(0.98);
     background: rgb(106, 233, 155) !important;
     transform: scale(1.05);
     box-shadow: 0 4px 32px rgba(36, 211, 167, 0.4), 0 4px 12px rgba(11, 192, 104, 0.712);
@@ -98,6 +102,7 @@
 
 .progressContainer {
     display: flex;
+		flex-direction: row !important;
     justify-content: space-evenly;
     padding-left: 10px;
     padding-right: 10px;
@@ -105,22 +110,23 @@
     gap: 0.95rem !important;
     flex: 1;
     width: 100% !important;
-    
+
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.01);
 }
 
 .timeDisplay {
     color: #b3b3b3;
-    
-    min-width: 40px;
+/* display: none !important; */
+    /* min-width: 140px; */
+
     text-align: left;
 }
 
 .progressBar {
-    flex: 1;
+
     width: 100%;
-    height: 6px;
-    background: #404040;
+    height: 8px;
+    background: #0B0B0BBD;
     border-radius: 3px;
     cursor: pointer;
     position: relative;
@@ -158,7 +164,7 @@
 }
 
 .progressBar:hover .progress::after {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 .volumeControl {
@@ -170,30 +176,27 @@
 
 button.volumeButton,
 button.playPauseButton {
-    background: none;
-    border: none;
+    background: #262028;
+    border: 2px solid #1A172487 !important;
     color: #8810EA3F;
     cursor: pointer;
-    padding: 0px !important;
+
     border-radius: 99999px !important;
-    height: 30px !important;
+    /* height: 30px !important; */
     transition: color 0.2s ease;
-    padding: 0 !important;
-    width: 30px !important;
+    padding: 5px !important;
+		height: fit-content !important;
+    /* width: 30px !important; */
     display: flex;
     align-items: center;
     justify-content: center;
-  
+
 }
 
-button.playPauseButton {
-    background-color: #02675D !important;
-    color: #6F92E4;
-}
 
 button.playPauseButton:hover {
     color: #040115;
-    box-shadow: 0 0 8px 1px rgba(239 52 121 / 0.9);
+    box-shadow: 0 0 8px 1px rgba(251 162 54 / 0.2);
 }
 
 .volumeButton:hover {
@@ -213,7 +216,7 @@ button.playPauseButton:hover {
     box-shadow: 0 0px  0px 1px transparent !important;
     transition: opacity 0.3s;
     cursor: pointer;
-    
+
 }
 
 .volumeSlider:hover {
@@ -221,60 +224,64 @@ button.playPauseButton:hover {
 }
 
 .volumeSlider::-webkit-slider-runnable-track {
-    background: #0F54D3;
+    background: #CFC3FF8D !important;
     border-radius: 5px;
     height: 9px !important;
+		opacity: 1;
 }
 
 .volumeSlider::-moz-range-track {
-    background: #1004273C !important;
+    background: #6434BCE1 !important;
     border-radius: 5px;
-    height: 10px !important;
-    color: #2418FFDD !important;
-    border: 8px solid #AEFF18E9 !important;
+    height: 10px ;
+    color: #127E7EC2 ;
+    border: 2px solid #B6FB37;
+		opacity: 0.5;
 }
 
 
- 
- 
+
+
   .volumeSlider::-webkit-slider-thumb {
     position: relative;
     -webkit-appearance: none;
     box-sizing: content-box;
-    border: 2px solid #9669E3EE;
+    border: 2px solid #08EFBA;
     height: 12px;
     width: 12px;
     border-radius: 50%;
-    background-color: #F6FF00E4;
     cursor: pointer;
     margin: -5px 0 0 0;
+		margin-bottom: 10px;
   }
   .volumeSlider:active::-webkit-slider-thumb {
     transform: scale(1.5);
-    background: #5BFBE3;
+    background: #B131F6 !important;
   }
- 
+
   .volumeSlider::-webkit-slider-runnable-track{
     width: 100%;
-    height: 5px !important;
-    background: #B6C7D733;
+    height: 7px !important;
+    background: #385649C8;
+		border: 1px solid #08EFBA;
+		margin-top: 2px !important;
     cursor: pointer;
-    /* border-radius: 5px; */
-    /* background: transparent; */
-    border-bottom: 1px solid #29212AEF;
-    border-top: 1px solid #CAA8CF96;
+    border-radius: 5px;
+    background: transparent;
+    border-bottom: 3px solid #080808F7;
+    border-top: 1px solid #2BFF8A96;
     color: #000000;
   }
-  
+
 
 .volumeSlider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    background: #2200FF;
+    background: hsl(237.69 58.21% 26.27%);
     border-radius: 50%;
     width: 12px;
     height: 12px;
     cursor: pointer;
-    margin-top: -5px;
+    margin-top: -7px;
 }
 
 
@@ -285,11 +292,11 @@ button.playPauseButton:hover {
     left: 0;
     width: var(--seek-before-width);
     height: 5px;
-    background: linear-gradient(90deg, #0E63B1EE 34%, #0E63B1EE 66%);
+    background-image: linear-gradient(90deg, #0E63B1EE 34%, #2E72B1EE 66%) !important;
     cursor: pointer;
 
   }
-  
+
 
 .episodeImageContainer {
     flex-shrink: 0;
@@ -301,7 +308,7 @@ button.playPauseButton:hover {
     border-radius: 8px;
     object-fit: cover;
     flex-shrink: 0;
-    background: #282828;
+    background: #457D72;
 }
 
 .placeholderImage {
@@ -321,25 +328,13 @@ button.playPauseButton:hover {
     height: 24px;
 }
 
-.closeButton {
-    background-color: transparent !important;
-    border: 1px solid #F48D687C;
-    color: #E4B16F;
-    cursor: pointer;
-    padding: 1rem !important;
-    border-radius: 50%;
-    height: 20px !important;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 0px 0px transparent !important;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    margin-right: 0px;
+button.playPauseButton {
+	background-color: #2DCABB !important;
+	color: #9EE982 !important;
+	width: 80px !important;
 }
+
+
 
 .closeButton:hover {
     color: #FFFFFF31;
@@ -353,31 +348,56 @@ button.playPauseButton:hover {
         gap: 1rem;
         max-height: 100px;
     }
+		.timeDisplay {
+			color: #b3b3b3;
+	display: none !important;
+			/* min-width: 140px; */
 
+			text-align: left;
+	}
     .playPauseButton {
         width: 40px;
         height: 40px;
-       
+
     }
 
     .progressContainer {
-        min-width: 150px;
+			/* display: none; */
+        width: 30px !important;
+				/* min-width: none !important; */
+				max-width: none !important;
     }
 
     .timeDisplay {
-     
+			/* display: none; */
         min-width: 35px;
+				width: 20px !important;
+				min-width: none !important;
+				max-width: none !important;
     }
 
     .volumeControl {
+			width: 20px !important;
+			min-width: none !important;
+			max-width: none !important;
         display: none;
     }
+		.info {
 
+			width: 100%;
+	}
     .episodeImage,
     .placeholderImage {
-        width: 48px;
-        height: 48px;
+			width: 20px !important;
+			min-width: none !important;
+			max-width: none !important;
+
     }
+		button.playPauseButton {
+			background-color: #2DCABB !important;
+			color: #82E9CA !important;
+			width: 50px !important;
+		}
 }
 
 @media (max-width: 480px) {
@@ -405,4 +425,9 @@ button.playPauseButton:hover {
         width: 40px;
         height: 40px;
     }
+		button.playPauseButton {
+			background-color: #2DCABB !important;
+			color: #9EE982 !important;
+			width: 50px !important;
+		}
 }
