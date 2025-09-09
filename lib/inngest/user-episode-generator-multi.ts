@@ -207,7 +207,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			const model = googleAI(aiConfig.geminiModel);
 			const episodeConfig = isShort
 				? { words: "150-220 words", duration: "~1 minute", description: "testing version" }
-				: { words: "550-800 words", duration: "~4-5 minutes", description: "production version" };
+				: { words: "500-550 words", duration: "~3-4 minutes", description: "production version" };
 			const { text } = await generateText({
 				model,
 				prompt: `Create a concise summary in ${episodeConfig.words} (${episodeConfig.duration}) capturing the main points and narrative arc of the following transcript. Write as a neutral narrator (no dialogues), suitable to expand into a two-host podcast script.\n\nTranscript: ${transcript}`,

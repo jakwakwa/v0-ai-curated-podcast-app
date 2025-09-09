@@ -17,8 +17,8 @@ export const PAYMENT_CONFIG = {
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model
-	geminiTTSModel: "gemini-2.5-flash-preview-tts",
-	maxSources: 2, // Maximum number of sources allowed per collection
+	geminiTTSModel: "gemini-2.5-pro-preview-tts",
+	maxSources: 1, // Maximum number of sources allowed per collection
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
 
 	// Episode generation settings
