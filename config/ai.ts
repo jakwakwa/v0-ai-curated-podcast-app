@@ -13,7 +13,7 @@ export const PAYMENT_CONFIG = {
 		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
 		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
 	},
-} as const
+} as const;
 
 export const aiConfig = {
 	geminiModel: "gemini-2.5-flash", // Default Gemini model
@@ -22,8 +22,8 @@ export const aiConfig = {
 	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
 
 	// Episode generation settings
-	useShortEpisodes: true,
-}
+	useShortEpisodes: false,
+};
 
 // "TX3LPaxmHKxFdv7VOQHJ", // Liam
 // "FGY2WhTYpPnrIDTdsKH5", // Laura
