@@ -25,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Home,
 		},
 		{
-			title: "Generate a Personalised Summary",
+			title: "Generate Custom Episodes",
 			url: "/generate-my-episodes",
 			icon: Info,
 		},
@@ -37,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Play
 		},
 		{
-			title: "Bundles",
+			title: "Explore Curated Bundles",
 			url: "/curated-bundles",
 			icon: Radio,
 		},

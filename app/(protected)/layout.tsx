@@ -23,7 +23,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 			<AppSidebar />
 
 			<SidebarInset>
-				<header className={`fixed flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4 py-0  bg-[#24202BDC] ${state === "expanded" ? "" : ""}`} >
+				<header className={`fixed flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-screen justify-between px-2 md:px-4 py-0 overflow-y-scroll  bg-[#24202BDC] ${state === "expanded" ? "" : ""}`} >
 					<div className={`flex items-center h-16 justify-between gap-2 px-2  ${state === "expanded" ? "md:px-4" : "md:px-0"}`}>
 						<Image className={`w-full max-w-[100px] ${state === "expanded" ? "inline " : "hidden"}`} src="/logo.png" width={300} height={100} alt="logo" />
 						<Separator orientation="vertical" className={`data-[orientation=vertical]:min-h-[8px] border-[0px] border-r-[#000] bg-[#14171600] w-[1px] ${state === "expanded" ? "ml-12" : "ml-0 mr-0"}`}>{""}</Separator>
