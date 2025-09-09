@@ -564,16 +564,16 @@ textarea {
 		margin: 0;
 		padding: 0;
 		text-align: left;
-		background-color: rgba(32 28 43 / 0.9) !important;
-		/* background: linear-gradient(135deg, oklch(0.72 0.25 325.66 / 0.69), rgba(39 114 218 / 0.41), rgba(27 27 29 / 0.7)); */
+		background-color: rgba(109 44 155 / 0.54) !important;
+		background: linear-gradient(135deg, oklch(0.82 0.16 325.06 / 0.69), rgba(125 232 228 / 0.35), rgba(30 29 32 / 0.7));
 		/* backdrop-filter: blur(3px); */
-		mix-blend-mode: normal;
+		/* mix-blend-mode: normal; */
 
 		z-index: -9999999;
 		/* pointer-events: none; */
 		height: 100vh !important;
 		/* opacity: 0; */
-		background-blend-mode: soft-light	;
+		/* background-blend-mode: soft-light	; */
 		width: 100%;
 
 	}
@@ -741,7 +741,7 @@ textarea {
 
 	.episode-card-wrapper-dark {
 		position: relative;
-		background: linear-gradient(to bottom,  oklch(0.29 0.02 294.41 / 0.8),  	oklch(0.2 0.01 297.12));
+		background: linear-gradient(to bottom,  oklch(0.41 0.06 278.35 / 0.8),  	oklch(0.23 0.02 318.65));
 		/* height: 100%; */
 		border: 1px solid #181A1BE1 !important;
 		box-shadow:

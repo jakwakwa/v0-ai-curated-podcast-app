@@ -1,11 +1,11 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { Bell, Home, Info, Play, Radio, Settings } from "lucide-react"
+import { Bell, Home, Info, Play, Radio } from "lucide-react"
 import type * as React from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { Sidebar, SidebarContent, SidebarFooter, } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useUser()
@@ -25,20 +25,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Home,
 		},
 		{
-			title: "Notifications",
-			url: "/notifications",
-			icon: Bell
-		},
-		{
-			title: "About Podslice",
-			url: "/welcome",
+			title: "Generate a Personalised Summary",
+			url: "/generate-my-episodes",
 			icon: Info,
 		},
+
+
 		{
-			title: "Weekly Episodes",
+			title: "Bundle Episodes",
 			url: "/episodes",
-			icon: Play,
-			separator: true,
+			icon: Play
 		},
 		{
 			title: "Bundles",
@@ -46,16 +42,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Radio,
 		},
 		{
-			title: "Personal Feed",
-			url: "/curation-profile-management",
-			icon: Settings,
+			title: "Notifications",
+			url: "/notifications",
+			icon: Bell,
 			separator: true,
 		},
 		{
-			title: "Generate a Personalised Summary",
-			url: "/generate-my-episodes",
+			title: "About Podslice",
+			url: "/welcome",
 			icon: Info,
-		},
+		}
+
+
 	]
 
 	return (

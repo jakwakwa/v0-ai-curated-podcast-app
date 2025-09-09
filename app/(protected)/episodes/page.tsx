@@ -60,7 +60,7 @@ export default function EpisodesPage() {
 
 	return (
 		<div className="default-card px-0 md:px-12">
-			<PageHeader title="Weekly Episodes" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
+			<PageHeader title="Bundle Episodes" description="Listen to all your curated podcast episodes from your selected bundles." />
 
 			{isLoading ? (
 				<div className="px-0 md:p-8 mx-auto">
@@ -98,7 +98,7 @@ export default function EpisodesPage() {
 				</div>
 			) : (
 				<div className="flex episode-card-wrapper flex-col justify-center px-2 mx-auto w-screen md:w-screen max-w-full md:max-w-[70%] mt-0">
-					<H3>Total Episodes ({episodes.length})</H3>
+					<H3>Episodes ({episodes.length})</H3>
 					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
 
 					{/* Spacer for fixed audio player */}
