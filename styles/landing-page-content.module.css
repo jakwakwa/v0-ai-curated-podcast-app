@@ -12,11 +12,11 @@
   margin: 0;
   padding: 0;
   text-align: left;
-  overflow: hidden;
-
+  overflow-y: hidden;
+	height: auto;
   background: linear-gradient(140deg, oklch(0.26 0.07 286.7 / 0.46), rgba(9 9 14 / 0.6),  oklch(0.21 0.02 268.96), rgba(9 9 11 / 0.95));
   backdrop-filter: blur(0px);
-	/* mix-blend-mode: multiply; */
+	mix-blend-mode: multiply;
 }
 
 

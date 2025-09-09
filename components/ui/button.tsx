@@ -1,8 +1,8 @@
-import { Slot } from "@radix-ui/react-slot"
-import { cva } from "class-variance-authority"
-import { PlayIcon } from "lucide-react"
-import type * as React from "react"
-import { cn } from "@/lib/utils"
+import { Slot } from "@radix-ui/react-slot";
+import { cva } from "class-variance-authority";
+import { PlayIcon } from "lucide-react";
+import type * as React from "react";
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
 	"inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
@@ -32,7 +32,7 @@ const buttonVariants = cva(
 			size: "default",
 		},
 	}
-)
+);
 
 function Button({
 	className,
@@ -43,19 +43,19 @@ function Button({
 	icon,
 	...props
 }: React.ComponentProps<"button"> & {
-	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play" | "icon"
-	size?: "default" | "bundles" | "sm" | "xs" | "md" | "lg" | "play"
-	asChild?: boolean
-	icon?: React.ReactNode
+	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play" | "icon";
+	size?: "default" | "bundles" | "sm" | "xs" | "md" | "lg" | "play";
+	asChild?: boolean;
+	icon?: React.ReactNode;
 }) {
-	const Comp = asChild ? Slot : "button"
+	const Comp = asChild ? Slot : "button";
 
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
 			{children}
-			{variant === "play" && <PlayIcon color="#04413EF7" className="w-6 h-9" />}
+			{variant === "play" && <PlayIcon color="#3EC8C1F7" className="w-6 h-9" />}
 		</Comp>
-	)
+	);
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };
