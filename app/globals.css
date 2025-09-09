@@ -1134,9 +1134,18 @@ textarea {
 		background-image: radial-gradient(ellipse 125% 140% at -30% 0%, rgba(50 97 134 / 0.95), rgb(53 40 73)) !important;
 		border-radius: 10px;
 	}
-
-	card-glass,
 	.bg-cardglass {
+		background: transparent !important;
+		background-image: radial-gradient(ellipse 120% 120% at -10% 0%,
+				oklch(0.86 0.15 187.17 / 0.4), oklch(0.29 0.07 244.83 / 0.51)) !important;
+		border: 2px solid oklch(0.56 0.04 185.61);
+
+		box-shadow: inset 1px 1px 1px #666B8624, 2px 10px 11px oklch(0.36 0.05 193.22 / 0.26);
+
+		background-blend-mode: multiply;
+		backdrop-filter: blur(10px) !important;
+	}
+	card-glass {
 		background: transparent !important;
 		background-image: radial-gradient(ellipse 90% 50% at -30% 10%,
 				oklch(0.71 0.06 191.63 / 0.2), oklch(0.17 0.01 271.03 / 0.39)) !important;
