@@ -127,7 +127,7 @@ export default function CurationProfileManagementPage() {
 
 	return (
 		<div className="mx-auto px-0 w-full">
-			<PageHeader title="Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
+			<PageHeader title="Dashboard: Profile" description="Change or select bundles, view or create custom episodes from any podcast episode." />
 			{isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">

@@ -113,7 +113,7 @@
 	--color-button-secondary-bg-focus-visible: oklch(0.43 0.1664 281.55);
 	--color-button-secondary-bg-focus-visible-hover: oklch(0.43 0.1664 281.55);
 
-	--color-dialog-bg: oklch(0.32 0.03 289.12 / 0.26);
+	--color-dialog-bg: #5D666BD4;
 
 	--color-button-destructive-bg: oklch(0.56 0.1836 23.71);
 	--color-button-destructive-bg-hover: oklch(0.6 0.1723 20.31);
@@ -1011,18 +1011,7 @@ header.bg-sidebar-header {
 				background:#125152E2 !important;
 				}
 
-	::option  {
-		display: flex;
-		background-color: none !important;
-		background-image: none !important;
-		flex-direction: row !important;
-		border: none !important;
-		justify-content: center !important;
-		align-items: center;
-		max-height: 40px;
-		padding: 0.2rem 1rem !important;
-		font-size: 0.1rem !important;
-	}
+
 
 	.bg-card-alt {
 		/* background-image: linear-gradient(170deg, oklch(0.44 0.07 227.13 / 0.23), oklch(0.17 0.01 285.74 / 0.56)); */
