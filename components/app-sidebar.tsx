@@ -37,6 +37,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Play
 		},
 		{
+			title: "My Episodes",
+			url: "/my-episodes",
+			icon: Play
+		},
+		{
 			title: "Explore Curated Bundles",
 			url: "/curated-bundles",
 			icon: Radio,

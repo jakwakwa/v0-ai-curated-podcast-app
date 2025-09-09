@@ -1,57 +1,56 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import EpisodeCard from "@/components/ui/episode-card"
-import { Skeleton } from "@/components/ui/skeleton"
-import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player"
-import type { UserEpisode } from "@/lib/types"
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import EpisodeCard from "@/components/ui/episode-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
+import type { UserEpisode } from "@/lib/types";
 
-type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null }
+type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 
 type EpisodeListProps = {
-	completedOnly?: boolean
-}
+	completedOnly?: boolean;
+};
 
 export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
-	const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([])
-	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
-	const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null)
-	const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null)
-	const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", [])
+	const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
+	const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null);
+	const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", []);
 
 	useEffect(() => {
 		const fetchEpisodes = async () => {
 			try {
-				const res = await fetch("/api/user-episodes/list")
+				const res = await fetch("/api/user-episodes/list");
 				if (!res.ok) {
-					throw new Error("Failed to fetch episodes.")
+					throw new Error("Failed to fetch episodes.");
 				}
-				const data: UserEpisodeWithSignedUrl[] = await res.json()
-				setEpisodes(completedOnly ? data.filter(e => e.status === "COMPLETED") : data)
+				const data: UserEpisodeWithSignedUrl[] = await res.json();
+				setEpisodes(completedOnly ? data.filter(e => e.status === "COMPLETED") : data);
 			} catch (err) {
-				setError(err instanceof Error ? err.message : "An unknown error occurred.")
+				setError(err instanceof Error ? err.message : "An unknown error occurred.");
 			} finally {
-				setIsLoading(false)
+				setIsLoading(false);
 			}
-		}
+		};
 
-		fetchEpisodes()
-	}, [completedOnly])
+		fetchEpisodes();
+	}, [completedOnly]);
 
 	const handleViewRunLog = async (episodeId: string): Promise<void> => {
 		try {
-			const res = await fetch(`/api/user-episodes/${episodeId}/debug/logs`)
-			if (!res.ok) throw new Error(await res.text())
-			const data: { events: unknown[] } = await res.json()
-			setDebugLogs(prev => ({ ...(prev || {}), [episodeId]: data.events }))
+			const res = await fetch(`/api/user-episodes/${episodeId}/debug/logs`);
+			if (!res.ok) throw new Error(await res.text());
+			const data: { events: unknown[] } = await res.json();
+			setDebugLogs(prev => ({ ...(prev || {}), [episodeId]: data.events }));
 		} catch (e) {
-			console.error(e)
+			console.error(e);
 		}
-	}
+	};
 
 	if (isLoading) {
 		return (
@@ -65,19 +64,17 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 					<Skeleton className="h-16 w-full" />
 				</CardContent>
 			</Card>
-		)
+		);
 	}
 
 	if (error) {
-		return <p className="text-red-500">{error}</p>
+		return <p className="text-red-500">{error}</p>;
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>My Generated Episodes</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
+		<Card className="w-full">
+
+			<div className="episode-card-wrapper h-full min-h-[61vh] space-y-12">
 				{episodes.length === 0 ? (
 					<p>You haven't created any episodes yet.</p>
 				) : (
@@ -91,19 +88,11 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 								durationSeconds={episode.duration_seconds ?? null}
 								actions={
 									<>
-										<Badge size="sm" variant={episode.status === "COMPLETED" ? "default" : "destructive"} className="text-xs">
-											{episode.status}
-										</Badge>
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
 											<Button onClick={() => setActiveEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
 										)}
 										{enableDebug && (
-											<Button
-												size="sm"
-												variant="secondary"
-												className="ml-2"
-												onClick={() => handleViewRunLog(episode.episode_id)}
-											>
+											<Button size="sm" variant="secondary" className="ml-2" onClick={() => handleViewRunLog(episode.episode_id)}>
 												View Run Log
 											</Button>
 										)}
@@ -138,7 +127,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 						</div>
 					))
 				)}
-			</CardContent>
+			</div>
 		</Card>
-	)
+	);
 }

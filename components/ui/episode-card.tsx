@@ -38,8 +38,8 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 						{actions}
 					</div>
 
-					<Badge size="md" variant="default" className="w-fit text-card-foreground">
-						<DateIndicator size="sm" indicator={date} label={null} />{" | "}<DurationIndicator size="sm" seconds={durationSeconds ?? null} />
+					<Badge size="md" variant="default" className="w-fit text-card-foreground mt-1">
+						<DateIndicator size="sm" indicator={date} label={null} /><span>-</span><DurationIndicator size="sm" seconds={durationSeconds ?? null} />
 					</Badge>
 				</div>
 			</div>

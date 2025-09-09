@@ -22,8 +22,8 @@ export default function DurationIndicator({ seconds, size = "sm" }: DurationIndi
 		sm: "text-[0.4rem]",
 	}
 	return (
-		<div className={`inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-card-foreground`}>
-			{formatDuration(seconds) ? formatDuration(seconds) : "0:00"
+		<div className={`ml-1 inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-foreground/70 font-medium text-custom-xxs`}>
+			{formatDuration(seconds) ? `Episode Duration: ${formatDuration(seconds)}` : "0:00"
 			}</div>
 	);
 }

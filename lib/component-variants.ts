@@ -1,4 +1,4 @@
-import { cva, type VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from "class-variance-authority";
 
 // Typography variants - unified text styling system
 export const typographyVariants = cva("", {
@@ -16,7 +16,7 @@ export const typographyVariants = cva("", {
 			caption: "text-[var(--text-body-sm)] text-caption",
 		},
 	},
-})
+});
 
 // Card variants - ONE unified card system to replace all your different card implementations
 export const cardVariants = cva("border sm:px-24 md:px-4 transition-all duration-200 pt-0	 pb-0 md:pb-1 w-full", {
@@ -50,7 +50,7 @@ export const cardVariants = cva("border sm:px-24 md:px-4 transition-all duration
 		selected: false,
 		hoverable: false,
 	},
-})
+});
 
 // Header variants - ONE unified header system to replace all your repeated header styles
 export const headerVariants = cva("text-left", {
@@ -64,7 +64,7 @@ export const headerVariants = cva("text-left", {
 	defaultVariants: {
 		spacing: "default",
 	},
-})
+});
 
 // Input variants - unified form field styling
 export const inputVariants = cva(" ", {
@@ -85,7 +85,7 @@ export const inputVariants = cva(" ", {
 		variant: "default",
 		size: "default",
 	},
-})
+});
 
 // Textarea variants - consistent with input styling
 export const textareaVariants = cva("flex min-h-[60px] w-full rounded-md border resize-vertical transition-all duration-200 outline-none selection:bg-primary selection:text-primary-foreground", {
@@ -104,7 +104,7 @@ export const textareaVariants = cva("flex min-h-[60px] w-full rounded-md border 
 		variant: "default",
 		size: "default",
 	},
-})
+});
 
 // Select variants - dropdown form styling
 export const selectVariants = cva("", {
@@ -121,21 +121,21 @@ export const selectVariants = cva("", {
 		trigger: "default",
 		content: "default",
 	},
-})
+});
 
 // Label variants - form label styling
 export const labelVariants = cva("text-sm font-bold text-[var(--color-form-input-text)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", {
 	variants: {
 		size: {
-			default: "text-sm",
-			sm: "text-xs",
-			lg: "text-base",
+			default: "font-bold text-sm",
+			sm: "font-bold text-xs",
+			lg: "font-bold text-base",
 		},
 	},
 	defaultVariants: {
 		size: "default",
 	},
-})
+});
 
 // Switch variants - toggle component styling
 export const switchVariants = cva(
@@ -150,7 +150,7 @@ export const switchVariants = cva(
 			variant: "default",
 		},
 	}
-)
+);
 
 // Badge variants - status and label styling
 export const badgeVariants = cva(
@@ -177,7 +177,7 @@ export const badgeVariants = cva(
 			size: "lg",
 		},
 	}
-)
+);
 
 // Avatar variants - profile picture styling
 export const avatarVariants = cva("relative flex shrink-0 overflow-hidden rounded-full", {
@@ -192,17 +192,17 @@ export const avatarVariants = cva("relative flex shrink-0 overflow-hidden rounde
 	defaultVariants: {
 		size: "default",
 	},
-})
+});
 
-export type TypographyProps = VariantProps<typeof typographyVariants>
-export type CardProps = VariantProps<typeof cardVariants>
-export type HeaderProps = VariantProps<typeof headerVariants>
-export type InputProps = VariantProps<typeof inputVariants>
-export type TextareaProps = VariantProps<typeof textareaVariants>
-export type SelectProps = VariantProps<typeof selectVariants>
-export type LabelProps = VariantProps<typeof labelVariants>
-export type SwitchProps = VariantProps<typeof switchVariants>
-export type BadgeProps = VariantProps<typeof badgeVariants>
+export type TypographyProps = VariantProps<typeof typographyVariants>;
+export type CardProps = VariantProps<typeof cardVariants>;
+export type HeaderProps = VariantProps<typeof headerVariants>;
+export type InputProps = VariantProps<typeof inputVariants>;
+export type TextareaProps = VariantProps<typeof textareaVariants>;
+export type SelectProps = VariantProps<typeof selectVariants>;
+export type LabelProps = VariantProps<typeof labelVariants>;
+export type SwitchProps = VariantProps<typeof switchVariants>;
+export type BadgeProps = VariantProps<typeof badgeVariants>;
 // Spinner variants - loading indicators with animations
 export const spinnerVariants = cva("", {
 	variants: {
@@ -234,7 +234,7 @@ export const spinnerVariants = cva("", {
 		color: "primary",
 		variant: "dots",
 	},
-})
+});
 
-export type AvatarProps = VariantProps<typeof avatarVariants>
-export type SpinnerProps = VariantProps<typeof spinnerVariants>
+export type AvatarProps = VariantProps<typeof avatarVariants>;
+export type SpinnerProps = VariantProps<typeof spinnerVariants>;

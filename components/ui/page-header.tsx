@@ -34,7 +34,7 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 	return (
 		<div className="flex flex-col justify-between">
 			<div className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
-				<h2 className="flex text-custom-h2 font-medium px-2 md:px-0 pt-0 pb-0 md:py-0 text-shadow-sm	 text-primary leading-[1.5] max-w-screen md:max-w-4xl">{title}</h2>
+				<h2 className="flex text-custom-h2 font-medium px-2 md:px-0 pt-0 pb-0 md:py-0 text-shadow-sm text-primary leading-[1.5] max-w-screen md:max-w-4xl">{title}</h2>
 				{description && (
 					<Typography as="p" variant="body" className="text-base px-2  md:px-0  md:py-1.5 text-primary/60 leading-[1.5] max-w-screen md:max-w-xl text-shadow-sm">
 						{description}
