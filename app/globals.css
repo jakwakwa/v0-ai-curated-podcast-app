@@ -1403,6 +1403,7 @@ textarea {
 			text-overflow: ellipsis;
 			display: -webkit-box;
 			color: lab(91.46 -1.32 6.45 / 0.57);
+			line-clamp: 2;
 			-webkit-line-clamp: 2;
 			-webkit-box-orient: vertical;
 		}
@@ -1563,8 +1564,8 @@ textarea {
 		}
 
 		.text-custom-xl {
-			/* font-size: var(--text-xl) !important;
-		line-height: 1.375 !important; */
+			font-size: var(--text-xl) !important;
+		line-height: 1.375 !important;
 		}
 
 		.text-custom-xxl {
@@ -1817,10 +1818,5 @@ textarea {
 	* {
 		font-size: 15px;
 		line-height: 1.2 !important;
-	}
-
-	body {
-
-
 	}
 }
