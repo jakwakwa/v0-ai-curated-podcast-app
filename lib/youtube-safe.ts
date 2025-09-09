@@ -2,58 +2,58 @@
  * Vercel-safe YouTube utilities that avoid ytdl-core server-side scraping
  */
 
-import { XMLParser } from "fast-xml-parser"
-import { z } from "zod"
+import { XMLParser } from "fast-xml-parser";
+import { z } from "zod";
 
 export async function getYouTubeVideoTitle(videoUrl: string): Promise<string> {
 	// Try oEmbed first (reliable, no API key), then fall back to parsing HTML
 	try {
-		const viaOEmbed = await getYouTubeTitleViaOEmbed(videoUrl)
-		if (viaOEmbed) return viaOEmbed
+		const viaOEmbed = await getYouTubeTitleViaOEmbed(videoUrl);
+		if (viaOEmbed) return viaOEmbed;
 	} catch {}
 
 	try {
-		const viaHtml = await getYouTubeTitleViaHTML(videoUrl)
-		if (viaHtml) return viaHtml
+		const viaHtml = await getYouTubeTitleViaHTML(videoUrl);
+		if (viaHtml) return viaHtml;
 	} catch {}
 
-	return "Untitled YouTube Video"
+	return "Untitled YouTube Video";
 }
 
 export async function getYouTubeTitleViaOEmbed(videoUrl: string): Promise<string | null> {
-	const endpoint = new URL("https://www.youtube.com/oembed")
-	endpoint.searchParams.set("url", videoUrl)
-	endpoint.searchParams.set("format", "json")
+	const endpoint = new URL("https://www.youtube.com/oembed");
+	endpoint.searchParams.set("url", videoUrl);
+	endpoint.searchParams.set("format", "json");
 
-	const res = await fetch(endpoint.toString(), { next: { revalidate: 3600 } })
-	if (!res.ok) return null
+	const res = await fetch(endpoint.toString(), { next: { revalidate: 3600 } });
+	if (!res.ok) return null;
 
-	const data = await res.json()
-	const OEmbedSchema = z.object({ title: z.string() })
-	const parsed = OEmbedSchema.safeParse(data)
-	if (!parsed.success) return null
-	return parsed.data.title
+	const data = await res.json();
+	const OEmbedSchema = z.object({ title: z.string() });
+	const parsed = OEmbedSchema.safeParse(data);
+	if (!parsed.success) return null;
+	return parsed.data.title;
 }
 
 export async function getYouTubeTitleViaHTML(videoUrl: string): Promise<string | null> {
-	const res = await fetch(videoUrl, { next: { revalidate: 3600 } })
-	if (!res.ok) return null
+	const res = await fetch(videoUrl, { next: { revalidate: 3600 } });
+	if (!res.ok) return null;
 
-	const html = await res.text()
+	const html = await res.text();
 
 	// Prefer OpenGraph title
-	let match = html.match(/<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i)
-	if (match?.[1]) return decodeHTMLEntities(match[1])
+	let match = html.match(/<meta\s+property=["']og:title["']\s+content=["']([^"']+)["']/i);
+	if (match?.[1]) return decodeHTMLEntities(match[1]);
 
 	// Fallback: meta name="title"
-	match = html.match(/<meta\s+name=["']title["']\s+content=["']([^"']+)["']/i)
-	if (match?.[1]) return decodeHTMLEntities(match[1])
+	match = html.match(/<meta\s+name=["']title["']\s+content=["']([^"']+)["']/i);
+	if (match?.[1]) return decodeHTMLEntities(match[1]);
 
 	// Fallback: <title> tag
-	match = html.match(/<title>([^<]+)<\/title>/i)
-	if (match?.[1]) return decodeHTMLEntities(match[1])
+	match = html.match(/<title>([^<]+)<\/title>/i);
+	if (match?.[1]) return decodeHTMLEntities(match[1]);
 
-	return null
+	return null;
 }
 
 function decodeHTMLEntities(text: string): string {
@@ -67,21 +67,21 @@ function decodeHTMLEntities(text: string): string {
 
 export function extractYouTubeVideoId(urlOrId: string): string | null {
 	// If already a plausible 11-char ID, return as-is
-	if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId
+	if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId;
 
-	const urlMatch = urlOrId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.*?&v=))([\w-]{11})/)
-	return urlMatch ? urlMatch[1] : null
+	const urlMatch = urlOrId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.*?&v=))([\w-]{11})/);
+	return urlMatch ? urlMatch[1] : null;
 }
 
-export type YouTubeTranscriptItem = { text: string; duration: number; offset: number }
+export type YouTubeTranscriptItem = { text: string; duration: number; offset: number };
 
 /**
  * Vercel-safe transcript extraction using YouTube's innertube API
  */
 export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
-	const videoId = extractYouTubeVideoId(videoUrlOrId)
+	const videoId = extractYouTubeVideoId(videoUrlOrId);
 	if (!videoId) {
-		throw new Error("Invalid YouTube URL or video ID")
+		throw new Error("Invalid YouTube URL or video ID");
 	}
 
 	try {
@@ -101,43 +101,39 @@ export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: 
 				},
 				videoId: videoId,
 			}),
-		})
+		});
 
 		if (!response.ok) {
-			throw new Error(`YouTube API request failed: ${response.status}`)
+			throw new Error(`YouTube API request failed: ${response.status}`);
 		}
 
-		const data = await response.json()
-		const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks
+		const data = await response.json();
+		const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
 		if (!captionTracks || captionTracks.length === 0) {
-			throw new Error("No captions found")
+			throw new Error("No captions found");
 		}
 
 		interface CaptionTrack {
-			languageCode?: string
-			kind?: string
-			baseUrl?: string
+			languageCode?: string;
+			kind?: string;
+			baseUrl?: string;
 		}
-		
+
 		// Find best caption track
-		let selectedTrack = captionTracks.find((track: CaptionTrack) => 
-			track.languageCode === (lang || "en") && track.kind === "asr"
-		)
+		let selectedTrack = captionTracks.find((track: CaptionTrack) => track.languageCode === (lang || "en") && track.kind === "asr");
 		if (!selectedTrack) {
-			selectedTrack = captionTracks.find((track: CaptionTrack) => 
-				track.languageCode === (lang || "en")
-			)
+			selectedTrack = captionTracks.find((track: CaptionTrack) => track.languageCode === (lang || "en"));
 		}
 		if (!selectedTrack) {
-			selectedTrack = captionTracks.find((track: CaptionTrack) => track.kind === "asr")
+			selectedTrack = captionTracks.find((track: CaptionTrack) => track.kind === "asr");
 		}
 		if (!selectedTrack) {
-			selectedTrack = captionTracks[0]
+			selectedTrack = captionTracks[0];
 		}
 
 		if (!selectedTrack?.baseUrl) {
-			throw new Error("No suitable caption track found")
+			throw new Error("No suitable caption track found");
 		}
 
 		// Fetch the transcript XML
@@ -145,43 +141,43 @@ export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: 
 			headers: {
 				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
 			},
-		})
+		});
 
 		if (!transcriptResponse.ok) {
-			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`)
+			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`);
 		}
 
-		const xmlText = await transcriptResponse.text()
-		return parseTranscriptXML(xmlText)
+		const xmlText = await transcriptResponse.text();
+		return parseTranscriptXML(xmlText);
 	} catch (error) {
-		throw new Error(`YouTube transcript extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`)
+		throw new Error(`YouTube transcript extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`);
 	}
 }
 
 export async function getYouTubeTranscriptText(videoUrlOrId: string, lang?: string): Promise<string> {
-	const segments = await getYouTubeTranscriptSegments(videoUrlOrId, lang)
-	return segments.map(s => s.text).join(" ")
+	const segments = await getYouTubeTranscriptSegments(videoUrlOrId, lang);
+	return segments.map(s => s.text).join(" ");
 }
 
 async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptItem[]> {
 	if (!xmlData || xmlData.trim().length === 0) {
-		throw new Error("Empty caption data received")
+		throw new Error("Empty caption data received");
 	}
 
 	try {
 		// Try to parse using regex first (more reliable for YouTube's format)
-		const textMatches = xmlData.match(/<text[^>]*start="([^"]*)"[^>]*dur="([^"]*)"[^>]*>([^<]*)<\/text>/g)
+		const textMatches = xmlData.match(/<text[^>]*start="([^"]*)"[^>]*dur="([^"]*)"[^>]*>([^<]*)<\/text>/g);
 		if (textMatches) {
 			return textMatches.map((match, _index) => {
-				const startMatch = match.match(/start="([^"]*)"/)
-				const durMatch = match.match(/dur="([^"]*)"/)
-				const textMatch = match.match(/>([^<]*)<\/text>/)
-				
+				const startMatch = match.match(/start="([^"]*)"/);
+				const durMatch = match.match(/dur="([^"]*)"/);
+				const textMatch = match.match(/>([^<]*)<\/text>/);
+
 				return {
 					text: decodeHTMLEntities(textMatch?.[1] || ""),
 					offset: parseFloat(startMatch?.[1] || "0"),
 					duration: parseFloat(durMatch?.[1] || "1"),
-				}
+				};
 			});
 		}
 
@@ -189,31 +185,31 @@ async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptIte
 		const parser = new XMLParser({
 			ignoreAttributes: false,
 			attributeNamePrefix: "",
-		})
+		});
 
-		const parsed = parser.parse(xmlData)
-		const texts = parsed.transcript?.text || []
+		const parsed = parser.parse(xmlData);
+		const texts = parsed.transcript?.text || [];
 
 		if (!Array.isArray(texts)) {
-			throw new Error("Invalid caption format")
+			throw new Error("Invalid caption format");
 		}
 
 		interface ParsedItem {
-			"#text"?: string
-			dur?: string
-			start?: string
+			"#text"?: string;
+			dur?: string;
+			start?: string;
 		}
-		
+
 		return texts.map((item: string | ParsedItem, index: number) => ({
 			text: decodeHTMLEntities(typeof item === "string" ? item : item["#text"] || ""),
 			duration: typeof item === "object" && item.dur ? parseFloat(item.dur) : 1,
 			offset: typeof item === "object" && item.start ? parseFloat(item.start) : index,
-		}))
+		}));
 	} catch (error) {
-		throw new Error(`Failed to parse caption XML: ${error instanceof Error ? error.message : "Unknown error"}`)
+		throw new Error(`Failed to parse caption XML: ${error instanceof Error ? error.message : "Unknown error"}`);
 	}
 }
 
 // Re-export functions from the original module for backward compatibility
-export const getYouTubeTitleViaOEmbedLegacy = getYouTubeTitleViaOEmbed
-export const getYouTubeTitleViaHTMLLegacy = getYouTubeTitleViaHTML
+export const getYouTubeTitleViaOEmbedLegacy = getYouTubeTitleViaOEmbed;
+export const getYouTubeTitleViaHTMLLegacy = getYouTubeTitleViaHTML;

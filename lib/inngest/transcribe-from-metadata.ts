@@ -45,20 +45,23 @@ async function _getAssemblyJob(id: string, apiKey: string): Promise<AssemblyAITr
 
 // --- Audio resolution helpers -------------------------------------------------
 function _isYouTubeUrl(url: string): boolean {
-	return /youtu(be\.be|be\.com)/i.test(url);
+	return /youtu(be\.be|be\.com)/i.test(url)
 }
 
 function _isDirectAudioUrl(url: string): boolean {
-	return (/(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) || (() => {
-        try {
-            const { hostname, protocol } = new URL(url)
-            if (protocol !== "http:" && protocol !== "https:") return false
-            const host = hostname.toLowerCase()
-            return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
-        } catch {
-            return false
-        }
-    })());
+	return (
+		/(\.(mp3|m4a|wav|aac|flac|webm|mp4)(\?|$))/i.test(url) ||
+		(() => {
+			try {
+				const { hostname, protocol } = new URL(url)
+				if (protocol !== "http:" && protocol !== "https:") return false
+				const host = hostname.toLowerCase()
+				return host === "googlevideo.com" || host.endsWith(".googlevideo.com")
+			} catch {
+				return false
+			}
+		})()
+	)
 }
 
 // NOTE: duplicate YouTube extraction removed; use shared util if needed elsewhere
