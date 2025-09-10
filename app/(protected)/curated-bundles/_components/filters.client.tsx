@@ -73,7 +73,7 @@ export function CuratedBundlesFilters() {
 	const selectedLabel = useMemo(() => currentOptions.find(p => p.value === plan)?.label ?? "All plans", [plan, currentOptions])
 
 	return (
-		<form onSubmit={onSubmit} className="mt-4 mb-6">
+		<form onSubmit={onSubmit} className="mt-0 mb-6 sticky">
 			<div className="flex flex-col md:flex-row gap-3 md:items-center">
 				<Select value={plan} onValueChange={setPlan}>
 					<SelectTrigger aria-label="Minimum plan">

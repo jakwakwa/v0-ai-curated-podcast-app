@@ -1,6 +1,5 @@
 import { memo } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Typography } from "@/components/ui/typography"
+import { Body, Typography } from "@/components/ui/typography"
 import type { UserCurationProfileWithRelations } from "@/lib/types"
 
 interface ProfileFeedCardsProps {
@@ -15,21 +14,17 @@ export const ProfileFeedCards = memo(function ProfileFeedCards({ userCurationPro
 
 	return (
 		<div className="flex flex-col gap-8 p-0 w-full md:w-[100%]">
-			<div className="w-full">
+			<div className="w-full ">
 				{/* Profile Card - using default variant */}
 				{showProfileCard && (
-					<Card variant="default" className=" mb-4">
-						<CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-							<Typography as="h2" className="text-left font-semibold tracking-tight mt-2 mb-2 text-h3">
-								Bundle Selection
-							</Typography>
-						</CardHeader>
-						<CardContent>
-							<Typography as="h3" className="font-sans font-bold text-accent-foreground/90">
+					<div className="px-4 bg-[#1D181F8C] py-4 rounded-sm ">
+						<div className=" flex flex-col items-start justify-between space-y-0 pb-2 rounded-sm">
+							<Body className=" text-left font-semibold tracking-tight mt-2 mb-2 uppercase text-sm">Bundle Selection:</Body>
+							<Typography as="h5" className="font-sans font-bold text-accent-foreground/70 ">
 								{userCurationProfile.selectedBundle?.name || "No Bundle Selected"}
 							</Typography>
-						</CardContent>
-					</Card>
+						</div>
+					</div>
 				)}
 			</div>
 		</div>

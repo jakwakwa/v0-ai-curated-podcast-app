@@ -3,10 +3,9 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
 import EpisodeCard from "./ui/episode-card"
-import { H3 } from "./ui/typography"
 
 interface EpisodeListProps {
 	episodes: Episode[]
@@ -103,53 +102,50 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	}
 
 	return (
-		<Card className="rounded-3xl transition-all duration-200 text-card-foreground episode-card-wrapper px-0 md:min-h-[300px] w-ful">
-			<H3>Bundle Roundup Epidsodes</H3>
-
-			<CardContent>
-				{episodes.length > 0 ? (
-					<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
-						{episodes.map(episode => (
-							<EpisodeCard
-								key={episode.episode_id}
-								as="li"
-								imageUrl={episode.image_url || null}
-								title={episode.title}
-								description={episode.description}
-								publishedAt={episode.published_at || new Date()}
-								actions={
-									<>
-										{episode.audio_url && onPlayEpisode && (
-											<Button
-												onClick={() => onPlayEpisode(episode.episode_id)}
-												variant="play"
-												size="play"
-												className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""}
-											/>
-										)}
-										{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
-											<Button
-												onClick={() => handleDownloadEpisode(episode.episode_id, episode.title)}
-												variant="outline"
-												size="sm"
-												disabled={downloadingEpisodes.has(episode.episode_id)}
-												className="h-8">
-												<Download className="w-4 h-4" />
-												{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
-											</Button>
-										)}
-									</>
-								}
-							/>
-						))}
-					</ul>
-				) : (
-					<div className="text-center py-8 text-muted-foreground">
-						<Music className="h-12 w-12 mx-auto mb-4 opacity-50" />
-						<p>No episodes available</p>
-					</div>
-				)}
-			</CardContent>
-		</Card>
+		<div className="border-[#fff] relative ">
+			<div className="top-shadow"></div>
+			<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 md:min-h-[420px] w-full h-fit">
+				<CardContent>
+					{episodes.length > 0 ? (
+						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-1">
+							{episodes.map(episode => (
+								<EpisodeCard
+									key={episode.episode_id}
+									as="li"
+									imageUrl={episode.image_url || null}
+									title={episode.title}
+									description={episode.description}
+									publishedAt={episode.published_at || new Date()}
+									durationSeconds={episode.duration_seconds ?? null}
+									actions={
+										<>
+											{episode.audio_url && onPlayEpisode && (
+												<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="play" size="play" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
+											)}
+											{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
+												<Button
+													onClick={() => handleDownloadEpisode(episode.episode_id, episode.title)}
+													variant="outline"
+													size="sm"
+													disabled={downloadingEpisodes.has(episode.episode_id)}
+													className="h-8">
+													<Download className="w-4 h-4" />
+													{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
+												</Button>
+											)}
+										</>
+									}
+								/>
+							))}
+						</ul>
+					) : (
+						<div className="text-center py-8 text-muted-foreground">
+							<Music className="h-12 w-12 mx-auto mb-4 opacity-50" />
+							<p>No episodes available</p>
+						</div>
+					)}
+				</CardContent>
+			</div>
+		</div>
 	)
 }

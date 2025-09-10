@@ -2,11 +2,8 @@ export type TranscriptSourceKind = "youtube" | "podcast" | "unknown"
 
 export interface TranscriptRequest {
 	url: string
-	// Optional explicit kind if caller already knows
 	kind?: TranscriptSourceKind
-	// Preferred language code, e.g., "en"
 	lang?: string
-	// Whether to allow paid providers
 	allowPaid?: boolean
 }
 

@@ -10,33 +10,36 @@ import { DynamicBreadcrumb } from "@/components/ui/dynamic-breadcrumb"
 import { NotificationBell } from "@/components/ui/notification-bell"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
+import { useSubscriptionInit } from "@/hooks/useSubscriptionInit"
 
 function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 	const { state } = useSidebar()
+
+	// Initialize subscription data
+	useSubscriptionInit()
 
 	return (
 		<>
 			<AppSidebar />
 
 			<SidebarInset>
-				<header className=" flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-full justify-between px-2 md:px-4" >
-					<div className="flex items-center justify-between gap-2 px-2 md:px-4">
-						{/* @ts-ignore */}
-						<SidebarTrigger className=" w-10" />
-						<Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+				<header className={`fixed flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-screen justify-between px-2 md:px-4 py-0 overflow-y-scroll  bg-[#24202BDC] ${state === "expanded" ? "" : ""}`} >
+					<div className={`flex items-center h-16 justify-between gap-2 px-2  ${state === "expanded" ? "md:px-4" : "md:px-0"}`}>
+						<Image className={`w-full max-w-[100px] ${state === "expanded" ? "inline " : "hidden"}`} src="/logo.png" width={300} height={100} alt="logo" />
+						<Separator orientation="vertical" className={`data-[orientation=vertical]:min-h-[8px] border-[0px] border-r-[#000] bg-[#14171600] w-[1px] ${state === "expanded" ? "ml-12" : "ml-0 mr-0"}`}>{""}</Separator>
+						<SidebarTrigger className="w-[52px] h-[24px]" size={"xs"} variant="outline" />
+						<Separator orientation="vertical" className={`data-[orientation=vertical]:min-h-[8px] border-[0px] border-r-[#342D3D] bg-[#585E5C] w-[1px] ${state === "expanded" ? "mr-12 ml-4" : "mx-2 ml-0	"}`}>{""}</Separator>
+						{/* <Separator orientation="vertical" className="data-[orientation=vertical]:h-8 border-[#D5C7B739] border-[1px] ml-2 ">{""}</Separator> */}
 						<DynamicBreadcrumb />
 
 					</div>
-					<div className="w-[100px] flex flex-row flex-end items-center justify-end mr-4" >
-						<NotificationBell />
-						<Image className="m-5" src="/logo-icon.png" width={35} height={45} alt="logo" />
-					</div>
+					<NotificationBell />
 
 				</header>
 
-				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out pt-8 px-0 md:px-0 mt-8 md:mt-8 mb-2 ${state === "expanded" ? "w-full" : "w-full"}`}>
+				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out px-0 md:px-0 mt-8 md:mt-0 mb-2 overflow-y-scroll m-0 p-0 h-screen ${state === "expanded" ? "ml-0 w-full md:ml-6 md:max-w-[80vw]" : "ml-0 md:ml-12 w-full md:max-w-[95vw]"}`}>
 
-					<div className="w-full p-0 flex flex-col md:flex-row gap-2 px-2 min-w-full md:px-4 h-screen">{children}</div>
+					<div className="w-full p-0 flex flex-col md:flex-row gap-2 pt-10 pb-12 md:pt-24 px-2 min-w-full md:px-4 my-0">{children}</div>
 				</div>
 			</SidebarInset>
 		</>
@@ -121,10 +124,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 			<div
 				id="global-audio-player"
 				className="fixed bottom-0 left-64 right-0 z-[9999] pointer-events-auto"
-				style={{
-					// @ts-ignore
-					position: "fixed !important",
-				}}
+
 			/>
 		</SidebarProvider>
 	)

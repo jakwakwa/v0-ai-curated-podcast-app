@@ -1,92 +1,93 @@
-"use client"
+"use client";
 
-import { formatDistanceToNow } from "date-fns"
-import { Bell, Calendar, Check, Clock, Podcast, Trash2, X } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
-import { toast } from "sonner"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { PageHeader } from "@/components/ui/page-header"
-import type { Notification } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns";
+import { Bell, Calendar, Check, Clock, Podcast, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import type { Notification } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export default function NotificationsPage() {
-	const [notifications, setNotifications] = useState<Notification[]>([])
-	const [isLoading, setIsLoading] = useState(true)
+	const [notifications, setNotifications] = useState<Notification[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const fetchNotifications = useCallback(async () => {
 		try {
-			const response = await fetch("/api/notifications")
+			const response = await fetch("/api/notifications");
 			if (!response.ok) {
-				throw new Error("Failed to fetch notifications")
+				throw new Error("Failed to fetch notifications");
 			}
-			const data = await response.json()
-			setNotifications(data)
+			const data = await response.json();
+			setNotifications(data);
 		} catch (error) {
-			console.error("Error fetching notifications:", error)
-			toast.error("Failed to load notifications")
+			console.error("Error fetching notifications:", error);
+			toast.error("Failed to load notifications");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}, [])
+	}, []);
 
 	useEffect(() => {
-		fetchNotifications()
-	}, [fetchNotifications])
+		fetchNotifications();
+	}, [fetchNotifications]);
 
+	const _router = useRouter();
 
-	const router = useRouter()
+	const router = useRouter();
 	const handleMarkAsRead = async (notificationId: string) => {
 		try {
 			const response = await fetch(`/api/notifications/${notificationId}/read`, {
 				method: "PATCH",
-			})
+			});
 			if (!response.ok) {
-				throw new Error("Failed to mark notification as read")
+				throw new Error("Failed to mark notification as read");
 			}
-			setNotifications(prev => prev.map(notif => (notif.notification_id === notificationId ? { ...notif, is_read: true } : notif)))
-			toast.success("Notification marked as read")
+			setNotifications(prev => prev.map(notif => (notif.notification_id === notificationId ? { ...notif, is_read: true } : notif)));
+			toast.success("Notification marked as read");
 		} catch (error) {
-			console.error("Error marking notification as read:", error)
-			toast.error("Failed to mark notification as read")
+			console.error("Error marking notification as read:", error);
+			toast.error("Failed to mark notification as read");
 		}
-	}
+	};
 
 	const handleMarkAllAsRead = async () => {
 		try {
-			const unreadNotifications = notifications.filter(n => !n.is_read)
+			const unreadNotifications = notifications.filter(n => !n.is_read);
 			await Promise.all(
 				unreadNotifications.map(notif =>
 					fetch(`/api/notifications/${notif.notification_id}/read`, {
 						method: "PATCH",
 					})
 				)
-			)
-			setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true })))
-			toast.success("All notifications marked as read")
+			);
+			setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true })));
+			toast.success("All notifications marked as read");
 		} catch (error) {
-			console.error("Error marking all notifications as read:", error)
-			toast.error("Failed to mark all notifications as read")
+			console.error("Error marking all notifications as read:", error);
+			toast.error("Failed to mark all notifications as read");
 		}
-	}
+	};
 
 	const handleDeleteNotification = async (notificationId: string) => {
 		try {
 			const response = await fetch(`/api/notifications/${notificationId}`, {
 				method: "DELETE",
-			})
+			});
 			if (!response.ok) {
-				throw new Error("Failed to delete notification")
+				throw new Error("Failed to delete notification");
 			}
-			setNotifications(prev => prev.filter(notif => notif.notification_id !== notificationId))
-			toast.success("Notification deleted")
+			setNotifications(prev => prev.filter(notif => notif.notification_id !== notificationId));
+			toast.success("Notification deleted");
 		} catch (error) {
-			console.error("Error deleting notification:", error)
-			toast.error("Failed to delete notification")
+			console.error("Error deleting notification:", error);
+			toast.error("Failed to delete notification");
 		}
-	}
+	};
 
 	const handleClearAll = async () => {
 		try {
@@ -96,42 +97,42 @@ export default function NotificationsPage() {
 						method: "DELETE",
 					})
 				)
-			)
-			setNotifications([])
-			toast.success("All notifications cleared")
+			);
+			setNotifications([]);
+			toast.success("All notifications cleared");
 		} catch (error) {
-			console.error("Error clearing all notifications:", error)
-			toast.error("Failed to clear all notifications")
+			console.error("Error clearing all notifications:", error);
+			toast.error("Failed to clear all notifications");
 		}
-	}
+	};
 
 	const getNotificationIcon = (type: Notification["type"]) => {
 		switch (type) {
 			case "episode_ready":
-				return <Podcast className="w-5 h-5" color="#89D7AF" />
+				return <Podcast className="w-5 h-5" color="#89D7AF" />;
 			case "weekly_reminder":
-				return <Calendar className="w-5 h-5" color="#FFD700" />
+				return <Calendar className="w-5 h-5" color="#FFD700" />;
 			case "subscription_expiring":
-				return <Clock className="w-5 h-5" color="#FFA500" />
+				return <Clock className="w-5 h-5" color="#FFA500" />;
 			case "trial_ending":
-				return <Bell className="w-5 h-5" color="#FF0000" />
+				return <Bell className="w-5 h-5" color="#FF0000" />;
 			default:
-				return <Bell className="w-5 h-5" color="#000000" />
+				return <Bell className="w-5 h-5" color="#000000" />;
 		}
-	}
+	};
 
 	const getNotificationColor = (type: string) => {
 		switch (type) {
 			case "episode_ready":
-				return "text-green-500"
+				return "text-green-500";
 			case "weekly_reminder":
-				return "text-amber-500"
+				return "text-amber-500";
 			default:
-				return "text-gray-500"
+				return "text-gray-500";
 		}
-	}
+	};
 
-	const unreadCount = notifications.filter(n => !n.is_read).length
+	const unreadCount = notifications.filter(n => !n.is_read).length;
 
 	if (isLoading) {
 		return (
@@ -140,14 +141,14 @@ export default function NotificationsPage() {
 					<AppSpinner size="lg" label="Loading notifications..." />
 				</div>
 			</div>
-		)
+		);
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%] lg:max-w-[1200px] h-auto mb-0 mt-4 px-2 pt-12">
-			<div className="mb-8 flex flex-col  items-center justify-start">
+		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
+			<div className="mb-8 mt-4 flex flex-col items-center justify-start">
 				<div className="w-full flex items-center justify-between flex-wrap gap-4">
-					<div className="flex flex-row gap-3 mt-6 h-14">
+					<div className="flex flex-row gap-3 h-14">
 						<PageHeader title="Notifications" className="h-14 mb-0 mt-0" />
 					</div>
 					<div className="flex gap-2 flex-wrap">
@@ -167,12 +168,12 @@ export default function NotificationsPage() {
 				</div>
 			</div>
 
-			<div className="min-h-[400px] px-0">
+			<div className="min-h-[400px] px-0 episode-card-wrapper-dark">
 				{notifications.length === 0 ? (
-					<Card variant={"episode"} className="text-center px-0 py-2 border-2 border-dashed border-border bg-card content">
+					<Card variant={"episode"} className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
-							<Bell className="w-12 h-12 text-muted-foreground opacity-50" />
-							<h3 className="text-2xl font-semibold text-foreground m-0">No notifications</h3>
+							<Bell className="w-8 h-8 text-muted-foreground opacity-50" />
+							<h3 className="text-xl font-semibold text-foreground m-0">No notifications</h3>
 							<p className="text-muted-foreground max-w-md text-base m-0">You're all caught up! New notifications will appear here when they arrive.</p>
 						</CardContent>
 					</Card>
@@ -213,5 +214,5 @@ export default function NotificationsPage() {
 				)}
 			</div>
 		</Card>
-	)
+	);
 }

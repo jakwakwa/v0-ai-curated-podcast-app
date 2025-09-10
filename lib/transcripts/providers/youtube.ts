@@ -7,7 +7,7 @@ export const YouTubeCaptionsProvider: TranscriptProvider = {
 		// Disabled on Vercel by default due to anti-bot; guard with env flag
 		const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true"
 		const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true"
-		return /youtu(be\.be|be\.com)/i.test(request.url) && (!isVercel || enableServerYtdl)
+		return /youtu(be\.be|be\.com)/i.test(request.url) && (!isVercel || enableServerYtdl);
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {

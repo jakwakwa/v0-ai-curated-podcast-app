@@ -39,7 +39,10 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 		category: "",
 	})
 
-	const optimisticPodcast = (p: Podcast): Podcast => ({ ...p, ...(optimistic[p.podcast_id] || {}) }) as Podcast
+	const optimisticPodcast = (p: Podcast): Podcast => (({
+        ...p,
+        ...(optimistic[p.podcast_id] || {})
+    }) as Podcast)
 
 	const doCreate = () => {
 		if (!(createForm.name.trim() && createForm.url.trim())) return

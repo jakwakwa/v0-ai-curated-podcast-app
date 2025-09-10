@@ -1,6 +1,10 @@
 "use client"
 
-import type { Podcast, UserCurationProfile } from "@prisma/client"
+import type { Bundle, Podcast, UserCurationProfile } from "@prisma/client"
+
+// Type for bundle with podcasts array from API
+type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
+
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -12,8 +16,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useUserCurationProfileStore } from "@/lib/stores"
 import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Typography } from "../ui/typography"
-import { BundleList } from "./bundle-list"
 
 function UserFeedSelectorWizard() {
 	const [step, setStep] = useState(1)
@@ -23,6 +27,8 @@ function UserFeedSelectorWizard() {
 	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([])
 	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
 	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
+	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([])
+	const [isLoadingBundles, setIsLoadingBundles] = useState(false)
 
 	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
 	const canCreateUserCurationProfile = () => true
@@ -47,6 +53,25 @@ function UserFeedSelectorWizard() {
 
 		checkExistingProfile()
 	}, [])
+
+	// Fetch bundles when bundle selection is needed
+	const fetchBundles = async () => {
+		if (bundles.length > 0) return // Already loaded
+
+		setIsLoadingBundles(true)
+		try {
+			const response = await fetch("/api/curated-bundles")
+			if (response.ok) {
+				const data = await response.json()
+				setBundles(data)
+			}
+		} catch (error) {
+			console.error("Error fetching bundles:", error)
+			toast.error("Failed to load bundles. Please try again.")
+		} finally {
+			setIsLoadingBundles(false)
+		}
+	}
 
 	const handleCreateUserCurationProfile = async () => {
 		if (!canCreateUserCurationProfile()) {
@@ -159,11 +184,12 @@ function UserFeedSelectorWizard() {
 								onClick={() => {
 									setIsBundleSelection(true)
 									setStep(2)
+									// Fetch bundles when user selects bundle option
+									fetchBundles()
 								}}
 								variant="default"
 								size="bundles"
-								className="w-full min-h-12 h-auto"
-							>
+								className="w-full min-h-12 h-auto">
 								Choose from pre-selected bundles
 							</Button>
 							<Button
@@ -172,8 +198,7 @@ function UserFeedSelectorWizard() {
 									setStep(2)
 								}}
 								variant="default"
-								className="w-full h-auto"
-							>
+								className="w-full h-auto">
 								<div className="flex flex-col gap-2 w-full items-start px-2 md:px-4 py-2">
 									<Typography className="text-primary w-full inline-block" variant="h4" as="h4">
 										Custom Personalized Feed
@@ -195,7 +220,69 @@ function UserFeedSelectorWizard() {
 						{isBundleSelection ? "Select a Bundle" : "Select Podcasts for Your Custom Personalized Feed"}
 					</Typography>
 					{isBundleSelection ? (
-						<BundleList onBundleSelect={bundle => setSelectedBundleId(bundle.bundle_id)} selectedBundleId={selectedBundleId} />
+						<div className="w-full max-w-md">
+							{isLoadingBundles ? (
+								<div className="text-center py-8">
+									<AppSpinner size="lg" label="Loading bundles..." />
+								</div>
+							) : bundles.filter(b => b.canInteract).length === 0 ? (
+								<div className="text-center py-8">
+									<Typography variant="h4" className="mb-4 text-muted-foreground">
+										{bundles.length === 0 ? "No Bundles Available" : "No Access to Bundles"}
+									</Typography>
+									<Typography variant="body" className="mb-4 text-muted-foreground">
+										{bundles.length === 0
+											? "There are currently no PODSLICE bundles available. Please check back later or contact support if this issue persists."
+											: "You don't have access to any PODSLICE bundles with your current plan. Upgrade your plan to access more bundles."}
+									</Typography>
+									<Button variant="outline" onClick={fetchBundles} className="mb-4">
+										Try Again
+									</Button>
+									<div className="text-sm text-muted-foreground">
+										<Typography variant="body">
+											Need more details about bundles?{" "}
+											<Link href="/curated-bundles" className="text-primary hover:underline">
+												View bundle details here
+											</Link>
+										</Typography>
+									</div>
+								</div>
+							) : (
+								<>
+									<div className="mb-4">
+										<Label htmlFor="bundle-select" className="block text-sm font-medium mb-2">
+											Choose a Bundle
+										</Label>
+										<Select
+											value={selectedBundleId || ""}
+											onValueChange={value => {
+												setSelectedBundleId(value)
+											}}>
+											<SelectTrigger id="bundle-select" className="w-full">
+												<SelectValue placeholder="Select a bundle..." />
+											</SelectTrigger>
+											<SelectContent>
+												{bundles
+													.filter(b => b.canInteract)
+													.map(bundle => (
+														<SelectItem key={bundle.bundle_id} value={bundle.bundle_id}>
+															{bundle.name}
+														</SelectItem>
+													))}
+											</SelectContent>
+										</Select>
+									</div>
+									<div className="text-sm text-muted-foreground">
+										<Typography variant="body" className="mb-2">
+											Need more details about the bundles?{" "}
+											<Link href="/curated-bundles" className="text-primary hover:underline">
+												View bundle details here
+											</Link>
+										</Typography>
+									</div>
+								</>
+							)}
+						</div>
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {
@@ -217,7 +304,7 @@ function UserFeedSelectorWizard() {
 						<Button variant="default" onClick={() => setStep(1)}>
 							Back
 						</Button>
-						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId : selectedPodcasts.length === 0}>
+						<Button variant="default" onClick={() => setStep(3)} disabled={isBundleSelection ? !selectedBundleId || bundles.filter(b => b.canInteract).length === 0 : selectedPodcasts.length === 0}>
 							Next
 						</Button>
 					</div>
@@ -254,7 +341,7 @@ function UserFeedSelectorWizard() {
 									Selected Content:
 								</Typography>
 								{isBundleSelection && selectedBundleId ? (
-									<Typography variant="body">Bundle ID: {selectedBundleId}</Typography>
+									<Typography variant="body">Bundle: {bundles.find(b => b.bundle_id === selectedBundleId)?.name || selectedBundleId}</Typography>
 								) : (
 									<ul className="space-y-2">
 										{selectedPodcasts.map(p => (

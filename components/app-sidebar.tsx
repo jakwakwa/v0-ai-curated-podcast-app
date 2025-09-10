@@ -1,11 +1,11 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { Bell, Home, Info, Play, Radio, Settings } from "lucide-react"
+import { Bell, Home, Info, Play, Radio } from "lucide-react"
 import type * as React from "react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { Sidebar, SidebarContent, SidebarFooter, } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useUser()
@@ -25,31 +25,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Home,
 		},
 		{
+			title: "Generate Custom Episodes",
+			url: "/generate-my-episodes",
+			icon: Info,
+		},
+
+
+		{
+			title: "Bundle Episodes",
+			url: "/episodes",
+			icon: Play
+		},
+		{
+			title: "My Episodes",
+			url: "/my-episodes",
+			icon: Play
+		},
+		{
+			title: "Explore Curated Bundles",
+			url: "/curated-bundles",
+			icon: Radio,
+		},
+		{
 			title: "Notifications",
 			url: "/notifications",
-			icon: Bell
+			icon: Bell,
+			separator: true,
 		},
 		{
 			title: "About Podslice",
 			url: "/welcome",
 			icon: Info,
-		},
-		{
-			title: "Weekly Episodes",
-			url: "/episodes",
-			icon: Play,
-			separator: true,
-		},
-		{
-			title: "Bundles",
-			url: "/curated-bundles",
-			icon: Radio,
-		},
-		{
-			title: "Personal Feed",
-			url: "/curation-profile-management",
-			icon: Settings,
-		},
+		}
+
+
 	]
 
 	return (

@@ -1,10 +1,10 @@
 "use client"
 
-import { Bell, Check as CheckIcon, Loader2, Mail, Smartphone, X } from "lucide-react"
+import { Check as CheckIcon, Loader2, Mail, Radio, Smartphone, StopCircleIcon, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ComponentSpinner from "@/components/ui/component-spinner"
 import DateIndicator from "@/components/ui/date-indicator"
 import { Separator } from "@/components/ui/separator"
@@ -75,50 +75,40 @@ export function NotificationPreferences() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<Bell className="w-5 h-5" />
-						Notification Preferences
-					</CardTitle>
-					<CardDescription>Manage how you receive notifications about new episodes and updates.</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					{/* Email Notifications */}
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-2">
-								<Mail className="w-4 h-4" />
-								<h3 className="font-medium">Email Notifications</h3>
-							</div>
-							{preferences && <SettingsToggle preferences={preferences} label="Email" toggleHandler={handleNotificationToggle} settingType="emailNotifications" isUpdating={isUpdating} />}
+		<div className="episode-card-wrapper flex flex-col pb-12 w-full px-4 gap-4 md:p-2" >
+			<div className="space-y-6 w-full">
+				{/* Email Notifications */}
+				<div className="space-y-4">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-2">
+							<Mail className="w-4 h-4" />
+							<h3 className="font-medium">Email Notifications</h3>
 						</div>
-						<p className="text-sm text-muted-foreground">Receive email notifications when new episodes are ready.</p>
+						{preferences && <SettingsToggle preferences={preferences} label="Email" toggleHandler={handleNotificationToggle} settingType="emailNotifications" isUpdating={isUpdating} />}
 					</div>
+					<p className="text-sm text-muted-foreground">Receive email notifications when new episodes are ready.</p>
+				</div>
 
-					<Separator />
+				<Separator />
 
-					{/* In-App Notifications */}
-					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-2">
-								<Smartphone className="w-4 h-4" />
-								<h3 className="font-medium">In-App Notifications</h3>
-							</div>
-							{preferences && <SettingsToggle preferences={preferences} label="In-App" toggleHandler={handleNotificationToggle} settingType="inAppNotifications" isUpdating={isUpdating} />}
+				{/* In-App Notifications */}
+				<div className="space-y-4 w-full">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-2">
+							<Smartphone className="w-4 h-4" />
+							<h3 className="font-medium">In-App Notifications</h3>
 						</div>
-						<p className="text-sm text-muted-foreground">Show notifications within the app when new episodes are ready.</p>
+						{preferences && <SettingsToggle preferences={preferences} label="In-App" toggleHandler={handleNotificationToggle} settingType="inAppNotifications" isUpdating={isUpdating} />}
 					</div>
+					<p className="text-sm text-muted-foreground">Show notifications within the app when new episodes are ready.</p>
+				</div>
 
-					{/* Save Button */}
-					<SubmitBtn isUpdating={isUpdating} handleSaveAll={handleSaveAll} />
-				</CardContent>
-			</Card>
+				{/* Save Button */}
+				<SubmitBtn isUpdating={isUpdating} handleSaveAll={handleSaveAll} />
+			</div>
 
-			{/* Notification Status */}
 			{preferences && (
-				<Card>
+				<Card className="w-full hidden">
 					<CardHeader>
 						<CardTitle>Current Settings</CardTitle>
 					</CardHeader>
@@ -156,14 +146,16 @@ function SettingsToggle({
 }): React.ReactElement {
 	return (
 		<div className="flex items-center justify-between gap-4">
-			<span className="text-sm font-medium">{label}</span>
+			<span className="text-sm font-medium hidden">{label}</span>
 			<div className="flex items-center gap-2">
-				<div className="flex items-center gap-1">{preferences[settingType] ? <CheckIcon className="w-3 h-3 text-green-600" /> : <X className="w-3 h-3 text-red-600" />}</div>
 				{toggleHandler && (
-					<Button variant="default" size="sm" onClick={toggleHandler} disabled={isUpdating} value={settingType}>
+					<Button variant="outline" size="sm" onClick={toggleHandler} disabled={isUpdating} value={settingType}>
 						{isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "Toggle"}
 					</Button>
 				)}
+				<div className="bg-[#50345F51] border-4 border-[#111112] p-1 rounded-full flex items-center gap-1">
+					{preferences[settingType] ? <Radio width={10} height={10} className="w-4 h-4 text-green-600" /> : <StopCircleIcon width={10} height={10} className="w-4 h-4 text-red-600" />}
+				</div>
 			</div>
 		</div>
 	)
