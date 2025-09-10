@@ -32,8 +32,8 @@ export function UsageDisplay() {
 	}
 
 	return (
-		<Card variant="bundle" className="episode-card">
-			<div className="w-full flex flex-col p-4 gap-3">
+		<Card variant="glass" className="bg-bundle-card w-3/4">
+			<div className="w-full flex flex-col p-2 gap-3">
 				<H2 className="text-secondary-foreground">Monthly Usage</H2>
 
 				<Body className="font-normal">

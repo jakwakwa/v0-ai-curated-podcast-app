@@ -142,7 +142,7 @@ export default function CurationProfileManagementPage() {
 
 							{/*  */}
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<div className="bg-[#0E0F114E] rounded-md  p-4">
+								<div className="bg-[#1920214E] rounded-t-md  p-4">
 									<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
 										<Edit />
 									</Button>

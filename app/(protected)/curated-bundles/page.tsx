@@ -49,7 +49,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 	}
 
 	return (
-		<div className="w-full episode-card-wrapper overflow-x-hidden min-h-[85vh]">
+		<div className="w-full episode-card-wrapper">
 			<PageHeader
 				title="Explore our Bundles"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."

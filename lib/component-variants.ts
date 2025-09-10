@@ -114,7 +114,7 @@ export const selectVariants = cva("", {
 				"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-[oklch(0.30_0.1388_290.83/0.28)] border-[var(--color-form-border)] px-3 py-2 text-sm text-[var(--color-form-input-text)] shadow-xs outline-none transition-all duration-200 data-[placeholder]:text-[var(--color-form-placeholder)] focus:border-[var(--color-form-border-focus)] focus:ring-[3px] focus:ring-[var(--color-form-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:opacity-50",
 		},
 		content: {
-			default: "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-background text-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+			default: "relative z-1000 max-h-96 min-w-32 overflow-hidden rounded-md border bg-background text-foreground shadow-md animate-in fade-in-0 zoom-in-95",
 		},
 	},
 	defaultVariants: {

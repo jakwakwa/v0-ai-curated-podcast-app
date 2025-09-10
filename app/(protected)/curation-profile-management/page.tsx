@@ -143,7 +143,7 @@ export default function CurationProfileManagementPage() {
 
 								{/*  */}
 								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-									<div className="bg-[#0E0F114E] rounded-md  p-4">
+									<div className="bg-[#2B31344E] rounded-t-md rounded-b-none  p-4">
 										<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
 											<Edit />
 										</Button>
@@ -204,7 +204,7 @@ export default function CurationProfileManagementPage() {
 								{userEpisodes.length === 0 ? (
 									<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
 								) : (
-									<ul className=" inline-block w-full inline-flex flex-col gap-3">
+									<ul className="w-full flex flex-col gap-4">
 										{userEpisodes
 											.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
 											.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())

@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GenerateMyEpisodesPage() {
 	return (
-		<div className="w-full space-y-12">
+		<div className="w-full space-y-4">
 			<UsageDisplay />
 			<EpisodeCreator />
 		</div>

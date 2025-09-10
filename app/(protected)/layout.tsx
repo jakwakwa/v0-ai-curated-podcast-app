@@ -39,7 +39,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 
 				<div className={`flex flex-col flex-grow transition-all duration-300 ease-in-out px-0 md:px-0 mt-8 md:mt-0 mb-2 overflow-y-scroll m-0 p-0 h-screen ${state === "expanded" ? "ml-0 w-full md:ml-6 md:max-w-[80vw]" : "ml-0 md:ml-12 w-full md:max-w-[95vw]"}`}>
 
-					<div className="w-full p-0 flex flex-col md:flex-row gap-2 pt-24  px-2 min-w-full md:px-4 my-0">{children}</div>
+					<div className="w-full p-0 flex flex-col md:flex-row gap-2 pt-10 pb-12 md:pt-24 px-2 min-w-full md:px-4 my-0">{children}</div>
 				</div>
 			</SidebarInset>
 		</>

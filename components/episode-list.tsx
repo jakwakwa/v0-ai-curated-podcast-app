@@ -102,12 +102,12 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	}
 
 	return (
-		<div className="border-[#fff] relative">
+		<div className="border-[#fff] relative ">
 			<div className="top-shadow"></div>
 			<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 md:min-h-[420px] w-full h-fit">
 				<CardContent>
 					{episodes.length > 0 ? (
-						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
+						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-1">
 							{episodes.map(episode => (
 								<EpisodeCard
 									key={episode.episode_id}

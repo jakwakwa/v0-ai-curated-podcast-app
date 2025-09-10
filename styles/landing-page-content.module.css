@@ -24,7 +24,7 @@
 .landingHeader {
 	position: sticky;
 	top: 0;
-	z-index: 50;
+	z-index: 99999 !important;
 	width: 100%;
 	height: 56px;
 	padding: 0 1rem;
