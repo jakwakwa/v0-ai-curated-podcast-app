@@ -7,6 +7,22 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Typography } from "@/components/ui/typography"
 import type { Bundle, Podcast } from "@/lib/types"
 
+// Simple function to sanitize text for safe display
+function sanitizeText(text: string | null | undefined): string {
+	if (!text) return ""
+	// Remove any potential HTML/script tags and escape special characters
+	return text.replace(/[<>&"']/g, (char) => {
+		switch (char) {
+			case '<': return '&lt;'
+			case '>': return '&gt;'
+			case '&': return '&amp;'
+			case '"': return '&quot;'
+			case "'": return '&#x27;'
+			default: return char
+		}
+	})
+}
+
 interface BundleSelectionDialogProps {
 	isOpen: boolean
 	onClose: () => void
@@ -56,10 +72,10 @@ export function BundleSelectionDialog({
 					</DialogTitle>
 					<DialogDescription>
 						{isAlreadySelected
-							? `You already have "${selectedBundle.name}" selected as your curated podcast bundle.`
+							? `You already have "${sanitizeText(selectedBundle.name)}" selected as your curated podcast bundle.`
 							: currentBundleName
-								? `You're about to change from '${currentBundleName} Bundle' to '${selectedBundle.name} Bundle'`
-								: `You're about to select '${selectedBundle.name}' as your curated podcast bundle. This will update your podcast feed.`}
+								? `You're about to change from '${sanitizeText(currentBundleName)} Bundle' to '${sanitizeText(selectedBundle.name)} Bundle'`
+								: `You're about to select '${sanitizeText(selectedBundle.name)}' as your curated podcast bundle. This will update your podcast feed.`}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -68,7 +84,7 @@ export function BundleSelectionDialog({
 						{/* Warning Message */}
 						<div className="px-2 py-1 bg-amber-50 dark:bg-amber-600/50 outline outline-2 outline-amber-600/70 dark:border-amber-800 rounded-lg inline-block">
 							<Typography variant="body" className="text-amber-400 dark:text-amber-400/70 text-sm">
-								{`You won't have access to ${currentBundleName}'s episodes after changing`}
+								{`You won't have access to ${sanitizeText(currentBundleName)}'s episodes after changing`}
 							</Typography>
 						</div>
 					</div>

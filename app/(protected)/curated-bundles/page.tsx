@@ -17,7 +17,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 	let error: string | null = null
 
 	try {
-		const resolvedSearchParams = await searchParams
+		const resolvedSearchParams = searchParams ? await searchParams : {}
 		const q = resolvedSearchParams?.q?.toString().trim()
 		const minPlanParam = resolvedSearchParams?.min_plan?.toString().trim()
 		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined

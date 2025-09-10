@@ -21,9 +21,10 @@ export default function DurationIndicator({ seconds, size = "sm" }: DurationIndi
 		xs: "text-[0.5rem]",
 		sm: "text-[0.4rem]",
 	}
+	const duration = formatDuration(seconds)
 	return (
 		<div className={`ml-1 inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-foreground/70 font-medium text-custom-xxs`}>
-			{formatDuration(seconds) ? `Episode Duration: ${formatDuration(seconds)}` : "0:00"
-			}</div>
+			{duration ? `Episode Duration: ${duration}` : "0:00"}
+		</div>
 	);
 }
