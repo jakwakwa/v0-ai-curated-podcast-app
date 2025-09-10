@@ -2,6 +2,8 @@ import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logge
 import { ensureBucketName, storeUrlInGCS } from "@/lib/gcs";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/prisma";
+import { getVideoDurationInSeconds } from "@/lib/video-metadata";
+import { transcribeYouTubeVideo } from "@/lib/custom-transcriber";
 import { preflightProbe } from "./utils/preflight";
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results";
 
@@ -37,6 +39,88 @@ export const transcriptionCoordinator = inngest.createFunction(
 			status: probe.ok ? "success" : "fail",
 			meta: probe.ok ? probe.value : probe,
 		});
+
+		// Check if this is a YouTube URL and get duration
+		const isYouTube = srcUrl.includes('youtube.com') || srcUrl.includes('youtu.be');
+		let videoDuration: number | null = null;
+		
+		if (isYouTube) {
+			try {
+				videoDuration = await step.run("get-video-duration", async () => {
+					return await getVideoDurationInSeconds(srcUrl);
+				});
+				await writeEpisodeDebugLog(userEpisodeId, { 
+					step: "video-duration", 
+					status: "success", 
+					message: `Video duration: ${videoDuration}s`,
+					meta: { duration: videoDuration }
+				});
+			} catch (error) {
+				await writeEpisodeDebugLog(userEpisodeId, { 
+					step: "video-duration", 
+					status: "fail", 
+					message: "Failed to get video duration",
+					meta: { error: error instanceof Error ? error.message : String(error) }
+				});
+			}
+		}
+
+		// For long YouTube videos (>20 minutes), use custom transcriber with chunking
+		// For short videos or non-YouTube URLs, use Gemini
+		const useCustomTranscriber = isYouTube && videoDuration && videoDuration > 1200; // 20 minutes
+
+		if (useCustomTranscriber) {
+			await writeEpisodeDebugLog(userEpisodeId, { 
+				step: "transcription-strategy", 
+				status: "info", 
+				message: "Using custom transcriber for long video",
+				meta: { duration: videoDuration, strategy: "custom-chunked" }
+			});
+
+			// Use custom transcriber with built-in chunking
+			const result = await step.run("transcribe-with-custom", async () => {
+				return await transcribeYouTubeVideo(srcUrl);
+			});
+
+			if (result.success) {
+				await step.run("finalize-success", async () => {
+					await prisma.userEpisode.update({
+						where: { episode_id: userEpisodeId },
+						data: { 
+							status: "COMPLETED", 
+							transcript: result.transcript
+						},
+					});
+					await writeEpisodeDebugLog(userEpisodeId, { 
+						step: "finalize", 
+						status: "success", 
+						message: "Custom transcription completed",
+						meta: { transcriptLength: result.transcript?.length, audioSize: result.audioSize }
+					});
+				});
+
+				await step.sendEvent("finalize-success", {
+					name: "transcription.finalize.success",
+					data: { userEpisodeId, jobId, provider: "custom-chunked" },
+				});
+
+				return { success: true, userEpisodeId, provider: "custom-chunked" };
+			} else {
+				await step.run("finalize-failure", async () => {
+					await prisma.userEpisode.update({
+						where: { episode_id: userEpisodeId },
+						data: { status: "FAILED" },
+					});
+					await writeEpisodeDebugLog(userEpisodeId, { 
+						step: "finalize", 
+						status: "fail", 
+						message: "Custom transcription failed",
+						meta: { error: result.error }
+					});
+				});
+				return { success: false, userEpisodeId, error: result.error };
+			}
+		}
 
 		// Download-once: store source audio in GCS for non-Gemini providers; Gemini needs the original YouTube URL
 		const permanentUrl = await step.run("download-and-store-audio", async () => {
