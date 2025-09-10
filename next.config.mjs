@@ -13,7 +13,6 @@ const nextConfig = {
 					{ protocol: 'https', hostname: 'pbs.twimg.com' },
 					{ protocol: 'https', hostname: 'abs.twimg.com' },
 					{ protocol: 'https', hostname: 'images.ctfassets.net' },
-					{ protocol: 'https', hostname: '*.cloudinary.com' },
 					{ protocol: 'https', hostname: 'res.cloudinary.com' },
 					{ protocol: 'https', hostname: 'img.clerk.com' },
 			],
@@ -27,22 +26,21 @@ const nextConfig = {
 	async headers() {
 			const clerkHostname = 'joint-weevil-31.clerk.accounts.dev';
 
-			// Base CSP directives
 			const csp = {
 					'default-src': ["'self'"],
 					'script-src': [
 							"'self'",
-							"'unsafe-eval'",      // Required for Next.js in development
-							"'unsafe-inline'",    // Required for Clerk and other libraries
+							"'unsafe-eval'",
+							"'unsafe-inline'",
 							`https://${clerkHostname}`,
-							'https://challenges.cloudflare.com', // Clerk bot protection
-							'https://vendors.paddle.com',       // Paddle scripts
-							'https://checkout.paddle.com',      // Paddle checkout
-							'https://va.vercel-scripts.com',    // Vercel Analytics
+							'https://challenges.cloudflare.com',
+							'https://vendors.paddle.com',
+							'https://checkout.paddle.com',
+							'https://va.vercel-scripts.com',
 					],
 					'style-src': [
 							"'self'",
-							"'unsafe-inline'", // Required for many UI libraries
+							"'unsafe-inline'",
 							'https://fonts.googleapis.com',
 					],
 					'img-src': [
@@ -51,6 +49,7 @@ const nextConfig = {
 							'images.unsplash.com',
 							'youtu.be',
 							'storage.cloud.google.com',
+							'storage.googleapis.com',
 							'firebasestorage.googleapis.com',
 							'lh3.googleusercontent.com',
 							'graph.facebook.com',
@@ -58,21 +57,30 @@ const nextConfig = {
 							'pbs.twimg.com',
 							'abs.twimg.com',
 							'images.ctfassets.net',
-							'*.cloudinary.com',
 							'res.cloudinary.com',
 							'img.clerk.com',
 					],
 					'font-src': ["'self'", 'https://fonts.gstatic.com'],
+					'media-src': [
+							"'self'",
+							'blob:',
+							'https://storage.googleapis.com',
+							'https://storage.cloud.google.com',
+							'*.googleusercontent.com', // Added wildcard for GCS redirects
+					],
 					'connect-src': [
 							"'self'",
 							`https://${clerkHostname}`,
 							'https://api.paddle.com',
-							'https://vitals.vercel-insights.com', // Vercel Analytics
+							'https://vitals.vercel-insights.com',
+							'https://storage.googleapis.com',
+							'https://storage.cloud.google.com',
+							'*.googleusercontent.com', // Added wildcard for GCS redirects
 					],
 					'worker-src': ["'self'", 'blob:'],
 					'frame-src': [
-							'https://challenges.cloudflare.com', // Clerk bot protection
-							'https://sandbox-buy.paddle.com',    // Paddle checkout
+							'https://challenges.cloudflare.com',
+							'https://sandbox-buy.paddle.com',
 					],
 					'object-src': ["'none'"],
 					'base-uri': ["'self'"],
@@ -81,7 +89,6 @@ const nextConfig = {
 					'upgrade-insecure-requests': [],
 			};
 
-			// Convert the CSP object to a string
 			const cspHeader = Object.entries(csp)
 					.map(([key, value]) => {
 							if (value.length === 0) {
