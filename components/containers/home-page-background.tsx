@@ -7,5 +7,5 @@ export function HomePageBackground() {
 			{/* <div className={"large-blur background-base"} /> */}
 			{/* <div className={"small-blur background-base"} /> */}
 		</>
-	)
+	);
 }

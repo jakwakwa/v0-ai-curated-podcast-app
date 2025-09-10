@@ -37,10 +37,11 @@ export function UsageDisplay() {
 				<H2 className="text-secondary-foreground">Monthly Usage</H2>
 
 				<Body className="font-normal">
-					You have generated <span className="font- text-accent-foreground bg-[#5727AB] rounded-full w-[11px] h-[13px] py-[14px] px-[15px] inline-flex justify-center items-center mx-2">{usage.count} </span>of your {usage.limit} monthly episodes
+					You have generated{" "}
+					<span className="font- text-accent-foreground bg-[#5727AB] rounded-full w-[11px] h-[13px] py-[14px] px-[15px] inline-flex justify-center items-center mx-2">{usage.count} </span>of your{" "}
+					{usage.limit} monthly episodes
 				</Body>
 			</div>
-
 		</Card>
 	);
 }

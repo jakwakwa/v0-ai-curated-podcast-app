@@ -1,48 +1,48 @@
-export type TranscriptSourceKind = "youtube" | "podcast" | "unknown"
+export type TranscriptSourceKind = "youtube" | "podcast" | "unknown";
 
 export interface TranscriptRequest {
-	url: string
-	kind?: TranscriptSourceKind
-	lang?: string
-	allowPaid?: boolean
+	url: string;
+	kind?: TranscriptSourceKind;
+	lang?: string;
+	allowPaid?: boolean;
 }
 
 export interface TranscriptResponseSuccess {
-	success: true
-	transcript: string
-	provider: ProviderName
-	meta?: Record<string, unknown>
+	success: true;
+	transcript: string;
+	provider: ProviderName;
+	meta?: Record<string, unknown>;
 }
 
 export interface TranscriptResponseFailure {
-	success: false
-	error: string
-	provider?: ProviderName
-	meta?: Record<string, unknown>
+	success: false;
+	error: string;
+	provider?: ProviderName;
+	meta?: Record<string, unknown>;
 }
 
-export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure
+export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure;
 
-export type ProviderName = "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai"
+export type ProviderName = "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai";
 
 export interface TranscriptProvider {
-	name: ProviderName
+	name: ProviderName;
 	// Quick check if the provider is applicable for this request
-	canHandle(request: TranscriptRequest): Promise<boolean> | boolean
+	canHandle(request: TranscriptRequest): Promise<boolean> | boolean;
 	// Attempt to fetch/generate a transcript
-	getTranscript(request: TranscriptRequest): Promise<TranscriptResponse>
+	getTranscript(request: TranscriptRequest): Promise<TranscriptResponse>;
 }
 
 export type OrchestratorResult = TranscriptResponse & {
-	attempts: Array<{ provider: ProviderName; success: boolean; error?: string }>
-}
+	attempts: Array<{ provider: ProviderName; success: boolean; error?: string }>;
+};
 
 export interface YouTubeProviderOptions {
 	// If true, prefer client-side caption extraction strategy first
-	preferClient?: boolean
+	preferClient?: boolean;
 }
 
 export interface PaidAsrOptions {
-	provider: "revai" | "assemblyai" | "whisper"
-	apiKey?: string
+	provider: "revai" | "assemblyai" | "whisper";
+	apiKey?: string;
 }

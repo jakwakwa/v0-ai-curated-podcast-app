@@ -1,62 +1,62 @@
-"use client"
+"use client";
 
-import { AlertCircle, RefreshCw } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
-import { createPortal } from "react-dom"
-import { EpisodeList } from "@/components/episode-list"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import AudioPlayer from "@/components/ui/audio-player"
-import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/ui/page-header"
-import { H3 } from "@/components/ui/typography"
-import type { Episode } from "@/lib/types"
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { EpisodeList } from "@/components/episode-list";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import AudioPlayer from "@/components/ui/audio-player";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { H3 } from "@/components/ui/typography";
+import type { Episode } from "@/lib/types";
 
 export default function EpisodesPage() {
-	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
-	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+	const [episodes, setEpisodes] = useState<Episode[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null);
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
 	// Find the portal container on mount
 	useEffect(() => {
-		const container = document.getElementById("global-audio-player")
-		setPortalContainer(container)
-	}, [])
+		const container = document.getElementById("global-audio-player");
+		setPortalContainer(container);
+	}, []);
 
 	const fetchEpisodes = useCallback(async () => {
 		try {
-			setIsLoading(true)
-			setError(null)
+			setIsLoading(true);
+			setError(null);
 
-			const response = await fetch("/api/episodes")
+			const response = await fetch("/api/episodes");
 
 			if (!response.ok) {
-				throw new Error(`Failed to load episodes. Server responded with status ${response.status}.`)
+				throw new Error(`Failed to load episodes. Server responded with status ${response.status}.`);
 			}
 
-			const episodesData = await response.json()
-			setEpisodes(episodesData)
+			const episodesData = await response.json();
+			setEpisodes(episodesData);
 		} catch (error) {
-			console.error("Error fetching episodes:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading episodes.")
+			console.error("Error fetching episodes:", error);
+			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading episodes.");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}, [])
+	}, []);
 
 	useEffect(() => {
-		fetchEpisodes()
-	}, [fetchEpisodes])
+		fetchEpisodes();
+	}, [fetchEpisodes]);
 
 	const handlePlayEpisode = (episodeId: string) => {
-		setPlayingEpisodeId(episodeId)
-	}
+		setPlayingEpisodeId(episodeId);
+	};
 
 	const handleClosePlayer = () => {
-		setPlayingEpisodeId(null)
-	}
+		setPlayingEpisodeId(null);
+	};
 
 	return (
 		<div className="w-full space-y-0">
@@ -116,19 +116,19 @@ export default function EpisodesPage() {
 					portalContainer
 				)}
 		</div>
-	)
+	);
 }
 
 function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
 	// Force fresh lookup of episode to avoid caching issues
-	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId);
 
 	// biome-ignore lint/complexity/useOptionalChain: <keep>
 	if (!(currentEpisode && currentEpisode.audio_url)) {
 		// Don't render anything - let the parent handle the conditional rendering
 		// This prevents the player from "hiding" when switching between episodes
-		return null
+		return null;
 	}
 
-	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
+	return <AudioPlayer episode={currentEpisode} onClose={onClose} />;
 }

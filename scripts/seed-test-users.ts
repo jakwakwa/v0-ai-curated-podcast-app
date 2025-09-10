@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // --- IMPORTANT ---
 // This script creates users in your DATABASE, but not in your Clerk authentication system.
@@ -15,12 +15,12 @@ const prisma = new PrismaClient()
 // You can set any password you like for them in the Clerk dashboard.
 
 async function main() {
-	console.log("🌱 Starting to seed the database with test users...")
+	console.log("🌱 Starting to seed the database with test users...");
 
 	// Create bundles with different access levels
 	let freeBundle = await prisma.bundle.findFirst({
 		where: { name: "Free Slice Weekly" },
-	})
+	});
 	if (!freeBundle) {
 		freeBundle = await prisma.bundle.create({
 			data: {
@@ -28,12 +28,12 @@ async function main() {
 				description: "A weekly selection of our favorite free podcasts.",
 				min_plan: "NONE",
 			},
-		})
+		});
 	}
 
 	let freeSliceBundle = await prisma.bundle.findFirst({
 		where: { name: "Free Slice Plus" },
-	})
+	});
 	if (!freeSliceBundle) {
 		freeSliceBundle = await prisma.bundle.create({
 			data: {
@@ -41,12 +41,12 @@ async function main() {
 				description: "Enhanced selection for Free Slice subscribers.",
 				min_plan: "FREE_SLICE",
 			},
-		})
+		});
 	}
 
 	let casualBundle = await prisma.bundle.findFirst({
 		where: { name: "Casual Listener Collection" },
-	})
+	});
 	if (!casualBundle) {
 		casualBundle = await prisma.bundle.create({
 			data: {
@@ -54,12 +54,12 @@ async function main() {
 				description: "Curated collection for Casual Listener subscribers.",
 				min_plan: "CASUAL_LISTENER",
 			},
-		})
+		});
 	}
 
 	let premiumBundle = await prisma.bundle.findFirst({
 		where: { name: "Curator's Choice" },
-	})
+	});
 	if (!premiumBundle) {
 		premiumBundle = await prisma.bundle.create({
 			data: {
@@ -67,7 +67,7 @@ async function main() {
 				description: "Exclusive, hand-picked content for our premium subscribers.",
 				min_plan: "CURATE_CONTROL",
 			},
-		})
+		});
 	}
 
 	// --- 1. Admin User ---
@@ -80,8 +80,8 @@ async function main() {
 			role: "ADMIN",
 			password: "password_placeholder", // Not used by Clerk, but required by schema
 		},
-	})
-	console.log("✓ Created/updated admin user:", adminUser.email)
+	});
+	console.log("✓ Created/updated admin user:", adminUser.email);
 
 	// --- 2. Premium User (Curate & Control) ---
 	const premiumUser = await prisma.user.upsert({
@@ -92,10 +92,10 @@ async function main() {
 			name: "Premium User",
 			password: "password_placeholder",
 		},
-	})
+	});
 
 	// Clean up existing subscriptions and create a fresh one to ensure a clean state
-	await prisma.subscription.deleteMany({ where: { user_id: premiumUser.user_id } })
+	await prisma.subscription.deleteMany({ where: { user_id: premiumUser.user_id } });
 	await prisma.subscription.create({
 		data: {
 			user_id: premiumUser.user_id,
@@ -103,7 +103,7 @@ async function main() {
 			status: "active",
 			current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
 		},
-	})
+	});
 
 	await prisma.userCurationProfile.upsert({
 		where: { user_id: premiumUser.user_id },
@@ -118,8 +118,8 @@ async function main() {
 			is_bundle_selection: true,
 			selected_bundle_id: premiumBundle.bundle_id,
 		},
-	})
-	console.log("✓ Created/updated premium user and subscription:", premiumUser.email)
+	});
+	console.log("✓ Created/updated premium user and subscription:", premiumUser.email);
 
 	// --- 3. Free Slice User (Free Slice) ---
 	const freeUser = await prisma.user.upsert({
@@ -130,9 +130,9 @@ async function main() {
 			name: "Free Slice User",
 			password: "password_placeholder",
 		},
-	})
+	});
 
-	await prisma.subscription.deleteMany({ where: { user_id: freeUser.user_id } })
+	await prisma.subscription.deleteMany({ where: { user_id: freeUser.user_id } });
 	await prisma.subscription.create({
 		data: {
 			user_id: freeUser.user_id,
@@ -140,7 +140,7 @@ async function main() {
 			status: "active",
 			current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 		},
-	})
+	});
 
 	await prisma.userCurationProfile.upsert({
 		where: { user_id: freeUser.user_id },
@@ -155,8 +155,8 @@ async function main() {
 			is_bundle_selection: true,
 			selected_bundle_id: freeBundle!.bundle_id,
 		},
-	})
-	console.log("✓ Created/updated free slice user and subscription:", freeUser.email)
+	});
+	console.log("✓ Created/updated free slice user and subscription:", freeUser.email);
 
 	// --- 4. Casual User (Casual Listener) ---
 	const casualUser = await prisma.user.upsert({
@@ -167,10 +167,10 @@ async function main() {
 			name: "Casual User",
 			password: "password_placeholder",
 		},
-	})
+	});
 
 	// Clean up existing subscriptions and create a fresh one
-	await prisma.subscription.deleteMany({ where: { user_id: casualUser.user_id } })
+	await prisma.subscription.deleteMany({ where: { user_id: casualUser.user_id } });
 	await prisma.subscription.create({
 		data: {
 			user_id: casualUser.user_id,
@@ -178,7 +178,7 @@ async function main() {
 			status: "active",
 			current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 		},
-	})
+	});
 
 	await prisma.userCurationProfile.upsert({
 		where: { user_id: casualUser.user_id },
@@ -193,17 +193,17 @@ async function main() {
 			is_bundle_selection: false,
 			selected_bundle_id: null,
 		},
-	})
-	console.log("✓ Created/updated casual user and subscription:", casualUser.email)
+	});
+	console.log("✓ Created/updated casual user and subscription:", casualUser.email);
 
-	console.log("🌱 Database seeding completed successfully!")
+	console.log("🌱 Database seeding completed successfully!");
 }
 
 main()
 	.catch(e => {
-		console.error(e)
-		process.exit(1)
+		console.error(e);
+		process.exit(1);
 	})
 	.finally(async () => {
-		await prisma.$disconnect()
-	})
+		await prisma.$disconnect();
+	});

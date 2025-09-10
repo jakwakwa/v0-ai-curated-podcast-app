@@ -1,6 +1,6 @@
-import type * as React from "react"
-import { badgeVariants } from "@/lib/component-variants"
-import { cn } from "@/lib/utils"
+import type * as React from "react";
+import { badgeVariants } from "@/lib/component-variants";
+import { cn } from "@/lib/utils";
 
 function Badge({
 	className,
@@ -24,22 +24,22 @@ function Badge({
 	 */
 
 	if (size === "sm" && variant === "outline") {
-		return <div className={`text-[0.6rem] bg-[000]  border-1 px-3 py-0 leading-normal border-[hsla(164.76 32.64% 37.84% / 0.73)] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-[0.6rem] bg-[000]  border-1 px-3 py-0 leading-normal border-[hsla(164.76 32.64% 37.84% / 0.73)] ${cn(badgeVariants({ variant, size }), className)}`} {...props} />;
 	}
 
 	if (size === "md") {
-		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-custom-xxs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />;
 	}
 
 	if (size === "lg") {
-		return <div className={`tbg-[000] text-custom-body ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`tbg-[000] text-custom-body ${cn(badgeVariants({ variant, size }), className)}`} {...props} />;
 	}
 
 	if (size === "xl") {
-		return <div className={`text-custom-xs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />
+		return <div className={`text-custom-xs ${cn(badgeVariants({ variant, size }), className)}`} {...props} />;
 	}
 
-	return <div className={cn(badgeVariants({ variant, size }), className)} {...props} />
+	return <div className={cn(badgeVariants({ variant, size }), className)} {...props} />;
 }
 
-export { Badge }
+export { Badge };

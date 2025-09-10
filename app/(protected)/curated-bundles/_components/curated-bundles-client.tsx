@@ -1,69 +1,69 @@
-"use client"
+"use client";
 
-import { AlertCircle, Lock } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { H3, Typography } from "@/components/ui/typography"
-import type { Bundle, Podcast } from "@/lib/types"
-import { BundleSelectionDialog } from "./bundle-selection-dialog"
+import { AlertCircle, Lock } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { H3, Typography } from "@/components/ui/typography";
+import type { Bundle, Podcast } from "@/lib/types";
+import { BundleSelectionDialog } from "./bundle-selection-dialog";
 
 interface CuratedBundlesClientProps {
-	bundles: (Bundle & { podcasts: Podcast[] })[]
-	error: string | null
+	bundles: (Bundle & { podcasts: Podcast[] })[];
+	error: string | null;
 }
 
 interface UserCurationProfile {
-	profile_id: string
-	name: string
-	selected_bundle_id?: string
+	profile_id: string;
+	name: string;
+	selected_bundle_id?: string;
 	selectedBundle?: {
-		name: string
-	}
+		name: string;
+	};
 }
 
 export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientProps) {
-	const router = useRouter()
-	const [selectedBundle, setSelectedBundle] = useState<(Bundle & { podcasts: Podcast[] }) | null>(null)
-	const [isDialogOpen, setIsDialogOpen] = useState(false)
-	const [isLoading, setIsLoading] = useState(false)
-	const [userProfile, setUserProfile] = useState<UserCurationProfile | null>(null)
+	const router = useRouter();
+	const [selectedBundle, setSelectedBundle] = useState<(Bundle & { podcasts: Podcast[] }) | null>(null);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [userProfile, setUserProfile] = useState<UserCurationProfile | null>(null);
 
 	// Fetch current user profile on mount
 	useEffect(() => {
 		const fetchUserProfile = async () => {
 			try {
-				const response = await fetch("/api/user-curation-profiles")
+				const response = await fetch("/api/user-curation-profiles");
 				if (response.ok) {
-					const profile = await response.json()
-					setUserProfile(profile)
+					const profile = await response.json();
+					setUserProfile(profile);
 				}
 			} catch (error) {
-				console.error("Failed to fetch user profile:", error)
+				console.error("Failed to fetch user profile:", error);
 			}
-		}
+		};
 
-		fetchUserProfile()
-	}, [])
+		fetchUserProfile();
+	}, []);
 
 	const handleBundleClick = (bundle: Bundle & { podcasts: Podcast[] }) => {
-		setSelectedBundle(bundle)
-		setIsDialogOpen(true)
-	}
+		setSelectedBundle(bundle);
+		setIsDialogOpen(true);
+	};
 
 	const handleConfirmSelection = async (bundleId: string) => {
 		if (!userProfile) {
-			toast.error("Unable to update bundle selection. Please try again.")
-			return
+			toast.error("Unable to update bundle selection. Please try again.");
+			return;
 		}
 
-		setIsLoading(true)
+		setIsLoading(true);
 		try {
 			const response = await fetch(`/api/user-curation-profiles/${userProfile.profile_id}`, {
 				method: "PATCH",
@@ -73,42 +73,42 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 				body: JSON.stringify({
 					selected_bundle_id: bundleId,
 				}),
-			})
+			});
 
 			if (!response.ok) {
-				const errorData = await response.json()
-				throw new Error(errorData.error || "Failed to update bundle selection")
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to update bundle selection");
 			}
 
 			// Update local state
 			setUserProfile(prev =>
 				prev
 					? {
-						...prev,
-						selected_bundle_id: bundleId,
-						selectedBundle: {
-							name: selectedBundle?.name || "",
-						},
-					}
+							...prev,
+							selected_bundle_id: bundleId,
+							selectedBundle: {
+								name: selectedBundle?.name || "",
+							},
+						}
 					: null
-			)
+			);
 
-			toast.success("Bundle selection updated successfully!")
+			toast.success("Bundle selection updated successfully!");
 
 			// Redirect to dashboard after successful update
-			router.push("/dashboard")
+			router.push("/dashboard");
 		} catch (error) {
-			console.error("Failed to update bundle selection:", error)
-			toast.error(error instanceof Error ? error.message : "Failed to update bundle selection")
+			console.error("Failed to update bundle selection:", error);
+			toast.error(error instanceof Error ? error.message : "Failed to update bundle selection");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	const handleCloseDialog = () => {
-		setIsDialogOpen(false)
-		setSelectedBundle(null)
-	}
+		setIsDialogOpen(false);
+		setSelectedBundle(null);
+	};
 
 	if (error) {
 		return (
@@ -124,7 +124,7 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 					</Button>
 				</div>
 			</div>
-		)
+		);
 	}
 
 	if (bundles.length === 0) {
@@ -136,7 +136,7 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 					<AlertDescription className="mt-2">There are no PODSLICE Bundles available at the moment. Please check back later or contact support if this problem persists.</AlertDescription>
 				</Alert>
 			</div>
-		)
+		);
 	}
 
 	return (
@@ -193,5 +193,5 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 				isLoading={isLoading}
 			/>
 		</>
-	)
+	);
 }

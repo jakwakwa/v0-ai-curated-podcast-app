@@ -1,105 +1,105 @@
-"use client"
+"use client";
 
-import { formatDistanceToNow } from "date-fns"
-import { Bell, Calendar, Check, Podcast, Trash2, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useNotificationStore } from "@/lib/stores"
-import { cn } from "@/lib/utils"
-import { Typography } from "./typography"
+import { formatDistanceToNow } from "date-fns";
+import { Bell, Calendar, Check, Podcast, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useNotificationStore } from "@/lib/stores";
+import { cn } from "@/lib/utils";
+import { Typography } from "./typography";
 
 export function NotificationBell() {
-	const [isOpen, setIsOpen] = useState(false)
+	const [isOpen, setIsOpen] = useState(false);
 
-	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
+	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore();
 
 	// Debug logging to see if component re-renders when store changes
 	// console.log(`[NOTIFICATION_BELL] Rendering with ${notifications.length} notifications, ${unreadCount} unread`)
 
 	// Start polling when component mounts, stop when it unmounts
 	useEffect(() => {
-		startPolling()
+		startPolling();
 		return () => {
-			stopPolling()
-		}
-	}, [startPolling, stopPolling])
+			stopPolling();
+		};
+	}, [startPolling, stopPolling]);
 
 	// Restart polling when user opens the dropdown (in case auth was restored)
 	useEffect(() => {
 		if (isOpen) {
 			// Try to restart polling when user interacts with notifications
-			restartPolling()
+			restartPolling();
 		}
-	}, [isOpen, restartPolling])
+	}, [isOpen, restartPolling]);
 
 	// Fetch when the dropdown opens (in case polling missed recent updates)
 	useEffect(() => {
 		if (isOpen) {
-			void loadNotifications()
+			void loadNotifications();
 		}
-	}, [isOpen, loadNotifications])
+	}, [isOpen, loadNotifications]);
 
 	const handleMarkAsRead = async (notificationId: string) => {
 		try {
-			await markAsRead(notificationId)
+			await markAsRead(notificationId);
 		} catch {
-			toast.error("Failed to mark notification as read")
+			toast.error("Failed to mark notification as read");
 		}
-	}
+	};
 
 	const handleMarkAllAsRead = async () => {
 		try {
-			await markAllAsRead()
-			toast.success("All notifications marked as read")
+			await markAllAsRead();
+			toast.success("All notifications marked as read");
 		} catch {
-			toast.error("Failed to mark all as read")
+			toast.error("Failed to mark all as read");
 		}
-	}
+	};
 
 	const handleDeleteNotification = async (notificationId: string) => {
 		try {
-			await deleteNotification(notificationId)
-			toast.success("Notification deleted")
+			await deleteNotification(notificationId);
+			toast.success("Notification deleted");
 		} catch {
-			toast.error("Failed to delete notification")
+			toast.error("Failed to delete notification");
 		}
-	}
+	};
 
 	const handleClearAll = async () => {
 		try {
-			await clearAll()
-			toast.success("All notifications cleared")
-			setIsOpen(false)
+			await clearAll();
+			toast.success("All notifications cleared");
+			setIsOpen(false);
 		} catch {
-			toast.error("Failed to clear notifications")
+			toast.error("Failed to clear notifications");
 		}
-	}
+	};
 
 	const getNotificationIcon = (type: string) => {
 		switch (type) {
 			case "episode_ready":
-				return <Podcast className="w-5 h-5" color="#89D7AF" />
+				return <Podcast className="w-5 h-5" color="#89D7AF" />;
 			case "weekly_reminder":
-				return <Calendar className="w-5 h-5" color="#FFD700" />
+				return <Calendar className="w-5 h-5" color="#FFD700" />;
 			default:
-				return "📢"
+				return "📢";
 		}
-	}
+	};
 
 	const getNotificationColor = (type: string) => {
 		switch (type) {
 			case "episode_ready":
-				return "text-green-500"
+				return "text-green-500";
 			case "weekly_reminder":
-				return "text-amber-500"
+				return "text-amber-500";
 			default:
-				return "text-gray-500"
+				return "text-gray-500";
 		}
-	}
+	};
 
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -110,8 +110,7 @@ export function NotificationBell() {
 						<Badge
 							variant="destructive"
 							size="sm"
-							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50"
-						>
+							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50">
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>
 					)}
@@ -150,8 +149,7 @@ export function NotificationBell() {
 						notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/30")}
-							>
+								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/30")}>
 								<div className="p-3">
 									<div className="flex items-start justify-between mb-2">
 										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
@@ -164,7 +162,6 @@ export function NotificationBell() {
 									<p className="mb-3 text-sm font-medium  text-foreground/90 leading-relaxed">{notification.message}</p>
 
 									<div className="flex gap-2 justify-end">
-
 										{!notification.is_read && (
 											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />
@@ -191,5 +188,5 @@ export function NotificationBell() {
 				</div>
 			</DropdownMenuContent>
 		</DropdownMenu>
-	)
+	);
 }

@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react";
 
 function ComponentSpinner({ label, isLabel = false }: { label?: string; isLabel?: boolean }): React.ReactElement {
 	return (
@@ -6,7 +6,7 @@ function ComponentSpinner({ label, isLabel = false }: { label?: string; isLabel?
 			<Loader2 className="w-4 h-4 animate-spin" aria-label={label} />
 			{isLabel && <span className="ml-2">{label ? `Loading ${label}...` : isLabel ? "Loading..." : null}</span>}
 		</div>
-	)
+	);
 }
 
-export default ComponentSpinner
+export default ComponentSpinner;

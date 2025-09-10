@@ -73,7 +73,6 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 
 	return (
 		<Card className="w-full py-4">
-
 			<div className="episode-card-wrapper-dark h-full min-h-[61vh]">
 				{episodes.length === 0 ? (
 					<p>You haven't created any episodes yet.</p>

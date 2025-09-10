@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { Bell, Database, Eye, FileText, Globe, Lock, Shield, Users } from "lucide-react"
-import Link from "next/link"
-import { LandingPageHeader } from "@/components/layout/LandingPageHeader"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Bell, Database, Eye, FileText, Globe, Lock, Shield, Users } from "lucide-react";
+import Link from "next/link";
+import { LandingPageHeader } from "@/components/layout/LandingPageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PrivacyPage() {
-	const lastUpdated = "July 2025"
+	const lastUpdated = "July 2025";
 
 	return (
 		<>
@@ -355,5 +355,5 @@ export default function PrivacyPage() {
 				</div>
 			</div>
 		</>
-	)
+	);
 }

@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import { useUser } from "@clerk/nextjs"
-import { type InitializePaddleOptions, initializePaddle, type Paddle } from "@paddle/paddle-js"
-import { CircleCheck } from "lucide-react"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
-import { usePaddlePrices } from "@/hooks/use-paddle-Prices"
-import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs"
-import type { IBillingFrequency, PaddleCheckoutCompletedData, PlanTier } from "@/lib/types"
-import { cn } from "@/lib/utils"
-import { PriceTitle } from "./pricing/price-title"
+import { useUser } from "@clerk/nextjs";
+import { type InitializePaddleOptions, initializePaddle, type Paddle } from "@paddle/paddle-js";
+import { CircleCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePaddlePrices } from "@/hooks/use-paddle-Prices";
+import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs";
+import type { IBillingFrequency, PaddleCheckoutCompletedData, PlanTier } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { PriceTitle } from "./pricing/price-title";
 
 // --- Component Props and Interfaces ---
 
 type IPricingPlanProps = {
-	paddleProductPlan: PlanTier[]
-	onCheckoutCompleted: (data: PaddleCheckoutCompletedData) => void
-	onCheckoutClosed?: () => void
-}
+	paddleProductPlan: PlanTier[];
+	onCheckoutCompleted: (data: PaddleCheckoutCompletedData) => void;
+	onCheckoutClosed?: () => void;
+};
 interface IPriceProps {
-	loading: boolean
-	value: string | undefined // Updated to allow undefined as per corrected code logic
-	priceSuffix: string
+	loading: boolean;
+	value: string | undefined; // Updated to allow undefined as per corrected code logic
+	priceSuffix: string;
 }
 
 interface IFeatureListProps {
-	tier: PlanTier
-	loading: boolean
+	tier: PlanTier;
+	loading: boolean;
 }
 
 // --- Helper Components ---
@@ -50,7 +50,7 @@ export function FeatureList({ tier, loading }: IFeatureListProps) {
 				</ul>
 			)}
 		</div>
-	)
+	);
 }
 
 export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
@@ -65,32 +65,32 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 				</>
 			)}
 		</div>
-	)
+	);
 }
 
 // --- Main Pricing Plans Component ---
 
 export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckoutClosed }: IPricingPlanProps) {
 	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
-	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per user/month" })
-	const [paddle, setPaddle] = useState<Paddle>()
+	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per user/month" });
+	const [paddle, setPaddle] = useState<Paddle>();
 
 	// Call the custom hook to get prices and loading state.
 	// We've changed the country code from "USD" to "US" to fix the API error.
-	const { prices, loading } = usePaddlePrices(paddle, "US")
+	const { prices, loading } = usePaddlePrices(paddle, "US");
 
 	// Defensive UI: hide/disable when an active-like subscription exists
-	const subscription = useSubscriptionStore(state => state.subscription)
-	const status = subscription?.status && typeof subscription.status === "string" ? subscription.status.toLowerCase() : null
-	const hasActiveSubscription = Boolean(subscription && (status === "active" || status === "trialing" || status === "paused"))
+	const subscription = useSubscriptionStore(state => state.subscription);
+	const status = subscription?.status && typeof subscription.status === "string" ? subscription.status.toLowerCase() : null;
+	const hasActiveSubscription = Boolean(subscription && (status === "active" || status === "trialing" || status === "paused"));
 
 	useEffect(() => {
 		// Correctly accessing the client-side environment variable.
-		const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+		const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
 
 		if (!clientToken) {
-			console.error("Paddle Client Token is not set. Please ensure the NEXT_PUBLIC_PADDLE_CLIENT_TOKEN environment variable is configured correctly.")
-			return
+			console.error("Paddle Client Token is not set. Please ensure the NEXT_PUBLIC_PADDLE_CLIENT_TOKEN environment variable is configured correctly.");
+			return;
 		}
 
 		initializePaddle({
@@ -98,32 +98,32 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 			token: clientToken,
 			eventCallback: (data: { name: string; data?: PaddleCheckoutCompletedData }) => {
 				if (data.name === "checkout.completed" && data.data) {
-					onCheckoutCompleted(data.data as PaddleCheckoutCompletedData)
+					onCheckoutCompleted(data.data as PaddleCheckoutCompletedData);
 				}
 				if (data.name === "checkout.closed") {
 					// Ensure membership state refresh when checkout is closed
-					onCheckoutClosed?.()
+					onCheckoutClosed?.();
 				}
 			},
 		} as unknown as InitializePaddleOptions)
 			.then((paddleInstance: Paddle | undefined) => {
 				if (paddleInstance) {
-					setPaddle(paddleInstance)
+					setPaddle(paddleInstance);
 				}
 			})
 			.catch((error: Error) => {
 				// Log any errors during initialization to prevent uncaught promises
-				console.error("Failed to initialize Paddle:", error)
-			})
-	}, [onCheckoutCompleted, onCheckoutClosed])
+				console.error("Failed to initialize Paddle:", error);
+			});
+	}, [onCheckoutCompleted, onCheckoutClosed]);
 
-	const { user } = useUser()
-	const customerInfo = user?.primaryEmailAddress?.emailAddress ? { email: user.primaryEmailAddress.emailAddress } : undefined
+	const { user } = useUser();
+	const customerInfo = user?.primaryEmailAddress?.emailAddress ? { email: user.primaryEmailAddress.emailAddress } : undefined;
 
 	const openPaddleCheckout = (e: React.FormEvent, id: string) => {
-		e.preventDefault()
+		e.preventDefault();
 		if (hasActiveSubscription) {
-			return
+			return;
 		}
 		if (paddle && id) {
 			paddle.Checkout.open({
@@ -134,9 +134,9 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 					},
 				],
 				...(customerInfo ? { customer: customerInfo } : {}),
-			})
+			});
 		}
-	}
+	};
 
 	return (
 		<>
@@ -165,5 +165,5 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 					</Card>
 				))}
 		</>
-	)
+	);
 }

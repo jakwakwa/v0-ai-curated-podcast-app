@@ -8,7 +8,7 @@ console.log('🔍 Analyzing your dependencies...\n');
 try {
   // Get dependency tree size
   console.log('📦 Dependency Count:');
-  const deps = execSync('pnpm ls --depth=0 --json', { encoding: 'utf8' });
+  const deps = execSync('npm ls --depth=0 --json', { encoding: 'utf8' });
   const parsed = JSON.parse(deps);
   const directDeps = Object.keys(parsed.dependencies || {}).length;
   console.log(`Direct dependencies: ${directDeps}`);
@@ -21,7 +21,7 @@ try {
   // Check for duplicate dependencies
   console.log('\n🔄 Checking for duplicates:');
   try {
-    const dupes = execSync('pnpm ls --depth=1 | grep -E "\\w+ .*\\d+\\.\\d+\\.\\d+" | sort | uniq -d', { encoding: 'utf8' });
+    const dupes = execSync('npm ls --depth=1 | grep -E "\\w+ .*\\d+\\.\\d+\\.\\d+" | sort | uniq -d', { encoding: 'utf8' });
     if (dupes.trim()) {
       console.log('Found duplicates:');
       console.log(dupes);
@@ -53,5 +53,5 @@ try {
 
 } catch (error) {
   console.error('Analysis failed:', error.message);
-  console.log('\nRun "pnpm install" first if node_modules is missing');
+  console.log('\nRun "npm install" first if node_modules is missing');
 } 

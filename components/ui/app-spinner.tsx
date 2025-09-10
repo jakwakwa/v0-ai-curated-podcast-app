@@ -1,36 +1,36 @@
-import { RefreshCw } from "lucide-react"
-import { type SpinnerProps, spinnerVariants } from "@/lib/component-variants"
-import { cn } from "@/lib/utils"
+import { RefreshCw } from "lucide-react";
+import { type SpinnerProps, spinnerVariants } from "@/lib/component-variants";
+import { cn } from "@/lib/utils";
 
 export interface AppSpinnerProps extends SpinnerProps {
 	/** Optional label text to display below the spinner */
-	label?: string
+	label?: string;
 	/** Color theme of the label text */
-	labelColor?: "default" | "primary" | "secondary" | "success" | "warning" | "danger"
+	labelColor?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 	/** Additional className for the base wrapper */
-	className?: string
+	className?: string;
 }
 
 export function AppSpinner({ label, size = "md", color = "primary", variant = "dots", labelColor = "default", className }: AppSpinnerProps) {
 	const getLabelColorClass = (labelColor: string) => {
 		switch (labelColor) {
 			case "primary":
-				return "text-primary text-left"
+				return "text-primary text-left";
 			case "secondary":
-				return "text-secondary"
+				return "text-secondary";
 			case "success":
-				return "text-green-500"
+				return "text-green-500";
 			case "warning":
-				return "text-yellow-500"
+				return "text-yellow-500";
 			case "danger":
-				return "text-destructive"
+				return "text-destructive";
 			default:
-				return "text-muted-foreground"
+				return "text-muted-foreground";
 		}
-	}
+	};
 
 	const renderSpinner = () => {
-		const baseClasses = cn(spinnerVariants({ size, color, variant }))
+		const baseClasses = cn(spinnerVariants({ size, color, variant }));
 
 		switch (variant) {
 			case "gradient":
@@ -42,7 +42,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 						/>
 						<div className="absolute inset-0.5 bg-background rounded-full" />
 					</div>
-				)
+				);
 
 			case "wave":
 				return (
@@ -59,7 +59,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 							/>
 						))}
 					</div>
-				)
+				);
 
 			case "dots":
 				return (
@@ -75,7 +75,7 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 							/>
 						))}
 					</div>
-				)
+				);
 
 			case "spinner":
 				return (
@@ -92,17 +92,17 @@ export function AppSpinner({ label, size = "md", color = "primary", variant = "d
 							/>
 						))}
 					</div>
-				)
+				);
 
 			default:
-				return <RefreshCw className={baseClasses} />
+				return <RefreshCw className={baseClasses} />;
 		}
-	}
+	};
 
 	return (
 		<div className={cn("flex flex-col items-center justify-center gap-3", className)}>
 			<div className="flex items-center justify-center">{renderSpinner()}</div>
 			{label && <span className={cn("text-sm text-center mt-2", getLabelColorClass(labelColor))}>{label}</span>}
 		</div>
-	)
+	);
 }

@@ -1,66 +1,66 @@
-"use client"
+"use client";
 
-import { PlayCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { VOICE_OPTIONS } from "@/lib/constants/voices"
+import { PlayCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { VOICE_OPTIONS } from "@/lib/constants/voices";
 
-const EPISODE_LIMIT = 20
+const EPISODE_LIMIT = 20;
 
 export function EpisodeCreator() {
-	const router = useRouter()
+	const router = useRouter();
 
 	// Unified single form
-	const [title, setTitle] = useState("")
-	const [podcastName, setPodcastName] = useState("")
-	const [publishedDate, setPublishedDate] = useState("")
-	const [youtubeUrl, setYouTubeUrl] = useState("")
-	const [lang, _setLang] = useState("")
+	const [title, setTitle] = useState("");
+	const [podcastName, setPodcastName] = useState("");
+	const [publishedDate, setPublishedDate] = useState("");
+	const [youtubeUrl, setYouTubeUrl] = useState("");
+	const [lang, _setLang] = useState("");
 
 	// Generation options
-	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
-	const [voiceA, setVoiceA] = useState<string>("Zephyr")
-	const [voiceB, setVoiceB] = useState<string>("Kore")
-	const [isPlaying, setIsPlaying] = useState<string | null>(null)
-	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({})
+	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single");
+	const [voiceA, setVoiceA] = useState<string>("Zephyr");
+	const [voiceB, setVoiceB] = useState<string>("Kore");
+	const [isPlaying, setIsPlaying] = useState<string | null>(null);
+	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({});
 
 	// UX
-	const [isCreating, setIsCreating] = useState(false)
-	const [error, setError] = useState<string | null>(null)
-	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })
-	const [isLoadingUsage, setIsLoadingUsage] = useState(true)
+	const [isCreating, setIsCreating] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT });
+	const [isLoadingUsage, setIsLoadingUsage] = useState(true);
 
-	const isBusy = isCreating
-	const isAudioPlaying = isPlaying !== null
-	const canSubmit = Boolean(title) && !isBusy
+	const isBusy = isCreating;
+	const isAudioPlaying = isPlaying !== null;
+	const canSubmit = Boolean(title) && !isBusy;
 
 	useEffect(() => {
 		const fetchUsage = async () => {
 			try {
-				setIsLoadingUsage(true)
-				const res = await fetch("/api/user-episodes?count=true")
+				setIsLoadingUsage(true);
+				const res = await fetch("/api/user-episodes?count=true");
 				if (res.ok) {
-					const { count } = await res.json()
-					setUsage({ count, limit: EPISODE_LIMIT })
+					const { count } = await res.json();
+					setUsage({ count, limit: EPISODE_LIMIT });
 				}
 			} catch (error) {
-				console.error("Failed to fetch user episodes data:", error)
+				console.error("Failed to fetch user episodes data:", error);
 			} finally {
-				setIsLoadingUsage(false)
+				setIsLoadingUsage(false);
 			}
-		}
-		fetchUsage()
-	}, [])
+		};
+		fetchUsage();
+	}, []);
 
 	async function handleCreate() {
-		setIsCreating(true)
-		setError(null)
+		setIsCreating(true);
+		setError(null);
 		try {
 			const payload = {
 				title,
@@ -71,45 +71,45 @@ export function EpisodeCreator() {
 				generationMode,
 				voiceA,
 				voiceB,
-			}
+			};
 			const res = await fetch("/api/user-episodes/create-from-metadata", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
-			})
-			if (!res.ok) throw new Error(await res.text())
-			toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
-			router.push("/curation-profile-management")
+			});
+			if (!res.ok) throw new Error(await res.text());
+			toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.");
+			router.push("/curation-profile-management");
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to start metadata flow")
+			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
 		} finally {
-			setIsCreating(false)
+			setIsCreating(false);
 		}
 	}
 
 	async function playSample(voiceName: string) {
 		try {
-			setIsPlaying(voiceName)
-			const cached = audioUrlCache[voiceName]
-			let url = cached
+			setIsPlaying(voiceName);
+			const cached = audioUrlCache[voiceName];
+			let url = cached;
 			if (!url) {
-				const res = await fetch(`/api/tts/voice-sample?voice=${encodeURIComponent(voiceName)}`)
-				if (!res.ok) throw new Error(await res.text())
-				const blob = await res.blob()
-				url = URL.createObjectURL(blob)
-				setAudioUrlCache(prev => ({ ...prev, [voiceName]: url }))
+				const res = await fetch(`/api/tts/voice-sample?voice=${encodeURIComponent(voiceName)}`);
+				if (!res.ok) throw new Error(await res.text());
+				const blob = await res.blob();
+				url = URL.createObjectURL(blob);
+				setAudioUrlCache(prev => ({ ...prev, [voiceName]: url }));
 			}
-			const audio = new Audio(url)
-			audio.onended = () => setIsPlaying(null)
-			await audio.play()
+			const audio = new Audio(url);
+			audio.onended = () => setIsPlaying(null);
+			await audio.play();
 		} catch (err) {
-			setIsPlaying(null)
-			console.error("Failed to play sample", err)
-			toast.error("Could not load voice sample")
+			setIsPlaying(null);
+			console.error("Failed to play sample", err);
+			toast.error("Could not load voice sample");
 		}
 	}
 
-	const hasReachedLimit = usage.count >= usage.limit
+	const hasReachedLimit = usage.count >= usage.limit;
 
 	return (
 		<div className="episode-card-wrapper w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-0 md:px-12">
@@ -127,8 +127,8 @@ export function EpisodeCreator() {
 						<form
 							className="space-y-6"
 							onSubmit={e => {
-								e.preventDefault()
-								void handleCreate()
+								e.preventDefault();
+								void handleCreate();
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-2">
@@ -184,13 +184,11 @@ export function EpisodeCreator() {
 																type="button"
 																onMouseDown={e => e.preventDefault()}
 																onClick={e => {
-																	e.stopPropagation()
-																	void playSample(v.name)
+																	e.stopPropagation();
+																	void playSample(v.name);
 																}}
 																aria-label={`Play ${v.name} sample`}
-																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
-
-															</button>
+																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100"></button>
 														</div>
 													</SelectItem>
 												))}
@@ -220,13 +218,11 @@ export function EpisodeCreator() {
 																type="button"
 																onMouseDown={e => e.preventDefault()}
 																onClick={e => {
-																	e.stopPropagation()
-																	void playSample(v.name)
+																	e.stopPropagation();
+																	void playSample(v.name);
 																}}
 																aria-label={`Play ${v.name} sample`}
-																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
-
-															</button>
+																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100"></button>
 														</div>
 													</SelectItem>
 												))}
@@ -250,5 +246,5 @@ export function EpisodeCreator() {
 				</CardContent>
 			</Card>
 		</div>
-	)
+	);
 }

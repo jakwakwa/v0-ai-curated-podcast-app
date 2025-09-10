@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/nextjs"
+import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
 	return (
@@ -9,9 +9,8 @@ export default function SignInPage() {
 				alignItems: "center",
 				justifyContent: "center",
 				background: "oklch(var(--background))",
-			}}
-		>
+			}}>
 			<SignIn />
 		</div>
-	)
+	);
 }
