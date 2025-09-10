@@ -8,7 +8,7 @@ const ASSEMBLY_BASE_URL = "https://api.assemblyai.com/v2"
 
 async function uploadToAssembly(srcUrl: string, apiKey: string): Promise<string> {
 	const source = await fetch(srcUrl, { headers: { "User-Agent": "Mozilla/5.0" } })
-	if (!source.ok || !source.body) {
+	if (!(source.ok && source.body)) {
 		let bodySnippet = ""
 		try {
 			bodySnippet = (await source.text()).slice(0, 500)

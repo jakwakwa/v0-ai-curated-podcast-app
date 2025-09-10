@@ -74,7 +74,7 @@ describe("User Sync API", () => {
 			const mockUpdatedUser: Partial<PrismaUser> = { ...mockExistingUser, email: "john@example.com", name: "John Doe" }
 
 			vi.mocked(auth).mockResolvedValue({ userId: "user_123" })
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as any)
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser)
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(mockExistingUser as PrismaUser)
 			vi.mocked(prisma.user.update).mockResolvedValue(mockUpdatedUser as PrismaUser)
 
@@ -113,7 +113,7 @@ describe("User Sync API", () => {
 			}
 
 			vi.mocked(auth).mockResolvedValue({ userId: "user_456" })
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as any)
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser)
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 			vi.mocked(prisma.user.create).mockResolvedValue(mockNewUser as PrismaUser)
 
@@ -145,7 +145,7 @@ describe("User Sync API", () => {
 			}
 
 			vi.mocked(auth).mockResolvedValue({ userId: "user_error" })
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as any)
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser)
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
 			vi.mocked(prisma.user.create).mockRejectedValue(new Error("Database error"))
 

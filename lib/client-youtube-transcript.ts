@@ -114,7 +114,7 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 		}
 
 		// Fetch the transcript XML via same-origin proxy
-		const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: selectedTrack.baseUrl }).toString()
+		const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: selectedTrack.baseUrl }).toString()}`
 		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" })
 
 		if (!transcriptResponse.ok) {
@@ -141,7 +141,7 @@ async function fetchTimedText(videoId: string, opts: { lang?: string; asr?: bool
 	base.searchParams.set("lang", lang)
 	base.searchParams.set("fmt", "xml")
 	if (opts.asr) base.searchParams.set("kind", "asr")
-	const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: base.toString() }).toString()
+	const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: base.toString() }).toString()}`
 	const res = await fetch(proxyUrl, { cache: "no-store" })
 	if (!res.ok) return null
 	const xml = await res.text()
