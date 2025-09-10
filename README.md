@@ -160,4 +160,14 @@ Follow these instructions to get a copy of the project up and running on your lo
 4. Run the development server:
    `pnpm dev`
 
- Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## ⚠️ Important Notes
+
+### YouTube API Usage Risk
+
+This application uses YouTube's undocumented internal API (`youtubei/v1/player`) for transcript extraction and audio streaming. This API may break without notice since it's not officially supported. For detailed information about the risks and potential alternatives, see [docs/YOUTUBE_API_RISKS.md](./docs/YOUTUBE_API_RISKS.md).
+
+**Environment Variables for YouTube API:**
+- `ENABLE_YOUTUBE_INNERTUBE=false` - Set to disable undocumented API usage  
+- `YOUTUBE_API_ERROR_WEBHOOK` - Optional webhook URL for API error monitoring

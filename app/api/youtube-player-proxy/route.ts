@@ -24,6 +24,8 @@ export async function POST(request: Request) {
 		const parsed = PlayerBodySchema.safeParse(body)
 		if (!parsed.success) return new NextResponse(parsed.error.message, { status: 400 })
 
+		// ⚠️ WARNING: Using undocumented YouTube innertube API
+		// This endpoint may break without notice. See docs/YOUTUBE_API_RISKS.md for details.
 		const resp = await fetch("https://www.youtube.com/youtubei/v1/player", {
 			method: "POST",
 			headers: {
@@ -37,11 +39,23 @@ export async function POST(request: Request) {
 			body: JSON.stringify(parsed.data),
 		})
 
-		if (!resp.ok) return new NextResponse(`Upstream error: ${resp.status}`, { status: 502 })
+		if (!resp.ok) {
+			// Enhanced error logging for monitoring undocumented API health
+			console.error(`[YOUTUBE_INNERTUBE_API] HTTP ${resp.status}: ${resp.statusText}`, {
+				url: "youtubei/v1/player",
+				timestamp: new Date().toISOString(),
+				userAgent: request.headers.get("user-agent"),
+			})
+			return new NextResponse(`Upstream error: ${resp.status}`, { status: 502 })
+		}
 		const json = await resp.json()
 		return NextResponse.json(json, { status: 200 })
 	} catch (error) {
-		console.error("[YOUTUBE_PLAYER_PROXY]", error)
+		console.error("[YOUTUBE_PLAYER_PROXY] YouTube innertube API error:", {
+			error: error instanceof Error ? error.message : "Unknown error",
+			timestamp: new Date().toISOString(),
+			endpoint: "youtubei/v1/player"
+		})
 		return new NextResponse("Internal Error", { status: 500 })
 	}
 }

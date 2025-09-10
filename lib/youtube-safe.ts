@@ -85,7 +85,8 @@ export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: 
 	}
 
 	try {
-		// Use YouTube's innertube API
+		// ⚠️ WARNING: Using undocumented YouTube innertube API
+		// This endpoint may break without notice. See docs/YOUTUBE_API_RISKS.md for details.
 		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
 			method: "POST",
 			headers: {

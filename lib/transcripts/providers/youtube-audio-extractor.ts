@@ -19,6 +19,8 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 	// Try multiple methods to get audio URL
 
 	// Method 1: Use YouTube's own API to get stream info
+	// ⚠️ WARNING: Using undocumented YouTube innertube API
+	// This endpoint may break without notice. See docs/YOUTUBE_API_RISKS.md for details.
 	try {
 		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
 			method: "POST",
@@ -69,6 +71,12 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 			}
 		}
 	} catch (error) {
+		console.error("[YOUTUBE_INNERTUBE_API] Audio extraction error:", {
+			error: error instanceof Error ? error.message : "Unknown error", 
+			videoId: extractVideoId(videoUrl),
+			endpoint: "youtubei/v1/player",
+			timestamp: new Date().toISOString()
+		})
 		console.warn("YouTube API method failed:", error)
 	}
 

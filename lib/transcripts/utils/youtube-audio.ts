@@ -26,12 +26,20 @@ export function extractVideoId(url: string): string | null {
 async function fetchFromYouTubeAPI(videoId: string): Promise<YouTubeAudioInfo | null> {
 	const playerKey = process.env.YOUTUBE_PLAYER_API_KEY || process.env.YOUTUBE_API_KEY
 	if (!playerKey) return null
+	// ⚠️ WARNING: Using undocumented YouTube innertube API
+	// This endpoint may break without notice. See docs/YOUTUBE_API_RISKS.md for details.
 	const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${playerKey}`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json", "User-Agent": "Mozilla/5.0", Referer: "https://www.youtube.com/" },
 		body: JSON.stringify({ context: { client: { clientName: "WEB", clientVersion: "2.20240101.00.00" } }, videoId }),
 	})
 	if (!response.ok) {
+		// Enhanced error logging for monitoring undocumented API health
+		console.error(`[YOUTUBE_INNERTUBE_API] Audio extraction failed: HTTP ${response.status}`, {
+			videoId,
+			endpoint: "youtubei/v1/player",
+			timestamp: new Date().toISOString()
+		})
 		return null
 	}
 	const data = await response.json()

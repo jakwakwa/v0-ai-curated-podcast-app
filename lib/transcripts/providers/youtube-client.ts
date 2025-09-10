@@ -10,7 +10,8 @@ function extractVideoId(url: string): string | null {
 }
 
 async function fetchYouTubeCaption(videoId: string): Promise<string> {
-	// Try YouTube's innertube API which works better from servers
+	// ⚠️ WARNING: Using undocumented YouTube innertube API
+	// This endpoint may break without notice. See docs/YOUTUBE_API_RISKS.md for details.
 	const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 	if (!YOUTUBE_API_KEY) {
 		throw new Error("Missing YOUTUBE_API_KEY environment variable");
@@ -127,6 +128,12 @@ export const YouTubeClientProvider: TranscriptProvider = {
 				meta: { videoId, method: "server-side-captions" },
 			};
 		} catch (error) {
+			console.error("[YOUTUBE_INNERTUBE_API] Caption extraction failed:", {
+				error: error instanceof Error ? error.message : "Unknown error",
+				videoId: extractVideoId(request.url),
+				endpoint: "youtubei/v1/player",
+				timestamp: new Date().toISOString()
+			})
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : "YouTube caption extraction failed",
