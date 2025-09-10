@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { CardContent } from "@/components/ui/card"
 import type { Episode } from "@/lib/types"
 import EpisodeCard from "./ui/episode-card"
-import { H3 } from "./ui/typography"
 
 interface EpisodeListProps {
 	episodes: Episode[]
@@ -103,15 +102,12 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	}
 
 	return (
-		<div className="border-[#fff] relative">
+		<div className="border-[#fff] relative ">
 			<div className="top-shadow"></div>
-			<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 md:min-h-[420px] w-full h-full max-h-100 overflow-scroll z-1">
-
-				<H3>Bundle Roundup Epidsodes</H3>
-
+			<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 md:min-h-[420px] w-full h-fit">
 				<CardContent>
 					{episodes.length > 0 ? (
-						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-3">
+						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-1">
 							{episodes.map(episode => (
 								<EpisodeCard
 									key={episode.episode_id}
@@ -150,7 +146,6 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 					)}
 				</CardContent>
 			</div>
-
 		</div>
 	)
 }

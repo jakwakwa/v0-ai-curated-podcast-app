@@ -233,9 +233,8 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 		<Button
 			data-sidebar="trigger"
 			data-slot="sidebar-trigger"
-
 			size="sm"
-			className={cn("size-7 bg-card text-white", className)}
+			className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-[1px] bg-[#000]/40", className)}
 			onClick={event => {
 				onClick?.(event)
 				toggleSidebar()
@@ -243,7 +242,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 			{...props}
 		>
 			<PanelLeftIcon />
-			<span className="sr-only">Toggle Sidebar</span>
+			<span className="sr-only"></span>
 		</Button>
 	)
 }
@@ -278,7 +277,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 		<main
 			data-slot="sidebar-inset"
 			className={cn(
-				"relative overflow-x-scroll flex w-full flex-1 flex-col",
+				"relative overflow-x-hidden flex w-full flex-1 flex-col",
 				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
 				className
 			)}

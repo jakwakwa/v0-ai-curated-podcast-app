@@ -3,7 +3,8 @@ import { dark } from "@clerk/themes"
 
 import { Analytics } from "@vercel/analytics/react"
 import type { Metadata } from "next"
-import { Work_Sans } from "next/font/google"
+import { Inter } from 'next/font/google'
+
 import type React from "react"
 import { Toaster } from "sonner"
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
@@ -11,7 +12,7 @@ import { ClientProviders } from "./client-providers"
 
 import "./globals.css"
 
-const workSans = Work_Sans({ subsets: ["latin"] })
+const workSans = Inter({ subsets: ["latin"] })
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 if (!clerkPublishableKey) {
@@ -44,7 +45,7 @@ export default function RootLayout({
 			<head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-				<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+				<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Vend+Sans:wght@500&display=swap" rel="stylesheet" />
 				<link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
 			</head>
 			<body className={`${workSans.className}`}>

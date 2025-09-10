@@ -127,7 +127,7 @@ export default function CurationProfileManagementPage() {
 
 	return (
 		<div className="mx-auto px-0 w-full">
-			<PageHeader title="Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
+			<PageHeader title="Dashboard: Curator Profile" description="Listen to all your curated podcast episodes from your personal feed and selected bundles." />
 			{isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">
@@ -143,7 +143,7 @@ export default function CurationProfileManagementPage() {
 
 								{/*  */}
 								{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-									<div className="bg-[#1C719923] rounded-md  p-4">
+									<div className="bg-[#2B31344E] rounded-t-md rounded-b-none  p-4">
 										<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
 											<Edit />
 										</Button>
@@ -168,17 +168,17 @@ export default function CurationProfileManagementPage() {
 							</div>
 
 							<div>
-								<div className="bg-glass rounded-b-2xl  shadow-none border-none px-4 p-4">
+								<div className="bg-[#000]/30 rounded-b-2xl  shadow-none border-none px-4 p-4">
 									<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
 									<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden px-1 pb-6 pt-4">
 										<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary bg-muted-foreground/10 py-4 px-1">
 											<span className="font-sans text-foreground/60 text-sm">Bundle Episode/s:</span>
-											<span className="uppercase left text-cyan-500/70 text-sm font-sans font-bold">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
+											<span className="uppercase left text-teal-300/60 text-sm font-sans font-bold">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 										</div>
 
 										<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-1">
 											<span className="text-foreground/60 text-sm font-sans">Plan Tier:</span>
-											<span className="uppercase left text-cyan-500/70 text-sm font-bold font-sans">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
+											<span className="uppercase left text-teal-500/60 text-sm font-bold font-sans">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
 										</div>
 									</div>
 								</div>
@@ -204,7 +204,7 @@ export default function CurationProfileManagementPage() {
 								{userEpisodes.length === 0 ? (
 									<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
 								) : (
-									<ul className=" inline-block w-full inline-flex flex-col gap-3">
+									<ul className="w-full flex flex-col gap-4">
 										{userEpisodes
 											.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
 											.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
@@ -240,9 +240,7 @@ export default function CurationProfileManagementPage() {
 					</Alert>
 				</div>
 			)}
-
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
-
 			{currentlyPlayingUserEpisodeId &&
 				portalContainer &&
 				createPortal(
@@ -252,7 +250,7 @@ export default function CurationProfileManagementPage() {
 					portalContainer
 				)}
 		</div>
-	)
+	);
 }
 
 export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {

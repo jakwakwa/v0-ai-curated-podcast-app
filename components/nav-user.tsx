@@ -1,77 +1,77 @@
-"use client"
+"use client";
 
-import { useAuth, useClerk } from "@clerk/nextjs"
-import { Bell, CreditCard, LogOutIcon, MoreVerticalIcon, Shield, UserCircleIcon } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { Bell, CreditCard, LogOutIcon, MoreVerticalIcon, Shield } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 
 export function NavUser({
 	user,
 }: {
 	user: {
-		name: string
-		email: string
-		avatar: string
-	}
+		name: string;
+		email: string;
+		avatar: string;
+	};
 }) {
-	const { isMobile } = useSidebar()
-	const { signOut } = useClerk()
-	const { isLoaded, isSignedIn } = useAuth()
-	const [isAdmin, setIsAdmin] = useState(false)
+	const { isMobile } = useSidebar();
+	const { signOut } = useClerk();
+	const { isLoaded, isSignedIn } = useAuth();
+	const [isAdmin, setIsAdmin] = useState(false);
 
 	// Compute Clerk Account Portal direct link with redirect
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
-	const clerkPortalBase = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_PORTAL_URL || null
-	const redirectOverride = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_REDIRECT_URL || null
-	let _accountPortalUrl: string | null = null
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+	const clerkPortalBase = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_PORTAL_URL || null;
+	const redirectOverride = process.env.NEXT_PUBLIC_CLERK_ACCOUNT_REDIRECT_URL || null;
+	let _accountPortalUrl: string | null = null;
 	try {
 		// Prefer explicitly configured Clerk Account Portal base (e.g. https://<hash>.accounts.dev/user)
 		if (clerkPortalBase) {
 			// Determine redirect target: explicit override first, then app origin
-			const redirectTarget = redirectOverride || (appUrl ? new URL(appUrl).origin : "")
+			const redirectTarget = redirectOverride || (appUrl ? new URL(appUrl).origin : "");
 			if (redirectTarget) {
-				const base = clerkPortalBase.replace(/\/$/, "")
-				_accountPortalUrl = `${base}?redirect_url=${encodeURIComponent(redirectTarget)}`
+				const base = clerkPortalBase.replace(/\/$/, "");
+				_accountPortalUrl = `${base}?redirect_url=${encodeURIComponent(redirectTarget)}`;
 			}
 		} else if (appUrl) {
 			// Fallback to accounts.<hostname>/account using app origin
-			const parsed = new URL(appUrl)
-			_accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`
+			const parsed = new URL(appUrl);
+			_accountPortalUrl = `https://accounts.${parsed.hostname}/account?redirect_url=${encodeURIComponent(parsed.origin)}`;
 		}
 	} catch {
-		_accountPortalUrl = null
+		_accountPortalUrl = null;
 	}
 
 	// Generate initials from user name
 	const getInitials = (name: string) => {
-		if (!name) return "U"
+		if (!name) return "U";
 		return name
 			.split(" ")
 			.map(part => part.charAt(0).toUpperCase())
 			.slice(0, 2)
-			.join("")
-	}
+			.join("");
+	};
 
 	// Check if user is admin
 	useEffect(() => {
 		const checkAdminStatus = async () => {
 			try {
-				const response = await fetch("/api/admin/check")
+				const response = await fetch("/api/admin/check");
 				if (response.ok) {
-					setIsAdmin(true)
+					setIsAdmin(true);
 				}
 			} catch (error) {
-				console.error("Failed to check admin status:", error)
+				console.error("Failed to check admin status:", error);
 			}
-		}
+		};
 
 		if (isLoaded && isSignedIn) {
-			checkAdminStatus()
+			checkAdminStatus();
 		}
-	}, [isLoaded, isSignedIn])
+	}, [isLoaded, isSignedIn]);
 
 	if (!isLoaded) {
 		return (
@@ -89,7 +89,7 @@ export function NavUser({
 					</SidebarMenuButton>
 				</SidebarMenuItem>
 			</SidebarMenu>
-		)
+		);
 	}
 
 	return (
@@ -109,7 +109,11 @@ export function NavUser({
 							<MoreVerticalIcon className="ml-auto h-4 w-4" />
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="dropdown-menu-card w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+					<DropdownMenuContent
+						className="dropdown-menu-card w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight"
+						side={isMobile ? "bottom" : "right"}
+						align="end"
+						sideOffset={4}>
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 md:px-2 pb-4.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
 								<Avatar className="h-8 w-8 rounded-lg filter">
@@ -136,12 +140,6 @@ export function NavUser({
 									Subscription
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link href="/curation-profile-management">
-									<UserCircleIcon />
-									Personalized Feed Management
-								</Link>
-							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						{isAdmin && (
 							<>
@@ -157,15 +155,15 @@ export function NavUser({
 							</>
 						)}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem className="text-sm mt-2"
+						<DropdownMenuItem
+							className="text-sm mt-2"
 							onClick={async () => {
 								try {
-									await signOut()
+									await signOut();
 								} catch {
-									console.error("Sign out failed from nav-user.tsx, try again")
+									console.error("Sign out failed from nav-user.tsx, try again");
 								}
-							}}
-						>
+							}}>
 							<LogOutIcon />
 							Log out
 						</DropdownMenuItem>
@@ -173,5 +171,5 @@ export function NavUser({
 				</DropdownMenu>
 			</SidebarMenuItem>
 		</SidebarMenu>
-	)
+	);
 }

@@ -1,18 +1,17 @@
-"use client"
+"use client";
 
-import { UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons"
-import { motion, useScroll, useTransform } from "framer-motion"
-import { CheckCircle } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import LandingAudioPlayer from "@/components/demo/landing-audio-player"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import styles from "@/styles/landing-page-content.module.css"
-import { LandingPageHeader } from "../layout/LandingPageHeader"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
-import { Typography } from "../ui/typography"
-import { HomePageBackground } from "./home-page-background"
+import { UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { CheckCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import LandingAudioPlayer from "@/components/demo/landing-audio-player";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import styles from "@/styles/landing-page-content.module.css";
+import { LandingPageHeader } from "../layout/LandingPageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Typography } from "../ui/typography";
 
 // Hardcoded subscription tiers for landing page
 const SUBSCRIPTION_TIERS = [
@@ -40,7 +39,7 @@ const SUBSCRIPTION_TIERS = [
 		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
 		popular: true,
 	},
-]
+];
 
 export default function LandingPageContent() {
 	const features = [
@@ -80,7 +79,7 @@ export default function LandingPageContent() {
 			description:
 				"Fresh, focused episodes delivered every Friday - no more hunting through hours of content for the good parts. Get your personalized intelligence briefing and reclaim your weekend.",
 		},
-	]
+	];
 
 	const howItWorks = [
 		{
@@ -101,11 +100,11 @@ export default function LandingPageContent() {
 			description: "Get your personalized, human-quality audio summary delivered every Friday—no hunting, no fluff, just pure value.",
 			action: "Get your briefing",
 		},
-	]
+	];
 
 	return (
 		<div className={styles.container}>
-			<HomePageBackground />
+			{/* <HomePageBackground /> */}
 			<LandingPageHeader />
 			{/* Hero Section */}
 			<section className={styles.heroSection}>
@@ -136,8 +135,7 @@ export default function LandingPageContent() {
 						className="flex flex-col sm:flex-row gap-4 justify-center items-center"
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-					>
+						transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}>
 						<Link href="/sign-up">
 							<div>
 								<div className={styles.heroBtn}>Start Free Trial</div>
@@ -178,16 +176,14 @@ export default function LandingPageContent() {
 								whileHover={{
 									y: -5,
 									transition: { duration: 0.2 },
-								}}
-							>
+								}}>
 								<motion.div
 									className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
 									whileHover={{
 										scale: 1.1,
 										rotate: 5,
 										transition: { duration: 0.2 },
-									}}
-								>
+									}}>
 									{feature.icon}
 								</motion.div>
 								<Typography as="h3" className="text-custom-lg font-medium text-secondary-foreground/80 mb-2">
@@ -206,7 +202,9 @@ export default function LandingPageContent() {
 			<section className={styles.featuresSection}>
 				<div className={styles.howItWorksContainer}>
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-accent-light font-bold mt-18 text-[3rem]">How Podslice.ai Works</Typography>
+						<Typography as="h1" className="text-accent-light font-bold mt-18 text-[3rem]">
+							How Podslice.ai Works
+						</Typography>
 						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
@@ -228,12 +226,10 @@ export default function LandingPageContent() {
 									y: -5,
 									scale: 1.02,
 									transition: { duration: 0.2 },
-								}}
-							>
+								}}>
 								<div className="rounded-full align-center text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10">{step.step}</div>
 								<h3 className={styles.stepTitle}>{step.title}</h3>
 								<p className="text-body-md text-center my-6 w-full p-0">{step.description}</p>
-
 							</motion.div>
 						))}
 					</div>
@@ -244,7 +240,9 @@ export default function LandingPageContent() {
 			<section className={styles.pricingSection}>
 				<div className={styles.pricingContainer}>
 					<div className={styles.pricingHeader}>
-						<Typography as="h1" className="text-custom-display">Choose Your Plan</Typography>
+						<Typography as="h1" className="text-custom-display">
+							Choose Your Plan
+						</Typography>
 						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
 							From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
 						</Typography>
@@ -253,14 +251,12 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}
-							>
+								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}>
 								{tier.popular && (
 									<Badge
 										variant="default"
 										size="sm"
-										className="bg-accent p-0 mx-auto border-light text-secondary-foreground px-9 py-3 font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]"
-									>
+										className="bg-accent p-0 mx-auto border-light text-secondary-foreground px-9 py-3 font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
 										Most Popular
 									</Badge>
 								)}
@@ -287,8 +283,7 @@ export default function LandingPageContent() {
 										<Button
 											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? " text-accent-foreground hover:bg-radial-gradient-secondary/80 transition-all duration-200 ease-in-out h-14" : "h-14"}`}
 											variant={tier.popular ? "default" : "default"}
-											size="lg"
-										>
+											size="lg">
 											{tier.name === "FreeSlice" ? "Start Free" : "Start Free Trial"}
 										</Button>
 									</Link>
@@ -336,6 +331,6 @@ export default function LandingPageContent() {
 					</div>
 				</motion.div>
 			</footer>
-		</div >
-	)
+		</div>
+	);
 }

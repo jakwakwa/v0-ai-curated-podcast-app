@@ -15,7 +15,7 @@ export function DynamicBreadcrumb() {
 	return (
 		<Breadcrumb className="w-full">
 
-			<BreadcrumbList className="w-full">
+			<BreadcrumbList className="w-full text-left mx-0">
 
 				{breadcrumbs.map((breadcrumb, index) => (
 					<div key={breadcrumb.href} className="contents">

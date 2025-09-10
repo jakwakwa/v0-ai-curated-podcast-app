@@ -48,7 +48,7 @@ async function getRevAiTranscript(jobId: string, apiKey: string): Promise<string
 }
 
 function isUrlLikelyAudio(url: string): boolean {
-	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url)
+	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url);
 }
 
 export const RevAiProvider: TranscriptProvider = {

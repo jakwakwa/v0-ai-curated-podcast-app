@@ -1,11 +1,11 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 function isDirectAudioUrl(url: string): boolean {
-	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url)
+	return /(\.mp3|\.m4a|\.wav|\.aac|\.flac)(\b|$)/i.test(url);
 }
 
 function isYouTube(url: string): boolean {
-	return /youtu(be\.be|be\.com)/i.test(url)
+	return /youtu(be\.be|be\.com)/i.test(url);
 }
 
 async function resolveAudioViaListenNotes(url: string, apiKey: string): Promise<string | null> {

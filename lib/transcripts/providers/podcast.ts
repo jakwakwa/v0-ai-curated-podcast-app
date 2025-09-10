@@ -2,11 +2,11 @@ import { XMLParser } from "fast-xml-parser"
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
 
 function isLikelyPodcastUrl(url: string): boolean {
-	return /(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url)
+	return /(rss|feed|podcast|anchor|spotify|apple)\./i.test(url) || /\.rss(\b|$)/i.test(url);
 }
 
 function _looksLikeRssUrl(url: string): boolean {
-	return /\.rss(\b|$)/i.test(url) || /\/feed(\b|$)/i.test(url)
+	return /\.rss(\b|$)/i.test(url) || /\/feed(\b|$)/i.test(url);
 }
 
 function ensureArray<T>(value: T | T[] | undefined): T[] {
