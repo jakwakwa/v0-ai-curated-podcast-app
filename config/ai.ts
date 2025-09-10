@@ -24,6 +24,3 @@ export const aiConfig = {
 	// Episode generation settings
 	useShortEpisodes: true,
 };
-
-// "TX3LPaxmHKxFdv7VOQHJ", // Liam
-// "FGY2WhTYpPnrIDTdsKH5", // Laura
