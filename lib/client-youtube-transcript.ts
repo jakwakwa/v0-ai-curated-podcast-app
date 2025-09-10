@@ -4,30 +4,30 @@
  */
 
 export interface TranscriptSegment {
-	text: string
-	start: number
-	duration: number
+	text: string;
+	start: number;
+	duration: number;
 }
 
 export interface TranscriptResult {
-	success: boolean
-	transcript?: string
-	segments?: TranscriptSegment[]
-	error?: string
+	success: boolean;
+	transcript?: string;
+	segments?: TranscriptSegment[];
+	error?: string;
 }
 
 /**
  * Extract YouTube video ID from various URL formats
  */
 export function extractVideoId(url: string): string | null {
-	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/]
+	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/];
 
 	for (const pattern of patterns) {
-		const match = url.match(pattern)
-		if (match) return match[1]
+		const match = url.match(pattern);
+		if (match) return match[1];
 	}
 
-	return null
+	return null;
 }
 
 /**
@@ -35,32 +35,32 @@ export function extractVideoId(url: string): string | null {
  */
 function parseTranscriptXML(xmlText: string): TranscriptSegment[] {
 	try {
-		const parser = new DOMParser()
-		const xmlDoc = parser.parseFromString(xmlText, "text/xml")
+		const parser = new DOMParser();
+		const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
 		// Check for parse errors
-		const parserError = xmlDoc.querySelector("parsererror")
+		const parserError = xmlDoc.querySelector("parsererror");
 		if (parserError) {
-			throw new Error("XML parsing failed")
+			throw new Error("XML parsing failed");
 		}
 
-		const textElements = xmlDoc.querySelectorAll("text")
-		const segments: TranscriptSegment[] = []
+		const textElements = xmlDoc.querySelectorAll("text");
+		const segments: TranscriptSegment[] = [];
 
 		textElements.forEach(element => {
-			const text = element.textContent || ""
-			const start = parseFloat(element.getAttribute("start") || "0")
-			const duration = parseFloat(element.getAttribute("dur") || "1")
+			const text = element.textContent || "";
+			const start = parseFloat(element.getAttribute("start") || "0");
+			const duration = parseFloat(element.getAttribute("dur") || "1");
 
 			if (text.trim()) {
-				segments.push({ text: text.trim(), start, duration })
+				segments.push({ text: text.trim(), start, duration });
 			}
-		})
+		});
 
-		return segments
+		return segments;
 	} catch (error) {
-		console.error("Error parsing transcript XML:", error)
-		return []
+		console.error("Error parsing transcript XML:", error);
+		return [];
 	}
 }
 
@@ -70,7 +70,7 @@ function parseTranscriptXML(xmlText: string): TranscriptSegment[] {
 async function fetchTranscriptData(videoId: string): Promise<string> {
 	try {
 		// First, get video info via same-origin proxy to avoid CORS
-		const playerUrl = `/api/youtube-player-proxy`
+		const playerUrl = `/api/youtube-player-proxy`;
 		const playerData = {
 			context: {
 				client: {
@@ -79,7 +79,7 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 				},
 			},
 			videoId: videoId,
-		}
+		};
 
 		const playerResponse = await fetch(playerUrl, {
 			method: "POST",
@@ -87,82 +87,82 @@ async function fetchTranscriptData(videoId: string): Promise<string> {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify(playerData),
-		})
+		});
 
 		if (!playerResponse.ok) {
-			throw new Error(`Player API failed: ${playerResponse.status}`)
+			throw new Error(`Player API failed: ${playerResponse.status}`);
 		}
 
-		const playerJson = await playerResponse.json()
-		const captionTracks = playerJson?.captions?.playerCaptionsTracklistRenderer?.captionTracks
+		const playerJson = await playerResponse.json();
+		const captionTracks = playerJson?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
 		// If player doesn't advertise captions, try timedtext endpoints directly via proxy
 		if (!captionTracks || captionTracks.length === 0) {
-			const forcedXml = await tryTimedTextFallbacks(videoId)
-			if (forcedXml) return forcedXml
-			throw new Error("No captions found for this video")
+			const forcedXml = await tryTimedTextFallbacks(videoId);
+			if (forcedXml) return forcedXml;
+			throw new Error("No captions found for this video");
 		}
 
 		// Find the best caption track (prefer English auto-generated)
 		const selectedTrack =
 			captionTracks.find((track: { languageCode?: string; kind?: string }) => track.languageCode === "en" && track.kind === "asr") ||
 			captionTracks.find((track: { languageCode?: string }) => track.languageCode === "en") ||
-			captionTracks[0]
+			captionTracks[0];
 
 		if (!selectedTrack?.baseUrl) {
-			throw new Error("No suitable caption track found")
+			throw new Error("No suitable caption track found");
 		}
 
 		// Fetch the transcript XML via same-origin proxy
-		const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: selectedTrack.baseUrl }).toString()
-		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" })
+		const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: selectedTrack.baseUrl }).toString()}`;
+		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" });
 
 		if (!transcriptResponse.ok) {
-			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`)
+			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`);
 		}
 
-		const xmlText = await transcriptResponse.text()
+		const xmlText = await transcriptResponse.text();
 
 		if (!xmlText || xmlText.trim().length === 0) {
-			throw new Error("Empty transcript received")
+			throw new Error("Empty transcript received");
 		}
 
-		return xmlText
+		return xmlText;
 	} catch (error) {
-		console.error("Error fetching transcript data:", error)
-		throw error
+		console.error("Error fetching transcript data:", error);
+		throw error;
 	}
 }
 
 async function fetchTimedText(videoId: string, opts: { lang?: string; asr?: boolean }): Promise<string | null> {
-	const lang = (opts.lang || "en").toLowerCase()
-	const base = new URL("https://www.youtube.com/api/timedtext")
-	base.searchParams.set("v", videoId)
-	base.searchParams.set("lang", lang)
-	base.searchParams.set("fmt", "xml")
-	if (opts.asr) base.searchParams.set("kind", "asr")
-	const proxyUrl = `/api/youtube-captions-proxy?` + new URLSearchParams({ url: base.toString() }).toString()
-	const res = await fetch(proxyUrl, { cache: "no-store" })
-	if (!res.ok) return null
-	const xml = await res.text()
-	return xml && xml.trim().length > 0 ? xml : null
+	const lang = (opts.lang || "en").toLowerCase();
+	const base = new URL("https://www.youtube.com/api/timedtext");
+	base.searchParams.set("v", videoId);
+	base.searchParams.set("lang", lang);
+	base.searchParams.set("fmt", "xml");
+	if (opts.asr) base.searchParams.set("kind", "asr");
+	const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: base.toString() }).toString()}`;
+	const res = await fetch(proxyUrl, { cache: "no-store" });
+	if (!res.ok) return null;
+	const xml = await res.text();
+	return xml && xml.trim().length > 0 ? xml : null;
 }
 
 async function tryTimedTextFallbacks(videoId: string): Promise<string | null> {
-	const browserLang = (typeof navigator !== "undefined" && navigator.language ? navigator.language : "en").slice(0, 2).toLowerCase()
+	const browserLang = (typeof navigator !== "undefined" && navigator.language ? navigator.language : "en").slice(0, 2).toLowerCase();
 	const attempts: Array<{ lang: string; asr: boolean }> = [
 		{ lang: "en", asr: true },
 		{ lang: "en", asr: false },
 		{ lang: browserLang, asr: true },
 		{ lang: browserLang, asr: false },
-	]
+	];
 	for (const attempt of attempts) {
 		try {
-			const xml = await fetchTimedText(videoId, attempt)
-			if (xml) return xml
+			const xml = await fetchTimedText(videoId, attempt);
+			if (xml) return xml;
 		} catch {}
 	}
-	return null
+	return null;
 }
 
 /**
@@ -170,39 +170,39 @@ async function tryTimedTextFallbacks(videoId: string): Promise<string | null> {
  */
 export async function extractYouTubeTranscript(url: string): Promise<TranscriptResult> {
 	try {
-		const videoId = extractVideoId(url)
+		const videoId = extractVideoId(url);
 		if (!videoId) {
 			return {
 				success: false,
 				error: "Invalid YouTube URL",
-			}
+			};
 		}
 
-		console.log(`Extracting transcript for video ID: ${videoId}`)
+		console.log(`Extracting transcript for video ID: ${videoId}`);
 
-		const xmlText = await fetchTranscriptData(videoId)
-		const segments = parseTranscriptXML(xmlText)
+		const xmlText = await fetchTranscriptData(videoId);
+		const segments = parseTranscriptXML(xmlText);
 
 		if (segments.length === 0) {
 			return {
 				success: false,
 				error: "No transcript content found",
-			}
+			};
 		}
 
-		const transcript = segments.map(seg => seg.text).join(" ")
+		const transcript = segments.map(seg => seg.text).join(" ");
 
 		return {
 			success: true,
 			transcript,
 			segments,
-		}
+		};
 	} catch (error) {
-		console.error("Client-side transcript extraction failed:", error)
+		console.error("Client-side transcript extraction failed:", error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : "Unknown error occurred",
-		}
+		};
 	}
 }
 
@@ -213,69 +213,69 @@ export async function extractYouTubeTranscript(url: string): Promise<TranscriptR
 export async function extractTranscriptViaIframe(url: string): Promise<TranscriptResult> {
 	return new Promise(resolve => {
 		try {
-			const videoId = extractVideoId(url)
+			const videoId = extractVideoId(url);
 			if (!videoId) {
 				resolve({
 					success: false,
 					error: "Invalid YouTube URL",
-				})
-				return
+				});
+				return;
 			}
 
 			// Create hidden iframe
-			const iframe = document.createElement("iframe")
-			iframe.style.display = "none"
-			iframe.src = `https://www.youtube.com/watch?v=${videoId}`
+			const iframe = document.createElement("iframe");
+			iframe.style.display = "none";
+			iframe.src = `https://www.youtube.com/watch?v=${videoId}`;
 
 			const cleanup = () => {
 				if (iframe.parentNode) {
-					iframe.parentNode.removeChild(iframe)
+					iframe.parentNode.removeChild(iframe);
 				}
-				clearTimeout(timeoutId)
-			}
+				clearTimeout(timeoutId);
+			};
 
 			// Set timeout
 			const timeoutId = setTimeout(() => {
-				cleanup()
+				cleanup();
 				resolve({
 					success: false,
 					error: "Transcript extraction timed out",
-				})
-			}, 15000)
+				});
+			}, 15000);
 
 			// Add load listener
 			iframe.onload = () => {
 				try {
 					// Try to access the iframe content (will fail due to CORS)
 					// This approach is limited by same-origin policy
-					cleanup()
+					cleanup();
 					resolve({
 						success: false,
 						error: "Cannot access YouTube content due to CORS restrictions",
-					})
+					});
 				} catch (_error) {
-					cleanup()
+					cleanup();
 					resolve({
 						success: false,
 						error: "CORS restriction prevents iframe access",
-					})
+					});
 				}
-			}
+			};
 
 			iframe.onerror = () => {
-				cleanup()
+				cleanup();
 				resolve({
 					success: false,
 					error: "Failed to load YouTube page",
-				})
-			}
+				});
+			};
 
-			document.body.appendChild(iframe)
+			document.body.appendChild(iframe);
 		} catch (err) {
 			resolve({
 				success: false,
 				error: err instanceof Error ? err.message : "Unknown error",
-			})
+			});
 		}
-	})
+	});
 }
