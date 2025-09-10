@@ -110,7 +110,7 @@ export async function extractDurationFromGCSFile(gcsUrl: string): Promise<number
 			} catch {}
 			const seconds =
 				(metadata as { format?: { duration?: number } }).format?.duration && Number.isFinite((metadata as { format?: { duration?: number } }).format?.duration)
-					? Math.round((metadata as { format?: { duration?: number } }).format.duration)
+					? Math.round((metadata as { format?: { duration?: number } }).format?.duration!)
 					: null;
 			if (seconds && seconds > 0) {
 				console.log(`Extracted duration via music-metadata for ${filePath}: ${seconds}s`);
