@@ -108,8 +108,7 @@ const nextConfig = {
             'pbs.twimg.com',
             'abs.twimg.com',
             'images.ctfassets.net',
-            '*.cloudinary.com',
-            'res.cloudinary.com',
+						'https://res.cloudinary.com/jakwakwa/**/*'
         ];
 
         const cspHeader = `
