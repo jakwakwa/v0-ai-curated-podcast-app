@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { generateText } from "ai";
 import mime from "mime";
 import { z } from "zod";
-
+import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
@@ -113,9 +113,7 @@ async function ttsWithVoice(text: string, voiceName: string, retries = 2): Promi
 	for (let attempt = 0; attempt <= retries; attempt++) {
 		try {
 			const ai = new GoogleGenAI({ apiKey });
-			const contents = [
-				{ role: "user", parts: [{ text: `Please read aloud the following in a podcast interview style as ${voiceName}, in an engaging podcast style. Only speak the text.\n\n${text}` }] },
-			];
+			const contents = [{ role: "user", parts: [{ text: `Read the following lines as ${voiceName}, in an engaging podcast style. Only speak the text.\n\n${text}` }] }];
 			const response = await ai.models.generateContentStream({
 				model: DEFAULT_TTS_MODEL,
 				config: { temperature: 1, responseModalities: ["audio"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } },
@@ -207,7 +205,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			const model = googleAI(aiConfig.geminiModel);
 			const episodeConfig = isShort
 				? { words: "150-220 words", duration: "~1 minute", description: "testing version" }
-				: { words: "500-550 words", duration: "~3-4 minutes", description: "production version" };
+				: { words: "550-800 words", duration: "~3-5 minutes", description: "production version" };
 			const { text } = await generateText({
 				model,
 				prompt: `Create a concise summary in ${episodeConfig.words} (${episodeConfig.duration}) capturing the main points and narrative arc of the following transcript. Write as a neutral narrator (no dialogues), suitable to expand into a two-host podcast script.\n\nTranscript: ${transcript}`,
@@ -239,6 +237,18 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		await step.run("finalize-episode", async () => {
 			return await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { gcs_audio_url: gcsAudioUrl, status: "COMPLETED" } });
+		});
+
+		// Extract duration after episode is finalized
+		await step.run("extract-duration", async () => {
+			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
+			const result = await extractUserEpisodeDuration(userEpisodeId);
+			if (result.success) {
+				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
+			} else {
+				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
+			}
+			return result;
 		});
 
 		await step.run("notify-user", async () => {

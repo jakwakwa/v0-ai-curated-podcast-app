@@ -2,8 +2,10 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { GoogleGenAI } from "@google/genai";
 import { generateText } from "ai";
 import mime from "mime";
+
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 
+import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import { extractAudioDuration } from "@/lib/audio-metadata";
 import emailService from "@/lib/email-service";
@@ -132,8 +134,8 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	console.log(`📝 Script length: ${script.length} characters`);
 
 	// Dynamic script length limits based on episode type
-	const maxLength = aiConfig.useShortEpisodes ? 1500 : 4000;
-	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "4-minute";
+	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
+	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute";
 
 	if (script.length > maxLength) {
 		console.log(`⚠️ Script too long for ${episodeType} episode (${script.length} chars), truncating to ${maxLength} chars`);
@@ -151,7 +153,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 			role: "user",
 			parts: [
 				{
-					text: `Please read aloud the following in a podcast interview style:\n\n${script}`,
+					text: `Please read the following script aloud in a clear, engaging podcast style:\n\n${script}`,
 				},
 			],
 		},
@@ -294,13 +296,13 @@ export const generateUserEpisode = inngest.createFunction(
 				// Dynamic episode length based on config flag
 				const episodeConfig = aiConfig.useShortEpisodes
 					? {
-							words: "150-200 words",
-							duration: "about 1 minute of audio",
+							words: "200 - 300 words",
+							duration: "about 3 minute of audio",
 							description: "testing version",
 						}
 					: {
-							words: "700 words",
-							duration: "about 4-5 minutes of audio",
+							words: "500-600 words",
+							duration: "about 3-4 minutes of audio",
 							description: "production version",
 						};
 
@@ -308,14 +310,14 @@ export const generateUserEpisode = inngest.createFunction(
 
 				const { text } = await generateText({
 					model: model,
-					prompt: `Create a podcast style script of approximately ${episodeConfig.words} (${episodeConfig.duration}) based on the following transcript. Write it as a single narrator presenting the content in an engaging podcast style.
+					prompt: `Create an engaging podcast script of approximately ${episodeConfig.words} (${episodeConfig.duration}) based on the following transcript. Write it as a single narrator presenting the content in an engaging, conversational podcast style.
 
 The script should include:
-- An engaging introduction "Hey podslice people! Welcome to another..."
+- An engaging introduction that hooks the listener
 - Clear narrative structure with smooth transitions
 - Key insights and takeaways from the transcript
 - Interesting examples and explanations
-- A compelling conclusion with actionable advice
+- A compelling conclusion with actionable advice or thought-provoking questions
 
 Write in a warm, conversational tone as if speaking directly to the listener. Use phrases like "you might wonder," "here's what's fascinating," "let's dive into," etc. to maintain engagement.
 
@@ -361,10 +363,22 @@ Transcript: ${transcript}`,
 			});
 		});
 
-		// Step 5: Episode Usage is now tracked by counting UserEpisode records
+		// Step 5: Extract duration (fallback if initial extraction failed)
+		await step.run("extract-duration", async () => {
+			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
+			const result = await extractUserEpisodeDuration(userEpisodeId);
+			if (result.success) {
+				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
+			} else {
+				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
+			}
+			return result;
+		});
+
+		// Step 6: Episode Usage is now tracked by counting UserEpisode records
 		// No need to update subscription table - usage is calculated dynamically
 
-		// Step 6: Notify user (in-app + email)
+		// Step 7: Notify user (in-app + email)
 		await step.run("notify-user", async () => {
 			const episode = await prisma.userEpisode.findUnique({
 				where: { episode_id: userEpisodeId },

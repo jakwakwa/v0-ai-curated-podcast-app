@@ -15,9 +15,28 @@ import { Typography } from "./typography"
 export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState(false)
 
-	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll } = useNotificationStore()
+	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
 
-	// Fetch only when the dropdown opens
+	// Debug logging to see if component re-renders when store changes
+	// console.log(`[NOTIFICATION_BELL] Rendering with ${notifications.length} notifications, ${unreadCount} unread`)
+
+	// Start polling when component mounts, stop when it unmounts
+	useEffect(() => {
+		startPolling()
+		return () => {
+			stopPolling()
+		}
+	}, [startPolling, stopPolling])
+
+	// Restart polling when user opens the dropdown (in case auth was restored)
+	useEffect(() => {
+		if (isOpen) {
+			// Try to restart polling when user interacts with notifications
+			restartPolling()
+		}
+	}, [isOpen, restartPolling])
+
+	// Fetch when the dropdown opens (in case polling missed recent updates)
 	useEffect(() => {
 		if (isOpen) {
 			void loadNotifications()
