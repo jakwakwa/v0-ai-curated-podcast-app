@@ -1,121 +1,121 @@
-"use client"
+"use client";
 
-import type { Bundle, Podcast, UserCurationProfile } from "@prisma/client"
+import type { Bundle, Podcast, UserCurationProfile } from "@prisma/client";
 
 // Type for bundle with podcasts array from API
-type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
+type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null };
 
-import { ArrowLeft, CheckCircle } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useUserCurationProfileStore } from "@/lib/stores"
-import { CuratedPodcastList } from "../data-components/selectable-podcast-list"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Typography } from "../ui/typography"
+import { CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useUserCurationProfileStore } from "@/lib/stores";
+import { CuratedPodcastList } from "../data-components/selectable-podcast-list";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Typography } from "../ui/typography";
 
 function UserFeedSelectorWizard() {
-	const [step, setStep] = useState(1)
-	const [userCurationProfileName, setUserCurationProfileName] = useState("")
-	const [isBundleSelection, setIsBundleSelection] = useState(false)
-	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(undefined)
-	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([])
-	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null)
-	const [isCheckingProfile, setIsCheckingProfile] = useState(true)
-	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([])
-	const [isLoadingBundles, setIsLoadingBundles] = useState(false)
+	const [step, setStep] = useState(1);
+	const [userCurationProfileName, setUserCurationProfileName] = useState("");
+	const [isBundleSelection, setIsBundleSelection] = useState(false);
+	const [selectedBundleId, setSelectedBundleId] = useState<string | undefined>(undefined);
+	const [selectedPodcasts, setSelectedPodcasts] = useState<Podcast[]>([]);
+	const [existingProfile, setExistingProfile] = useState<UserCurationProfile | null>(null);
+	const [isCheckingProfile, setIsCheckingProfile] = useState(true);
+	const [bundles, setBundles] = useState<BundleWithPodcasts[]>([]);
+	const [isLoadingBundles, setIsLoadingBundles] = useState(false);
 
-	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore()
-	const canCreateUserCurationProfile = () => true
-	const isTrialing = false
-	const getRemainingTrialDays = () => 0
+	const { createUserCurationProfile, isLoading, error } = useUserCurationProfileStore();
+	const canCreateUserCurationProfile = () => true;
+	const isTrialing = false;
+	const getRemainingTrialDays = () => 0;
 
 	// Check if user already has an active profile
 	useEffect(() => {
 		const checkExistingProfile = async () => {
 			try {
-				const response = await fetch("/api/user-curation-profiles")
+				const response = await fetch("/api/user-curation-profiles");
 				if (response.ok) {
-					const profile = await response.json()
-					setExistingProfile(profile)
+					const profile = await response.json();
+					setExistingProfile(profile);
 				}
 			} catch {
 				// Silently handle profile check errors
 			} finally {
-				setIsCheckingProfile(false)
+				setIsCheckingProfile(false);
 			}
-		}
+		};
 
-		checkExistingProfile()
-	}, [])
+		checkExistingProfile();
+	}, []);
 
 	// Fetch bundles when bundle selection is needed
 	const fetchBundles = async () => {
-		if (bundles.length > 0) return // Already loaded
+		if (bundles.length > 0) return; // Already loaded
 
-		setIsLoadingBundles(true)
+		setIsLoadingBundles(true);
 		try {
-			const response = await fetch("/api/curated-bundles")
+			const response = await fetch("/api/curated-bundles");
 			if (response.ok) {
-				const data = await response.json()
-				setBundles(data)
+				const data = await response.json();
+				setBundles(data);
 			}
 		} catch (error) {
-			console.error("Error fetching bundles:", error)
-			toast.error("Failed to load bundles. Please try again.")
+			console.error("Error fetching bundles:", error);
+			toast.error("Failed to load bundles. Please try again.");
 		} finally {
-			setIsLoadingBundles(false)
+			setIsLoadingBundles(false);
 		}
-	}
+	};
 
 	const handleCreateUserCurationProfile = async () => {
 		if (!canCreateUserCurationProfile()) {
 			const message = isTrialing
 				? `You can only create one Personalized Feed during your trial period. Remaining trial days: ${getRemainingTrialDays()}.`
-				: "You need an active subscription to create a Personalized Feed."
-			toast.error(message)
-			return
+				: "You need an active subscription to create a Personalized Feed.";
+			toast.error(message);
+			return;
 		}
 
-		let data: { name: string; isBundleSelection: boolean; selectedBundleId?: string; selectedPodcasts?: string[] }
+		let data: { name: string; isBundleSelection: boolean; selectedBundleId?: string; selectedPodcasts?: string[] };
 
 		if (isBundleSelection) {
 			if (!selectedBundleId) {
-				toast.error("Please select a bundle.")
-				return
+				toast.error("Please select a bundle.");
+				return;
 			}
 			data = {
 				name: userCurationProfileName,
 				isBundleSelection: true,
 				selectedBundleId: selectedBundleId,
-			}
+			};
 		} else {
 			if (selectedPodcasts.length === 0) {
-				toast.error("Please select at least one podcast for your custom Personalized Feed.")
-				return
+				toast.error("Please select at least one podcast for your custom Personalized Feed.");
+				return;
 			}
 			data = {
 				name: userCurationProfileName,
 				isBundleSelection: false,
 				selectedPodcasts: selectedPodcasts.map(p => p.podcast_id),
-			}
+			};
 		}
 
-		await createUserCurationProfile(data)
+		await createUserCurationProfile(data);
 		if (!error) {
-			toast.success("Personalized Feed created successfully!")
-			setStep(1)
-			setUserCurationProfileName("")
-			setIsBundleSelection(false)
-			setSelectedBundleId(undefined)
-			setSelectedPodcasts([])
+			toast.success("Personalized Feed created successfully!");
+			setStep(1);
+			setUserCurationProfileName("");
+			setIsBundleSelection(false);
+			setSelectedBundleId(undefined);
+			setSelectedPodcasts([]);
 		}
-	}
+	};
 
 	// Show loading state while checking for existing profile
 	if (isCheckingProfile) {
@@ -125,7 +125,7 @@ function UserFeedSelectorWizard() {
 					<AppSpinner size="lg" label="Checking your profile status..." />
 				</div>
 			</div>
-		)
+		);
 	}
 
 	// Show message if user already has an active profile
@@ -149,12 +149,6 @@ function UserFeedSelectorWizard() {
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
 							<Link href="/dashboard">
 								<Button variant="default" className="w-full sm:w-auto">
-									<ArrowLeft className="w-4 h-4 mr-2" />
-									Go to Dashboard
-								</Button>
-							</Link>
-							<Link href="/curation-profile-management">
-								<Button variant="default" className="w-full sm:w-auto">
 									Manage Profile
 								</Button>
 							</Link>
@@ -162,7 +156,7 @@ function UserFeedSelectorWizard() {
 					</CardContent>
 				</Card>
 			</div>
-		)
+		);
 	}
 
 	return (
@@ -182,10 +176,10 @@ function UserFeedSelectorWizard() {
 						<CardContent className="flex flex-col gap-2">
 							<Button
 								onClick={() => {
-									setIsBundleSelection(true)
-									setStep(2)
+									setIsBundleSelection(true);
+									setStep(2);
 									// Fetch bundles when user selects bundle option
-									fetchBundles()
+									fetchBundles();
 								}}
 								variant="default"
 								size="bundles"
@@ -194,8 +188,8 @@ function UserFeedSelectorWizard() {
 							</Button>
 							<Button
 								onClick={() => {
-									setIsBundleSelection(false)
-									setStep(2)
+									setIsBundleSelection(false);
+									setStep(2);
 								}}
 								variant="default"
 								className="w-full h-auto">
@@ -256,7 +250,7 @@ function UserFeedSelectorWizard() {
 										<Select
 											value={selectedBundleId || ""}
 											onValueChange={value => {
-												setSelectedBundleId(value)
+												setSelectedBundleId(value);
 											}}>
 											<SelectTrigger id="bundle-select" className="w-full">
 												<SelectValue placeholder="Select a bundle..." />
@@ -286,14 +280,14 @@ function UserFeedSelectorWizard() {
 					) : (
 						<CuratedPodcastList
 							onSelectPodcast={podcast => {
-								const isAlreadySelected = selectedPodcasts.some(p => p.podcast_id === podcast.podcast_id)
+								const isAlreadySelected = selectedPodcasts.some(p => p.podcast_id === podcast.podcast_id);
 								if (isAlreadySelected) {
-									setSelectedPodcasts(selectedPodcasts.filter(p => p.podcast_id !== podcast.podcast_id))
+									setSelectedPodcasts(selectedPodcasts.filter(p => p.podcast_id !== podcast.podcast_id));
 								} else {
 									if (selectedPodcasts.length < 5) {
-										setSelectedPodcasts([...selectedPodcasts, podcast])
+										setSelectedPodcasts([...selectedPodcasts, podcast]);
 									} else {
-										toast.info("You can select a maximum of 5 podcasts.")
+										toast.info("You can select a maximum of 5 podcasts.");
 									}
 								}
 							}}
@@ -365,7 +359,7 @@ function UserFeedSelectorWizard() {
 				</div>
 			)}
 		</div>
-	)
+	);
 }
 
-export default UserFeedSelectorWizard
+export default UserFeedSelectorWizard;

@@ -79,7 +79,7 @@ export function EpisodeCreator() {
 			})
 			if (!res.ok) throw new Error(await res.text())
 			toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
-			router.push("/curation-profile-management")
+			router.push("/dashboard")
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to start metadata flow")
 		} finally {
