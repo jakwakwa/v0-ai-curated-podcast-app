@@ -28,7 +28,7 @@ function scoreCandidate(item: YouTubeSearchItem, q: YouTubeSearchInput): number 
   if (q.publishedAt) {
     const target = Date.parse(q.publishedAt)
     const pub = item.snippet?.publishedAt ? Date.parse(item.snippet.publishedAt) : NaN
-    if (!Number.isNaN(target) && !Number.isNaN(pub)) {
+    if (!(Number.isNaN(target) || Number.isNaN(pub))) {
       const buf = q.dateBufferDays ?? 14
       const days = Math.abs(pub - target) / (1000 * 60 * 60 * 24)
       if (days <= buf) score += 0.1
