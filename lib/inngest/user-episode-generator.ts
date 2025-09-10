@@ -2,6 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { GoogleGenAI } from "@google/genai";
 import { generateText } from "ai";
 import mime from "mime";
+import { stitchAudioChunksFromUrls } from "@/lib/audio-stitching";
 
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 
@@ -14,6 +15,35 @@ import { prisma } from "@/lib/prisma";
 import { inngest } from "./client";
 
 // All uploads use the primary bucket defined by GOOGLE_CLOUD_STORAGE_BUCKET_NAME
+
+/**
+ * Split text into chunks for TTS processing
+ * Splits by paragraphs and ensures chunks don't exceed max length
+ */
+function splitTextIntoChunks(text: string, maxChunkLength = 2000): string[] {
+	const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+	const chunks: string[] = [];
+	let currentChunk = "";
+
+	for (const paragraph of paragraphs) {
+		const trimmedParagraph = paragraph.trim();
+		
+		// If adding this paragraph would exceed max length, start a new chunk
+		if (currentChunk.length + trimmedParagraph.length > maxChunkLength && currentChunk.length > 0) {
+			chunks.push(currentChunk.trim());
+			currentChunk = trimmedParagraph;
+		} else {
+			currentChunk += (currentChunk.length > 0 ? "\n\n" : "") + trimmedParagraph;
+		}
+	}
+
+	// Add the last chunk if it has content
+	if (currentChunk.trim().length > 0) {
+		chunks.push(currentChunk.trim());
+	}
+
+	return chunks;
+}
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
@@ -336,18 +366,79 @@ Transcript: ${transcript}`,
 			}
 		});
 
-		// Step 3: Convert to Audio and Upload to GCS (combined to avoid large data transfer)
-		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
-			console.log("🎤 Generating audio and uploading directly to GCS...");
-			const audioBuffer = await generateAudioWithGeminiTTS(summary);
-			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
-			console.log(`📁 Uploading ${audioBuffer.length} bytes to GCS...`);
+		// Step 3: Convert to Audio using Chunking (Fan-Out/Fan-In pattern)
+		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-chunked", async () => {
+			console.log("🎤 Generating audio using chunked approach...");
+			
+			// Split the summary into chunks
+			const textChunks = splitTextIntoChunks(summary, 2000);
+			console.log(`📝 Split summary into ${textChunks.length} chunks`);
 
-			// Extract duration from the generated audio
-			const duration = extractAudioDuration(audioBuffer, "audio/wav");
-			console.log(`🎵 Extracted audio duration: ${duration ? `${duration}s` : "unknown"}`);
+			if (textChunks.length === 1) {
+				// Single chunk - use the original approach
+				console.log("📝 Single chunk detected, using direct generation...");
+				const audioBuffer = await generateAudioWithGeminiTTS(summary);
+				const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
+				const duration = extractAudioDuration(audioBuffer, "audio/wav");
+				const gcsUrl = await uploadContentToBucket(audioBuffer, fileName);
+				return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
+			}
 
-			const gcsUrl = await uploadContentToBucket(audioBuffer, fileName);
+			// Multiple chunks - use Fan-Out/Fan-In pattern
+			console.log(`🔄 Using Fan-Out/Fan-In pattern for ${textChunks.length} chunks`);
+			
+			// Fan-Out: Send events for each chunk
+			const chunkJobs = textChunks.map((chunk, index) => ({
+				name: "tts.chunk.generate",
+				data: {
+					userEpisodeId,
+					chunkIndex: index,
+					totalChunks: textChunks.length,
+					text: chunk,
+					voiceName: "Enceladus", // Default voice for single-speaker
+					jobId: `tts-${userEpisodeId}-${Date.now()}`,
+				},
+			}));
+
+			await step.sendEvent("start-tts-chunks", chunkJobs);
+
+			// Fan-In: Wait for all chunks to complete
+			const successEvents: Array<{ data?: any }> = [];
+			const startTime = Date.now();
+			const timeoutMs = 10 * 60 * 1000; // 10 minutes timeout
+			
+			while (successEvents.length < textChunks.length && (Date.now() - startTime) < timeoutMs) {
+				const event = await step.waitForEvent(`wait-for-tts-chunk-${successEvents.length}`, {
+					event: "tts.chunk.succeeded",
+					timeout: "30s", // 30 second timeout per event
+					if: `event.data.userEpisodeId == "${userEpisodeId}"`,
+				});
+				
+				if (event) {
+					successEvents.push(event);
+					console.log(`[TTS_CHUNKS] Collected chunk ${successEvents.length}/${textChunks.length}`);
+				}
+			}
+
+			if (!successEvents || successEvents.length < textChunks.length) {
+				throw new Error(`Only ${successEvents?.length || 0}/${textChunks.length} TTS chunks completed successfully`);
+			}
+
+			// Sort chunks by index and extract URLs
+			const sortedChunks = successEvents
+				.map(e => e.data)
+				.sort((a, b) => a.chunkIndex - b.chunkIndex);
+			
+			const chunkUrls = sortedChunks.map(chunk => chunk.gcsUrl);
+			console.log(`🔗 Stitching ${chunkUrls.length} audio chunks...`);
+
+			// Stitch all chunks together
+			const finalAudioBuffer = await stitchAudioChunksFromUrls(chunkUrls);
+			const fileName = `user-episodes/${userEpisodeId}-stitched-${Date.now()}.wav`;
+			const duration = extractAudioDuration(finalAudioBuffer, "audio/wav");
+			const gcsUrl = await uploadContentToBucket(finalAudioBuffer, fileName);
+			
+			console.log(`✅ Stitched audio: ${finalAudioBuffer.length} bytes, ${duration ? `${duration}s` : "unknown duration"}`);
 			return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
 		});
 

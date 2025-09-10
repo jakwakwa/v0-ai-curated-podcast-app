@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { generateText } from "ai";
 import mime from "mime";
 import { z } from "zod";
+import { stitchAudioChunksFromUrls } from "@/lib/audio-stitching";
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
@@ -11,6 +12,38 @@ import { prisma } from "@/lib/prisma";
 import { inngest } from "./client";
 
 // Utilities and helpers copied/adapted from single-speaker workflow
+
+/**
+ * Split dialogue lines into chunks for TTS processing
+ * Ensures each chunk has a reasonable number of lines and doesn't exceed max length
+ */
+function splitDialogueIntoChunks(duetLines: DialogueLine[], maxChunkLength = 2000): DialogueLine[][] {
+	const chunks: DialogueLine[][] = [];
+	let currentChunk: DialogueLine[] = [];
+	let currentLength = 0;
+
+	for (const line of duetLines) {
+		const lineLength = line.text.length;
+		
+		// If adding this line would exceed max length, start a new chunk
+		if (currentLength + lineLength > maxChunkLength && currentChunk.length > 0) {
+			chunks.push([...currentChunk]);
+			currentChunk = [line];
+			currentLength = lineLength;
+		} else {
+			currentChunk.push(line);
+			currentLength += lineLength;
+		}
+	}
+
+	// Add the last chunk if it has content
+	if (currentChunk.length > 0) {
+		chunks.push(currentChunk);
+	}
+
+	return chunks;
+}
+
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
 	try {
 		const uploader = getStorageUploader();
@@ -223,16 +256,86 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			return coerceJsonArray(text);
 		});
 
-		const gcsAudioUrl = await step.run("synthesize-multi-voice-and-upload", async () => {
-			const chunks: Buffer[] = [];
-			for (const line of duetLines) {
-				const voice = line.speaker === "A" ? voiceA : voiceB;
-				const audio = await ttsWithVoice(line.text, voice);
-				chunks.push(audio);
+		const gcsAudioUrl = await step.run("synthesize-multi-voice-chunked", async () => {
+			console.log("🎤 Generating multi-speaker audio using chunked approach...");
+			
+			// Split dialogue into chunks
+			const dialogueChunks = splitDialogueIntoChunks(duetLines, 2000);
+			console.log(`📝 Split dialogue into ${dialogueChunks.length} chunks`);
+
+			if (dialogueChunks.length === 1) {
+				// Single chunk - use the original approach
+				console.log("📝 Single chunk detected, using direct generation...");
+				const chunks: Buffer[] = [];
+				for (const line of duetLines) {
+					const voice = line.speaker === "A" ? voiceA : voiceB;
+					const audio = await ttsWithVoice(line.text, voice);
+					chunks.push(audio);
+				}
+				const finalWav = concatenateWavs(chunks);
+				const fileName = `user-episodes/${userEpisodeId}-duet-${Date.now()}.wav`;
+				return await uploadContentToBucket(finalWav, fileName);
 			}
-			const finalWav = concatenateWavs(chunks);
-			const fileName = `user-episodes/${userEpisodeId}-duet-${Date.now()}.wav`;
-			return await uploadContentToBucket(finalWav, fileName);
+
+			// Multiple chunks - use Fan-Out/Fan-In pattern
+			console.log(`🔄 Using Fan-Out/Fan-In pattern for ${dialogueChunks.length} chunks`);
+			
+			// Fan-Out: Send events for each chunk
+			const chunkJobs = dialogueChunks.map((chunk, index) => ({
+				name: "tts.chunk.generate",
+				data: {
+					userEpisodeId,
+					chunkIndex: index,
+					totalChunks: dialogueChunks.length,
+					text: chunk.map(line => `${line.speaker}: ${line.text}`).join('\n'),
+					voiceName: "Enceladus", // Will be overridden by chunk worker for multi-speaker
+					jobId: `tts-multi-${userEpisodeId}-${Date.now()}`,
+					// Pass voice info for multi-speaker processing
+					voiceA,
+					voiceB,
+					dialogueLines: chunk,
+				},
+			}));
+
+			await step.sendEvent("start-tts-chunks", chunkJobs);
+
+			// Fan-In: Wait for all chunks to complete
+			const successEvents: Array<{ data?: any }> = [];
+			const startTime = Date.now();
+			const timeoutMs = 15 * 60 * 1000; // 15 minutes timeout
+			
+			while (successEvents.length < dialogueChunks.length && (Date.now() - startTime) < timeoutMs) {
+				const event = await step.waitForEvent(`wait-for-tts-chunk-${successEvents.length}`, {
+					event: "tts.chunk.succeeded",
+					timeout: "30s", // 30 second timeout per event
+					if: `event.data.userEpisodeId == "${userEpisodeId}"`,
+				});
+				
+				if (event) {
+					successEvents.push(event);
+					console.log(`[TTS_CHUNKS] Collected chunk ${successEvents.length}/${dialogueChunks.length}`);
+				}
+			}
+
+			if (!successEvents || successEvents.length < dialogueChunks.length) {
+				throw new Error(`Only ${successEvents?.length || 0}/${dialogueChunks.length} TTS chunks completed successfully`);
+			}
+
+			// Sort chunks by index and extract URLs
+			const sortedChunks = successEvents
+				.map(e => e.data)
+				.sort((a, b) => a.chunkIndex - b.chunkIndex);
+			
+			const chunkUrls = sortedChunks.map(chunk => chunk.gcsUrl);
+			console.log(`🔗 Stitching ${chunkUrls.length} audio chunks...`);
+
+			// Stitch all chunks together
+			const finalAudioBuffer = await stitchAudioChunksFromUrls(chunkUrls);
+			const fileName = `user-episodes/${userEpisodeId}-duet-stitched-${Date.now()}.wav`;
+			const gcsUrl = await uploadContentToBucket(finalAudioBuffer, fileName);
+			
+			console.log(`✅ Stitched multi-speaker audio: ${finalAudioBuffer.length} bytes`);
+			return gcsUrl;
 		});
 
 		await step.run("finalize-episode", async () => {

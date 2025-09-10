@@ -76,3 +76,33 @@ export async function transcribeWithGeminiFromUrl(url: string): Promise<string |
 		throw error;
 	}
 }
+
+/**
+ * Transcribes an audio buffer using Gemini.
+ * This is used for processing individual audio chunks in the Fan-Out/Fan-In pattern.
+ */
+export async function transcribeWithGeminiFromBuffer(audioBuffer: Buffer, mimeType: string = "audio/wav"): Promise<string | null> {
+	const apiKey = process.env.GEMINI_API_KEY;
+	if (!apiKey) {
+		throw new Error("GEMINI_API_KEY is not set.");
+	}
+
+	try {
+		const genAI = new GoogleGenerativeAI(apiKey);
+		const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+
+		const mediaPart: Part = _bufferToGenerativePart(audioBuffer, mimeType);
+
+		// Add timeout wrapper around the API call
+		const result = await withTimeout(
+			model.generateContent([PROMPT, mediaPart]),
+			50000, // 50 seconds - leave buffer for other operations
+			"Gemini API call timed out"
+		);
+
+		return result.response.text();
+	} catch (error) {
+		console.error("[GEMINI][audio-buffer] Error:", error);
+		throw error;
+	}
+}
