@@ -1,137 +1,108 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Suppress hydration warnings from browser extensions like Dark Reader
-    reactStrictMode: true,
-    images: {
-        remotePatterns: [{
-                protocol: 'https',
-                hostname: 'images.unsplash.com',
-                port: '',
-                pathname: '/**',
-            },
-						{
-							protocol: 'https',
-							hostname: 'youtu.be',
-							port: '',
-							pathname: '/**',
-						},
-            {
-                protocol: 'https',
-                hostname: 'storage.cloud.google.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'firebasestorage.googleapis.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'lh3.googleusercontent.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'graph.facebook.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'platform-lookaside.fbsbx.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'pbs.twimg.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'abs.twimg.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'images.ctfassets.net',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: '*.cloudinary.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'res.cloudinary.com',
-                port: '',
-                pathname: '/**',
-            },
-        ],
-    },
-    // Webpack configuration (for standard build mode)
-    webpack: (config, {
-        buildId,
-        dev,
-        isServer,
-        defaultLoaders,
-        webpack
-    }) => {
-        // Only run in webpack mode (not turbopack)
-        // Preserve Next.js aliases while allowing custom ones
-        config.resolve.alias = {
-            ...config.resolve.alias,
-            // Add any custom aliases here if needed
-        };
+	reactStrictMode: true,
+	images: {
+			remotePatterns: [
+					{ protocol: 'https', hostname: 'images.unsplash.com' },
+					{ protocol: 'https', hostname: 'youtu.be' },
+					{ protocol: 'https', hostname: 'storage.cloud.google.com' },
+					{ protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+					{ protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+					{ protocol: 'https', hostname: 'graph.facebook.com' },
+					{ protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' },
+					{ protocol: 'https', hostname: 'pbs.twimg.com' },
+					{ protocol: 'https', hostname: 'abs.twimg.com' },
+					{ protocol: 'https', hostname: 'images.ctfassets.net' },
+					{ protocol: 'https', hostname: '*.cloudinary.com' },
+					{ protocol: 'https', hostname: 'res.cloudinary.com' },
+					{ protocol: 'https', hostname: 'img.clerk.com' },
+			],
+	},
+	webpack: (config) => {
+			config.resolve.alias = {
+					...config.resolve.alias,
+			};
+			return config;
+	},
+	async headers() {
+			const clerkHostname = 'joint-weevil-31.clerk.accounts.dev';
 
-        // Important: return the modified config
-        return config;
-    },
-    async headers() {
-        const imageSources = [
-            "'self'",
-            'images.unsplash.com',
-            'youtu.be',
-            'storage.cloud.google.com',
-            'firebasestorage.googleapis.com',
-            'lh3.googleusercontent.com',
-            'graph.facebook.com',
-            'platform-lookaside.fbsbx.com',
-            'pbs.twimg.com',
-            'abs.twimg.com',
-            'images.ctfassets.net',
-						'https://res.cloudinary.com/jakwakwa/**/*'
-        ];
+			// Base CSP directives
+			const csp = {
+					'default-src': ["'self'"],
+					'script-src': [
+							"'self'",
+							"'unsafe-eval'",      // Required for Next.js in development
+							"'unsafe-inline'",    // Required for Clerk and other libraries
+							`https://${clerkHostname}`,
+							'https://challenges.cloudflare.com', // Clerk bot protection
+							'https://vendors.paddle.com',       // Paddle scripts
+							'https://checkout.paddle.com',      // Paddle checkout
+							'https://va.vercel-scripts.com',    // Vercel Analytics
+					],
+					'style-src': [
+							"'self'",
+							"'unsafe-inline'", // Required for many UI libraries
+							'https://fonts.googleapis.com',
+					],
+					'img-src': [
+							"'self'",
+							'data:',
+							'images.unsplash.com',
+							'youtu.be',
+							'storage.cloud.google.com',
+							'firebasestorage.googleapis.com',
+							'lh3.googleusercontent.com',
+							'graph.facebook.com',
+							'platform-lookaside.fbsbx.com',
+							'pbs.twimg.com',
+							'abs.twimg.com',
+							'images.ctfassets.net',
+							'*.cloudinary.com',
+							'res.cloudinary.com',
+							'img.clerk.com',
+					],
+					'font-src': ["'self'", 'https://fonts.gstatic.com'],
+					'connect-src': [
+							"'self'",
+							`https://${clerkHostname}`,
+							'https://api.paddle.com',
+							'https://vitals.vercel-insights.com', // Vercel Analytics
+					],
+					'worker-src': ["'self'", 'blob:'],
+					'frame-src': [
+							'https://challenges.cloudflare.com', // Clerk bot protection
+							'https://sandbox-buy.paddle.com',    // Paddle checkout
+					],
+					'object-src': ["'none'"],
+					'base-uri': ["'self'"],
+					'form-action': ["'self'"],
+					'frame-ancestors': ["'none'"],
+					'upgrade-insecure-requests': [],
+			};
 
-        const cspHeader = `
-            default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline';
-            style-src 'self' 'unsafe-inline';
-            img-src ${imageSources.join(' ')};
-            font-src 'self';
-            object-src 'none';
-            base-uri 'self';
-            form-action 'self';
-            frame-ancestors 'none';
-            upgrade-insecure-requests;
-        `;
+			// Convert the CSP object to a string
+			const cspHeader = Object.entries(csp)
+					.map(([key, value]) => {
+							if (value.length === 0) {
+									return key;
+							}
+							return `${key} ${value.join(' ')}`;
+					})
+					.join('; ');
 
-        return [{
-            source: '/(.*)',
-            headers: [{
-                key: 'Content-Security-Policy',
-                value: cspHeader.replace(/\s{2,}/g, ' ').trim(),
-            }, ],
-        }, ];
-    },
+			return [
+					{
+							source: '/(.*)',
+							headers: [
+									{
+											key: 'Content-Security-Policy',
+											value: cspHeader,
+									},
+							],
+					},
+			];
+	},
 };
 
 export default nextConfig;

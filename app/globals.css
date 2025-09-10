@@ -16,6 +16,7 @@
   --foreground: rgb(245 251 255);
   --foreground-muted: rgb(110 124 144);
   --dark: oklch(0.15 0.01 303.32 / 0.95);
+  --color-sidebar: #0d0d15f4;
 
   /* Component Colors */
   --card: rgba(29, 41, 11, 1);
@@ -50,14 +51,6 @@
   --chart-4: rgba(134, 51, 234, 1);
   --chart-5: rgba(234, 51, 134, 1);
 
-  /* Additional Color References */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-foreground-muted: var(--foreground-muted);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-destructive-background: var(--destructive-dark);
-  --color-destructive-light: var(--destructive-light);
-
   /* Typography */
   --font-heading: "Work_Sans", system-ui, sans-serif, "Georgia", serif;
   --text-body: 0.95rem;
@@ -71,8 +64,6 @@
   --text-h3: 1.13rem;
   --text-h4: 1.1rem;
   --text-h5: 1rem;
-  --text-xl: 1rem;
-  --text-xxl: 2rem;
 
   /* Breakpoints */
   --breakpoint-sm: 640px;
@@ -157,19 +148,19 @@
     border: none !important;
   }
 
-  /* Text Sizes - Consolidated */
-  .text-xxs,
-  .text-custom-xxs {
+  /* Text Sizes */
+  .text-custom-xxs,
+  .text-xxs {
     font-size: var(--text-xxs) !important;
     line-height: 0.9 !important;
   }
-  .text-xs,
-  .text-custom-xs {
+  .text-custom-xs,
+  .text--xs {
     font-size: var(--text-xs) !important;
     line-height: 1 !important;
   }
-  .text-sm,
-  .text-custom-sm {
+  .text-custom-sm,
+  .text-sm {
     font-size: var(--text-sm) !important;
     line-height: 1 !important;
   }
@@ -177,13 +168,13 @@
     font-size: var(--text-sm) !important;
     line-height: 1.6 !important;
   }
-  .text-md,
-  .text-custom-md {
+  .text-custom-md,
+  .text-md {
     font-size: var(--text-body-sm) !important;
     line-height: 1.775 !important;
   }
-  .text-lg,
-  .text-custom-lg {
+  .text-custom-lg,
+  .text-lg {
     font-size: var(--text-lg) !important;
     line-height: 1.5 !important;
   }
@@ -276,13 +267,11 @@ button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
-
 button:hover {
   color: #bdede9f8;
   opacity: 0.8;
 }
 
-/* Button Variants */
 button.bg-btn-default {
   background: #362c5c !important;
   text-shadow: 0px 2px 0px 1px #26223480;
@@ -304,7 +293,6 @@ button.btn-ghost-outline {
   border-radius: 5px;
   color: #c7dbdbcb !important;
 }
-
 button.btn-ghost-outline:hover {
   outline-color: #e8a12ea9 !important;
   border-color: #00000070 !important;
@@ -408,7 +396,8 @@ input[type="checkbox"] {
   background-image: linear-gradient(to right top, #121215, #332c38);
   border-radius: 30px !important;
   border: 1px solid #000000cf;
-  box-shadow: 0px 3px 3px oklch(0 0 0 / 0.5), 0px 1px 1px oklch(0 0 0 / 0.2) !important;
+  box-shadow: 0px 3px 3px oklch(0 0 0 / 0.5),
+    0px 1px 1px oklch(0 0 0 / 0.2) !important;
   transition: all 0.2s ease-in-out;
   padding: 5px 10px;
   background-blend-mode: luminosity;
@@ -418,7 +407,6 @@ input[type="checkbox"] {
   transform: translateY(1.5px);
 }
 
-/* Episode Card Text - Base styles */
 .episode-card-title,
 p.episode-card-description {
   font-size: 0.72rem !important;
@@ -437,7 +425,6 @@ p.episode-card-description {
   color: lab(91.46 -1.32 6.45 / 0.57);
 }
 
-/* Episode Card Title - Override styles */
 .episode-card-title {
   font-size: 0.85rem !important;
   color: #ffe5e8d6;
@@ -445,6 +432,52 @@ p.episode-card-description {
   -webkit-line-clamp: 1;
   font-style: normal;
   font-weight: 700 !important;
+}
+
+/* --- Sidebar --- */
+header.bg-sidebar-header {
+  background-image: linear-gradient(
+    270deg,
+    oklch(0.28 0.09 315.03 / 0.55),
+    oklch(0.28 0.13 292.36 / 0.75),
+    oklch(0.67 0.11 197.16)
+  );
+  border-bottom-right-radius: 20px;
+  width: 40vw;
+  box-shadow: none !important;
+}
+
+.border-sidebar-container {
+  border: none !important;
+  border-right: 2px solid #140b1a2f !important;
+  overflow: hidden;
+}
+
+.bg-sidebar {
+  background-image: linear-gradient(to top, #15151cb5, #61586a57);
+  border-right: 1px solid #73cec218 !important;
+}
+
+.bg-sidebar-menu {
+  background-image: linear-gradient(
+    to right top,
+    oklch(0.47 0.17 291.3 / 0.03),
+    oklch(0.75 0.04 298.59 / 0.05)
+  ) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.bg-sidebar-menu:hover {
+  background-image: linear-gradient(
+    to right top,
+    oklch(0.45 0.13 308.31 / 0.31),
+    oklch(0.56 0.04 249.76 / 0.19)
+  ) !important;
+  transform: translateX(-1.5px);
 }
 
 /*
