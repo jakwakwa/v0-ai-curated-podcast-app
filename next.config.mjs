@@ -63,11 +63,18 @@ const nextConfig = {
 							'img.clerk.com',
 					],
 					'font-src': ["'self'", 'https://fonts.gstatic.com'],
+					'media-src': [
+							"'self'",
+							'https://storage.googleapis.com',
+							'https://storage.cloud.google.com',
+					],
 					'connect-src': [
 							"'self'",
 							`https://${clerkHostname}`,
 							'https://api.paddle.com',
 							'https://vitals.vercel-insights.com', // Vercel Analytics
+							'https://storage.googleapis.com', // Google Cloud Storage
+							'https://storage.cloud.google.com', // Google Cloud Storage
 					],
 					'worker-src': ["'self'", 'blob:'],
 					'frame-src': [
