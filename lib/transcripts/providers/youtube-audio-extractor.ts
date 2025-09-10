@@ -1,4 +1,5 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types"
+import { getYouTubeAPIManager } from "../youtube-api-manager"
 
 interface YouTubeAudioInfo {
 	audioUrl: string
@@ -19,24 +20,17 @@ async function extractYouTubeAudioUrl(videoUrl: string): Promise<YouTubeAudioInf
 	// Try multiple methods to get audio URL
 
 	// Method 1: Use YouTube's own API to get stream info
+	const apiManager = getYouTubeAPIManager()
+	
 	try {
-		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-				"Referer": "https://www.youtube.com/",
-			},
-			body: JSON.stringify({
-				context: {
-					client: {
-						clientName: "WEB",
-						clientVersion: "2.20240101.00.00",
-					},
-				},
-				videoId: videoId,
-			}),
-		})
+		const response = await apiManager.makeAPIRequest(
+			apiManager.getPlayerURL(videoId),
+			{
+				method: "POST",
+				headers: apiManager.getRequestHeaders(),
+				body: apiManager.getPlayerRequestBody(videoId),
+			}
+		)
 
 		if (response.ok) {
 			const data = await response.json()
