@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { LandingPageHeader } from "@/components/layout/LandingPageHeader"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from "next/link";
+import { LandingPageHeader } from "@/components/layout/LandingPageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TermsPage() {
-	const lastUpdated = "January 15, 2025"
+	const lastUpdated = "January 15, 2025";
 
 	return (
 		<>
@@ -246,5 +246,5 @@ export default function TermsPage() {
 				</div>
 			</footer>
 		</>
-	)
+	);
 }

@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs"
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
 	return (
@@ -9,9 +9,8 @@ export default function SignUpPage() {
 				alignItems: "center",
 				justifyContent: "center",
 				background: "oklch(var(--background))",
-			}}
-		>
+			}}>
 			<SignUp />
 		</div>
-	)
+	);
 }

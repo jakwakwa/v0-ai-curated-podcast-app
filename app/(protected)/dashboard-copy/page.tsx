@@ -1,63 +1,63 @@
-"use client"
+"use client";
 
-import { AlertCircle } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
-import { createPortal } from "react-dom"
-import { toast } from "sonner"
-import EditUserFeedModal from "@/components/edit-user-feed-modal"
-import EmptyStateCard from "@/components/empty-state-card"
-import { EpisodeList } from "@/components/episode-list"
-import { ProfileFeedCards } from "@/components/features/profile-feed-cards"
-import UserFeedSelector from "@/components/features/user-feed-selector"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import AudioPlayer from "@/components/ui/audio-player"
-import { Card } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { PageHeader } from "@/components/ui/page-header"
-import { Typography } from "@/components/ui/typography"
-import { useEpisodesStore } from "@/lib/stores/episodes-store"
-import type { Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types"
-import { useUserCurationProfileStore } from "../../../lib/stores/user-curation-profile-store"
+import { AlertCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { toast } from "sonner";
+import EditUserFeedModal from "@/components/edit-user-feed-modal";
+import EmptyStateCard from "@/components/empty-state-card";
+import { EpisodeList } from "@/components/episode-list";
+import { ProfileFeedCards } from "@/components/features/profile-feed-cards";
+import UserFeedSelector from "@/components/features/user-feed-selector";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import AudioPlayer from "@/components/ui/audio-player";
+import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PageHeader } from "@/components/ui/page-header";
+import { Typography } from "@/components/ui/typography";
+import { useEpisodesStore } from "@/lib/stores/episodes-store";
+import type { Episode, UserCurationProfile, UserCurationProfileWithRelations } from "@/lib/types";
+import { useUserCurationProfileStore } from "../../../lib/stores/user-curation-profile-store";
 
 export default function Page() {
-	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
-	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null);
+	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
+	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
 	// Find the portal container on mount
 	useEffect(() => {
-		const container = document.getElementById("global-audio-player")
-		setPortalContainer(container)
-	}, [])
+		const container = document.getElementById("global-audio-player");
+		setPortalContainer(container);
+	}, []);
 
 	// Use the episodes store
-	const { combinedEpisodes, userCurationProfile, isLoading, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore()
+	const { combinedEpisodes, userCurationProfile, isLoading, error, fetchEpisodes, fetchUserCurationProfile, refreshData, clearError } = useEpisodesStore();
 
 	// Fetch data on component mount
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				await Promise.all([fetchEpisodes(), fetchUserCurationProfile()])
+				await Promise.all([fetchEpisodes(), fetchUserCurationProfile()]);
 			} catch (error: unknown) {
-				const message = error instanceof Error ? error.message : String(error)
-				toast.error(`Failed to load dashboard data: ${message}`)
+				const message = error instanceof Error ? error.message : String(error);
+				toast.error(`Failed to load dashboard data: ${message}`);
 			}
-		}
+		};
 
-		fetchData()
-	}, [fetchEpisodes, fetchUserCurationProfile])
+		fetchData();
+	}, [fetchEpisodes, fetchUserCurationProfile]);
 
 	// Clear error when component unmounts
 	useEffect(() => {
 		return () => {
-			clearError()
-		}
-	}, [clearError])
+			clearError();
+		};
+	}, [clearError]);
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
-		if (!userCurationProfile) return
+		if (!userCurationProfile) return;
 		try {
 			const response = await fetch(`/api/user-curation-profiles/${userCurationProfile.profile_id}`, {
 				method: "PATCH",
@@ -65,35 +65,35 @@ export default function Page() {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(updatedData),
-			})
+			});
 
 			if (!response.ok) {
-				const errorData = await response.json()
-				throw new Error(errorData.error || errorData.message || "Failed to update user curation profile")
+				const errorData = await response.json();
+				throw new Error(errorData.error || errorData.message || "Failed to update user curation profile");
 			}
 
 			// Refresh data after successful update
-			await refreshData()
+			await refreshData();
 
-			toast.success("Personalized Feed updated successfully!")
-			setIsModalOpen(false)
+			toast.success("Personalized Feed updated successfully!");
+			setIsModalOpen(false);
 		} catch (error: unknown) {
-			const message = error instanceof Error ? error.message : String(error)
-			toast.error(`Failed to update Personalized Feed: ${message}`)
+			const message = error instanceof Error ? error.message : String(error);
+			toast.error(`Failed to update Personalized Feed: ${message}`);
 		}
-	}
+	};
 
 	const handlePlayEpisode = useCallback((episodeId: string) => {
-		setPlayingEpisodeId(episodeId)
-	}, [])
+		setPlayingEpisodeId(episodeId);
+	}, []);
 
 	const handleClosePlayer = useCallback(() => {
-		setPlayingEpisodeId(null)
-	}, [])
+		setPlayingEpisodeId(null);
+	}, []);
 
 	const _handleRefreshData = async () => {
-		await refreshData()
-	}
+		await refreshData();
+	};
 
 	if (isLoading) {
 		return (
@@ -102,7 +102,7 @@ export default function Page() {
 					<AppSpinner variant={"wave"} size="lg" label="Generating your personal Podslice Hub..." />
 				</div>
 			</div>
-		)
+		);
 	}
 
 	if (error) {
@@ -115,7 +115,7 @@ export default function Page() {
 					<AlertDescription>{error}</AlertDescription>
 				</Alert>
 			</div>
-		)
+		);
 	}
 
 	return (
@@ -172,8 +172,8 @@ export default function Page() {
 						</DialogHeader>
 						<UserFeedWizardWrapper
 							onSuccess={async () => {
-								setIsCreateWizardOpen(false)
-								await refreshData()
+								setIsCreateWizardOpen(false);
+								await refreshData();
 							}}
 						/>
 					</DialogContent>
@@ -189,34 +189,34 @@ export default function Page() {
 					)}
 			</Card>
 		</div>
-	)
+	);
 }
 
 function UserFeedWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
 	// Use a local state to track if the profile was created
-	const { userCurationProfile } = useUserCurationProfileStore()
-	const [hasCreated, setHasCreated] = useState(false)
+	const { userCurationProfile } = useUserCurationProfileStore();
+	const [hasCreated, setHasCreated] = useState(false);
 
 	useEffect(() => {
 		if (userCurationProfile && !hasCreated) {
-			setHasCreated(true)
-			onSuccess()
+			setHasCreated(true);
+			onSuccess();
 		}
-	}, [userCurationProfile, hasCreated, onSuccess])
+	}, [userCurationProfile, hasCreated, onSuccess]);
 
-	return <UserFeedSelector />
+	return <UserFeedSelector />;
 }
 
 function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
 	// Force fresh lookup of episode to avoid caching issues
-	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
+	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId);
 
 	// biome-ignore lint/complexity/useOptionalChain: <keep>
 	if (!(currentEpisode && currentEpisode.audio_url)) {
 		// Don't render anything - let the parent handle the conditional rendering
 		// This prevents the player from "hiding" when switching between episodes
-		return null
+		return null;
 	}
 
-	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
+	return <AudioPlayer episode={currentEpisode} onClose={onClose} />;
 }

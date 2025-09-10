@@ -1,6 +1,6 @@
-const express = require("express")
-const app = express()
-const port = 3000
+const express = require("express");
+const app = express();
+const port = 3000;
 
 // Fake data for the activity feed
 const activityFeed = [
@@ -19,12 +19,12 @@ const activityFeed = [
 		title: "Status Update",
 		body: 'Charlie updated their status: "Excited about the new project!"',
 	},
-]
+];
 
 app.get("/feed", (_req, res) => {
-	res.json(activityFeed)
-})
+	res.json(activityFeed);
+});
 
 app.listen(port, () => {
-	console.log(`Server running on port ${port}`)
-})
+	console.log(`Server running on port ${port}`);
+});

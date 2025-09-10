@@ -1,36 +1,36 @@
-import { PlanGate, type Prisma } from "@prisma/client"
-import { unstable_noStore as noStore } from "next/cache"
-import { PageHeader } from "@/components/ui/page-header"
-import { prisma } from "@/lib/prisma"
-import type { Bundle, Podcast } from "@/lib/types"
-import { CuratedBundlesClient } from "./_components/curated-bundles-client"
-import { CuratedBundlesFilters } from "./_components/filters.client"
+import { PlanGate, type Prisma } from "@prisma/client";
+import { unstable_noStore as noStore } from "next/cache";
+import { PageHeader } from "@/components/ui/page-header";
+import { prisma } from "@/lib/prisma";
+import type { Bundle, Podcast } from "@/lib/types";
+import { CuratedBundlesClient } from "./_components/curated-bundles-client";
+import { CuratedBundlesFilters } from "./_components/filters.client";
 
-type BundleWithPodcasts = Bundle & { podcasts: Podcast[] }
+type BundleWithPodcasts = Bundle & { podcasts: Podcast[] };
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
 export default async function CuratedBundlesPage({ searchParams }: { searchParams?: Promise<{ q?: string; min_plan?: string }> }) {
-	noStore()
+	noStore();
 
-	let curatedBundles: BundleWithPodcasts[] = []
-	let error: string | null = null
+	let curatedBundles: BundleWithPodcasts[] = [];
+	let error: string | null = null;
 
 	try {
-		const resolvedSearchParams = searchParams ? await searchParams : {}
-		const q = resolvedSearchParams?.q?.toString().trim()
-		const minPlanParam = resolvedSearchParams?.min_plan?.toString().trim()
-		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined
+		const resolvedSearchParams = searchParams ? await searchParams : {};
+		const q = resolvedSearchParams?.q?.toString().trim();
+		const minPlanParam = resolvedSearchParams?.min_plan?.toString().trim();
+		const minPlanFilter = minPlanParam && (Object.values(PlanGate) as string[]).includes(minPlanParam) ? (minPlanParam as keyof typeof PlanGate) : undefined;
 
 		const where: Prisma.BundleWhereInput = {
 			is_active: true,
 			...(q
 				? {
-					OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
-				}
+						OR: [{ name: { contains: q, mode: "insensitive" } }, { bundle_podcast: { some: { podcast: { name: { contains: q, mode: "insensitive" } } } } }],
+					}
 				: {}),
 			...(minPlanFilter ? { min_plan: PlanGate[minPlanFilter] } : {}),
-		}
+		};
 
 		const bundles = await prisma.bundle.findMany({
 			where,
@@ -38,14 +38,14 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 				bundle_podcast: { include: { podcast: true } },
 			},
 			orderBy: { created_at: "desc" },
-		})
+		});
 
 		curatedBundles = bundles.map(b => ({
 			...(b as unknown as Bundle),
 			podcasts: b.bundle_podcast.map(bp => bp.podcast as unknown as Podcast),
-		}))
+		}));
 	} catch (e) {
-		error = e instanceof Error ? e.message : "Failed to load PODSLICE Bundles."
+		error = e instanceof Error ? e.message : "Failed to load PODSLICE Bundles.";
 	}
 
 	return (
@@ -59,5 +59,5 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 
 			<CuratedBundlesClient bundles={curatedBundles} error={error} />
 		</div>
-	)
+	);
 }

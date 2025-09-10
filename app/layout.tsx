@@ -1,22 +1,22 @@
-import { ClerkProvider } from "@clerk/nextjs"
-import { dark } from "@clerk/themes"
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
-import { Analytics } from "@vercel/analytics/react"
-import type { Metadata } from "next"
-import { Inter } from 'next/font/google'
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-import type React from "react"
-import { Toaster } from "sonner"
-import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
-import { ClientProviders } from "./client-providers"
+import type React from "react";
+import { Toaster } from "sonner";
+import { GlobalProgressBar } from "@/components/ui/global-progress-bar";
+import { ClientProviders } from "./client-providers";
 
-import "./globals.css"
+import "./globals.css";
 
-const workSans = Inter({ subsets: ["latin"] })
+const workSans = Inter({ subsets: ["latin"] });
 
-const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 if (!clerkPublishableKey) {
-	throw new Error("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set")
+	throw new Error("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set");
 }
 
 export const metadata: Metadata = {
@@ -33,12 +33,12 @@ export const metadata: Metadata = {
 		card: "summary_large_image",
 	},
 	icons: [{ rel: "icon", url: "/favicon.svg" }],
-}
+};
 
 export default function RootLayout({
 	children,
 }: Readonly<{
-	children: React.ReactNode
+	children: React.ReactNode;
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
@@ -115,15 +115,12 @@ export default function RootLayout({
 						},
 					}}>
 					<ClientProviders>
-
 						{children}
 						<Toaster />
-
-
 					</ClientProviders>
 				</ClerkProvider>
 				<Analytics />
 			</body>
 		</html>
-	)
+	);
 }

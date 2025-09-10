@@ -1,11 +1,11 @@
-import type { Metadata } from "next"
-import { EpisodeCreator } from "../my-episodes/_components/episode-creator"
-import { UsageDisplay } from "../my-episodes/_components/usage-display"
+import type { Metadata } from "next";
+import { EpisodeCreator } from "../my-episodes/_components/episode-creator";
+import { UsageDisplay } from "../my-episodes/_components/usage-display";
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
-	return { title: "Generate My Episodes", description: "Create new episodes from YouTube links." }
+	return { title: "Generate My Episodes", description: "Create new episodes from YouTube links." };
 }
 
 export default async function GenerateMyEpisodesPage() {
@@ -14,7 +14,5 @@ export default async function GenerateMyEpisodesPage() {
 			<UsageDisplay />
 			<EpisodeCreator />
 		</div>
-	)
+	);
 }
-
-

@@ -1,7 +1,7 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import styles from "@/styles/landing-page-content.module.css"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import styles from "@/styles/landing-page-content.module.css";
 
 export function LandingPageHeader() {
 	return (
@@ -19,5 +19,5 @@ export function LandingPageHeader() {
 				</nav>
 			</div>
 		</header>
-	)
+	);
 }

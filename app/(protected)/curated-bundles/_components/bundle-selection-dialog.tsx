@@ -1,75 +1,71 @@
-"use client"
+"use client";
 
-import { Loader2 } from "lucide-react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Typography } from "@/components/ui/typography"
-import type { Bundle, Podcast } from "@/lib/types"
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Typography } from "@/components/ui/typography";
+import type { Bundle, Podcast } from "@/lib/types";
 
 // Simple function to sanitize text for safe display
 function sanitizeText(text: string | null | undefined): string {
-	if (!text) return ""
+	if (!text) return "";
 	// Remove any potential HTML/script tags and escape special characters
-	return text.replace(/[<>&"']/g, (char) => {
+	return text.replace(/[<>&"']/g, char => {
 		switch (char) {
-			case '<': return '&lt;'
-			case '>': return '&gt;'
-			case '&': return '&amp;'
-			case '"': return '&quot;'
-			case "'": return '&#x27;'
-			default: return char
+			case "<":
+				return "&lt;";
+			case ">":
+				return "&gt;";
+			case "&":
+				return "&amp;";
+			case '"':
+				return "&quot;";
+			case "'":
+				return "&#x27;";
+			default:
+				return char;
 		}
-	})
+	});
 }
 
 interface BundleSelectionDialogProps {
-	isOpen: boolean
-	onClose: () => void
-	onConfirm: (bundleId: string) => Promise<void>
-	selectedBundle: (Bundle & { podcasts: Podcast[] }) | null
-	currentBundleName?: string | null
-	currentBundleId?: string | null
-	isLoading?: boolean
+	isOpen: boolean;
+	onClose: () => void;
+	onConfirm: (bundleId: string) => Promise<void>;
+	selectedBundle: (Bundle & { podcasts: Podcast[] }) | null;
+	currentBundleName?: string | null;
+	currentBundleId?: string | null;
+	isLoading?: boolean;
 }
 
-export function BundleSelectionDialog({
-	isOpen,
-	onClose,
-	onConfirm,
-	selectedBundle,
-	currentBundleName,
-	currentBundleId,
-	isLoading = false
-}: BundleSelectionDialogProps) {
-	const [isConfirming, setIsConfirming] = useState(false)
+export function BundleSelectionDialog({ isOpen, onClose, onConfirm, selectedBundle, currentBundleName, currentBundleId, isLoading = false }: BundleSelectionDialogProps) {
+	const [isConfirming, setIsConfirming] = useState(false);
 
 	const handleConfirm = async () => {
-		if (!selectedBundle) return
+		if (!selectedBundle) return;
 
-		setIsConfirming(true)
+		setIsConfirming(true);
 		try {
-			await onConfirm(selectedBundle.bundle_id)
-			onClose()
+			await onConfirm(selectedBundle.bundle_id);
+			onClose();
 		} catch (error) {
-			console.error("Failed to select bundle:", error)
+			console.error("Failed to select bundle:", error);
 		} finally {
-			setIsConfirming(false)
+			setIsConfirming(false);
 		}
-	}
+	};
 
-	if (!selectedBundle) return null
+	if (!selectedBundle) return null;
 
 	// Check if user already has this bundle selected
-	const isAlreadySelected = currentBundleId === selectedBundle.bundle_id
+	const isAlreadySelected = currentBundleId === selectedBundle.bundle_id;
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className="max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>
-						{isAlreadySelected ? "Whoops!" : "Switching Bundle Selection..."}
-					</DialogTitle>
+					<DialogTitle>{isAlreadySelected ? "Whoops!" : "Switching Bundle Selection..."}</DialogTitle>
 					<DialogDescription>
 						{isAlreadySelected
 							? `You already have "${sanitizeText(selectedBundle.name)}" selected as your curated podcast bundle.`
@@ -126,5 +122,5 @@ export function BundleSelectionDialog({
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	)
+	);
 }

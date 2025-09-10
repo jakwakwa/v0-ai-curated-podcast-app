@@ -1,4 +1,4 @@
-import type { PlanTier } from "@/lib/types"
+import type { PlanTier } from "@/lib/types";
 
 const PRICING_TIER: PlanTier[] = [
 	{
@@ -31,6 +31,6 @@ const PRICING_TIER: PlanTier[] = [
 		episodeLimit: 16,
 		featured: false,
 	},
-]
+];
 
-export { PRICING_TIER }
+export { PRICING_TIER };

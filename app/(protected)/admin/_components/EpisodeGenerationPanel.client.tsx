@@ -1,62 +1,62 @@
-"use client"
+"use client";
 
-import { Lock, Sparkles, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
-import { toast } from "sonner"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import type { Bundle, Podcast } from "@/lib/types"
-import PanelHeader from "./PanelHeader"
-import Stepper from "./stepper"
+import { Lock, Sparkles, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import type { Bundle, Podcast } from "@/lib/types";
+import PanelHeader from "./PanelHeader";
+import Stepper from "./stepper";
 
-type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
+type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null };
 
 interface EpisodeSource {
-	id: string
-	name: string
-	url: string
+	id: string;
+	name: string;
+	url: string;
 }
 
 export default function EpisodeGenerationPanelClient({ bundles }: { bundles: BundleWithPodcasts[] }) {
-	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
-	const [selectedPodcastId, setSelectedPodcastId] = useState<string>("")
-	const [episodeTitle, setEpisodeTitle] = useState("")
-	const [episodeDescription, setEpisodeDescription] = useState("")
-	const [episodeImageUrl, setEpisodeImageUrl] = useState("")
-	const [sources, setSources] = useState<EpisodeSource[]>([])
-	const [newSourceName, setNewSourceName] = useState("")
-	const [newSourceUrl, setNewSourceUrl] = useState("")
-	const [isLoading, setIsLoading] = useState(false)
-	type UploadMethod = "generate" | "upload" | "direct"
-	const [uploadMethod, setUploadMethod] = useState<UploadMethod>("generate")
-	const [mp3File, setMp3File] = useState<File | null>(null)
-	const [audioUrl, setAudioUrl] = useState("")
-	const fileInputRef = useRef<HTMLInputElement | null>(null)
+	const [selectedBundleId, setSelectedBundleId] = useState<string>("");
+	const [selectedPodcastId, setSelectedPodcastId] = useState<string>("");
+	const [episodeTitle, setEpisodeTitle] = useState("");
+	const [episodeDescription, setEpisodeDescription] = useState("");
+	const [episodeImageUrl, setEpisodeImageUrl] = useState("");
+	const [sources, setSources] = useState<EpisodeSource[]>([]);
+	const [newSourceName, setNewSourceName] = useState("");
+	const [newSourceUrl, setNewSourceUrl] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	type UploadMethod = "generate" | "upload" | "direct";
+	const [uploadMethod, setUploadMethod] = useState<UploadMethod>("generate");
+	const [mp3File, setMp3File] = useState<File | null>(null);
+	const [audioUrl, setAudioUrl] = useState("");
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
-	const selectedPodcast = selectedBundle?.podcasts.find(p => p.podcast_id === selectedPodcastId)
+	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId);
+	const selectedPodcast = selectedBundle?.podcasts.find(p => p.podcast_id === selectedPodcastId);
 
-	const hasBundles = bundles && bundles.length > 0
+	const hasBundles = bundles && bundles.length > 0;
 
-	const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url.trim())
+	const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url.trim());
 
 	useEffect(() => {
 		if (!selectedBundle) {
-			setSelectedPodcastId("")
-			return
+			setSelectedPodcastId("");
+			return;
 		}
-		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id)
+		const podcastIds = selectedBundle.podcasts.map(p => p.podcast_id);
 		if (!podcastIds.includes(selectedPodcastId)) {
-			setSelectedPodcastId(podcastIds[0] ?? "")
+			setSelectedPodcastId(podcastIds[0] ?? "");
 		}
-	}, [selectedPodcastId, selectedBundle])
+	}, [selectedPodcastId, selectedBundle]);
 
 	if (!hasBundles) {
 		return (
@@ -70,35 +70,35 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					</CardContent>
 				</Card>
 			</div>
-		)
+		);
 	}
 
 	const addSource = () => {
 		if (!(newSourceName.trim() && newSourceUrl.trim())) {
-			toast.error("Source name and URL are required")
-			return
+			toast.error("Source name and URL are required");
+			return;
 		}
 		if (!isYouTubeUrl(newSourceUrl)) {
-			toast.error("Source URL must be a YouTube link")
-			return
+			toast.error("Source URL must be a YouTube link");
+			return;
 		}
-		setSources(prev => [...prev, { id: Date.now().toString(), name: newSourceName.trim(), url: newSourceUrl.trim() }])
-		setNewSourceName("")
-		setNewSourceUrl("")
-	}
-	const removeSource = (id: string) => setSources(prev => prev.filter(s => s.id !== id))
+		setSources(prev => [...prev, { id: Date.now().toString(), name: newSourceName.trim(), url: newSourceUrl.trim() }]);
+		setNewSourceName("");
+		setNewSourceUrl("");
+	};
+	const removeSource = (id: string) => setSources(prev => prev.filter(s => s.id !== id));
 
 	const generateEpisode = async () => {
 		if (!(selectedBundleId && selectedPodcastId && episodeTitle && sources.length > 0)) {
-			toast.error("Bundle, podcast, title, and at least one valid source are required")
-			return
+			toast.error("Bundle, podcast, title, and at least one valid source are required");
+			return;
 		}
 		// Validate all sources
 		if (sources.some(s => !isYouTubeUrl(s.url))) {
-			toast.error("All sources must be YouTube links")
-			return
+			toast.error("All sources must be YouTube links");
+			return;
 		}
-		setIsLoading(true)
+		setIsLoading(true);
 		try {
 			const resp = await fetch("/api/admin/generate-bundle-episode", {
 				method: "POST",
@@ -111,86 +111,86 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					image_url: episodeImageUrl || undefined,
 					sources,
 				}),
-			})
-			
+			});
+
 			if (!resp.ok) {
-				const errorText = await resp.text()
-				throw new Error(errorText || "Failed to start generation")
+				const errorText = await resp.text();
+				throw new Error(errorText || "Failed to start generation");
 			}
-			
-			toast.success("Episode generation started")
-			setSelectedBundleId("")
-			setSelectedPodcastId("")
-			setEpisodeTitle("")
-			setEpisodeDescription("")
-			setEpisodeImageUrl("")
-			setSources([])
+
+			toast.success("Episode generation started");
+			setSelectedBundleId("");
+			setSelectedPodcastId("");
+			setEpisodeTitle("");
+			setEpisodeDescription("");
+			setEpisodeImageUrl("");
+			setSources([]);
 		} catch (error) {
-			console.error("Failed to generate episode:", error)
-			toast.error(error instanceof Error ? error.message : "Failed to start generation")
+			console.error("Failed to generate episode:", error);
+			toast.error(error instanceof Error ? error.message : "Failed to start generation");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	const uploadEpisode = async (e: React.FormEvent) => {
-		e.preventDefault()
+		e.preventDefault();
 		if (!(selectedBundleId && selectedPodcastId && episodeTitle)) {
-			toast.error("Bundle, podcast, and title are required")
-			return
+			toast.error("Bundle, podcast, and title are required");
+			return;
 		}
 		// Source fields are required for both upload and direct
 		if (!(newSourceName.trim() && newSourceUrl.trim())) {
-			toast.error("Source name and YouTube URL are required")
-			return
+			toast.error("Source name and YouTube URL are required");
+			return;
 		}
 		if (!isYouTubeUrl(newSourceUrl)) {
-			toast.error("Source URL must be a YouTube link")
-			return
+			toast.error("Source URL must be a YouTube link");
+			return;
 		}
 		if (uploadMethod === "upload" && !mp3File) {
-			toast.error("Please select an MP3 file to upload")
-			return
+			toast.error("Please select an MP3 file to upload");
+			return;
 		}
 		if (uploadMethod === "direct" && !audioUrl.trim()) {
-			toast.error("Please provide an audio URL")
-			return
+			toast.error("Please provide an audio URL");
+			return;
 		}
-		const formData = new FormData()
-		formData.append("bundleId", selectedBundleId)
-		formData.append("podcastId", selectedPodcastId)
-		formData.append("title", episodeTitle)
-		formData.append("description", episodeDescription)
-		if (episodeImageUrl) formData.append("image_url", episodeImageUrl)
-		if (uploadMethod === "upload" && mp3File) formData.append("file", mp3File)
-		if (uploadMethod === "direct" && audioUrl) formData.append("audioUrl", audioUrl)
-		setIsLoading(true)
+		const formData = new FormData();
+		formData.append("bundleId", selectedBundleId);
+		formData.append("podcastId", selectedPodcastId);
+		formData.append("title", episodeTitle);
+		formData.append("description", episodeDescription);
+		if (episodeImageUrl) formData.append("image_url", episodeImageUrl);
+		if (uploadMethod === "upload" && mp3File) formData.append("file", mp3File);
+		if (uploadMethod === "direct" && audioUrl) formData.append("audioUrl", audioUrl);
+		setIsLoading(true);
 		try {
-			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData })
-			
+			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData });
+
 			if (!resp.ok) {
-				const errorText = await resp.text()
-				throw new Error(errorText || "Failed to upload episode")
+				const errorText = await resp.text();
+				throw new Error(errorText || "Failed to upload episode");
 			}
-			
-			toast.success("Episode uploaded")
-			setSelectedBundleId("")
-			setSelectedPodcastId("")
-			setEpisodeTitle("")
-			setEpisodeDescription("")
-			setEpisodeImageUrl("")
-			setMp3File(null)
-			setAudioUrl("")
-			setNewSourceName("")
-			setNewSourceUrl("")
-			if (fileInputRef.current) fileInputRef.current.value = ""
+
+			toast.success("Episode uploaded");
+			setSelectedBundleId("");
+			setSelectedPodcastId("");
+			setEpisodeTitle("");
+			setEpisodeDescription("");
+			setEpisodeImageUrl("");
+			setMp3File(null);
+			setAudioUrl("");
+			setNewSourceName("");
+			setNewSourceUrl("");
+			if (fileInputRef.current) fileInputRef.current.value = "";
 		} catch (error) {
-			console.error("Failed to upload episode:", error)
-			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
+			console.error("Failed to upload episode:", error);
+			toast.error(error instanceof Error ? error.message : "Failed to upload episode");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	return (
 		<div className="space-y-6">
@@ -448,5 +448,5 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 				</Card>
 			)}
 		</div>
-	)
+	);
 }
