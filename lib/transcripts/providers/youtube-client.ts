@@ -1,4 +1,5 @@
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types";
+import { getYouTubeAPIManager } from "../youtube-api-manager";
 
 function extractVideoId(url: string): string | null {
 	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/];
@@ -10,31 +11,20 @@ function extractVideoId(url: string): string | null {
 }
 
 async function fetchYouTubeCaption(videoId: string): Promise<string> {
-	// Try YouTube's innertube API which works better from servers
-	const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-	if (!YOUTUBE_API_KEY) {
-		throw new Error("Missing YOUTUBE_API_KEY environment variable");
-	}
-	const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${YOUTUBE_API_KEY}`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-			Origin: "https://www.youtube.com",
-		},
-		body: JSON.stringify({
-			context: {
-				client: {
-					clientName: "WEB",
-					clientVersion: "2.20240101.00.00",
-				},
-			},
-			videoId: videoId,
-		}),
-	});
+	// Use the YouTube API manager for better error handling and rate limiting
+	const apiManager = getYouTubeAPIManager()
+	
+	const response = await apiManager.makeAPIRequest(
+		apiManager.getPlayerURL(videoId),
+		{
+			method: "POST",
+			headers: apiManager.getRequestHeaders(),
+			body: apiManager.getPlayerRequestBody(videoId),
+		}
+	)
 
 	if (!response.ok) {
-		throw new Error(`YouTube API request failed: ${response.status}`);
+		throw new Error(`YouTube API request failed: ${response.status} ${response.statusText}`);
 	}
 
 	const data = await response.json();

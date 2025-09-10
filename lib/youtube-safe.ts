@@ -86,7 +86,12 @@ export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: 
 
 	try {
 		// Use YouTube's innertube API
-		const response = await fetch("https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8", {
+		const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+		if (!YOUTUBE_API_KEY) {
+			throw new Error("Missing YOUTUBE_API_KEY environment variable");
+		}
+		
+		const response = await fetch(`https://www.youtube.com/youtubei/v1/player?key=${YOUTUBE_API_KEY}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
