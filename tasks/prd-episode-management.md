@@ -24,7 +24,7 @@ This document outlines the requirements for a new "Episode Management" feature a
 
 ### Episode Creation
 1.  A new page shall be created at `/my-episodes` for users to manage their episodes.
-2.  An entry point (e.g., a button or link) to the `/my-episodes` page shall be added to the `/curation-profile-management` page, visible only to users with an active `curate_control` plan.
+2.  An entry point (e.g., a button or link) to the `/my-episodes` page shall be added to the `/dashboard` page, visible only to users with an active `curate_control` plan.
 3.  On the `/my-episodes` page, an authenticated `curate_control` user must be able to initiate episode creation via a form.
 4.  The creation form must have a required field for a YouTube URL (`source_url`).
 5.  Upon entering a valid YouTube URL, the system will use the `youtube-transcript` package to fetch the video's metadata.
