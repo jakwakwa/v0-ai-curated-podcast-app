@@ -46,9 +46,10 @@ async function run() {
 
 	console.log(`Testing providers for: ${url}\n`);
 
+	// biome-ignore lint/suspicious/noExplicitAny: <temp suppression>
 	const results: any[] = [];
 	for (const pUnknown of clients) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: <temp suppression>
 		const p: any = pUnknown;
 		const name = p?.name || String(p);
 		console.log(`--- Provider: ${name}`);
