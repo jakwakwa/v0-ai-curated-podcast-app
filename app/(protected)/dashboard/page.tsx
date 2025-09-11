@@ -65,7 +65,6 @@ export default function CurationProfileManagementPage() {
 			setUserCurationProfile(fetchedProfile);
 			setEpisodes(fetchedEpisodes);
 			setUserEpisodes(fetchedUserEpisodes);
-			console.log(fetchedSubscription);
 			setSubscription(fetchedSubscription);
 
 			// Get bundle episodes if user has a bundle selection
@@ -95,7 +94,6 @@ export default function CurationProfileManagementPage() {
 		};
 
 		fetchData();
-		console.log(subscription);
 	}, [fetchAndUpdateData]);
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {

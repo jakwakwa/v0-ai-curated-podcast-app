@@ -31,7 +31,6 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	try {
 		const storageUploader = getStorageUploader();
 		const bucketName = ensureBucketName();
-		console.log(`Uploading to bucket: ${bucketName}`);
 
 		const [exists] = await storageUploader.bucket(bucketName).exists();
 
@@ -40,9 +39,7 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 			throw new Error(`Bucket ${bucketName} does not exist`);
 		}
 
-		console.log("Bucket exists, uploading file…");
 		await storageUploader.bucket(bucketName).file(destinationFileName).save(data);
-		console.log("File uploaded successfully");
 		return { success: true, fileName: destinationFileName };
 	} catch {
 		// Avoid leaking internal error details
@@ -297,7 +294,8 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
@@ -313,7 +311,8 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during script generation:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during script generation");
 				throw new Error(`Failed to generate script: ${(error as Error).message}`);
 			}
 		});
@@ -479,7 +478,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
@@ -495,7 +495,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during script generation:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during script generation");
 				throw new Error(`Failed to generate script: ${(error as Error).message}`);
 			}
 		});
@@ -512,7 +513,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 					return file.fileName;
 				}
 			} catch (error) {
-				console.error("Error during admin audio synthesis/upload:", (error as Error).message);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during admin audio synthesis/upload");
 				throw new Error(`Failed to generate admin episode audio: ${(error as Error).message}`);
 			}
 		});

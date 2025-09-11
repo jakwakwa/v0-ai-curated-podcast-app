@@ -21,8 +21,9 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 		}
 		await uploader.bucket(bucketName).file(destinationFileName).save(data);
 		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (error) {
-		console.error("Failed to upload content:", error);
+	} catch (_error) {
+		// Avoid leaking internal error details in logs
+		console.error("Failed to upload content");
 		throw new Error("Failed to upload content");
 	}
 }
@@ -243,11 +244,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		// Extract duration after episode is finalized
 		await step.run("extract-duration", async () => {
-			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
 			const result = await extractUserEpisodeDuration(userEpisodeId);
-			if (result.success) {
-				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
-			} else {
+			if (!result.success) {
 				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
 			}
 			return result;

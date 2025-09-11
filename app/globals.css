@@ -447,7 +447,7 @@
 	button.btn-destructive:focus-visible,
 	button.btn-destructive:active {
 		background: var(--color-destructive-background) !important;
-		color: #D79595 !important;
+		color: #EBBEBE !important;
 		border: 1px solid var(--color-destructive-light) !important;
 	}
 
@@ -456,6 +456,7 @@
 		text-shadow: 0px 2px 0px 1px #B30F48B1;
 		outline: 1px solid #3978B63C;
 		border: 2px solid #25040954 !important;
+		border-radius: 999999px !important;
 	}
 
 	button.btn-destructive-ghost:hover {
@@ -522,7 +523,7 @@
 		margin-left: 10px;
 		margin-right: 0px;
 		font-size: 12px !important;
-		color: #E4B16F;
+		color: #764403;
 		background-color: transparent !important;
 		border: 1px solid #F48D687C;
 		border-radius: 99999px !important;

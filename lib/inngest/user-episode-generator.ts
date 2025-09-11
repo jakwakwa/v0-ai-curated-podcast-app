@@ -19,7 +19,6 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	try {
 		const uploader = getStorageUploader();
 		const bucketName = ensureBucketName();
-		console.log(`Uploading to bucket: ${bucketName}`);
 
 		const [exists] = await uploader.bucket(bucketName).exists();
 
@@ -28,13 +27,12 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 			throw new Error(`Bucket ${bucketName} does not exist`);
 		}
 
-		console.log("Bucket exists, uploading file…");
 		await uploader.bucket(bucketName).file(destinationFileName).save(data);
-		console.log("File uploaded successfully");
 		// Return the GCS URI
 		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (error) {
-		console.error("Failed to upload content:", error);
+	} catch (_error) {
+		// Avoid leaking internal error details in logs
+		console.error("Failed to upload content");
 		// Avoid leaking internal error details
 		throw new Error("Failed to upload content");
 	}
@@ -171,9 +169,6 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
-	console.log("🎤 Starting audio generation with Zephyr voice...");
-	console.log(`📝 Script length: ${script.length} characters`);
-
 	// Dynamic script length limits based on episode type
 	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
 	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute";
@@ -188,7 +183,6 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	});
 
 	const model = "gemini-2.5-flash-preview-tts"; // Using faster Flash TTS model
-	console.log(`🤖 Using TTS model: ${model}`);
 	const contents = [
 		{
 			role: "user",
@@ -200,20 +194,16 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		},
 	];
 
-	console.log("📡 Sending request to Gemini TTS API...");
 	const response = await ai.models.generateContentStream({
 		model,
 		config: geminiTTSConfig,
 		contents,
 	});
-
-	console.log("📨 Response received, processing stream...");
 	let audioBuffer: Buffer | null = null;
-	let chunkCount = 0;
+	let _chunkCount = 0;
 
 	for await (const chunk of response) {
-		chunkCount++;
-		console.log(`📦 Processing chunk ${chunkCount}...`);
+		_chunkCount++;
 
 		// biome-ignore lint/complexity/useOptionalChain: <fix later>
 		if (!(chunk.candidates && chunk.candidates[0].content && chunk.candidates[0].content.parts)) {
@@ -221,7 +211,6 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 			continue;
 		}
 		if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-			console.log("🎵 Found audio data in chunk!");
 			const inlineData = chunk.candidates[0].content.parts[0].inlineData;
 			let fileExtension = mime.getExtension(inlineData.mimeType || "");
 			let buffer = Buffer.from(inlineData.data || "", "base64");
@@ -232,13 +221,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 			}
 
 			audioBuffer = buffer;
-			console.log(`✅ Audio buffer created: ${buffer.length} bytes`);
 			break; // Take the first audio chunk
-		} else {
-			// Log any text responses (for debugging)
-			if (chunk.text) {
-				console.log("📝 TTS text response:", chunk.text);
-			}
 		}
 	}
 
@@ -246,7 +229,6 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		throw new Error("Failed to generate audio with Gemini TTS");
 	}
 
-	console.log("✅ Audio generation completed!");
 	return audioBuffer;
 }
 
@@ -348,8 +330,6 @@ export const generateUserEpisode = inngest.createFunction(
 							description: "production version",
 						};
 
-				console.log(`📝 Generating ${episodeConfig.description}: ${episodeConfig.words}`);
-
 				const { text } = await generateText({
 					model: model,
 					prompt: `Create an engaging podcast script of approximately ${episodeConfig.words} (${episodeConfig.duration}) based on the following transcript. Write it as a single narrator presenting the content in an engaging, conversational podcast style.
@@ -373,7 +353,8 @@ Transcript: ${transcript}`,
 
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
@@ -404,7 +385,6 @@ ${summary}`,
 
 		// Step 4: Convert to Audio (chunked) and Upload to GCS
 		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
-			console.log("🎤 Generating audio (chunked) and uploading directly to GCS...");
 			const parts = _splitScriptIntoChunks(script, 130);
 			const wavChunks: Buffer[] = [];
 			for (const part of parts) {
@@ -413,9 +393,7 @@ ${summary}`,
 			}
 			const finalWav = _concatenateWavs(wavChunks);
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
-			console.log(`📁 Uploading ${finalWav.length} bytes to GCS...`);
 			const duration = extractAudioDuration(finalWav, "audio/wav");
-			console.log(`🎵 Extracted audio duration: ${duration ? `${duration}s` : "unknown"}`);
 			const gcsUrl = await uploadContentToBucket(finalWav, fileName);
 			return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
 		});
@@ -434,11 +412,8 @@ ${summary}`,
 
 		// Step 5: Extract duration (fallback if initial extraction failed)
 		await step.run("extract-duration", async () => {
-			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
 			const result = await extractUserEpisodeDuration(userEpisodeId);
-			if (result.success) {
-				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
-			} else {
+			if (!result.success) {
 				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
 			}
 			return result;

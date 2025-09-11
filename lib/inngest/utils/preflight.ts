@@ -19,9 +19,10 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 			if (ct?.startsWith("audio/") && (cl === undefined || cl > 0)) {
 				return success({ url, contentType: ct, contentLength: cl, suspectedAudio: true });
 			}
-		} catch (err) {
+		} catch (_err) {
 			// HEAD requests may be blocked or not supported; we log and continue to a small GET probe
-			console.warn(`HEAD request failed for ${url}:`, err);
+			// Avoid logging full error details that might contain sensitive information
+			console.warn(`HEAD request failed for URL`);
 		} finally {
 			clearTimeout(_t);
 		}
@@ -45,8 +46,6 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 			// rather than failing immediately on HTML from YouTube landing pages / consent walls.
 			if (!suspectedAudio) {
 				if (/youtu\.be|youtube\.com/i.test(url)) {
-					// Unsafe but useful debug information during development
-					console.debug(`[preflightProbe] YouTube HTML response treated as non-audio (non-fatal)`, { url, contentType: ct, sample: buf.toString("utf8", 0, Math.min(buf.length, 512)) });
 					return success({ url, contentType: ct, contentLength: undefined, suspectedAudio: false });
 				}
 				return failure("invalid_input", `Source not audio. content-type: ${ct || "unknown"}`);
