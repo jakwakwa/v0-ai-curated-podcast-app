@@ -1,15 +1,13 @@
-import { serve } from "inngest/next"
-import { inngest } from "@/lib/inngest/client"
-import { generateAdminBundleEpisodeWithGeminiTTS, generatePodcastWithGeminiTTS } from "@/lib/inngest/gemini-tts"
-import { transcribeFromMetadata } from "@/lib/inngest/transcribe-from-metadata"
-import { generateUserEpisode } from "@/lib/inngest/user-episode-generator"
-import { generateUserEpisodeMulti } from "@/lib/inngest/user-episode-generator-multi"
-import { transcriptionCoordinator } from "@/lib/inngest/transcription-saga"
-import { assemblyAiWorker } from "@/lib/inngest/providers/assemblyai-worker"
-import { revAiWorker } from "@/lib/inngest/providers/revai-worker"
-import { geminiVideoWorker } from "@/lib/inngest/providers/gemini-video-worker"
+import { serve } from "inngest/next";
+import { inngest } from "@/lib/inngest/client";
+import { generateAdminBundleEpisodeWithGeminiTTS, generatePodcastWithGeminiTTS } from "@/lib/inngest/gemini-tts";
+import { geminiVideoWorker } from "@/lib/inngest/providers/gemini-video-worker";
+import { enqueueTranscriptionJob } from "@/lib/inngest/transcribe-from-metadata";
+import { transcriptionCoordinator } from "@/lib/inngest/transcription-saga";
+import { generateUserEpisode } from "@/lib/inngest/user-episode-generator";
+import { generateUserEpisodeMulti } from "@/lib/inngest/user-episode-generator-multi";
 
-export const maxDuration = 300 // 5 minutes for Inngest job processing
+export const maxDuration = 300; // 5 minutes for Inngest job processing
 
 export const { GET, POST, PUT } = serve({
 	client: inngest,
@@ -18,11 +16,9 @@ export const { GET, POST, PUT } = serve({
 		generateAdminBundleEpisodeWithGeminiTTS,
 		generateUserEpisode,
 		generateUserEpisodeMulti,
-		transcribeFromMetadata,
+		enqueueTranscriptionJob,
 		transcriptionCoordinator,
-		assemblyAiWorker,
-		revAiWorker,
 		geminiVideoWorker,
 	],
 	streaming: "allow",
-})
+});

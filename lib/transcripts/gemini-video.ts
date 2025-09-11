@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
-import { withTimeout } from "../utils";
 
 // Point fluent-ffmpeg to the installed binary
 
@@ -52,23 +51,21 @@ function _bufferToGenerativePart(buffer: Buffer, mimeType: string): Part {
  * Transcribes a media URL using Gemini by breaking it into manageable chunks.
  */
 export async function transcribeWithGeminiFromUrl(url: string): Promise<string | null> {
-	const apiKey = process.env.GEMINI_API_KEY;
+	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 	if (!apiKey) {
-		throw new Error("GEMINI_API_KEY is not set.");
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
 	try {
+		const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
+
 		const genAI = new GoogleGenerativeAI(apiKey);
-		const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+		const model = genAI.getGenerativeModel({ model: modelName });
 
 		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } };
 
-		// Add timeout wrapper around the API call
-		const result = await withTimeout(
-			model.generateContent([PROMPT, mediaPart]),
-			50000, // 50 seconds - leave buffer for other operations
-			"Gemini API call timed out"
-		);
+		// Let the caller control timeout; this call may legitimately take >2 minutes.
+		const result = await model.generateContent([PROMPT, mediaPart]);
 
 		return result.response.text();
 	} catch (error) {

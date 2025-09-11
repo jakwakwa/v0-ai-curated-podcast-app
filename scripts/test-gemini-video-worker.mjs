@@ -24,12 +24,12 @@ async function testGeminiTranscription() {
   console.log("=".repeat(50))
 
   // Check environment variables
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
   if (!apiKey) {
-    console.error("❌ GEMINI_API_KEY is not set in environment variables")
+    console.error("❌ GOOGLE_GENERATIVE_AI_API_KEY is not set in environment variables")
     process.exit(1)
   }
-  console.log("✅ GEMINI_API_KEY found")
+  console.log("✅ GOOGLE_GENERATIVE_AI_API_KEY found")
 
   // Test each URL
   for (let i = 0; i < TEST_URLS.length; i++) {

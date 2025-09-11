@@ -124,10 +124,10 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 }
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	// Try both env variable names for compatibility
-	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 	if (!geminiApiKey) {
-		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY is not set.");
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
 	console.log("🎤 Starting audio generation with Zephyr voice...");
@@ -291,7 +291,8 @@ export const generateUserEpisode = inngest.createFunction(
 
 		// Step 2: Summarize Transcript
 		const summary = await step.run("summarize-transcript", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
+			const model = googleAI(modelName);
 			try {
 				// Dynamic episode length based on config flag
 				const episodeConfig = aiConfig.useShortEpisodes

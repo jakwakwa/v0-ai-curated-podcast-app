@@ -1,4 +1,3 @@
-import ytdl from "@distube/ytdl-core";
 import { XMLParser } from "fast-xml-parser";
 // Removed youtube-transcript; keep ytdl-core based approach only
 import { z } from "zod";
@@ -124,8 +123,17 @@ async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptIte
 
 async function getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
 	try {
+		// Dynamically import ytdl-core only when this function runs on server
+		let ytdlModule: unknown;
+		try {
+			ytdlModule = (await import("@distube/ytdl-core")).default ?? (await import("@distube/ytdl-core"));
+		} catch {
+			throw new Error("Server-side ytdl-core is not available in this environment");
+		}
+
 		const videoUrl = videoUrlOrId.startsWith("http") ? videoUrlOrId : `https://www.youtube.com/watch?v=${videoUrlOrId}`;
-		const info = await ytdl.getInfo(videoUrl);
+		const ytdlClient = ytdlModule as { getInfo: (url: string) => Promise<unknown> };
+		const info = await ytdlClient.getInfo(videoUrl);
 
 		const playerResponse: unknown = (info as unknown as { player_response?: unknown }).player_response;
 		const captions: Array<{ languageCode?: string; kind?: string; baseUrl?: string; name?: { simpleText?: string } }> | undefined = (
