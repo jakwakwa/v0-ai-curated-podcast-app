@@ -1,13 +1,10 @@
 import { GeminiVideoProvider } from "./providers/gemini";
 import { GrokSearchProvider } from "./providers/grok-search";
-import { ListenNotesProvider } from "./providers/listen-notes";
 import { PodcastRssProvider } from "./providers/podcast";
 import { YouTubeCaptionsProvider } from "./providers/youtube";
 import { YouTubeStreamResolverProvider } from "./providers/youtube-audio-extractor";
 import { YouTubeClientProvider } from "./providers/youtube-client";
 import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types";
-
-const ENABLE_LISTEN_NOTES = process.env.ENABLE_LISTEN_NOTES === "true";
 
 export function detectKindFromUrl(url: string): TranscriptSourceKind {
 	if (/youtu(be\.be|be\.com)/i.test(url)) return "youtube";
@@ -42,9 +39,9 @@ function getProviderChain(kind: TranscriptSourceKind): TranscriptProvider[] {
 		return providers;
 	}
 	if (kind === "podcast") {
-		return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : [])];
+		return [PodcastRssProvider];
 	}
-	return [PodcastRssProvider, ...(ENABLE_LISTEN_NOTES ? ([ListenNotesProvider] as const) : [])];
+	return [];
 }
 
 export async function getTranscriptOrchestrated(initialRequest: TranscriptRequest): Promise<OrchestratorResult> {

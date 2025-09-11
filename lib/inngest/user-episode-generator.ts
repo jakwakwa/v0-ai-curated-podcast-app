@@ -122,6 +122,47 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 
 	return buffer;
 }
+
+function isWav(buffer: Buffer): boolean {
+	return buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WAVE";
+}
+
+function extractWavOptions(buffer: Buffer): WavConversionOptions {
+	const numChannels = buffer.readUInt16LE(22);
+	const sampleRate = buffer.readUInt32LE(24);
+	const bitsPerSample = buffer.readUInt16LE(34);
+	return { numChannels, sampleRate, bitsPerSample };
+}
+
+function getPcmData(buffer: Buffer): Buffer {
+	return buffer.subarray(44);
+}
+
+function _concatenateWavs(buffers: Buffer[]): Buffer {
+	if (buffers.length === 0) throw new Error("No buffers to concatenate");
+	const first = buffers[0];
+	if (!isWav(first)) throw new Error("First buffer is not a WAV file");
+	const options = extractWavOptions(first);
+	const pcmParts = buffers.map(buf => (isWav(buf) ? getPcmData(buf) : buf));
+	const totalPcmLength = pcmParts.reduce((acc, b) => acc + b.length, 0);
+	const header = createWavHeader(totalPcmLength, options);
+	return Buffer.concat([header, ...pcmParts]);
+}
+
+function _splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string[] {
+	const words = text.split(/\s+/).filter(Boolean);
+	const chunks: string[] = [];
+	let current: string[] = [];
+	for (const w of words) {
+		current.push(w);
+		if (current.length >= approxWordsPerChunk) {
+			chunks.push(current.join(" "));
+			current = [];
+		}
+	}
+	if (current.length) chunks.push(current.join(" "));
+	return chunks;
+}
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	// Try both env variable names for compatibility
 	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -337,18 +378,45 @@ Transcript: ${transcript}`,
 			}
 		});
 
-		// Step 3: Convert to Audio and Upload to GCS (combined to avoid large data transfer)
+		// Step 3: Generate Script at target length (default 5 minutes)
+		const script = await step.run("generate-script", async () => {
+			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
+			const model2 = googleAI(modelName2);
+			const targetMinutes = Math.max(3, Number(process.env.EPISODE_TARGET_MINUTES || 5));
+			const minWords = Math.floor(targetMinutes * 140);
+			const maxWords = Math.floor(targetMinutes * 180);
+			const { text } = await generateText({
+				model: model2,
+				prompt: `Using the summary, write a single-narrator podcast script of approximately ${minWords}-${maxWords} words (about ${targetMinutes} minutes).
+
+Requirements:
+- Strong hook in the first 2-3 sentences
+- Clear structure with smooth transitions
+- Concrete examples and explanations
+- Compelling conclusion with a call-to-thought/action
+- Natural, spoken tone (no stage directions, no timestamps)
+
+Summary:
+${summary}`,
+			});
+			return text;
+		});
+
+		// Step 4: Convert to Audio (chunked) and Upload to GCS
 		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
-			console.log("🎤 Generating audio and uploading directly to GCS...");
-			const audioBuffer = await generateAudioWithGeminiTTS(summary);
+			console.log("🎤 Generating audio (chunked) and uploading directly to GCS...");
+			const parts = _splitScriptIntoChunks(script, 130);
+			const wavChunks: Buffer[] = [];
+			for (const part of parts) {
+				const buf = await generateAudioWithGeminiTTS(part);
+				wavChunks.push(buf);
+			}
+			const finalWav = _concatenateWavs(wavChunks);
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
-			console.log(`📁 Uploading ${audioBuffer.length} bytes to GCS...`);
-
-			// Extract duration from the generated audio
-			const duration = extractAudioDuration(audioBuffer, "audio/wav");
+			console.log(`📁 Uploading ${finalWav.length} bytes to GCS...`);
+			const duration = extractAudioDuration(finalWav, "audio/wav");
 			console.log(`🎵 Extracted audio duration: ${duration ? `${duration}s` : "unknown"}`);
-
-			const gcsUrl = await uploadContentToBucket(audioBuffer, fileName);
+			const gcsUrl = await uploadContentToBucket(finalWav, fileName);
 			return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
 		});
 
