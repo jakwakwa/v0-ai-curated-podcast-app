@@ -12,8 +12,8 @@ async function debugGeminiTranscription() {
 
   try {
     console.log("🔗 Testing URL:", testUrl)
-    console.log("🔐 API Key present:", !!process.env.GEMINI_API_KEY)
-    console.log("🔑 API Key (first 10 chars):", process.env.GEMINI_API_KEY?.substring(0, 10))
+    console.log("🔐 API Key present:", !!process.env.GOOGLE_GENERATIVE_AI_API_KEY)
+    console.log("🔑 API Key (first 10 chars):", process.env.GOOGLE_GENERATIVE_AI_API_KEY?.substring(0, 10))
 
     // Test the URL accessibility first
     console.log("\n📡 Testing URL accessibility...")

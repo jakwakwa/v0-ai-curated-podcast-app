@@ -21,8 +21,9 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 		}
 		await uploader.bucket(bucketName).file(destinationFileName).save(data);
 		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (error) {
-		console.error("Failed to upload content:", error);
+	} catch (_error) {
+		// Avoid leaking internal error details in logs
+		console.error("Failed to upload content");
 		throw new Error("Failed to upload content");
 	}
 }
@@ -107,8 +108,8 @@ function concatenateWavs(buffers: Buffer[]): Buffer {
 }
 
 async function ttsWithVoice(text: string, voiceName: string, retries = 2): Promise<Buffer> {
-	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
-	if (!apiKey) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY is not set.");
+	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+	if (!apiKey) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	let lastError: unknown;
 	for (let attempt = 0; attempt <= retries; attempt++) {
 		try {
@@ -202,7 +203,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 		const isShort = useShortEpisodesOverride ?? aiConfig.useShortEpisodes;
 
 		const summary = await step.run("summarize-transcript", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
+			const model = googleAI(modelName);
 			const episodeConfig = isShort
 				? { words: "150-220 words", duration: "~1 minute", description: "testing version" }
 				: { words: "550-800 words", duration: "~3-5 minutes", description: "production version" };
@@ -215,7 +217,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 		});
 
 		const duetLines = await step.run("generate-duet-script", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
+			const model = googleAI(modelName2);
 			const { text } = await generateText({
 				model,
 				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${isShort ? "short (~1 minute)" : "around 3-5 minutes"}. Do not include stage directions or timestamps.\n\nOutput ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.\n\nSummary: ${summary}`,
@@ -241,11 +244,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		// Extract duration after episode is finalized
 		await step.run("extract-duration", async () => {
-			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
 			const result = await extractUserEpisodeDuration(userEpisodeId);
-			if (result.success) {
-				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
-			} else {
+			if (!result.success) {
 				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
 			}
 			return result;

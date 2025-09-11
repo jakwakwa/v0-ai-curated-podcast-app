@@ -14,7 +14,7 @@ const buttonVariants = cva(
 				outline: "scale-[1] mx-1 btn-ghost-outline mr-2",
 				icon: "flex items-center justify-center gap-2",
 				secondary: "btn-secondary px-2 md:px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)] focus:bg-accent",
-				ghost: " mx-0  btn-ghost-sm mr-2",
+				ghost: "mx-0 btn-ghost-sm mr-2",
 				link: "bg-none outline-none text-[var(--color-button-default-bg)] underline-offset-4 hover:underline p-0 h-auto w-auto inline-block align-middle leading-none text-base",
 				play: " flex flex-row items-center justify-center gap-2 outline-none text-[#C5E8D6E4] p-0 h-auto w-auto inline-block align-middle leading-none px-0 py-0 m-0 underline-offset-0  hover:underline-offset-0 text-[0.1rem] leading-none my-0 btn-play shadow-none",
 			},

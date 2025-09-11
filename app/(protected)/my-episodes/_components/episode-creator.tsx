@@ -18,10 +18,10 @@ export function EpisodeCreator() {
 
 	// Unified single form
 	const [title, setTitle] = useState("")
+	// Removed: publishedDate, lang per simplified mandate
 	const [podcastName, setPodcastName] = useState("")
-	const [publishedDate, setPublishedDate] = useState("")
 	const [youtubeUrl, setYouTubeUrl] = useState("")
-	const [lang, _setLang] = useState("")
+	const [youtubeUrlError, setYouTubeUrlError] = useState<string | null>(null)
 
 	// Generation options
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
@@ -38,7 +38,18 @@ export function EpisodeCreator() {
 
 	const isBusy = isCreating
 	const isAudioPlaying = isPlaying !== null
-	const canSubmit = Boolean(title) && !isBusy
+	function isYouTubeUrl(url: string): boolean {
+		try {
+			const { hostname } = new URL(url)
+			const host = hostname.toLowerCase()
+			return host === "youtu.be" || host.endsWith(".youtu.be") || host === "youtube.com" || host.endsWith(".youtube.com")
+		} catch {
+			return false
+		}
+	}
+
+	const isYouTubeValid = youtubeUrl.length === 0 ? false : isYouTubeUrl(youtubeUrl)
+	const canSubmit = Boolean(title) && isYouTubeValid && !isBusy
 
 	useEffect(() => {
 		const fetchUsage = async () => {
@@ -62,12 +73,16 @@ export function EpisodeCreator() {
 		setIsCreating(true)
 		setError(null)
 		try {
+			// Client-side validation to avoid wasting backend/ingest time
+			if (!isYouTubeValid) {
+				setYouTubeUrlError("Please enter a valid YouTube URL")
+				setIsCreating(false)
+				return
+			}
 			const payload = {
 				title,
-				podcastName: podcastName || undefined,
-				publishedAt: publishedDate || undefined,
 				youtubeUrl: youtubeUrl || undefined,
-				lang: lang || undefined,
+				podcastName: podcastName || undefined,
 				generationMode,
 				voiceA,
 				voiceB,
@@ -136,21 +151,33 @@ export function EpisodeCreator() {
 									<Input id="title" placeholder="Exact episode title" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
 								</div>
 								<div className="space-y-2">
-									<Label htmlFor="podcastName">Podcast Name</Label>
+									<Label htmlFor="youtubeUrl">YouTube URL (required)</Label>
+									<Input
+										id="youtubeUrl"
+										placeholder="https://www.youtube.com/watch?v=..."
+										value={youtubeUrl}
+										onChange={e => {
+											setYouTubeUrl(e.target.value)
+											setYouTubeUrlError(null)
+										}}
+										onBlur={() => {
+											if (youtubeUrl && !isYouTubeValid) setYouTubeUrlError("Please enter a valid YouTube URL")
+										}}
+										disabled={isBusy}
+										required
+									/>
+									{youtubeUrlError && <p className="text-red-500 text-sm">{youtubeUrlError}</p>}
+								</div>
+							</div>
+
+							<div className="grid grid-cols-1 gap-4">
+								<div className="space-y-2">
+									<Label htmlFor="podcastName">Podcast Name (optional)</Label>
 									<Input id="podcastName" placeholder="Podcast show name" value={podcastName} onChange={e => setPodcastName(e.target.value)} disabled={isBusy} />
 								</div>
 							</div>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label htmlFor="publishedDate">Published Date</Label>
-									<Input id="publishedDate" type="date" value={publishedDate} onChange={e => setPublishedDate(e.target.value)} disabled={isBusy} />
-								</div>
-								<div className="space-y-2">
-									<Label htmlFor="youtubeUrl">YouTube URL (required)</Label>
-									<Input id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." value={youtubeUrl} onChange={e => setYouTubeUrl(e.target.value)} disabled={isBusy} />
-								</div>
-							</div>
+
 
 							<div className="space-y-2">
 								<Label>Episode Type</Label>

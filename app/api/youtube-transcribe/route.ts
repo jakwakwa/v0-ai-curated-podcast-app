@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { transcribeYouTubeVideo, validateVideoForTranscription } from "@/lib/vercel-safe-transcriber";
+import { transcribeViaOrchestrator, validateForTranscription } from "@/lib/transcripts/orchestrator-service";
 
 const transcribeSchema = z.object({
 	url: z.string().url(),
@@ -17,10 +17,6 @@ export async function POST(request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 });
 		}
 
-		// Gate server-side YouTube extraction on Vercel by default
-		const ENABLE_SERVER_YTDL = process.env.ENABLE_SERVER_YTDL === "true";
-		const IS_VERCEL = process.env.VERCEL === "1" || process.env.VERCEL === "true";
-
 		const json = await request.json();
 		const parsed = transcribeSchema.safeParse(json);
 
@@ -30,25 +26,14 @@ export async function POST(request: Request) {
 
 		const { url, validate } = parsed.data;
 
-		// If server-side extraction is disabled in this environment, return early
-		if (IS_VERCEL && !ENABLE_SERVER_YTDL) {
-			return NextResponse.json(
-				{
-					success: false,
-					error: "Server-side YouTube extraction is disabled in this environment. Use browser captions (client) or enable paid transcription.",
-				},
-				{ status: 429 }
-			);
-		}
-
-		// If validation requested, just check if video is suitable (may use ytdl under the hood)
+		// If validation requested, just check if video is suitable
 		if (validate) {
-			const validation = await validateVideoForTranscription(url);
+			const validation = await validateForTranscription(url);
 			return NextResponse.json(validation);
 		}
 
-		// Perform actual transcription
-		const result = await transcribeYouTubeVideo(url);
+		// Perform actual transcription via orchestrator
+		const result = await transcribeViaOrchestrator(url);
 
 		if (!result.success) {
 			const message = result.error || "Transcription failed";

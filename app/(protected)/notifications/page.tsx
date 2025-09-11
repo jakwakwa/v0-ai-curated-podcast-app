@@ -153,13 +153,13 @@ export default function NotificationsPage() {
 					</div>
 					<div className="flex gap-2 flex-wrap">
 						{unreadCount > 0 && (
-							<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
+							<Button variant="ghost" size="xs" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
 								<Check size={16} />
 								Mark all as read
 							</Button>
 						)}
 						{notifications.length > 0 && (
-							<Button variant="default" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
+							<Button variant="default" size="xs" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
 								<Trash2 size={16} />
 								Clear all
 							</Button>
@@ -189,22 +189,23 @@ export default function NotificationsPage() {
 
 									<div className="flex justify-start items-center gap-4 h-full py-2">
 										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
-										<p className="text-body font-medium leading-relaxed">{notification.message}</p>
+										<p className="text-body  font-medium leading-relaxed">{notification.message}</p>
 									</div>
 
 									<div className="flex gap-2 items-center justify-end">
-										<Button variant="default" size="sm" className="text-xs px-2 " onClick={() => router.push("/my-episodes")}>
+										<Button variant="default" size="xs" className="text-xs px-2 " onClick={() => router.push("/my-episodes")}>
 											My Episodes
 										</Button>
 										{!notification.is_read && (
-											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />
-												Mark read
+												Mark as read
 											</Button>
 										)}
-										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+										<Button variant="destructive" size="xs" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+
+											Clear
 											<X size={12} />
-											Delete
 										</Button>
 									</div>
 								</div>
