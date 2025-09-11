@@ -1,6 +1,5 @@
 import { GeminiVideoProvider } from "./providers/gemini";
 import { GrokSearchProvider } from "./providers/grok-search";
-import { PodcastRssProvider } from "./providers/podcast";
 import { YouTubeCaptionsProvider } from "./providers/youtube";
 import { YouTubeStreamResolverProvider } from "./providers/youtube-audio-extractor";
 import { YouTubeClientProvider } from "./providers/youtube-client";
@@ -39,7 +38,7 @@ function getProviderChain(kind: TranscriptSourceKind): TranscriptProvider[] {
 		return providers;
 	}
 	if (kind === "podcast") {
-		return [PodcastRssProvider];
+		return [];
 	}
 	return [];
 }

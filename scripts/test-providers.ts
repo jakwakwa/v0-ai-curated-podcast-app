@@ -38,7 +38,7 @@ async function run() {
 		clients.push(require("../lib/transcripts/providers/openai").OpenAITextFallbackProvider);
 	} catch {}
 	try {
-		clients.push(require("../lib/transcripts/providers/podcast").PodcastRssProvider);
+		// removed podcast provider
 	} catch {}
 	try {
 		clients.push(require("../lib/transcripts/providers/listen-notes").ListenNotesProvider);
