@@ -73,7 +73,6 @@
 	"viraTheme.solidLineHighlight": true,
 	"viraTheme.hidesShadows": false,
 	"editor.foldingImportsByDefault": true,
-	"editor.fontSize": 13.5,
 	"editor.tabSize": 2,
 	"editor.codeLensFontFamily": "Menlo, Monaco, 'Courier New', monospace",
 	"editor.codeLensFontSize": 8,
