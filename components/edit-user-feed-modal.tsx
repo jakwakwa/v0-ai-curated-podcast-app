@@ -116,7 +116,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 					)}
 
 					<div className="flex justify-between gap-2 pt-4">
-						<Button type="button" variant="outline" size="md" onClick={onClose}>
+						<Button type="button" variant="outline" onClick={onClose}>
 							Cancel
 						</Button>
 						<Button type="submit" disabled={isLoading} variant="default">

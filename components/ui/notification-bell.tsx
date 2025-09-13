@@ -1,7 +1,7 @@
 "use client"
 
 import { formatDistanceToNow } from "date-fns"
-import { Bell, Calendar, Check, Podcast, Trash2, X } from "lucide-react"
+import { Bell, Calendar, Check, CheckCircle2Icon, Podcast, Trash2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -15,9 +15,28 @@ import { Typography } from "./typography"
 export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState(false)
 
-	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll } = useNotificationStore()
+	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
 
-	// Fetch only when the dropdown opens
+	// Debug logging to see if component re-renders when store changes
+	// console.log(`[NOTIFICATION_BELL] Rendering with ${notifications.length} notifications, ${unreadCount} unread`)
+
+	// Start polling when component mounts, stop when it unmounts
+	useEffect(() => {
+		startPolling()
+		return () => {
+			stopPolling()
+		}
+	}, [startPolling, stopPolling])
+
+	// Restart polling when user opens the dropdown (in case auth was restored)
+	useEffect(() => {
+		if (isOpen) {
+			// Try to restart polling when user interacts with notifications
+			restartPolling()
+		}
+	}, [isOpen, restartPolling])
+
+	// Fetch when the dropdown opens (in case polling missed recent updates)
 	useEffect(() => {
 		if (isOpen) {
 			void loadNotifications()
@@ -86,7 +105,7 @@ export function NotificationBell() {
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
 				<Button variant="outline" size="sm" className="relative" aria-label={`Notifications (${unreadCount} unread)`}>
-					<Bell size={40} width={40} className="w-3 h-3" />
+					<Bell size={40} width={40} className="rounded-[9999999px] w-2 h-2" />
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
@@ -99,20 +118,20 @@ export function NotificationBell() {
 				</Button>
 			</DropdownMenuTrigger>
 
-			<DropdownMenuContent className="w-[400px] max-h-[500px] overflow-hidden z-50" align="end" sideOffset={8}>
-				<div className="flex justify-between items-center p-4 border-b  border-[#5A656194]/50">
+			<DropdownMenuContent className="w-[400px] max-h-[500px] overflow-hidden z-1000" align="end" sideOffset={8}>
+				<div className="flex justify-between items-center p-4 border-b  border-[#08E1F594]/50">
 					<Typography variant="h3" className="text-lg font-semibold m-0">
 						Notifications
 					</Typography>
 					{notifications.length > 0 && (
 						<div className="flex gap-4">
 							{unreadCount > 0 && (
-								<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} disabled={isLoading} className="text-xs px-2 py-1 h-auto text-foreground/80 opacity-50">
+								<Button variant="ghost" size="xs" onClick={handleMarkAllAsRead} disabled={isLoading} className="text-xs px-2 py-1 h-auto text-foreground opacity-50">
 									<Check size={14} />
 									Mark all
 								</Button>
 							)}
-							<Button variant="outline" size="sm" onClick={handleClearAll} disabled={isLoading} className="text-xs px-2 py-1 h-auto text-foreground/80 opacity-50">
+							<Button variant="outline" size="xs" onClick={handleClearAll} className="text-xs px-2 py-1 h-auto text-foreground/80 ">
 								<Trash2 size={14} />
 								Clear all
 							</Button>
@@ -131,30 +150,33 @@ export function NotificationBell() {
 						notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/30")}
+								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/90")}
 							>
-								<div className="p-3">
+								<div className="py-5">
 									<div className="flex items-start justify-between mb-2">
-										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
+
 										<div className="flex items-center gap-2 ml-auto">
-											<time className="text-xs text-foreground/80 font-normal italic">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
+											<div className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</div>
+											<time className="text-xs text-foreground/80 font-normal leadinng-[1.3rem]">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
 											{!notification.is_read && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
 										</div>
 									</div>
 
-									<p className="mb-3 text-sm font-medium  text-foreground/90 leading-relaxed">{notification.message}</p>
+									<p className=" text-sm font-bold text-foreground leading-[2.5]">{notification.message}</p>
 
-									<div className="flex gap-2 justify-end">
+									<div className="flex gap-4 items-center justify-end">
 
 										{!notification.is_read && (
-											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
-												<Check size={12} />
-												Mark read
+											<Button variant="ghost" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border border-3 px-5text-sm h-6">
+
+												Mark as read
+												<CheckCircle2Icon className="w-40 h-40" size={"md"} width={30} height={30} />
 											</Button>
 										)}
 										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
-											<X size={12} />
+
 											clear
+											<X size={12} />
 										</Button>
 									</div>
 								</div>

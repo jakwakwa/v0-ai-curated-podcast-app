@@ -9,7 +9,7 @@
 - `app/(protected)/my-episodes/page.tsx` - New page for users to create and manage their episodes.
 - `app/(protected)/my-episodes/_components/episode-creator.tsx` - New Client Component containing the episode creation form.
 - `app/(protected)/my-episodes/_components/episode-list.tsx` - New Client Component to display the list of user-generated episodes.
-- `app/(protected)/curation-profile-management/page.tsx` - To be modified to include a conditionally rendered link to the new `/my-episodes` page.
+- `app/(protected)/dashboard/page.tsx` - To be modified to include a conditionally rendered link to the new `/my-episodes` page.
 - `app/api/paddle-webhook/route.ts` - To be modified to handle subscription lifecycle events for resetting usage counters and deleting episodes.
 - `tests/user-episodes.test.ts` - New test file for the episode management feature.
 
@@ -45,7 +45,7 @@
   - [x] 4.3 Develop the `episode-list.tsx` Client Component to display episodes with an audio player for each.
   - [x] 4.4 Implement UI feedback mechanisms for loading, success, and error states during episode creation.
 - [x] 5.0 Integration, Plan Gating and Lifecycle Management
-  - [x] 5.1 Add a conditionally rendered link to `/my-episodes` from the `/curation-profile-management` page, visible only to `curate_control` users.
+  - [x] 5.1 Add a conditionally rendered link to `/my-episodes` from the `/dashboard` page, visible only to `curate_control` users.
   - [x] 5.2 Display the user's remaining episode creation count on the `/my-episodes` page.
   - [x] 5.3 Disable the episode creation form when the user has reached their monthly limit.
   - [x] 5.4 Modify the Paddle webhook handler to reset the usage counter upon subscription renewal.

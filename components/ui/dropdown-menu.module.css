@@ -37,7 +37,7 @@
 
 /* Dropdown Menu Sub Content */
 .subContent {
-    z-index: 50;
+    z-index: 99999 !important;
     min-width: 8rem;
     overflow: hidden;
     border-radius: 0.975rem;
@@ -102,7 +102,7 @@
 
 /* Dropdown Menu Content */
 .content {
-    z-index: 50;
+    z-index: 99999 !important;
     max-height: var(--radix-dropdown-menu-content-available-height);
     min-width: 9rem;
     /* overflow-y: auto; */
@@ -279,7 +279,7 @@
     align-items: center;
     border-radius: 0.125rem;
     padding: 0.375rem 0.5rem 0.375rem 2rem;
-   
+
     outline: none;
     transition: color 0.15s ease;
 }
@@ -313,7 +313,7 @@
 /* Dropdown Menu Label */
 .label {
     padding: 0.375rem 0.5rem;
-    
+
 }
 
 .labelInset {
@@ -330,7 +330,7 @@
 /* Dropdown Menu Shortcut */
 .shortcut {
     margin-left: auto;
-  
+
     letter-spacing: 0.1em;
     opacity: 0.6;
 }

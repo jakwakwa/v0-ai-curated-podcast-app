@@ -7,7 +7,7 @@ config()
 const PROMPT = `Please transcribe the following audio segment accurately. Provide only the transcribed text. Do not include any additional commentary, introductory phrases like "Here is the transcription:", or summaries. The audio is a segment of a larger file, so do not add a beginning or an end.`
 
 async function minimalTest() {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY)
 
   // Test with a simple text prompt first using flash model
   try {

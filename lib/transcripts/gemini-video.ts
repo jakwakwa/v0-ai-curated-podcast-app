@@ -1,8 +1,8 @@
-import { GoogleGenerativeAI, type Part } from "@google/generative-ai"
+import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 
 // Point fluent-ffmpeg to the installed binary
 
-const PROMPT = `Please transcribe the following audio segment accurately. Provide only the transcribed text. Do not include any additional commentary, introductory phrases like "Here is the transcription:", or summaries. The audio is a segment of a larger file, so do not add a beginning or an end.`
+const PROMPT = `Please transcribe the following audio segment accurately. Provide only the transcribed text. Do not include any additional commentary, introductory phrases like "Here is the transcription:", or summaries. The audio is a segment of a larger file, so do not add a beginning or an end.`;
 
 /**
  * Converts a local file buffer into the format required for a Gemini API call.
@@ -13,7 +13,7 @@ function _bufferToGenerativePart(buffer: Buffer, mimeType: string): Part {
 			data: buffer.toString("base64"),
 			mimeType,
 		},
-	}
+	};
 }
 
 /**
@@ -51,21 +51,25 @@ function _bufferToGenerativePart(buffer: Buffer, mimeType: string): Part {
  * Transcribes a media URL using Gemini by breaking it into manageable chunks.
  */
 export async function transcribeWithGeminiFromUrl(url: string): Promise<string | null> {
-	const apiKey = process.env.GEMINI_API_KEY
+	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 	if (!apiKey) {
-		throw new Error("GEMINI_API_KEY is not set.")
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
 	try {
-		const genAI = new GoogleGenerativeAI(apiKey)
-		const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+		const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || process.env.GEMINI_GENAI_MODEL || "gemini-2.5-flash";
 
-		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } }
-		const result = await model.generateContent([PROMPT, mediaPart])
+		const genAI = new GoogleGenerativeAI(apiKey);
+		const model = genAI.getGenerativeModel({ model: modelName });
 
-		return result.response.text()
+		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } };
+
+		// Let the caller control timeout; this call may legitimately take >2 minutes.
+		const result = await model.generateContent([PROMPT, mediaPart]);
+
+		return result.response.text();
 	} catch (error) {
-		console.error("[GEMINI][youtube-url] Error:", error)
-		throw error // Re-throw so the Inngest step can catch and log it properly
+		console.error("[GEMINI][youtube-url] Error:", error);
+		throw error;
 	}
 }

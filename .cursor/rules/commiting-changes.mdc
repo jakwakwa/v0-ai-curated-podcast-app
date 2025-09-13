@@ -1,9 +1,37 @@
 ---
 alwaysApply: false
 ---
-# Code Commits
+# Fixing Build Errors
 
-Tasks or fixes aren't considered "done" or
-to be commited for pull requests until the agent or llm can run a pnpm build and pnpm lint without any error. pnpm lint warning doesnt need to be solved and you can ignore them unless they seem like an obvious and easy fix. if you tried two times to fix a linting issue and failed, revert those changes and make a note in notebook then I will step in and help out.This is a crucial to adhere to.
+Goal: Fix the build error
 
-Only try to run pnpm builds and pnpm lints when you're confident that you can commit changes. If a build failed, fix the build error. Run pnpm build again until you see the successful build. Dont assume you made the fix. That's a big no go for me.
+run a `pnpm build`  without any error.  Simply use `pnpm build`. You can safely assume you're in the correct directory. When you the build is successful, stage the changes, then commit the changes with an appropriate commit message. Push to the remote branch.
+
+# Command Line Rules
+
+DO:
+```bash
+pnpm build`
+```
+
+DO: 
+```bash
+git add .
+git commit -m "Fix: Build error ...."
+git push
+```
+
+
+DON NOT!
+
+- Dont change directory.
+
+```
+cd /Users/jacobkotzee/Projects/v0-ai-curated-podcast-app && pnpm build
+```
+
+Only try to run `pnpm build` when you're confident that you can commit changes. If a build failed, fix the build error. Run `pnpm build` again until you see the successful build. 
+
+CRITICAL: 
+- Dont assume you made the fix. That's a big no go for me.
+
