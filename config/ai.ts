@@ -4,7 +4,6 @@
 export const PAYMENT_CONFIG = {
 	// Payment provider selection
 	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
-
 	// Feature flags
 	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
 
@@ -16,5 +15,5 @@ export const PAYMENT_CONFIG = {
 } as const;
 
 export const aiConfig = {
-	useShortEpisodes: true,
+	useShortEpisodes: false,
 };
