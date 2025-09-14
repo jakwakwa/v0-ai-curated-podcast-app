@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import EditUserFeedModal from "@/components/edit-user-feed-modal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppSpinner } from "@/components/ui/app-spinner";
+import AudioPlayer from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
@@ -39,6 +40,7 @@ export default function CurationProfileManagementPage() {
 	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
 	const [currentlyPlayingUserEpisodeId, setCurrentlyPlayingUserEpisodeId] = useState<string | null>(null);
+	const [currentlyPlayingBundleEpisodeId, setCurrentlyPlayingBundleEpisodeId] = useState<string | null>(null);
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
 	// Find the portal container on mount
@@ -149,8 +151,7 @@ export default function CurationProfileManagementPage() {
 								<Button
 									variant="play"
 									onClick={() => {
-										// You can add audio playback functionality here if needed
-										console.log("Play episode:", latestBundleEpisode.episode_id);
+										setCurrentlyPlayingBundleEpisodeId(latestBundleEpisode.episode_id);
 									}}
 								/>
 							}
@@ -277,6 +278,16 @@ export default function CurationProfileManagementPage() {
 					</div>,
 					portalContainer
 				)}
+
+			{/* Bundle Episode Audio Player Portal */}
+			{currentlyPlayingBundleEpisodeId &&
+				portalContainer &&
+				createPortal(
+					<div className="bg-background border-t border-border shadow-lg w-full px-2 md:px-4 flex items-center justify-center">
+						<BundleAudioPlayerWrapper playingEpisodeId={currentlyPlayingBundleEpisodeId} episodes={_bundleEpisodes} onClose={() => setCurrentlyPlayingBundleEpisodeId(null)} />
+					</div>,
+					portalContainer
+				)}
 		</div>
 	);
 }
@@ -303,4 +314,14 @@ export function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { pl
 	};
 
 	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />;
+}
+
+export function BundleAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
+	// Force fresh lookup of episode and require an audio URL for playback
+	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
+	if (!episode?.audio_url) {
+		return null;
+	}
+
+	return <AudioPlayer episode={episode} onClose={onClose} />;
 }
