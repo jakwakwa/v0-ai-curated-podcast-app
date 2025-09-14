@@ -122,9 +122,43 @@ export default function CurationProfileManagementPage() {
 		}
 	};
 
+	// Get the latest bundle episode
+	const latestBundleEpisode = _bundleEpisodes.length > 0
+		? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0]
+		: null;
+
 	return (
-		<div className="w-full space-y-3">
+		<div className="w-full space-y-3 flex  flex-col gap-4">
 			<PageHeader title="Dashboard: Profile" description="Change or select bundles, view or create custom episodes from any podcast episode." />
+
+			{/* Latest Bundle Episode Section */}
+			{latestBundleEpisode && (
+				<div className="w-full space-y-3 episode-card-wrapper border-dark border-b-dark">
+					<CardTitle className="mb-4">Latest from Your Bundle</CardTitle>
+					<CardDescription className="text-sm opacity-90 mb-4">
+						The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}
+					</CardDescription>
+					<CardContent className="px-0">
+						<EpisodeCard
+							imageUrl={latestBundleEpisode.image_url}
+							title={latestBundleEpisode.title}
+							description={latestBundleEpisode.description}
+							publishedAt={latestBundleEpisode.published_at || latestBundleEpisode.created_at}
+							durationSeconds={latestBundleEpisode.duration_seconds}
+							actions={
+								<Button
+									variant="play"
+									onClick={() => {
+										// You can add audio playback functionality here if needed
+										console.log("Play episode:", latestBundleEpisode.episode_id);
+									}}
+								/>
+							}
+						/>
+					</CardContent>
+				</div>
+			)}
+
 			{isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">
@@ -162,7 +196,7 @@ export default function CurationProfileManagementPage() {
 							)}
 						</div>
 
-						<div>
+						<div className="mt-4 w-full">
 							<div className="bg-[#000]/30 rounded-b-2xl  shadow-none border-none px-4 p-4">
 								<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
 								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden pb-6 pt-4">
