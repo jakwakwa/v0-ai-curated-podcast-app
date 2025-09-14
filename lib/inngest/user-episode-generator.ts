@@ -194,7 +194,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		apiKey: geminiApiKey,
 	});
 
-	const model = 'gemini-2.5-flash-preview-tts'; // Using faster Flash TTS model
+	const model = process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts'; // Using TTS model for speech synthesis
 	const contents = [
 		{
 			role: 'user',
@@ -332,7 +332,8 @@ export const generateUserEpisode = inngest.createFunction(
 
 		// Step 2: Summarize Transcript
 		const summary = await step.run('summarize-transcript', async () => {
-			const modelName = process.env.GEMINI_GENAI_MODEL || 'gemini-2.5-flash';
+			const modelName =
+				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName);
 			try {
 				// Dynamic episode length based on config flag
@@ -381,7 +382,8 @@ Transcript: ${transcript}`,
 
 		// Step 3: Generate Script at target length (default 5 minutes)
 		const script = await step.run('generate-script', async () => {
-			const modelName2 = process.env.GEMINI_GENAI_MODEL || 'gemini-2.5-flash';
+			const modelName2 =
+				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model2 = googleAI(modelName2);
 			const targetMinutes = Math.max(
 				3,

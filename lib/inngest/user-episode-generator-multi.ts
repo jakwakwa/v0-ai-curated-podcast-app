@@ -35,7 +35,8 @@ const googleAI = createGoogleGenerativeAI({
 	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-const DEFAULT_TTS_MODEL = 'gemini-2.5-flash-preview-tts';
+const DEFAULT_TTS_MODEL =
+	process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts';
 
 interface WavConversionOptions {
 	numChannels: number;
@@ -266,7 +267,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 		const isShort = useShortEpisodesOverride ?? aiConfig.useShortEpisodes;
 
 		const summary = await step.run('summarize-transcript', async () => {
-			const modelName = process.env.GEMINI_GENAI_MODEL || 'gemini-2.5-flash';
+			const modelName =
+				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName);
 			const episodeConfig = isShort
 				? {
@@ -291,7 +293,8 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 		});
 
 		const duetLines = await step.run('generate-duet-script', async () => {
-			const modelName2 = process.env.GEMINI_GENAI_MODEL || 'gemini-2.5-flash';
+			const modelName2 =
+				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName2);
 			const { text } = await generateText({
 				model,
