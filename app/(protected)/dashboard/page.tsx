@@ -79,7 +79,6 @@ export default function CurationProfileManagementPage() {
 		}
 	}, []);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <temp fix>
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -124,7 +123,7 @@ export default function CurationProfileManagementPage() {
 	};
 
 	return (
-		<div className="w-full space-y-8">
+		<div className="w-full space-y-3">
 			<PageHeader title="Dashboard: Profile" description="Change or select bundles, view or create custom episodes from any podcast episode." />
 			{isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
@@ -166,8 +165,8 @@ export default function CurationProfileManagementPage() {
 						<div>
 							<div className="bg-[#000]/30 rounded-b-2xl  shadow-none border-none px-4 p-4">
 								<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
-								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden px-1 pb-6 pt-4">
-									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary bg-muted-foreground/10 py-4 px-1">
+								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden pb-6 pt-4">
+									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary-forefround bg-muted-foreground/10 py-4 px-1">
 										<span className="font-sans text-foreground/60 text-sm">Bundle Episode/s:</span>
 										<span className="uppercase left text-teal-300/60 text-sm font-sans font-bold">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 									</div>
@@ -180,8 +179,8 @@ export default function CurationProfileManagementPage() {
 							</div>
 						</div>
 					</div>
-					<div className="w-full episode-card-wrapper px-4 mx-0 md:px-12 border-dark border-b-dark " style={{ padding: "20rem !important" }}>
-						<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
+					<div className="w-full episode-card-wrapper px-4 mx-0 md:px-12 border-dark border-b-dark">
+						<CardTitle className="w-full mb-4">Your recently generated episodes</CardTitle>
 						<CardDescription className="text-sm opacity-90">View and manage your recently generated episodes.</CardDescription>
 						{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
 							<Link href="/my-episodes" passHref className="mr-4">
@@ -196,17 +195,17 @@ export default function CurationProfileManagementPage() {
 							</Button>
 						</Link>
 
-						<CardContent className="mt-4 px-0">
+						<CardContent className=" px-0">
 							{userEpisodes.length === 0 ? (
 								<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
 							) : (
-								<ul className=" gap-3">
+								<ul className="bg-black p-4 rounded-xl flex flex-col w-full gap-3">
 									{userEpisodes
 										.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
 										.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 										.slice(0, 3)
 										.map(episode => (
-											<li key={episode.episode_id} className="list-none w-[90%]">
+											<li key={episode.episode_id} className="list-none">
 												<EpisodeCard
 													imageUrl={null}
 													title={`${episode.episode_title}`}
@@ -215,7 +214,7 @@ export default function CurationProfileManagementPage() {
 													actions={
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
-															<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
+															<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" className={episode.episode_id ? " m-0" : ""} />
 														)
 													}
 												/>
@@ -240,7 +239,7 @@ export default function CurationProfileManagementPage() {
 				portalContainer &&
 				createPortal(
 					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
-						<UserAudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />
+						<AudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />
 					</div>,
 					portalContainer
 				)}
@@ -248,7 +247,7 @@ export default function CurationProfileManagementPage() {
 	);
 }
 
-export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
+export function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
 	// Force fresh lookup of episode and require a signed URL for playback
 	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
 	if (!episode?.signedAudioUrl) {

@@ -145,7 +145,7 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
+		<Card className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
 			<div className="mb-8 mt-4 flex flex-col items-center justify-start">
 				<div className="w-full flex items-center justify-between flex-wrap gap-4">
 					<div className="flex flex-row gap-3 h-14">
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
 
 			<div className="min-h-[400px] px-0 episode-card-wrapper-dark">
 				{notifications.length === 0 ? (
-					<Card variant={"episode"} className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
+					<Card className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
 							<Bell className="w-8 h-8 text-muted-foreground opacity-50" />
 							<h3 className="text-xl font-semibold text-foreground m-0">No notifications</h3>
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
 				) : (
 					<div className="w-full flex flex-col gap-2 px-2 py-2">
 						{notifications.slice(0, 10).map(notification => (
-							<Card variant="default" className="py-1 bg-accent-dark" key={notification.notification_id}>
+							<Card className="py-1 bg-accent-dark" key={notification.notification_id}>
 								<div className=" flex flex-col">
 									<div className="flex items-start justify-between py-2 ">
 										<time className="text-sm text-foreground/40">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>

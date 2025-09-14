@@ -1,12 +1,12 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export interface PaddleSubscription {
 	subscription_id: string;
 	user_id: string;
 	paddle_subscription_id: string | null;
 	paddle_price_id: string | null;
-	plan_type: "casual_listener" | "curate_control";
-	status: "trialing" | "active" | "canceled" | "paused";
+	plan_type: 'casual_listener' | 'curate_control';
+	status: 'trialing' | 'active' | 'canceled' | 'paused';
 	current_period_start: Date | null;
 	current_period_end: Date | null;
 	trial_start: Date | null;
@@ -66,9 +66,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 	},
 
 	// Actions
-	setSubscription: subscription => set({ subscription }),
-	setIsLoading: isLoading => set({ isLoading }),
-	setError: error => set({ error }),
+	setSubscription: (subscription) => set({ subscription }),
+	setIsLoading: (isLoading) => set({ isLoading }),
+	setError: (error) => set({ error }),
 
 	cancelSubscription: async () => {
 		set({ isLoading: true });
@@ -83,7 +83,12 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 				});
 			}
 		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to cancel subscription" });
+			set({
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to cancel subscription',
+			});
 		} finally {
 			set({ isLoading: false });
 		}
@@ -102,7 +107,12 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 				});
 			}
 		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to resume subscription" });
+			set({
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to resume subscription',
+			});
 		} finally {
 			set({ isLoading: false });
 		}
@@ -110,21 +120,11 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
 	updatePaymentMethod: async () => {
 		set({ isLoading: true });
-		try {
-		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to update payment method" });
-		} finally {
-			set({ isLoading: false });
-		}
+		set({ isLoading: false });
 	},
 
 	updateSubscription: async (_priceId: string) => {
 		set({ isLoading: true });
-		try {
-		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to update subscription" });
-		} finally {
-			set({ isLoading: false });
-		}
+		set({ isLoading: false });
 	},
 }));

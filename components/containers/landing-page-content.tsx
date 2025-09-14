@@ -213,7 +213,7 @@ export default function LandingPageContent() {
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className="default-card flex flex-col justify-center p-8 rounded-[20px] border-2 border-light shadow-lg inline-flex justify-center items-center "
+								className="default-card flex flex-col justify-center p-8 rounded-[20px] border-2 border-light shadow-lg items-center "
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -251,11 +251,10 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 border-primary/10 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}>
+								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}>
 								{tier.popular && (
 									<Badge
 										variant="default"
-										size="sm"
 										className="bg-accent p-0 mx-auto border-light text-secondary-foreground px-9 py-3 font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
 										Most Popular
 									</Badge>

@@ -110,7 +110,7 @@ export default function EpisodesPage() {
 			{playingEpisodeId &&
 				portalContainer &&
 				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
+					<div className="bg-background">
 						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
 					</div>,
 					portalContainer

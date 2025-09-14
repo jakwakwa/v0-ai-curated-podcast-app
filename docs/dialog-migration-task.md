@@ -31,7 +31,7 @@ Migrate all dialog/modal components from CSS modules to Tailwind CSS using our u
 
 - `components/ui/dialog.tsx`
 - `components/ui/dialog.module.css`
-**Usage**: All modal dialogs across the app
+  **Usage**: All modal dialogs across the app
 
 ### **4. Form Components**
 
@@ -40,7 +40,7 @@ Migrate all dialog/modal components from CSS modules to Tailwind CSS using our u
 - `components/ui/input.tsx`
 - `components/ui/select.tsx`
 - `components/ui/textarea.tsx`
-**Usage**: All forms in dialogs
+  **Usage**: All forms in dialogs
 
 ## 🔄 **Migration Steps**
 
@@ -49,46 +49,55 @@ Migrate all dialog/modal components from CSS modules to Tailwind CSS using our u
 **Before:**
 
 ```tsx
-import styles from "./edit-user-feed-modal.module.css"
+import styles from './edit-user-feed-modal.module.css';
 
 <div className={styles.modalContainer}>
-  <div className={styles.formGroup}>
-    <label className={styles.label}>Feed Name</label>
-    <input className={styles.input} />
-  </div>
-  <div className={styles.buttonGroup}>
-    <button className={styles.cancelButton}>Cancel</button>
-    <button className={styles.saveButton}>Save</button>
-  </div>
-</div>
+	<div className={styles.formGroup}>
+		<label className={styles.label}>Feed Name</label>
+		<input className={styles.input} />
+	</div>
+	<div className={styles.buttonGroup}>
+		<button className={styles.cancelButton}>Cancel</button>
+		<button className={styles.saveButton}>Save</button>
+	</div>
+</div>;
 ```
 
 **After:**
 
 ```tsx
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { H3, Body } from "@/components/ui/typography"
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { H3, Body } from '@/components/ui/typography';
 
 <Dialog open={isOpen} onOpenChange={onClose}>
-  <DialogContent className="sm:max-w-[425px]">
-    <DialogHeader>
-      <DialogTitle>Edit Personalized Feed</DialogTitle>
-    </DialogHeader>
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Feed Name</Label>
-        <Input id="name" value={name} onChange={handleNameChange} />
-      </div>
-      <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={onClose}>Cancel</Button>
-        <Button  variant="submit" onClick={handleSave}>Save</Button>
-      </div>
-    </div>
-  </DialogContent>
-</Dialog>
+	<DialogContent className="sm:max-w-[425px]">
+		<DialogHeader>
+			<DialogTitle>Edit Personalized Feed</DialogTitle>
+		</DialogHeader>
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label htmlFor="name">Feed Name</Label>
+				<Input id="name" value={name} onChange={handleNameChange} />
+			</div>
+			<div className="flex gap-2 justify-end">
+				<Button variant="outline" onClick={onClose}>
+					Cancel
+				</Button>
+				<Button variant="submit" onClick={handleSave}>
+					Save
+				</Button>
+			</div>
+		</div>
+	</DialogContent>
+</Dialog>;
 ```
 
 ### **Step 2: UserFeedSelector Migration**
@@ -96,40 +105,43 @@ import { H3, Body } from "@/components/ui/typography"
 **Before:**
 
 ```tsx
-import styles from "./user-feed-selector.module.css"
+import styles from './user-feed-selector.module.css';
 
 <div className={styles.selectorContainer}>
-  <div className={styles.bundleGrid}>
-    {bundles.map(bundle => (
-      <div key={bundle.id} className={styles.bundleCard}>
-        <h3 className={styles.bundleTitle}>{bundle.name}</h3>
-        <p className={styles.bundleDescription}>{bundle.description}</p>
-      </div>
-    ))}
-  </div>
-</div>
+	<div className={styles.bundleGrid}>
+		{bundles.map((bundle) => (
+			<div key={bundle.id} className={styles.bundleCard}>
+				<h3 className={styles.bundleTitle}>{bundle.name}</h3>
+				<p className={styles.bundleDescription}>{bundle.description}</p>
+			</div>
+		))}
+	</div>
+</div>;
 ```
 
 **After:**
 
 ```tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { H3, Body } from "@/components/ui/typography"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { H3, Body } from '@/components/ui/typography';
 
 <div className="space-y-6">
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {bundles.map(bundle => (
-      <Card key={bundle.id} variant="bundle" className="cursor-pointer hover:shadow-lg transition-shadow">
-        <CardHeader>
-          <CardTitle>{bundle.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Body>{bundle.description}</Body>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-</div>
+	<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		{bundles.map((bundle) => (
+			<Card
+				key={bundle.id}
+				className="cursor-pointer hover:shadow-lg transition-shadow"
+			>
+				<CardHeader>
+					<CardTitle>{bundle.name}</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<Body>{bundle.description}</Body>
+				</CardContent>
+			</Card>
+		))}
+	</div>
+</div>;
 ```
 
 ### **Step 3: Dialog Base Components**
@@ -137,18 +149,16 @@ import { H3, Body } from "@/components/ui/typography"
 **Before:**
 
 ```tsx
-import styles from "./dialog.module.css"
+import styles from './dialog.module.css';
 
 <div className={styles.overlay}>
-  <div className={styles.content}>
-    <div className={styles.header}>
-      <h2 className={styles.title}>{title}</h2>
-    </div>
-    <div className={styles.body}>
-      {children}
-    </div>
-  </div>
-</div>
+	<div className={styles.content}>
+		<div className={styles.header}>
+			<h2 className={styles.title}>{title}</h2>
+		</div>
+		<div className={styles.body}>{children}</div>
+	</div>
+</div>;
 ```
 
 **After:**
@@ -156,15 +166,13 @@ import styles from "./dialog.module.css"
 ```tsx
 // Already using Radix UI Dialog primitives with Tailwind
 <DialogPrimitive.Root>
-  <DialogPrimitive.Trigger asChild>
-    {trigger}
-  </DialogPrimitive.Trigger>
-  <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" />
-    <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg">
-      {children}
-    </DialogPrimitive.Content>
-  </DialogPrimitive.Portal>
+	<DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+	<DialogPrimitive.Portal>
+		<DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" />
+		<DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg">
+			{children}
+		</DialogPrimitive.Content>
+	</DialogPrimitive.Portal>
 </DialogPrimitive.Root>
 ```
 
@@ -188,41 +196,53 @@ import { H3, Body, BodySmall } from "@/components/ui/typography"
 ### **Button Variants in Dialogs**
 
 ```tsx
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 
 <div className="flex gap-2 justify-end">
-  <Button variant="outline" onClick={onCancel}>Cancel</Button>
-  <Button variant="default" onClick={onSave}>Save Changes</Button>
-  <Button variant="destructive" onClick={onDelete}>Delete</Button>
-</div>
+	<Button variant="outline" onClick={onCancel}>
+		Cancel
+	</Button>
+	<Button variant="default" onClick={onSave}>
+		Save Changes
+	</Button>
+	<Button variant="destructive" onClick={onDelete}>
+		Delete
+	</Button>
+</div>;
 ```
 
 ### **Form Layout in Dialogs**
 
 ```tsx
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 
 <div className="space-y-4">
-  <div className="space-y-2">
-    <Label htmlFor="name">Feed Name</Label>
-    <Input id="name" placeholder="Enter feed name" />
-  </div>
-  <div className="space-y-2">
-    <Label htmlFor="category">Category</Label>
-    <Select>
-      <SelectTrigger>
-        <SelectValue placeholder="Select category" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="tech">Technology</SelectItem>
-        <SelectItem value="news">News</SelectItem>
-        <SelectItem value="entertainment">Entertainment</SelectItem>
-      </SelectContent>
-    </Select>
-  </div>
-</div>
+	<div className="space-y-2">
+		<Label htmlFor="name">Feed Name</Label>
+		<Input id="name" placeholder="Enter feed name" />
+	</div>
+	<div className="space-y-2">
+		<Label htmlFor="category">Category</Label>
+		<Select>
+			<SelectTrigger>
+				<SelectValue placeholder="Select category" />
+			</SelectTrigger>
+			<SelectContent>
+				<SelectItem value="tech">Technology</SelectItem>
+				<SelectItem value="news">News</SelectItem>
+				<SelectItem value="entertainment">Entertainment</SelectItem>
+			</SelectContent>
+		</Select>
+	</div>
+</div>;
 ```
 
 ## 🚨 **Critical Anti-Patterns to Avoid**

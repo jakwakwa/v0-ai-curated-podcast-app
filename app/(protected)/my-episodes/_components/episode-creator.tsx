@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -127,10 +127,10 @@ export function EpisodeCreator() {
 	const hasReachedLimit = usage.count >= usage.limit
 
 	return (
-		<div className="episode-card-wrapper w-full lg:w/full lg:min-w-screen/[70%] h-auto mb-0 mt-4 px-0 md:px-12">
-			<Card>
+		<div className="w-full h-auto mb-0 px-16 py-12">
+			<Card className="w-full flex flex-col gap-8">
 				<CardHeader>
-					<CardTitle>Create New Episode</CardTitle>
+					<h1 className="text-xl font-bold mb-4">Generate a custom episode</h1>
 					<CardDescription>Provide episode details. We’ll resolve sources and transcribe in the background.</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -140,7 +140,7 @@ export function EpisodeCreator() {
 						<p className="text-red-500">You have reached your monthly limit for episode creation.</p>
 					) : (
 						<form
-							className="space-y-6"
+							className="space-y-6 w-full"
 							onSubmit={e => {
 								e.preventDefault()
 								void handleCreate()
@@ -170,103 +170,106 @@ export function EpisodeCreator() {
 								</div>
 							</div>
 
-							<div className="grid grid-cols-1 gap-4">
+							<div className="hidden not-only:grid-cols-1 gap-4">
 								<div className="space-y-2">
 									<Label htmlFor="podcastName">Podcast Name (optional)</Label>
 									<Input id="podcastName" placeholder="Podcast show name" value={podcastName} onChange={e => setPodcastName(e.target.value)} disabled={isBusy} />
 								</div>
 							</div>
 
+							<div className="space-y-6 border rounded-lg p-4 bg-accent">
 
-
-							<div className="space-y-2">
-								<Label>Episode Type</Label>
-								<div className="md:max-w-1/2 grid grid-cols-2 gap-2 ">
-									<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md">
-										Single speaker
-									</Button>
-									<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="lg">
-										Multi speaker
-									</Button>
+								<div className="space-y-2">
+									<Label size="lg" >Voice Settings</Label>
+									<div className="flex flex-row gap-3 mt-4">
+										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md">
+											Single speaker
+										</Button>
+										<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="md">
+											Multi speaker
+										</Button>
+									</div>
 								</div>
+
+								{generationMode === "multi" && (
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div>
+											<Label>Voice A</Label>
+											<Select value={voiceA} onValueChange={setVoiceA}>
+												<SelectTrigger className="w/full" disabled={isBusy}>
+													<SelectValue placeholder="Select Voice A" />
+												</SelectTrigger>
+												<SelectContent>
+													{VOICE_OPTIONS.map(v => (
+														<SelectItem key={v.name} value={v.name}>
+															<div className="flex items-center justify-between w/full gap-3 ">
+																<div className="flex flex-col">
+																	<span>{v.label}</span>
+																	{/* <span className="text-xs opacity-75">{v.sample}</span> */}
+																</div>
+																<button
+																	type="button"
+																	onMouseDown={e => e.preventDefault()}
+																	onClick={e => {
+																		e.stopPropagation()
+																		void playSample(v.name)
+																	}}
+																	aria-label={`Play ${v.name} sample`}
+																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
+
+																</button>
+															</div>
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<div className="mt-2">
+												<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceA)} disabled={isBusy || isAudioPlaying}>
+													<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceA ? "Playing" : "Play sample"}
+												</Button>
+											</div>
+										</div>
+										<div>
+											<Label>Voice B</Label>
+											<Select value={voiceB} onValueChange={setVoiceB}>
+												<SelectTrigger className="w/full" disabled={isBusy}>
+													<SelectValue placeholder="Select Voice B" />
+												</SelectTrigger>
+												<SelectContent>
+													{VOICE_OPTIONS.map(v => (
+														<SelectItem key={v.name} value={v.name}>
+															<div className="flex items-center justify-between w/full gap-3">
+																<div className="flex flex-col">
+																	<span>{v.label}</span>
+																	{/* <span className="text-xs opacity-75">{v.sample}</span> */}
+																</div>
+																<button
+																	type="button"
+																	onMouseDown={e => e.preventDefault()}
+																	onClick={e => {
+																		e.stopPropagation()
+																		void playSample(v.name)
+																	}}
+																	aria-label={`Play ${v.name} sample`}
+																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
+
+																</button>
+															</div>
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<div className="mt-2">
+												<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceB)} disabled={isBusy || isAudioPlaying}>
+													<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceB ? "Playing" : "Play sample"}
+												</Button>
+											</div>
+										</div>
+									</div>
+								)}
 							</div>
 
-							{generationMode === "multi" && (
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div>
-										<Label>Voice A</Label>
-										<Select value={voiceA} onValueChange={setVoiceA}>
-											<SelectTrigger className="w/full" disabled={isBusy}>
-												<SelectValue placeholder="Select Voice A" />
-											</SelectTrigger>
-											<SelectContent>
-												{VOICE_OPTIONS.map(v => (
-													<SelectItem key={v.name} value={v.name}>
-														<div className="flex items-center justify-between w/full gap-3">
-															<div className="flex flex-col">
-																<span>{v.label}</span>
-																{/* <span className="text-xs opacity-75">{v.sample}</span> */}
-															</div>
-															<button
-																type="button"
-																onMouseDown={e => e.preventDefault()}
-																onClick={e => {
-																	e.stopPropagation()
-																	void playSample(v.name)
-																}}
-																aria-label={`Play ${v.name} sample`}
-																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
 
-															</button>
-														</div>
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<div className="mt-2">
-											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceA)} disabled={isBusy || isAudioPlaying}>
-												<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceA ? "Playing" : "Play sample"}
-											</Button>
-										</div>
-									</div>
-									<div>
-										<Label>Voice B</Label>
-										<Select value={voiceB} onValueChange={setVoiceB}>
-											<SelectTrigger className="w/full" disabled={isBusy}>
-												<SelectValue placeholder="Select Voice B" />
-											</SelectTrigger>
-											<SelectContent>
-												{VOICE_OPTIONS.map(v => (
-													<SelectItem key={v.name} value={v.name}>
-														<div className="flex items-center justify-between w/full gap-3">
-															<div className="flex flex-col">
-																<span>{v.label}</span>
-																{/* <span className="text-xs opacity-75">{v.sample}</span> */}
-															</div>
-															<button
-																type="button"
-																onMouseDown={e => e.preventDefault()}
-																onClick={e => {
-																	e.stopPropagation()
-																	void playSample(v.name)
-																}}
-																aria-label={`Play ${v.name} sample`}
-																className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
-
-															</button>
-														</div>
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<div className="mt-2">
-											<Button type="button" variant="outline" size="sm" onClick={() => void playSample(voiceB)} disabled={isBusy || isAudioPlaying}>
-												<PlayCircle className="mr-2 h-4 w-4" /> {isPlaying === voiceB ? "Playing" : "Play sample"}
-											</Button>
-										</div>
-									</div>
-								</div>
-							)}
 
 							<Button type="submit" variant="default" disabled={!canSubmit} className="w-full">
 								{isCreating ? "Creating..." : "Create & Generate"}

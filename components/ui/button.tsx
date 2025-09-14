@@ -1,38 +1,43 @@
 import { Slot } from "@radix-ui/react-slot";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { PlayIcon } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-20 disabled:bg-[#007A74] [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:not-allowed",
+	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer hover:opacity-0.9",
 	{
 		variants: {
 			variant: {
-				default: "bg-btn-default border-bord-light hover:bg-secondary-dark px-4 py-2",
-				destructive: "btn-destructive hover:text-destructive-background hover:border-destructive",
-				outline: "scale-[1] mx-1 btn-ghost-outline mr-2",
-				icon: "flex items-center justify-center gap-2",
-				secondary: "btn-secondary px-2 md:px-4 py-2 shadow-xs hover:bg-[var(--color-button-secondary-bg-hover)] hover:border-[var(--color-button-secondary-bg-hover)] focus:bg-accent",
-				ghost: "mx-0 btn-ghost-sm mr-2",
-				link: "bg-none outline-none text-[var(--color-button-default-bg)] underline-offset-4 hover:underline p-0 h-auto w-auto inline-block align-middle leading-none text-base",
-				play: " flex flex-row items-center justify-center gap-2 outline-none text-[#C5E8D6E4] p-0 h-auto w-auto inline-block align-middle leading-none px-0 py-0 m-0 underline-offset-0  hover:underline-offset-0 text-[0.1rem] leading-none my-0 btn-play shadow-none",
+				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#0C2327]/90",
+				destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+				outline: "border border-md border-[#6F6E7D72] rounded-md shadow-sm hover:bg-sidebar hover:text-accent-foreground border-[2px]",
+				secondary: "bg-[#000] text-secondary-foreground hover:bg-secondary/80 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.9)]",
+				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
+				link: "text-primary-forefround underline-offset-4 hover:underline",
+				play: "p-0 m-0 h-32 w-32",
+				icon: ""
 			},
 			size: {
-				default: "h-12 px-2 md:px-4 py-2",
-				bundles: "h-auto px-2 md:px-4 py-8",
-				sm: "h-8 px-2 md:px-3 rounded-lg md:rounded-xl btn-ghost-outline-sm ",
-				xs: "h-2 px-0 md:px-0 rounded-sm  btn-ghost-sm mr-2",
-				md: "h-auto px-4",
-				lg: "h-auto px-2 md:px-6 rounded-lg md:rounded-xl",
-				play: " w-auto inline-block align-middle leading-none text-xs px-0 py-0 my-0 leading-none flex flex-row items-center justify-center gap-1",
+				default: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
+				sm: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
+				lg: "h-9 px-2 py-2 text-xs",
+				md: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
+				xs: "h-7 px-1 py-1	text-xs",
+				icon: "h-9 w-9",
+				play: "h-24 w-24"
 			},
 		},
 		defaultVariants: {
-			size: "default",
+			variant: "default",
+			size: "default"
 		},
 	}
 );
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+	asChild?: boolean;
+}
 
 function Button({
 	className,
@@ -44,7 +49,7 @@ function Button({
 	...props
 }: React.ComponentProps<"button"> & {
 	variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "play" | "icon";
-	size?: "default" | "bundles" | "sm" | "xs" | "md" | "lg" | "play";
+	size?: "default" | "sm" | "xs" | "md" | "lg";
 	asChild?: boolean;
 	icon?: React.ReactNode;
 }) {
@@ -53,7 +58,11 @@ function Button({
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
 			{children}
-			{variant === "play" && <PlayIcon color="#3EC8C1F7" className="w-6 h-9" />}
+			{variant === "play" &&
+
+				<PlayIcon color="#238681F7" />
+
+			}
 		</Comp>
 	);
 }

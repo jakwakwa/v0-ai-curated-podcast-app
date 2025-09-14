@@ -17,9 +17,6 @@ export function NotificationBell() {
 
 	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
 
-	// Debug logging to see if component re-renders when store changes
-	// console.log(`[NOTIFICATION_BELL] Rendering with ${notifications.length} notifications, ${unreadCount} unread`)
-
 	// Start polling when component mounts, stop when it unmounts
 	useEffect(() => {
 		startPolling()
@@ -109,7 +106,6 @@ export function NotificationBell() {
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
-							size="sm"
 							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50"
 						>
 							{unreadCount > 99 ? "99+" : unreadCount}
@@ -167,7 +163,7 @@ export function NotificationBell() {
 									<div className="flex gap-4 items-center justify-end">
 
 										{!notification.is_read && (
-											<Button variant="ghost" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border border-3 px-5text-sm h-6">
+											<Button variant="ghost" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5text-sm h-6">
 
 												Mark as read
 												<CheckCircle2Icon className="w-40 h-40" size={"md"} width={30} height={30} />

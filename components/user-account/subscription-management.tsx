@@ -7,7 +7,7 @@ type Props = { className?: string }
 export function SubscriptionManagement({ className }: Props) {
 	return (
 		<div className={className}>
-			<Card variant="bundle">
+			<Card>
 				<CardHeader>
 					<CardTitle>Subscription Management</CardTitle>
 					<CardDescription>Temporarily disabled in this build. Subscription store is not available.</CardDescription>

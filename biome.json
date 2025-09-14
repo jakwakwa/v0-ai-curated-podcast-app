@@ -23,15 +23,7 @@
 		]
 	},
 	"formatter": {
-		"enabled": true,
-		"useEditorconfig": true,
-		"formatWithErrors": true,
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineEnding": "lf",
-		"lineWidth": 200,
-		"attributePosition": "auto",
-		"bracketSpacing": true
+		"enabled": false
 	},
 	"linter": {
 		"enabled": true,

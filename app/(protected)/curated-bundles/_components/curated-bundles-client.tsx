@@ -145,14 +145,14 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 				{bundles.map(bundle => (
 					<Card
 						key={bundle.bundle_id}
-						className="h-auto flex flex-col px-8 rounded-2xl shadow-lg bg-[#181D23] h-[220px] border-2 border-[#40545ACE] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-4 bundle-card-hover"
+						className="flex flex-col px-8 rounded-2xl shadow-lg bg-[#181D23]  border-2 border-[#40545ACE] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-4 bundle-card-hover"
 						onClick={() => handleBundleClick(bundle)}>
 						<CardHeader className="w-full py-4 px-2">
 							<div className="w-full flex flex-row gap-6">
 								<div className="flex items-start gap-3 text-sm font-normal tracking-wide flex-col w-full max-w-[240px]">
-									<H3 className="text-[1rem] text-secondary-foreground font-black font-sans mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
+									<H3 className="text-[1rem] text-secondary-foreground font-black font-sans mt-2 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
 
-									<Badge variant="outline" size="sm" className="font-normal tracking-wide">
+									<Badge variant="outline" className="font-normal tracking-wide">
 										<Lock size={8} className="mr-2" />
 										<Typography className="text-xxs">Fixed Podcast Shows</Typography>
 									</Badge>

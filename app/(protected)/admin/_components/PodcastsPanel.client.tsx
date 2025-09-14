@@ -40,9 +40,9 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 	})
 
 	const optimisticPodcast = (p: Podcast): Podcast => (({
-        ...p,
-        ...(optimistic[p.podcast_id] || {})
-    }) as Podcast)
+		...p,
+		...(optimistic[p.podcast_id] || {})
+	}) as Podcast)
 
 	const doCreate = () => {
 		if (!(createForm.name.trim() && createForm.url.trim())) return
@@ -209,7 +209,7 @@ export default function PodcastsPanelClient({ podcasts }: { podcasts: Podcast[] 
 										<Button type="button" variant="ghost" size="sm" onClick={() => copyUrl(p.url)} title="Copy feed URL" aria-label="Copy feed URL">
 											<Link2 className="w-4 h-4" />
 										</Button>
-										<Badge size="sm" variant={p.is_active ? "default" : "default"}>
+										<Badge variant={p.is_active ? "default" : "default"}>
 											{p.is_active ? "Active" : "Inactive"}
 										</Badge>
 									</div>

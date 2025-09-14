@@ -200,7 +200,7 @@ export function SubscriptionView() {
 				<CardTitle className="flex justify-between items-center pb-2">
 					<span className={"text-xl font-medium"}>Subscription</span>
 					{subscription?.status && (
-						<Badge variant="secondary" size="sm">
+						<Badge variant="secondary">
 							{subscription.status}
 						</Badge>
 					)}

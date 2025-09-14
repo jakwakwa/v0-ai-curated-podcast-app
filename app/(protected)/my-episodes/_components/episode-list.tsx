@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
@@ -55,13 +55,10 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 	if (isLoading) {
 		return (
 			<Card>
-				<CardHeader>
-					<CardTitle>My Generated Episodes</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<Skeleton className="h-16 w-full" />
-					<Skeleton className="h-16 w-full" />
-					<Skeleton className="h-16 w-full" />
+				<CardContent className="space-y-4 flex-col flex w-full">
+					<Skeleton className="bg-[#1b181f] h-50 w-full" />
+					<Skeleton className="bg-[#1b181f] h-50 w-full" />
+					<Skeleton className="bg-[#1b181f] h-50 w-full" />
 				</CardContent>
 			</Card>
 		);
@@ -72,14 +69,14 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 	}
 
 	return (
-		<Card className="w-full py-4">
-
-			<div className="episode-card-wrapper-dark h-full min-h-[61vh]">
+		<Card className="episode-card-wrapper-dark h-full min-h-[61vh]">
+			<div>
 				{episodes.length === 0 ? (
 					<p>You haven't created any episodes yet.</p>
 				) : (
 					episodes.map(episode => (
 						<div key={episode.episode_id} className="p-1">
+
 							<EpisodeCard
 								imageUrl={null}
 								title={episode.episode_title}
@@ -88,8 +85,9 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 								durationSeconds={episode.duration_seconds ?? null}
 								actions={
 									<>
+
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
-											<Button onClick={() => setActiveEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
+											<Button onClick={() => setActiveEpisodeId(episode.episode_id)} variant="play" size="sm" className={episode.episode_id ? " m-0" : ""} />
 										)}
 										{enableDebug && (
 											<Button size="sm" variant="secondary" className="ml-2" onClick={() => handleViewRunLog(episode.episode_id)}>

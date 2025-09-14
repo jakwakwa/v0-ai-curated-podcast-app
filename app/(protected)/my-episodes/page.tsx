@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/ui/page-header";
+import { H3 } from "@/components/ui/typography";
 import { EpisodeList } from "./_components/episode-list";
 
 export const revalidate = 3600;
@@ -10,11 +10,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MyEpisodesPage() {
 	return (
-		<div className="w-full space-y-0 pl-2 ">
-			<PageHeader title="Ai Generated Episodes" description="Listen to your custom ai-generated podcast summary episodes." />
-			<div className="bg-primary-card">
-				<EpisodeList completedOnly />
-			</div>
+		<div className="flex episode-card-wrapper bg-primary-card flex-col justify-center mx-auto w-screen md:w-screen max-w-full mt-0">
+			<H3 className="pl-3">My Episodes</H3>
+			<EpisodeList completedOnly />
 		</div>
+
 	);
 }

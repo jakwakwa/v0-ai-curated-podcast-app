@@ -216,7 +216,7 @@ export default function TermsPage() {
 								<p>Email: support@podslice.ai</p>
 								<p>
 									Website:{" "}
-									<Link href="/" className="text-primary hover:underline">
+									<Link href="/" className="text-primary-forefround hover:underline">
 										www.podslice.ai
 									</Link>
 								</p>
@@ -227,7 +227,7 @@ export default function TermsPage() {
 					<div className="text-right mt-4 pt-8 border-t">
 						<p className="text-xs text-muted-foreground">By using our service, you acknowledge that you have read and understood these Terms of Service and agree to be bound by them.</p>
 						<div className="mt-4">
-							<Link href="/privacy" className="text-xs text-primary hover:underline">
+							<Link href="/privacy" className="text-xs text-primary-forefround hover:underline">
 								View our Privacy Policy
 							</Link>
 						</div>

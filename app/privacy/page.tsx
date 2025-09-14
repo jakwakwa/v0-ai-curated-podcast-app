@@ -240,7 +240,7 @@ export default function PrivacyPage() {
 							</p>
 							<p className="mb-4">
 								•{" "}
-								<Link href="https://clerk.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+								<Link href="https://clerk.com/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-forefround hover:underline">
 									Clerk Privacy Policy
 								</Link>
 							</p>
@@ -252,19 +252,19 @@ export default function PrivacyPage() {
 							</p>
 							<p className="mb-4">
 								•{" "}
-								<Link href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+								<Link href="https://www.paddle.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-forefround hover:underline">
 									Paddle Privacy Policy
 								</Link>
 							</p>
 							<p className="mb-4">
 								•{" "}
-								<Link href="https://paddle.net/find-purchase" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+								<Link href="https://paddle.net/find-purchase" target="_blank" rel="noopener noreferrer" className="text-primary-forefround hover:underline">
 									Find Your Purchase & Contact Paddle Support
 								</Link>
 							</p>
 							<p className="mb-4">
 								•{" "}
-								<Link href="https://paddle.net/verify-email" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+								<Link href="https://paddle.net/verify-email" target="_blank" rel="noopener noreferrer" className="text-primary-forefround hover:underline">
 									Verify Your Email with Paddle
 								</Link>
 							</p>
@@ -276,7 +276,7 @@ export default function PrivacyPage() {
 							</p>
 							<p className="mb-4">
 								•{" "}
-								<Link href="https://cloud.google.com/terms/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+								<Link href="https://cloud.google.com/terms/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-forefround hover:underline">
 									Google Cloud Privacy Policy
 								</Link>
 							</p>
@@ -335,7 +335,7 @@ export default function PrivacyPage() {
 								<p>Payment Issues: payment@podslice.ai</p>
 								<p>
 									Website:{" "}
-									<Link href="/" className="text-primary hover:underline">
+									<Link href="/" className="text-primary-forefround hover:underline">
 										www.podslice.ai
 									</Link>
 								</p>
@@ -347,7 +347,7 @@ export default function PrivacyPage() {
 					<div className="text-right mt-4 pt-8 border-t">
 						<p className="text-xs text-muted-foreground">This Privacy Policy is effective as of {lastUpdated} and applies to all users of our service worldwide.</p>
 						<div className="mt-4">
-							<Link href="/terms" className="text-xs text-primary hover:underline">
+							<Link href="/terms" className="text-xs text-primary-forefround hover:underline">
 								View our Terms of Service
 							</Link>
 						</div>
