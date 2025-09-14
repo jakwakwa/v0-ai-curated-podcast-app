@@ -217,14 +217,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	for await (const chunk of response) {
 		_chunkCount++;
 
-		// biome-ignore lint/complexity/useOptionalChain: <fix later>
-		if (
-			!(
-				chunk.candidates &&
-				chunk.candidates[0].content &&
-				chunk.candidates[0].content.parts
-			)
-		) {
+		if (!chunk.candidates?.[0]?.content?.parts) {
 			console.log('⚠️ Chunk missing expected structure');
 			continue;
 		}
