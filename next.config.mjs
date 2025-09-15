@@ -60,6 +60,7 @@ const nextConfig = {
 							'images.ctfassets.net',
 							'res.cloudinary.com',
 							'img.clerk.com',
+							'via.placeholder.com'
 					],
 					'font-src': ["'self'", 'https://fonts.gstatic.com'],
 					'media-src': [

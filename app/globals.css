@@ -234,6 +234,10 @@
 		--chart-3: hsl(30 80% 55%);
 		--chart-4: hsl(280 65% 60%);
 		--chart-5: hsl(340 75% 55%);
+		--audio-sheet-bg: #131313;
+		--audio-sheet-foreground: rgba(255, 255, 255, 0.66);
+		--audio-sheet-border: rgba(60, 58, 98, 0.52);
+		--audio-sheet-accent: #19B275;
 	}
 
 	@theme inline {
