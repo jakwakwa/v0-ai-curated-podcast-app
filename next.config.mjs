@@ -37,6 +37,7 @@ const nextConfig = {
 							'https://vendors.paddle.com',
 							'https://checkout.paddle.com',
 							'https://va.vercel-scripts.com',
+							'https://vercel.live', // Add this line
 					],
 					'style-src': [
 							"'self'",

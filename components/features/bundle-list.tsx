@@ -118,7 +118,7 @@ export function BundleList({ onBundleSelect }: BundleListProps) {
 													<TooltipTrigger asChild>
 														<p className="text-sm text-muted-foreground line-clamp-2 leading-tight">
 															{bundle.description}
-															{bundle.description && bundle.description.length > 100 && <span className="font-bold text-primary-forefround ml-1">read more</span>}
+
 														</p>
 													</TooltipTrigger>
 													<TooltipContent side="top" className="max-w-xs">

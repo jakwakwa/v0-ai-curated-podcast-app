@@ -171,18 +171,21 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 	}, [volume, isMuted]);
 
 	const togglePlayPause = async () => {
-		// console.log(audioRef.current)
 		if (audioRef.current) {
 			try {
 				if (isPlaying) {
 					audioRef.current.pause();
 					setIsPlaying(false);
 				} else {
-					await audioRef.current.play();
-					setIsPlaying(true);
+					// Check if audio is paused before playing to prevent AbortError
+					if (audioRef.current.paused) {
+						await audioRef.current.play();
+						setIsPlaying(true);
+					}
 				}
 			} catch (error) {
-				toast(`Audio Player Error: ${error} ${audioRef.current}`);
+				console.error("Audio Player Error:", error);
+				toast(`Audio Player Error: ${error}`);
 				setIsPlaying(false);
 			}
 		}
@@ -208,6 +211,17 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 		const newVolume = Number.parseFloat(e.target.value);
 		setVolume(newVolume);
 		setIsMuted(newVolume === 0);
+	};
+
+	const handleClose = () => {
+		if (audioRef.current) {
+			audioRef.current.pause();
+			audioRef.current.currentTime = 0;
+		}
+		setIsPlaying(false);
+		setProgress(0);
+		setCurrentTime(0);
+		onClose?.();
 	};
 
 	return (
@@ -258,7 +272,7 @@ export default function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 				</div>
 				{onClose && (
 					<div className="flex flex-row">
-						<Button onClick={() => onClose()} size="xs" variant="outline">
+						<Button onClick={handleClose} size="xs" variant="outline">
 							<X />
 						</Button>
 					</div>
