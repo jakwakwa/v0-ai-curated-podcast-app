@@ -205,8 +205,8 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
 
 	return (
 		<div className={styles.userAudioPlayer}>
-			<div className=" gap-4 flex flex-row items-center justify-start px-2 m-0">
-				<div className="h-fit flex items-center justify-center">
+			<div className="gap-4 flex flex-row items-center justify-start px-2 m-0 episode-info">
+				<div className="h-fit flex items-center justify-center episode-info info ">
 					<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
 						<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
 					</svg>
@@ -227,23 +227,23 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
 					)}
 				</Button>
 
-				<div className="w-full flex gap-4 min-w-24">
-					<span className="w-[10px] text-[3px]">{formattedCurrentTime}</span>
+				<div className="w-full flex items-c gap-4 min-w-24 time-display">
+					<span className=" time-display text-xs mx-2 w-[20px]">{formattedCurrentTime}</span>
 					<div className={styles.progressBar} onClick={seekTo} role="slider" tabIndex={0} aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label="Seek through audio">
 						<div className={styles.progress} style={{ width: `${progress}%` }} />
 					</div>
 					{/* <span className={styles.timeDisplay}>{formattedDuration}</span> */}
 				</div>
 				{onClose && (
-					<Button variant="outline" size="xs" onClick={onClose} aria-label="Close player" title="Close" className="  rounded-xl ">
-						<X width={5} height={5} />
-					</Button>
+					<div className="flex flex-row">
+						<Button onClick={toggleMute} size="xs" variant="outline">
+							<X />
+						</Button></div>
 				)}
 				<div className="flex flex-row">
-					<Button onClick={toggleMute} size="xs" variant="outline" className="px-2">
+					<Button onClick={toggleMute} size="xs" variant="outline">
 						{volumeIcon}
 					</Button>
-					{/* <input type="range" min="0" max="1" step="0.1" value={isMuted ? 0 : volume} onChange={changeVolume} className="" /> */}
 				</div>
 			</div>
 

@@ -10,18 +10,20 @@
 	padding-right: 40px !important;
 	padding-top: 10px !important;
 	padding-bottom: 15px;
-	background: linear-gradient(135deg, #13191e 0%, #233139c8 100%);
-	border-top: 1px solid #333;
-	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-	z-index: 99999999 !important;
+	background: #0F0F0FBA;
+	background-image: linear-gradient(200deg,#5EBBDFC1 10%, #76A0E3C1 30%, #BB6EC1DF 55%,  #413358C7 70%);
+	border-top: 1px solid #2A2626D4;
+	box-shadow:inset 0 -21px 70px 0px #000000;
+	z-index: 999 !important;
 	display: flex;
+	padding-left: 300px !important;
 	width: 100%;
 	align-items: center;
 	height: 180px;
 	gap: 1.5rem;
 	max-height: 120px;
-	background-blend-mode: color;
-	backdrop-filter: blur(20px);
+	background-blend-mode: overlay, multiply;
+	backdrop-filter: blur(5px) !important;
 }
 .userAudioPlayer {
 	padding-left: 300px;
@@ -178,7 +180,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	min-width: 200px;
+	min-width: 20px;
 }
 
 button.volumeButton,
@@ -187,13 +189,10 @@ button.playPauseButton {
 	border: 2px solid #1a172487 !important;
 	color: #e8e5ea8e;
 	cursor: pointer;
-
-	border-radius: 99999px !important;
-	/* height: 30px !important; */
+	border-radius: 20px !important;
 	transition: color 0.2s ease;
-	padding: 5px !important;
+	padding: 22px !important;
 	height: fit-content !important;
-	/* width: 30px !important; */
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -336,11 +335,11 @@ button.playPauseButton:hover {
 }
 
 button.playPauseButton {
-	background-color: #006b81 !important;
+	background-color: #103A54 !important;
 	color: #79acae !important;
 	box-shadow:
-		inset 0px -3px 13px 0px #000608,
-		0px 4px 10px 0px #0000005f;
+		inset 0px -1px 1px 0px #00060884,
+		0px 2px 3px 0px #0000005f;
 	border: 2px solid #011715e6 !important;
 	width: 30px !important;
 	height: 30px !important;
@@ -406,6 +405,10 @@ button.playPauseButton svg {
 		color: #82e9ca !important;
 		width: 30px !important;
 	}
+	.episodeImageContainer,
+	.episode-info {
+		display: none !important;
+	}
 }
 
 @media (max-width: 480px) {
@@ -414,7 +417,7 @@ button.playPauseButton svg {
 		padding: 0.5rem 0.75rem;
 		gap: 0.75rem;
 		position: fixed;
-		bottom: 20px;
+		bottom: 0px;
 		left: -188px;
 		right: 0;
 		display: flex;
@@ -438,9 +441,13 @@ button.playPauseButton svg {
 		/* max-height: 90px; */
 	}
 
-	.info {
+	/* .info {
 		flex: 1;
 		min-width: 0;
+	} */
+
+	.episode-info {
+		display: none;
 	}
 
 	.controls {
@@ -451,14 +458,14 @@ button.playPauseButton svg {
 		min-width: 120px;
 	}
 
+
 	.episodeImage,
 	.placeholderImage {
-		width: 40px;
-		height: 40px;
+	display: none;
 	}
 	button.playPauseButton {
 		background-color: #2dcabb !important;
 		color: #9ee982 !important;
-		width: 30px !important;
+		width: 40px !important;
 	}
 }

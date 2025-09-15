@@ -10,9 +10,9 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#0C2327]/90",
-				destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-				outline: "border border-md border-[#6F6E7D72] rounded-md shadow-sm hover:bg-sidebar hover:text-accent-foreground border-[2px]",
-				secondary: "bg-[#000] text-secondary-foreground hover:bg-secondary/80 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.9)]",
+				destructive: "bg-destructive text-destructive-foreground shadow-[0 -2px 2px 1px #000] hover:bg-destructive/90",
+				outline: "border border-[#9FB3D031] bg-[#030404C7] rounded-full shadow-sm hover:bg-sidebar hover:text-accent-foreground",
+				secondary: "bg-[#000] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)]",
 				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
 				link: "text-primary-forefround underline-offset-4 hover:underline",
 				play: "p-0 m-0 h-32 w-32",
@@ -23,8 +23,8 @@ const buttonVariants = cva(
 				sm: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
 				lg: "h-9 px-2 py-2 text-xs",
 				md: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
-				xs: "h-7 px-1 py-1	text-xs",
-				icon: "h-9 w-9",
+				xs: "p-2",
+				icon: "h-24 w-24",
 				play: "h-24 w-24"
 			},
 		},
