@@ -17,7 +17,7 @@ export default async function BundlesPanel() {
 				cacheStrategy: {
 					swr: 60,
 					ttl: 60,
-					tags: ["BundlePanel in Admin"]
+					tags: ["BundlePanel_in_Admin"]
 				}
 			}
 		),
@@ -28,7 +28,7 @@ export default async function BundlesPanel() {
 				cacheStrategy: {
 					swr: 60,
 					ttl: 60,
-					tags: ["Podcast List in Bundles Panel in Admin"]
+					tags: ["Podcast_List_in_Bundles_Panel_in_Admin"]
 				}
 			}),
 	]);

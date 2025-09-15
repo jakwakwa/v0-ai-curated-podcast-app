@@ -41,7 +41,7 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 			cacheStrategy: {
 				swr: 60,
 				ttl: 360000,
-				tags: ["BundlePanel in Admin"]
+				tags: ["BundlePanel_in_Admin"]
 			}
 		})
 

@@ -34,8 +34,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 			try {
 				const response = await fetch("/api/account/subscription", {
 					next: {
-						revalidate: 30 * 24 * 60 * 60, // 30 days in seconds
-						tags: ["user-subscription"],
+						tags: ["user_subscription"],
 					},
 				})
 				if (response.ok) {
