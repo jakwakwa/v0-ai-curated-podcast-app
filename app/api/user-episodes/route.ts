@@ -28,6 +28,10 @@ export async function GET(request: Request) {
 		const episodes = await prisma.userEpisode.findMany({
 			where: { user_id: userId },
 			orderBy: { created_at: "desc" },
+			cacheStrategy: {
+				swr: 60,
+				ttl: 200,
+			},
 		});
 
 		const storageReader = getStorageReader();

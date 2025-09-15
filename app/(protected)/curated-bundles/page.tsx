@@ -38,6 +38,11 @@ export default async function CuratedBundlesPage({ searchParams }: { searchParam
 				bundle_podcast: { include: { podcast: true } },
 			},
 			orderBy: { created_at: "desc" },
+			cacheStrategy: {
+				swr: 60,
+				ttl: 360000,
+				tags: ["BundlePanel in Admin"]
+			}
 		})
 
 		curatedBundles = bundles.map(b => ({
