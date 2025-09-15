@@ -240,8 +240,8 @@ export default function UserEpisodeAudioPlayer({ episode, onClose }: UserEpisode
 							<X />
 						</Button></div>
 				)}
-				<div className="flex flex-row">
-					<Button onClick={toggleMute} size="xs" variant="outline">
+				<div className="hidden lg:flex lg:flex-row  ">
+					<Button onClick={toggleMute} size="xs" variant="outline" className="hidden lg:flex lg:flex-row ">
 						{volumeIcon}
 					</Button>
 				</div>

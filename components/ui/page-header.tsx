@@ -29,11 +29,11 @@ const PageHeader = React.forwardRef<HTMLDivElement, PageHeaderProps>(({ classNam
 	const _isPathAllowed = allowedPaths.includes(pathname);
 
 	return (
-		<div className="bg-sidebar rounded-2xl px-2 flex flex-col justify-between">
+		<div className="bg-[#3a517c4f] page-header-bg rounded-2xl px-2 flex flex-col justify-between">
 			<div className={cn(headerVariants({ spacing, className }))} ref={ref} {...props}>
 				<h2 className="flex text-xl font-bold px-2 md:px-0 pt-0 pb-0 md:py-0 text-shadow-sm text-primary-forefround leading-[1.5] max-w-screen md:max-w-4xl">{title}</h2>
 				{description && (
-					<Typography as="p" variant="body" className="text-base px-2  md:px-0  md:py-1.5 text-primary-foreground/60 leading-[1.5] max-w-screen  text-shadow-sm">
+					<Typography as="p" variant="body" className="text-sm px-2  md:px-0  md:py-1.5 text-primary-foreground/60 leading-[1.5] max-w-screen  text-shadow-md font-medium w-full md:max-w-[57%]">
 						{description}
 					</Typography>
 				)}

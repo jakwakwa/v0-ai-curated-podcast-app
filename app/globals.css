@@ -1,520 +1,536 @@
-/* ============================================= */
-/* IMPORTS                     */
-/* ============================================= */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Vend+Sans:wght@500&display=swap');
-@import 'tailwindcss';
-@import 'tw-animate-css';
-
-@custom-variant dark (&:is(.dark *));
-
-@layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-
-	body {
-		@apply bg-background backdrop-blur-sm text-foreground;
-		width: 100%;
-		max-width: 100%;
-		margin: 0;
-		padding: 0;
-		text-align: left;
-		overflow-y: hidden;
-		height: auto;
-		background: #000000;
-		background: linear-gradient(135deg,
-				oklch(0.45 0.11 325.25 / 0.53),
-				rgba(88 175 242 / 0.2),
-				rgba(31 3 96 / 0.1));
-		backdrop-filter: blur(22px);
-		mix-blend-mode: saturation, luminosity;
-	}
-
-	::selection {
-		color: rgba(231 252 250 / 0.46) !important;
-		background-color: oklch(0.66 0.29 319.89 / 0.28) !important;
-		font-size: 0.4rem !important;
-	}
-
-	button {
-		/* border-radius: 8px; */
-		/* margin: 10px 0; */
-		font-size: 0.75rem;
-		cursor: pointer;
-	}
-
-	button:hover {
-		opacity: 0.8;
-	}
-
-	header {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		z-index: 100;
-		box-shadow: var(--shadow-md);
-	}
-
-	label {
-		opacity: 0.95;
-		font-weight: 600;
-		color: hsla(28.47 71.08% 83.73% / 0.73);
-	}
-
-	.main-layouts {
-		inset: 0;
-	}
-
-	/* --- Backdrop Blur --- */
-}
-
-@theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-
-	--radius-md: calc(var(--radius) - 2px);
-
-	--radius-lg: var(--radius);
-
-	--radius-xl: calc(var(--radius) + 4px);
-
-	--color-background: var(--background);
-
-	--color-foreground: var(--foreground);
-
-	--color-card: var(--card);
-
-	--color-card-foreground: var(--card-foreground);
-
-	--color-popover: var(--popover);
-
-	--color-popover-foreground: var(--popover-foreground);
-
-	--color-primary: var(--primary);
-
-	--color-primary-foreground: var(--primary-foreground);
-
-	--color-secondary: var(--secondary);
-
-	--color-secondary-foreground: var(--secondary-foreground);
-
-	--color-muted: var(--muted);
-
-	--color-muted-foreground: var(--muted-foreground);
-
-	--color-accent: var(--accent);
-
-	--color-accent-foreground: var(--accent-foreground);
-
-	--color-destructive: var(--destructive);
-
-	--color-border: var(--border);
-
-	--color-input: var(--input);
-
-	--color-ring: var(--ring);
-
-	--color-chart-1: var(--chart-1);
-
-	--color-chart-2: var(--chart-2);
-
-	--color-chart-3: var(--chart-3);
-
-	--color-chart-4: var(--chart-4);
-
-	--color-chart-5: var(--chart-5);
-
-	--color-sidebar: var(--sidebar);
-
-	--color-sidebar-foreground: var(--sidebar-foreground);
-
-	--color-sidebar-primary: var(--sidebar-primary);
-
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-
-	--color-sidebar-accent: var(--sidebar-accent);
-
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-
-	--color-sidebar-border: var(--sidebar-border);
-
-	--color-sidebar-ring: var(--sidebar-ring);
-}
-
-:root {
-	--radius: 0.65rem;
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.141 0.005 285.823);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.141 0.005 285.823);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.141 0.005 285.823);
-	--primary: oklch(0.606 0.25 292.717);
-	--primary-foreground: oklch(0.969 0.016 293.756);
-	--secondary: oklch(0.967 0.001 286.375);
-	--secondary-foreground: oklch(0.21 0.006 285.885);
-	--muted: oklch(0.967 0.001 286.375);
-	--muted-foreground: oklch(0.552 0.016 285.938);
-	--accent: oklch(0.967 0.001 286.375);
-	--accent-foreground: oklch(0.21 0.006 285.885);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.92 0.004 286.32);
-	--input: oklch(0.92 0.004 286.32);
-	--ring: oklch(0.606 0.25 292.717);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.141 0.005 285.823);
-	--sidebar-primary: oklch(0.606 0.25 292.717);
-	--sidebar-primary-foreground: oklch(0.969 0.016 293.756);
-	--sidebar-accent: oklch(0.967 0.001 286.375);
-	--sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-	--sidebar-border: oklch(0.92 0.004 286.32);
-	--sidebar-ring: oklch(0.606 0.25 292.717);
-}
-
-:root {
-	--warning: oklch(0.84 0.16 84);
-	--warning-foreground: oklch(0.28 0.07 46);
-}
-
-.dark {
-	--background: #000000;
-
-	--foreground: oklch(0.985 0 0);
-	--card: #121212;
-	--card-foreground: hsl(210 40% 98%);
-	--popover: oklch(0.14 0 308.45);
-	--popover-foreground: oklch(0.985 0 0);
-
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.274 0.006 286.033);
-	--muted-foreground: oklch(0.705 0.015 286.067);
-	--accent: oklch(0.26 0.05 225.45 / 0.28);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.55 0.12 20.39);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.552 0.016 285.938);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: #22222bb5;
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.274 0.006 286.033);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.552 0.016 285.938);
-
-	--primary: hsl(210 40% 98%);
-	--primary-foreground: hsl(220 12.4% 76.27%);
-	--secondary: hsl(259.74 55.88% 26.67%);
-	--secondary-foreground: hsl(0 0% 100%);
-	--muted: hsl(217.2 32.6% 17.5%);
-	--muted-foreground: hsl(180 1% 48%);
-
-	--destructive: hsl(0 62.8% 30.6%);
-	--destructive-foreground: hsl(210 40% 98%);
-	--border: hsl(187 10% 17%);
-	--input: hsla(203.64 18.64% 34.71% / 0.77);
-	--ring: hsl(162.18 40.56% 48.82%);
-	--chart-1: hsl(220 70% 50%);
-	--chart-2: hsl(160 60% 45%);
-	--chart-3: hsl(30 80% 55%);
-	--chart-4: hsl(280 65% 60%);
-	--chart-5: hsl(340 75% 55%);
-}
-
-@theme inline {
-	--color-warning: var(--warning);
-	--color-warning-foreground: var(--warning-foreground);
-}
-
-/* ============================================= */
-/* EPISODE CARDS                 */
-/* ============================================= */
-@layer utilities {
-	.bg-primary-card {
-		padding: 10px 20px;
-		font-size: 1rem !important;
-		background: var(--sidebar);
-		background-image: linear-gradient(to bottom,
-				oklch(0.3 0.01 308.18 / 0.99),
-				oklch(0.21 0 0 / 0.93)) !important;
-		border-radius: 30px;
-		outline: 1px solid #000000 !important;
-		outline-offset: 1px !important;
-
-		transition: all 0.2s ease-in-out;
-		background-blend-mode: multiply;
-	}
-
-	.episode-card-wrapper {
-		padding: 30px;
-		background: var(--sidebar);
-		background-image: linear-gradient(to top, #01010157, #111116b5);
-		border: 1px solid #1e262884 !important;
-		border-radius: 20px !important;
-
-		background-blend-mode: multiply;
-	}
-
-	p.episode-p {
-		display: -webkit-box;
-		line-clamp: 2;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.episode-card-wrapper-dark {
-		position: relative;
-		padding: 10px 20px;
-		/* border-radius: 40px !important; */
-		margin: 0 !important;
-		background: #000000;
-		background-image: linear-gradient(to top, #01010157, #111116B5);
-		/* box-shadow: inset 0px 4px 2px oklch(0 0 0 / 0.19) !important; */
-		transition: all 0.2s ease-in-out;
-	}
-}
-
-/* ============================================= */
-/* LAYOUT & SIDEBAR                  */
-/* ============================================= */
-@layer utilities {
-	.bg-sidebar {
-		background-image: linear-gradient(to top, #09090dc6, #11111ce9);
-		border-right: 1px solid #73cec218 !important;
-	}
-}
-
-/* ============================================= */
-/* button             */
-/* ============================================= */
-
-@layer utilities {
-	.btn-default {
-		background: linear-gradient(to top, #0b2d2d, #3c5352);
-		text-shadow: 0px 2px 0px 1px #26223480;
-		box-shadow:
-			inset 0px 1px 1px 0px #2ef09637,
-			inset 0px -2px 3px #1f1c279d,
-			0px 0px 0px 0px #1b1b1b1c,
-			0px 3px 3px 0px #0b0b0ba9,
-			0px 1px 0px 0px #050505d7,
-			inset 0px -3px 1px 0px #00000052;
-	}
-}
-
-/* ============================================= */
-/* CARDS & CONTAINERS               */
-/* ============================================= */
-@layer utilities {
-	.bg-card {
-		background-image: linear-gradient(to top, #01010157, #111116b5);
-		border: 1px solid oklch(0.41 0.02 292.48 / 0.39) !important;
-
-		box-shadow:
-			inset 0px 1px 0px #000712e1,
-			2px 2px 11px oklch(0.22 0.065 7.34 / 0.34),
-			1px 8px 10px 2px oklch(0% 0 0 / 0.171);
-		/* outline: 1px solid transparent !important; */
-	}
-
-	.bg-bundle-card,
-	.bg-bundle {
-		padding-bottom: 16px !important;
-		border-radius: 18px;
-		background-color: var(--sidebar);
-		box-shadow:
-			inset -5px -4px 59px 2px #0e0e10ea,
-			inset 0.5px 1px 0px 0px #4ce3db72,
-			3px 2px 3px 1px #000000cd,
-			0px 4px 10px 0px #00000062 !important;
-		/* outline-offset: 1px !important; */
-		backdrop-filter: blur(10px) !important;
-		transition: all 0.2s ease-in-out;
-	}
-}
-
-/* ============================================= */
-/* FORMS (Inputs, Textareas)            */
-/* ============================================= */
-@layer base {
-
-	input,
-	textarea {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
-		width: 100% !important;
-		margin: 10px 0 !important;
-		padding: 1.4rem 1.7rem !important;
-		font-size: 0.5rem;
-		line-height: 1rem;
-		font-weight: 500;
-		letter-spacing: 0.0015em;
-		color: oklch(0.92 0.04 173.12 / 0.8) !important;
-		background-color: #0c0b0e !important;
-		outline: 1px solid transparent !important;
-		border-radius: 10px !important;
-		box-shadow: inset 0px 2px 3px 2px #1212136a !important;
-		transition: all 0.2s ease-in-out;
-	}
-
-	input::placeholder,
-	textarea::placeholder {
-		color: oklch(0.69 0.04 212.96 / 0.7);
-		font-weight: 300 !important;
-		font-style: italic;
-		opacity: 0.4;
-		display: flex;
-		align-items: center;
-		width: 100% !important;
-		min-width: 100% !important;
-		max-width: initial !important;
-	}
-
-	input:focus-visible,
-	input:focus,
-	input:focus-within,
-	textarea:focus-visible {
-		font-weight: 600;
-		background-color: #141316 !important;
-		color: oklch(0.9 0.06 308.24 / 0.68);
-
-		outline: 1px solid var(--ring) !important;
-		outline-offset: 2px !important;
-		border: var(--ring) !important;
-	}
-
-	textarea {
-		height: auto;
-		min-height: 190px !important;
-	}
-
-	/* Clerk-specific form overrides */
-	.cl-formFieldInput {
-		padding: 1.3rem;
-		font-size: 0.9rem;
-		font-weight: 300 !important;
-		background: #121212 !important;
-		outline: 1px solid #00fbff2f !important;
-		border: #121212 !important;
-		box-shadow: 1px 2px 3px #121212 !important;
-	}
-
-	.cl-formFieldInput::placeholder {
-		font-size: 0.9rem;
-		font-weight: 300 !important;
-	}
-}
-
-/* ============================================= */
-/* MEDIA QUERIES                 */
-/* ============================================= */
-
-@media screen and (max-width: 1200px) {
-	.container {
-		border-radius: 30px;
-	}
-}
-
-@media screen and (max-width: 1120px) {
-	@keyframes heroGradientShift {
-		0% {
-			background-position:
-				50% 100%,
-				100% 50%,
-				100% 100%,
-				50% 50%;
+	/* ============================================= */
+	/* IMPORTS                     */
+	/* ============================================= */
+	@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Vend+Sans:wght@500&display=swap');
+	@import 'tailwindcss';
+	@import 'tw-animate-css';
+
+	@custom-variant dark (&:is(.dark *));
+
+	@layer base {
+		* {
+			@apply border-border outline-ring/50;
 		}
 
-		50% {
-			background-position:
-				30% 80%,
-				90% 85%,
-				85% 90%,
-				50% 50%;
+		body {
+			@apply bg-background backdrop-blur-sm text-foreground;
+			width: 100%;
+			max-width: 100%;
+			margin: 0;
+			/* color: var(--text-foreground); */
+			padding: 0;
+			text-align: left;
+			overflow-y: hidden;
+			height: auto;
+			background: #194A53;
+
+			background-blend-mode:multiply;
+			mix-blend-mode: multiply, multiply;
+				background: #000000;
+			background: linear-gradient(135deg,
+					oklch(0.67 0.24 325.6 / 0.53),
+					rgba(10 122 141 / 0.67),
+					rgba(31 3 96 / 0.1));
+			backdrop-filter: blur(22px);
+			mix-blend-mode: saturation, luminosity;
 		}
 
-		100% {
-			background-position:
-				55% 115%,
-				85% 90%,
-				80% 85%,
-				50% 50%;
+		::selection {
+			color: rgba(231 252 250 / 0.46) !important;
+			background-color: oklch(0.66 0.29 319.89 / 0.28) !important;
+			font-size: 0.4rem !important;
+		}
+
+		button {
+			/* border-radius: 8px; */
+			/* margin: 10px 0; */
+			font-size: 0.75rem;
+			cursor: pointer;
+		}
+
+		button:hover {
+			opacity: 0.8;
+		}
+
+		header {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 100;
+			box-shadow: var(--shadow-md);
+		}
+
+		label {
+			opacity: 0.95;
+			font-weight: 600;
+			color: hsla(28.47 71.08% 83.73% / 0.73);
+		}
+
+		.main-layouts {
+			inset: 0;
+		}
+
+		/* --- Backdrop Blur --- */
+	}
+
+	@theme inline {
+		--radius-sm: calc(var(--radius) - 4px);
+
+		--radius-md: calc(var(--radius) - 2px);
+
+		--radius-lg: var(--radius);
+
+		--radius-xl: calc(var(--radius) + 4px);
+
+		--color-background: var(--background);
+
+		--color-foreground: var(--foreground);
+
+		--color-card: var(--card);
+
+		--color-card-foreground: var(--card-foreground);
+
+		--color-popover: var(--popover);
+
+		--color-popover-foreground: var(--popover-foreground);
+
+		--color-primary: var(--primary);
+
+		--color-primary-foreground: var(--primary-foreground);
+
+		--color-secondary: var(--secondary);
+
+		--color-secondary-foreground: var(--secondary-foreground);
+
+		--color-muted: var(--muted);
+
+		--color-muted-foreground: var(--muted-foreground);
+
+		--color-accent: var(--accent);
+
+		--color-accent-foreground: var(--accent-foreground);
+
+		--color-destructive: var(--destructive);
+
+		--color-border: var(--border);
+
+		--color-input: var(--input);
+
+		--color-ring: var(--ring);
+
+		--color-chart-1: var(--chart-1);
+
+		--color-chart-2: var(--chart-2);
+
+		--color-chart-3: var(--chart-3);
+
+		--color-chart-4: var(--chart-4);
+
+		--color-chart-5: var(--chart-5);
+
+		--color-sidebar: var(--sidebar);
+
+		--color-sidebar-foreground: var(--sidebar-foreground);
+
+		--color-sidebar-primary: var(--sidebar-primary);
+
+		--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+
+		--color-sidebar-accent: var(--sidebar-accent);
+
+		--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+		--color-sidebar-border: var(--sidebar-border);
+
+		--color-sidebar-ring: var(--sidebar-ring);
+	}
+
+	:root {
+		--radius: 0.65rem;
+		--background: oklch(1 0 0);
+		--foreground: oklch(0.141 0.005 285.823);
+		--card: oklch(1 0 0);
+		--card-foreground: oklch(0.141 0.005 285.823);
+		--popover: oklch(1 0 0);
+		--popover-foreground: oklch(0.141 0.005 285.823);
+		--primary: oklch(0.606 0.25 292.717);
+		--primary-foreground: oklch(0.969 0.016 293.756);
+		--secondary: oklch(0.967 0.001 286.375);
+		--secondary-foreground: oklch(0.21 0.006 285.885);
+		--muted: oklch(0.967 0.001 286.375);
+		--muted-foreground: oklch(0.552 0.016 285.938);
+		--accent: oklch(0.967 0.001 286.375);
+		--accent-foreground: oklch(0.21 0.006 285.885);
+		--destructive: oklch(0.577 0.245 27.325);
+		--border: oklch(0.92 0.004 286.32);
+		--input: oklch(0.92 0.004 286.32);
+		--ring: oklch(0.606 0.25 292.717);
+		--chart-1: oklch(0.646 0.222 41.116);
+		--chart-2: oklch(0.6 0.118 184.704);
+		--chart-3: oklch(0.398 0.07 227.392);
+		--chart-4: oklch(0.828 0.189 84.429);
+		--chart-5: oklch(0.769 0.188 70.08);
+		--sidebar: oklch(0.985 0 0);
+		--sidebar-foreground: oklch(0.141 0.005 285.823);
+		--sidebar-primary: oklch(0.606 0.25 292.717);
+		--sidebar-primary-foreground: oklch(0.969 0.016 293.756);
+		--sidebar-accent: oklch(0.967 0.001 286.375);
+		--sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+		--sidebar-border: oklch(0.92 0.004 286.32);
+		--sidebar-ring: oklch(0.606 0.25 292.717);
+	}
+
+	:root {
+		--warning: oklch(0.84 0.16 84);
+		--warning-foreground: oklch(0.28 0.07 46);
+	}
+
+	.dark {
+		--background: #000000;
+
+		--foreground: oklch(0.87 0.02 283.08 / 0.82);
+		--card: #121212;
+		--card-foreground: hsla(187.64 22.63% 47.65% / 0.8);
+		--popover: oklch(0.15 0.01 300.8);
+		--popover-foreground: oklch(0.92 0.02 184.89);
+
+		--secondary-foreground: oklch(0.88 0.04 176.2 / 0.72);
+		--muted: oklch(0.274 0.006 286.033);
+		--muted-foreground: color(a98-rgb 0.72 0.7 0.73 / 0.46);
+		--accent: oklch(0.13 0 286.07 / 0.33);
+		--accent-foreground: oklch(0.985 0 0);
+		--destructive: oklch(0.55 0.12 20.39);
+		--border: oklch(1 0 0 / 10%);
+		--input: oklch(1 0 0 / 15%);
+		--ring: oklch(0.552 0.016 285.938);
+		--chart-1: oklch(0.488 0.243 264.376);
+		--chart-2: oklch(0.696 0.17 162.48);
+		--chart-3: oklch(0.769 0.188 70.08);
+		--chart-4: oklch(0.627 0.265 303.9);
+		--chart-5: oklch(0.645 0.246 16.439);
+		--sidebar: oklch(0.2 0.01 285.65);
+		--sidebar-foreground: oklch(0.81 0.02 282.87);
+		--sidebar-primary: oklch(0.488 0.243 264.376);
+		--sidebar-primary-foreground: oklch(0.63 0.03 321.99);
+		--sidebar-accent: oklch(0.34 0.03 310.61);
+		--sidebar-accent-foreground: oklch(0.99 0 0 / 0.39);
+		--sidebar-border: oklch(0.91 0.06 330.41 / 0.09);
+		--sidebar-ring: oklch(0.68 0.01 286.05);
+
+		--primary: hsl(213.33 7.69% 77.06%);
+		--primary-foreground: hsl(220 12.4% 76.27%);
+		--secondary: hsl(259.74 55.88% 26.67%);
+		--secondary-foreground: hsl(278.18 10.48% 79.41%);
+		--muted: hsl(217.2 32.6% 17.5%);
+
+		--destructive: hsl(0 62.8% 30.6%);
+		--destructive-foreground: hsl(210 40% 98%);
+		--border: hsl(187 10% 17%);
+		--input: hsla(203.64 18.64% 34.71% / 0.77);
+		--ring: hsl(162.18 40.56% 48.82%);
+		--chart-1: hsl(220 70% 50%);
+		--chart-2: hsl(160 60% 45%);
+		--chart-3: hsl(30 80% 55%);
+		--chart-4: hsl(280 65% 60%);
+		--chart-5: hsl(340 75% 55%);
+	}
+
+	@theme inline {
+		--color-warning: var(--warning);
+		--color-warning-foreground: var(--warning-foreground);
+	}
+
+	/* ============================================= */
+	/* EPISODE CARDS                 */
+	/* ============================================= */
+	@layer utilities {
+		.bg-primary-card {
+			padding: 10px 20px;
+			font-size: 1rem !important;
+			background: var(--sidebar);
+			background-image: linear-gradient(to bottom,oklch(0.21 0 0 / 0.93),	oklch(0.46 0.12 306.85 / 0.99)) !important;
+			border-radius: 30px;
+			outline: 1px solid #000000 !important;
+			outline-offset: 1px !important;
+
+			transition: all 0.2s ease-in-out;
+			background-blend-mode: multiply;
+		}
+
+		.page-header-bg {
+				background-image: linear-gradient(to bottom right, #01537457, #101016B5);
+			border: 1px solid #1e262884 !important;
+			border-radius: 20px !important;
+		}
+
+
+		.episode-card-wrapper {
+			padding: 30px;
+			background: var(--sidebar);
+			background-image: linear-gradient(to top, #01010157, #111116b5);
+			border: 1px solid #1e262884 !important;
+			border-radius: 20px !important;
+
+			background-blend-mode: multiply;
+		}
+
+		p.episode-p {
+			display: -webkit-box;
+			line-clamp: 2;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.episode-card-wrapper-dark {
+			position: relative;
+			padding: 10px 20px;
+			/* border-radius: 40px !important; */
+			margin: 0 !important;
+			background: #000000;
+			background-image: linear-gradient(to top, #01010157, #111116B5);
+			/* box-shadow: inset 0px 4px 2px oklch(0 0 0 / 0.19) !important; */
+			transition: all 0.2s ease-in-out;
 		}
 	}
-}
 
-@media screen and (min-width: 767px) {
-	.default-card {
-		border-radius: 0px;
-		margin: 0px !important;
-		padding: 0px !important;
-		width: 99% !important;
+	/* ============================================= */
+	/* LAYOUT & SIDEBAR                  */
+	/* ============================================= */
+	@layer utilities {
+		.bg-sidebar {
+			background: var(--sidebar);
+			border-right: 1px solid #434A4F5A !important;
+		}
 	}
 
-	.episode-card-wrapper {
-		padding: 24px 10px 25px 10px !important;
-		margin: 0 !important;
-		width: 99% !important;
+	/* ============================================= */
+	/* button             */
+	/* ============================================= */
+
+	@layer utilities {
+		.btn-default {
+			background: linear-gradient(to top, #0b2d2d, #3c5352);
+			text-shadow: 0px 2px 0px 1px #26223480;
+			box-shadow:
+				inset 0px 1px 1px 0px #2ef09637,
+				inset 0px -2px 3px #1f1c279d,
+				0px 0px 0px 0px #1b1b1b1c,
+				0px 3px 3px 0px #0b0b0ba9,
+				0px 1px 0px 0px #050505d7,
+				inset 0px -3px 1px 0px #00000052;
+		}
 	}
 
-	.episode-card {
-		width: 100% !important;
-		max-width: 100%;
-		min-width: 100%;
-		margin: 0 !important;
+	/* ============================================= */
+	/* CARDS & CONTAINERS               */
+	/* ============================================= */
+	@layer utilities {
+		.bg-card {
+		background-color: #1E202B;
+			box-shadow:
+				inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.77),
+				2px 3px 3px 1px oklch(0.29 0.01 296.92 / 0.81),
+				2px 2px 8px 2px #000000B5;
+				padding: 20px !important;
+				/* border: 1px solid #24242A;	 */
+				outline-offset: 1px;
+			outline: 1px solid #121414C4 !important;
+		}
 
-		padding: 4px 10px 5px 10px !important;
-		align-items: flex-start;
+		.bg-bundle-card,
+		.bg-bundle {
+			padding-bottom: 16px !important;
+			border-radius: 18px;
+			background-color: var(--sidebar);
+			box-shadow:
+				inset -5px -4px 59px 2px #0e0e10ea,
+				inset 0.5px 1px 0px 0px #4ce3db72,
+				3px 2px 3px 1px #000000cd,
+				0px 4px 10px 0px #00000062 !important;
+			/* outline-offset: 1px !important; */
+			backdrop-filter: blur(10px) !important;
+			transition: all 0.2s ease-in-out;
+		}
 	}
 
+	/* ============================================= */
+	/* FORMS (Inputs, Textareas)            */
+	/* ============================================= */
+	@layer base {
+
+		input,
+		textarea {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			width: 100% !important;
+			margin: 10px 0 !important;
+			padding: 1.4rem 1.7rem !important;
+			font-size: 0.5rem;
+			line-height: 1rem;
+			font-weight: 500;
+			letter-spacing: 0.0015em;
+			color: oklch(0.92 0.04 173.12 / 0.8) !important;
+			background-color: #0c0b0e !important;
+			outline: 1px solid transparent !important;
+			border-radius: 10px !important;
+			box-shadow: inset 0px 2px 3px 2px #1212136a !important;
+			transition: all 0.2s ease-in-out;
+		}
+
+		input::placeholder,
+		textarea::placeholder {
+			color: oklch(0.69 0.04 212.96 / 0.7);
+			font-weight: 300 !important;
+			font-style: italic;
+			opacity: 0.4;
+			display: flex;
+			align-items: center;
+			width: 100% !important;
+			min-width: 100% !important;
+			max-width: initial !important;
+		}
+
+		input:focus-visible,
+		input:focus,
+		input:focus-within,
+		textarea:focus-visible {
+			font-weight: 600;
+			background-color: #141316 !important;
+			color: oklch(0.9 0.06 308.24 / 0.68);
+
+			outline: 1px solid var(--ring) !important;
+			outline-offset: 2px !important;
+			border: var(--ring) !important;
+		}
+
+		textarea {
+			height: auto;
+			min-height: 190px !important;
+		}
+
+		/* Clerk-specific form overrides */
+		.cl-formFieldInput {
+			padding: 1.3rem;
+			font-size: 0.9rem;
+			font-weight: 300 !important;
+			background: #121212 !important;
+			outline: 1px solid #00fbff2f !important;
+			border: #121212 !important;
+			box-shadow: 1px 2px 3px #121212 !important;
+		}
+
+		.cl-formFieldInput::placeholder {
+			font-size: 0.9rem;
+			font-weight: 300 !important;
+		}
 	.episode-info {
-		display: none !important;
-	}
-}
-
-@media screen and (min-width: 460) {
-	body {
-		position: fixed;
-	}
-.timeDisplay {
-font-size: 2rem !important;
-}
-	.episode-card {
-		padding-top: 15px;
-		padding-bottom: 10px;
-		display: flex;
-		align-items: center !important;
-		/* min-height: 100px !important; */
-		border-radius: 13px !important;
-		margin-bottom: 7px !important;
+			display: none !important;
+		}
 	}
 
-	.episode-card-wrapper-dark {
-		border-radius: 10px !important;
-		padding: 10px !important;
+	/* ============================================= */
+	/* MEDIA QUERIES                 */
+	/* ============================================= */
+
+	@media screen and (max-width: 1200px) {
+		.container {
+			border-radius: 30px;
+		}
 	}
 
-	.episode-card-wrapper {
-		padding: 24px 20px 25px 20px !important;
-		margin: 0 !important;
+	@media screen and (max-width: 1120px) {
+		@keyframes heroGradientShift {
+			0% {
+				background-position:
+					50% 100%,
+					100% 50%,
+					100% 100%,
+					50% 50%;
+			}
+
+			50% {
+				background-position:
+					30% 80%,
+					90% 85%,
+					85% 90%,
+					50% 50%;
+			}
+
+			100% {
+				background-position:
+					55% 115%,
+					85% 90%,
+					80% 85%,
+					50% 50%;
+			}
+		}
 	}
 
+	@media screen and (max-width: 767px) {
+		.default-card {
+			border-radius: 0px;
+			margin: 0px !important;
+			padding: 0px !important;
+			width: 99% !important;
+		}
 
-	.episode-info {
-		display: none !important;
+		.episode-card-wrapper {
+			padding: 24px 10px 25px 10px !important;
+			margin: 0 !important;
+			width: 99% !important;
+		}
+
+		.episode-card {
+			width: 100% !important;
+			max-width: 100%;
+			min-width: 100%;
+			margin: 0 !important;
+
+			padding: 4px 10px 5px 10px !important;
+			align-items: flex-start;
+		}
+
+		.episode-info {
+			display: none !important;
+		}
 	}
-}
+
+	@media screen and (max-width: 460) {
+		body {
+			position: fixed;
+		}
+	.timeDisplay {
+	font-size: 2rem !important;
+	}
+		.episode-card {
+			padding-top: 15px;
+			padding-bottom: 10px;
+			display: flex;
+			align-items: center !important;
+			/* min-height: 100px !important; */
+			border-radius: 13px !important;
+			margin-bottom: 7px !important;
+		}
+
+		.episode-card-wrapper-dark {
+			border-radius: 10px !important;
+			padding: 10px !important;
+		}
+
+		.episode-card-wrapper {
+			padding: 24px 20px 25px 20px !important;
+			margin: 0 !important;
+		}
+
+	@media screen and (min-width: 460) {
+		.episode-info {
+			display: none !important;
+		}
+
+	}
+
+	}

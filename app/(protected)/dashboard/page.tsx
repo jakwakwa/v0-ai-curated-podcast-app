@@ -130,13 +130,16 @@ export default function CurationProfileManagementPage() {
 		: null;
 
 	return (
-		<div className="w-full space-y-3 flex  flex-col gap-4">
-			<PageHeader title="Dashboard: Profile" description="Change or select bundles, view or create custom episodes from any podcast episode." />
+		<div className="flex flex-col gap-3 w-full episode-card-wrapper ">
+			<PageHeader
+				title="Welcome back!"
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."
+			/>
 
 			{/* Latest Bundle Episode Section */}
 			{latestBundleEpisode && (
-				<div className="w-full space-y-3 episode-card-wrapper border-dark border-b-dark">
-					<CardTitle className="mb-4">Latest from Your Bundle</CardTitle>
+				<div className="w-full space-y-0 episode-card-wrapper border-dark border-b-dark">
+					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd"><span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle</CardTitle>
 					<CardDescription className="text-sm opacity-90 mb-4">
 						The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}
 					</CardDescription>
@@ -168,13 +171,13 @@ export default function CurationProfileManagementPage() {
 				</div>
 			) : userCurationProfile ? (
 				<div className="flex flex-col lg:flex-row gap-4">
-					<div className="w-full lg:w-1/2 episode-card-wrapper border-dark border-b-dark">
-						<div className="w-full flex flex-col justify-between pb-0">
-							<CardTitle className=" mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
+					<div className="w-full lg:w-1/2 episode-card-wrapper border border-b-[#fff]">
+						<div className="w-full flex flex-col justify-between pb-0 rounded-2xl">
+							<CardTitle className="mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
 
 							{/*  */}
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<div className="bg-[#1920214E] rounded-t-md  p-4">
+								<div className="bg-[#7f6aad3b]  border-1 border-[#ffffff0f]  rounded-t-md  p-4">
 									<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
 										<Edit />
 									</Button>
@@ -197,8 +200,8 @@ export default function CurationProfileManagementPage() {
 							)}
 						</div>
 
-						<div className="mt-4 w-full">
-							<div className="bg-[#000]/30 rounded-b-2xl  shadow-none border-none px-4 p-4">
+						<div className="mt-0 w-full overflow-hidden ">
+							<div className="bg-[#4C3E67]/30 rounded-b-2xl   border-1 border-[#63515142] shadow-none px-4 p-4">
 								<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
 								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden pb-6 pt-4">
 									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary-forefround bg-muted-foreground/10 py-4 px-1">

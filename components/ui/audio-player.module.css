@@ -10,20 +10,20 @@
 	padding-right: 40px !important;
 	padding-top: 10px !important;
 	padding-bottom: 15px;
-	background: #0F0F0FBA;
-	background-image: linear-gradient(200deg,#5EBBDFC1 10%, #76A0E3C1 30%, #BB6EC1DF 55%,  #413358C7 70%);
+	background: #29747777;
+	background-image: linear-gradient(45deg,oklch(0.31 0.05 219.51 / 0.89) 10%, #63056651 60%);
 	border-top: 1px solid #2A2626D4;
-	box-shadow:inset 0 -21px 70px 0px #000000;
+	box-shadow:inset 0 -3px 40px 0px #000000C3, inset  0 -29px 70px 1px #000000C8;
 	z-index: 999 !important;
 	display: flex;
-	padding-left: 300px !important;
+	padding-left: 300px ;
 	width: 100%;
 	align-items: center;
 	height: 180px;
 	gap: 1.5rem;
 	max-height: 120px;
-	background-blend-mode: overlay, multiply;
-	backdrop-filter: blur(5px) !important;
+	background-blend-mode: multiply, multiply;
+	backdrop-filter: blur(8px) !important;
 }
 .userAudioPlayer {
 	padding-left: 300px;
@@ -178,7 +178,7 @@
 
 .volumeControl {
 	display: flex;
-	align-items: center;
+	align-items: flex-end;
 	gap: 0.5rem;
 	min-width: 20px;
 }
@@ -357,39 +357,46 @@ button.playPauseButton svg {
 /* Responsive design */
 @media (max-width: 768px) {
 	.audioPlayer {
+		width: 100vw;
+		padding: initial !important;
+		justify-content: flex-end;
+		gap: 0px;
 	}
 	.timeDisplay {
 		color: #b3b3b3;
-		display: none !important;
-		/* min-width: 140px; */
 
-		text-align: left;
+
 	}
 	.playPauseButton {
-		width: 40px;
+		width: 30px;
 		height: 40px;
 	}
-
+.controls,
 	.progressContainer {
 		/* display: none; */
-		width: 30px !important;
-		/* min-width: none !important; */
-		max-width: none !important;
+		width:fit-content !important;
+		padding: 0px;
+		gap: 1rem !important;
+	justify-content: flex-start;
+		min-width: initial !important;
+		max-width: initial !important;
 	}
 
+.progressBar {
+	width: 10vw;
+}
 	.timeDisplay {
 		/* display: none; */
-		min-width: 35px;
-		width: 20px !important;
-		min-width: none !important;
-		max-width: none !important;
+		 width: 30px;
+		/* min-width: none !important; */
+		/* max-width: none !important; */
+		padding: initial !important;
+		margin: initial !important;
 	}
 
 	.volumeControl {
-		width: 20px !important;
-		min-width: none !important;
-		max-width: none !important;
-		display: none;
+
+		/* display: none; */
 	}
 	.info {
 		width: 100%;
@@ -409,6 +416,7 @@ button.playPauseButton svg {
 	.episode-info {
 		display: none !important;
 	}
+
 }
 
 @media (max-width: 480px) {
@@ -441,6 +449,21 @@ button.playPauseButton svg {
 		/* max-height: 90px; */
 	}
 
+		.audioPlayer {
+		width: 100vw;
+		min-width: 100vw !important;
+		left: 0px;
+		min-height: auto !important;
+		/* padding: initial !important; */
+		justify-content: space-between;
+		gap: 20px;
+	}
+.progressContainer {
+		/* display: none; */
+		width: 30px;
+		/* min-width: none !important; */
+		max-width: none !important;
+	}
 	/* .info {
 		flex: 1;
 		min-width: 0;
@@ -450,22 +473,33 @@ button.playPauseButton svg {
 		display: none;
 	}
 
-	.controls {
-		gap: 0.75rem;
+	.timeDisplay {
+		/* gap: 0.75rem; */
+
 	}
 
-	.progressContainer {
-		min-width: 120px;
+	.progressBar {
+
+
+			max-width: initial;
+			width: fit-content;
+			min-width: 80px;
 	}
 
 
-	.episodeImage,
+	.episodeImageContainer,
 	.placeholderImage {
 	display: none;
 	}
 	button.playPauseButton {
 		background-color: #2dcabb !important;
 		color: #9ee982 !important;
-		width: 40px !important;
+		width: 40px;
 	}
+
+	.volumeButton {
+		margin-left: 10px;
+		display: none;
+	}
+
 }

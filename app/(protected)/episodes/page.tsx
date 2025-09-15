@@ -59,8 +59,12 @@ export default function EpisodesPage() {
 	}
 
 	return (
-		<div className="w-full space-y-0">
-			<PageHeader title="Bundle Episodes" description="Listen to all your curated podcast episodes from your selected bundles." />
+		<div className="w-full episode-card-wrapper">
+			<PageHeader
+				title="Bundle Episodes"
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."
+			/>
+
 
 			{isLoading ? (
 				<div className="px-0 md:p-8 mx-auto">

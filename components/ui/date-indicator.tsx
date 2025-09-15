@@ -44,7 +44,7 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 	}
 	if (!label) {
 		return (
-			<div className={`flex py-0 h-auto leading-none font-normal mr-1 ${sizeClasses[size]} no-wrap text-accent-foreground  text-[0.6rem]`}>
+			<div className={`flex py-0 h-auto leading-none font-normal mr-1 ${sizeClasses[size]} no-wrap text-foreground/70  text-[0.6rem]`}>
 				Created {getTimeAgoInDays(indicator)}
 			</div>
 		)

@@ -52,7 +52,7 @@ function SelectContent({ className, children, position = "popper", ...props }: R
 					className={cn(
 						"p-1 overflow-y-auto cursor-pointer",
 						position === "popper" &&
-						"bg-[#1D191FE0] py-4 px-5 border-1 border-[#15191DED] rounded-sm max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-4 text-[7px] "
+						"bg-[#1D191FE0] py-4 px-5 border-1 border-[#15191DED] rounded-sm max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-4 text-[12px] "
 					)}
 				>
 					{children}

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { VOICE_OPTIONS } from "@/lib/constants/voices"
 
-const EPISODE_LIMIT = 20
+const EPISODE_LIMIT = 10
 
 export function EpisodeCreator() {
 	const router = useRouter()
@@ -130,14 +130,14 @@ export function EpisodeCreator() {
 		<div className="w-full h-auto mb-0 px-16 py-12">
 			<Card className="w-full flex flex-col gap-8">
 				<CardHeader>
-					<h1 className="text-xl font-bold mb-4">Generate a custom episode</h1>
+					<h1 className="text-xl text-foreground font-bold mb-4">Generate a custom episode</h1>
 					<CardDescription>Provide episode details. We’ll resolve sources and transcribe in the background.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{isLoadingUsage ? (
 						<p>Loading usage data...</p>
 					) : hasReachedLimit ? (
-						<p className="text-red-500">You have reached your monthly limit for episode creation.</p>
+						<p className="text-amber-500"><span className="mr-3">⚠️</span>You have reached your monthly limit for episode creation.</p>
 					) : (
 						<form
 							className="space-y-6 w-full"
@@ -177,7 +177,7 @@ export function EpisodeCreator() {
 								</div>
 							</div>
 
-							<div className="space-y-6 border rounded-lg p-4 bg-accent">
+							<div className="space-y-6 border border-[#3a383c67] rounded-xl shadow-md p-4 bg-[#000]/40">
 
 								<div className="space-y-2">
 									<Label size="lg" >Voice Settings</Label>
