@@ -113,10 +113,10 @@ export function BundleSelectionDialog({
 							</Button>
 							<Button type="button" variant="default" onClick={handleConfirm} disabled={isConfirming || isLoading} className="min-w-[120px]">
 								{isConfirming ? (
-									<>
+									<div className="flex items-center">
 										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
 										Updating...
-									</>
+									</div>
 								) : (
 									"Confirm Selection"
 								)}

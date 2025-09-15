@@ -58,11 +58,9 @@ function Button({
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
 			{children}
-			{variant === "play" &&
-
+			{variant === "play" && !asChild && (
 				<PlayIcon color="#238681F7" />
-
-			}
+			)}
 		</Comp>
 	);
 }
