@@ -82,6 +82,4 @@
 	"editor.fontLigatures": true,
 	"terminal.integrated.fontLigatures.enabled": true,
 	"editor.fontVariations": true,
-	"editor.wordWrapColumn": 80,
-	"editor.wordWrap": "bounded",
 }
