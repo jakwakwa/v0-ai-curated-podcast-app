@@ -1,10 +1,10 @@
 "use client";
 
-import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, ChevronUp, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
 import type { FC } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { formatTime } from "@/components/ui/audio-player";
+import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Episode, UserEpisode } from "@/lib/types";
 
@@ -22,6 +22,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [volume, setVolume] = useState(1);
 	const [isMuted, setIsMuted] = useState(false);
+	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 
 	const audioSrc = useMemo(() => {
 		if (!episode) return "";
@@ -213,13 +214,27 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				<div className="bg-sidebar rounded-none max-h-[300px] pt-10 px-12">
 
 					{/* Transcript */}
-					{episode && "transcript" in episode && episode.transcript && (
-						<div className="flex flex-col gap-[10px]">
-							<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
-							<div className="max-h-[300px] overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 ">
-								{episode.transcript}
+					{episode && (
+						(("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)) && (
+							<div className="flex flex-col gap-[10px]">
+								<div className="flex items-center justify-between">
+									<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
+									<button
+										type="button"
+										onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
+										className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/70 hover:text-[var(--audio-sheet-foreground)] transition-colors"
+									>
+										{isTranscriptExpanded ? "Show Less" : "Show More"}
+										{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+									</button>
+								</div>
+								<div className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${
+									isTranscriptExpanded ? "max-h-[600px]" : "max-h-[150px]"
+								}`}>
+									{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)}
+								</div>
 							</div>
-						</div>
+						)
 					)}
 
 				</div>
