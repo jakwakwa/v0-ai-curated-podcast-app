@@ -405,7 +405,9 @@ function SidebarMenuButton({
 	const { isMobile, state } = useSidebar()
 
 	const button = (
-		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props} />
+		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props}>
+
+		</Comp>
 	)
 
 	if (!tooltip) {
@@ -454,7 +456,9 @@ function SidebarMenuAction({
 				className
 			)}
 			{...props}
-		/>
+		>
+
+		</Comp>
 	)
 }
 
@@ -548,7 +552,9 @@ function SidebarMenuSubButton({
 				className
 			)}
 			{...props}
-		/>
+		>
+
+		</Comp>
 	)
 }
 

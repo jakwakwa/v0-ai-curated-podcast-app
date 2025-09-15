@@ -1,6 +1,5 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PlayIcon } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +15,7 @@ const buttonVariants = cva(
 				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
 				link: "text-primary-forefround underline-offset-4 hover:underline",
 				play: "p-0 m-0 h-32 w-32",
-				icon: ""
+				icon: "",
 			},
 			size: {
 				default: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
@@ -25,12 +24,12 @@ const buttonVariants = cva(
 				md: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
 				xs: "p-2",
 				icon: "h-24 w-24",
-				play: "h-24 w-24"
+				play: "h-24 w-24",
 			},
 		},
 		defaultVariants: {
 			variant: "default",
-			size: "default"
+			size: "default",
 		},
 	}
 );
@@ -58,9 +57,6 @@ function Button({
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
 			{children}
-			{variant === "play" && !asChild && (
-				<PlayIcon color="#238681F7" />
-			)}
 		</Comp>
 	);
 }

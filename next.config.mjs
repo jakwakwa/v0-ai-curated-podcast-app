@@ -77,11 +77,13 @@ const nextConfig = {
 							'https://storage.googleapis.com',
 							'https://storage.cloud.google.com',
 							'*.googleusercontent.com', // Added wildcard for GCS redirects
+							'https://vercel.live', // Add Vercel.live for live preview
 					],
 					'worker-src': ["'self'", 'blob:'],
 					'frame-src': [
 							'https://challenges.cloudflare.com',
 							'https://sandbox-buy.paddle.com',
+							'https://vercel.live', // Add Vercel.live for live preview
 					],
 					'object-src': ["'none'"],
 					'base-uri': ["'self'"],
