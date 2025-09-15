@@ -3,21 +3,21 @@
   width: 100%;
   position: absolute;
   z-index: -1;
-	/* overflow: hidden; */
+	overflow: hidden;
 }
 
 .grid-bg {
-	  min-height: 110vh;
-  /* background: url('/assets/background/grid-bg.svg') no-repeat; */
+	min-height: 110vh;
+  background: url('/assets/background/grid-bg.svg') no-repeat;
 }
 
 .grain-background {
-  /* background: url('/assets/background/grain-bg.svg') repeat; */
+  background: url('/assets/background/grain-bg.svg') repeat;
 }
 
 .grain-blur {
   top: 20px;
-  /* background: url('/assets/background/grain-blur.svg') no-repeat 50%; */
+  background: url('/assets/background/grain-blur.svg') no-repeat 50%;
 }
 
 .large-blur {
