@@ -3,18 +3,16 @@
 import { AlertCircle, BoxesIcon, Edit } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import EditUserFeedModal from "@/components/edit-user-feed-modal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppSpinner } from "@/components/ui/app-spinner";
-import AudioPlayer from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Body, Typography } from "@/components/ui/typography";
-import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types";
 
 interface SubscriptionInfo {
@@ -39,15 +37,7 @@ export default function CurationProfileManagementPage() {
 
 	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
-	const [currentlyPlayingUserEpisodeId, setCurrentlyPlayingUserEpisodeId] = useState<string | null>(null);
-	const [currentlyPlayingBundleEpisodeId, setCurrentlyPlayingBundleEpisodeId] = useState<string | null>(null);
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-
-	// Find the portal container on mount
-	useEffect(() => {
-		const container = document.getElementById("global-audio-player");
-		setPortalContainer(container);
-	}, []);
+	const { setEpisode } = useAudioPlayerStore();
 
 	const fetchAndUpdateData = useCallback(async () => {
 		try {
@@ -154,7 +144,7 @@ export default function CurationProfileManagementPage() {
 								<Button
 									variant="play"
 									onClick={() => {
-										setCurrentlyPlayingBundleEpisodeId(latestBundleEpisode.episode_id);
+										setEpisode(latestBundleEpisode);
 									}}
 								/>
 							}
@@ -252,7 +242,27 @@ export default function CurationProfileManagementPage() {
 													actions={
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
-															<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" className={episode.episode_id ? " m-0" : ""} />
+															<Button 
+																onClick={() => {
+																	// Create a normalized episode for the audio player
+																	const normalizedEpisode: UserEpisode = {
+																		episode_id: episode.episode_id,
+																		episode_title: episode.episode_title,
+																		gcs_audio_url: episode.signedAudioUrl,
+																		summary: episode.summary,
+																		created_at: episode.created_at,
+																		updated_at: episode.updated_at,
+																		user_id: episode.user_id,
+																		youtube_url: episode.youtube_url,
+																		transcript: episode.transcript,
+																		status: episode.status,
+																		duration_seconds: episode.duration_seconds,
+																	};
+																	setEpisode(normalizedEpisode);
+																}} 
+																variant="play" 
+																className={episode.episode_id ? " m-0" : ""} 
+															/>
 														)
 													}
 												/>
@@ -273,58 +283,6 @@ export default function CurationProfileManagementPage() {
 				</div>
 			)}
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
-			{currentlyPlayingUserEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
-						<AudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />
-					</div>,
-					portalContainer
-				)}
-
-			{/* Bundle Episode Audio Player Portal */}
-			{currentlyPlayingBundleEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full px-2 md:px-4 flex items-center justify-center">
-						<BundleAudioPlayerWrapper playingEpisodeId={currentlyPlayingBundleEpisodeId} episodes={_bundleEpisodes} onClose={() => setCurrentlyPlayingBundleEpisodeId(null)} />
-					</div>,
-					portalContainer
-				)}
 		</div>
 	);
-}
-
-export function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
-	// Force fresh lookup of episode and require a signed URL for playback
-	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
-	if (!episode?.signedAudioUrl) {
-		return null;
-	}
-
-	const normalizedEpisode: UserEpisode = {
-		episode_id: episode.episode_id,
-		episode_title: episode.episode_title,
-		gcs_audio_url: episode.signedAudioUrl,
-		summary: episode.summary,
-		created_at: episode.created_at,
-		updated_at: episode.updated_at,
-		user_id: episode.user_id,
-		youtube_url: episode.youtube_url,
-		transcript: episode.transcript,
-		status: episode.status,
-		duration_seconds: episode.duration_seconds,
-	};
-
-	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />;
-}
-
-export function BundleAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
-	// Force fresh lookup of episode and require an audio URL for playback
-	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
-	if (!episode?.audio_url) {
-		return null;
-	}
-
-	return <AudioPlayer episode={episode} onClose={onClose} />;
 }

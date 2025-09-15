@@ -9,7 +9,7 @@ import EpisodeCard from "./ui/episode-card"
 
 interface EpisodeListProps {
 	episodes: Episode[]
-	onPlayEpisode?: (episodeId: string) => void
+	onPlayEpisode?: (episode: Episode) => void
 	playingEpisodeId?: string | null
 	_href?: string // TODO: remove this
 }
@@ -119,7 +119,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									actions={
 										<>
 											{episode.audio_url && onPlayEpisode && (
-												<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="play" size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
+												<Button onClick={() => onPlayEpisode(episode)} variant="play" size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
 											)}
 											{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
 												<Button

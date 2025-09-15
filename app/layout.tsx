@@ -8,6 +8,7 @@ import { Inter } from 'next/font/google'
 import type React from "react"
 import { Toaster } from "sonner"
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar"
+import { GlobalAudioPlayerSheet } from "@/components/ui/global-audio-player-sheet"
 import { ClientProviders } from "./client-providers"
 
 import "./globals.css"
@@ -118,7 +119,7 @@ export default function RootLayout({
 
 						{children}
 						<Toaster />
-
+						<GlobalAudioPlayerSheet />
 
 					</ClientProviders>
 				</ClerkProvider>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import type { UserEpisode } from "@/lib/types";
 
 type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
@@ -18,9 +18,9 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 	const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(null);
 	const [debugLogs, setDebugLogs] = useState<Record<string, unknown[]> | null>(null);
 	const enableDebug = useMemo(() => process.env.NEXT_PUBLIC_ENABLE_EPISODE_DEBUG === "true", []);
+	const { setEpisode } = useAudioPlayerStore();
 
 	useEffect(() => {
 		const fetchEpisodes = async () => {
@@ -87,7 +87,28 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 									<>
 
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
-											<Button onClick={() => setActiveEpisodeId(episode.episode_id)} variant="play" size="sm" className={episode.episode_id ? " m-0" : ""} />
+											<Button 
+												onClick={() => {
+													// Create a normalized episode for the audio player
+													const normalizedEpisode: UserEpisode = {
+														episode_id: episode.episode_id,
+														episode_title: episode.episode_title,
+														gcs_audio_url: episode.signedAudioUrl,
+														summary: episode.summary,
+														created_at: episode.created_at,
+														updated_at: episode.updated_at,
+														user_id: episode.user_id,
+														youtube_url: episode.youtube_url,
+														transcript: episode.transcript,
+														status: episode.status,
+														duration_seconds: episode.duration_seconds,
+													};
+													setEpisode(normalizedEpisode);
+												}} 
+												variant="play" 
+												size="sm" 
+												className={episode.episode_id ? " m-0" : ""} 
+											/>
 										)}
 										{enableDebug && (
 											<Button size="sm" variant="secondary" className="ml-2" onClick={() => handleViewRunLog(episode.episode_id)}>
@@ -100,26 +121,6 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 							{enableDebug && debugLogs && debugLogs[episode.episode_id] && (
 								<div className="mt-2 p-2 bg-gray-50 rounded border">
 									<pre className="text-[11px] whitespace-pre-wrap break-words">{JSON.stringify(debugLogs[episode.episode_id], null, 2)}</pre>
-								</div>
-							)}
-							{episode.status === "COMPLETED" && episode.signedAudioUrl && activeEpisodeId === episode.episode_id && (
-								<div className="mt-2">
-									<UserEpisodeAudioPlayer
-										episode={{
-											episode_id: episode.episode_id,
-											episode_title: episode.episode_title,
-											gcs_audio_url: episode.signedAudioUrl,
-											summary: episode.summary,
-											created_at: episode.created_at,
-											updated_at: episode.updated_at,
-											user_id: episode.user_id,
-											youtube_url: episode.youtube_url,
-											transcript: episode.transcript,
-											duration_seconds: episode.duration_seconds,
-											status: episode.status,
-										}}
-										onClose={() => setActiveEpisodeId(null)}
-									/>
 								</div>
 							)}
 						</div>
