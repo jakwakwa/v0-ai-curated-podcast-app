@@ -26,7 +26,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 	const date: Date = publishedAt ? new Date(publishedAt) : new Date();
 
 	// Get YouTube channel image for user episodes
-	const { channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl);
+	const { channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl ?? null);
 
 	return (
 		<Card className="bg-card w-full px-2 py-5 relative">
