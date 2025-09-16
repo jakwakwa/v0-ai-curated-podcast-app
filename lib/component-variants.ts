@@ -26,8 +26,8 @@ export const cardVariants = cva(
 			variant: {
 				toggle: 'bg-dark',
 				default:
-					'md:bg-background/80 md:backdrop-blur-[24px] border text-card-foreground px-4',
-				glass: 'bg-cardglass	backdrop-blur-[2px]',
+					'bg-background border text-card-foreground px-4',
+				glass: 'md:bg-background/80 md:backdrop-blur-[24px] border text-card-foreground px-4',
 				episode:
 					'bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ',
 				bundle:
