@@ -27,11 +27,33 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const pendingPlayRef = useRef(false);
 	const canPlayDebounceRef = useRef<NodeJS.Timeout | null>(null);
+	const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	const clearCanPlayDebounce = useCallback(() => {
 		if (canPlayDebounceRef.current) {
 			clearTimeout(canPlayDebounceRef.current);
 			canPlayDebounceRef.current = null;
+		}
+	}, []);
+
+	const startProgressInterval = useCallback(() => {
+		if (progressIntervalRef.current) return;
+		progressIntervalRef.current = setInterval(() => {
+			const audio = audioRef.current;
+			if (!audio) return;
+			const current = audio.currentTime || 0;
+			setCurrentTime(current);
+			const total = audio.duration;
+			if (!Number.isNaN(total) && total !== Number.POSITIVE_INFINITY && total > 0) {
+				setDuration(total);
+			}
+		}, 250);
+	}, []);
+
+	const stopProgressInterval = useCallback(() => {
+		if (progressIntervalRef.current) {
+			clearInterval(progressIntervalRef.current);
+			progressIntervalRef.current = null;
 		}
 	}, []);
 
@@ -88,11 +110,50 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const audio = audioRef.current;
 		if (!audio) return;
 
-		const handleTimeUpdate = () => setCurrentTime(audio.currentTime || 0);
+		const resolveDuration = (): number | null => {
+			const d = audio.duration;
+			if (!Number.isNaN(d) && d !== Number.POSITIVE_INFINITY && d > 0) return d;
+			try {
+				if (audio.seekable && audio.seekable.length > 0) {
+					const end = audio.seekable.end(audio.seekable.length - 1);
+					if (end > 0) return end;
+				}
+			} catch { }
+			return null;
+		};
+
+		const handleTimeUpdate = () => {
+			setCurrentTime(audio.currentTime || 0);
+			const maybe = resolveDuration();
+			if (maybe) setDuration(maybe);
+		};
 		const handleLoadedMetadata = () => {
 			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
-			setDuration(audio.duration || 0);
+			const maybe = resolveDuration();
+			if (maybe !== null) setDuration(maybe);
+			// Ensure we always start from 0 on new loads
+			try {
+				if (audio.currentTime > 0) {
+					audio.currentTime = 0;
+				}
+				setCurrentTime(0);
+			} catch { }
 			// Keep loading until actual playback starts
+		};
+		const handleDurationChange = () => {
+			const maybe = resolveDuration();
+			if (maybe) setDuration(maybe);
+		};
+		const handleLoadedData = () => {
+			const maybe = resolveDuration();
+			if (maybe) setDuration(maybe);
+		};
+		const handleCanPlayThrough = () => {
+			console.log("AudioPlayerSheet - canplaythrough");
+			const maybe = resolveDuration();
+			if (maybe) setDuration(maybe);
+			clearLoadingTimeout();
+			setIsLoading(false);
 		};
 		const handleEnded = () => {
 			console.log("AudioPlayerSheet - Audio playback ended");
@@ -101,6 +162,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			pendingPlayRef.current = false;
 			clearLoadingTimeout();
 			setIsLoading(false);
+			stopProgressInterval();
 		};
 		const handleError = (e: Event) => {
 			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
@@ -108,6 +170,19 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearLoadingTimeout();
 			setIsLoading(false);
 			setIsPlaying(false);
+			stopProgressInterval();
+		};
+		const handleEmptied = () => {
+			console.log("AudioPlayerSheet - Audio emptied");
+			setIsPlaying(false);
+			setCurrentTime(0);
+			setDuration(0);
+			pendingPlayRef.current = false;
+			stopProgressInterval();
+		};
+		const handleStalled = () => {
+			console.log("AudioPlayerSheet - Audio stalled");
+			setLoadingWithTimeout(true);
 		};
 		const handleCanPlay = () => {
 			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
@@ -143,6 +218,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearLoadingTimeout();
 			setIsLoading(false);
 			clearCanPlayDebounce();
+			startProgressInterval();
 		};
 		const handlePlaying = () => {
 			console.log("AudioPlayerSheet - Audio playing event");
@@ -151,11 +227,13 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearLoadingTimeout();
 			setIsLoading(false);
 			clearCanPlayDebounce();
+			startProgressInterval();
 		};
 		const handlePause = () => {
 			console.log("AudioPlayerSheet - Audio pause event");
 			setIsPlaying(false);
 			clearCanPlayDebounce();
+			stopProgressInterval();
 		};
 		const handleSeeking = () => {
 			console.log("AudioPlayerSheet - Audio seeking");
@@ -171,59 +249,77 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearCanPlayDebounce();
 		};
 
-		console.log("AudioPlayerSheet - useEffect [open, audioSrc]:", { open, audioSrc });
-
 		// Add event listeners once per mount of this effect
 		audio.addEventListener("timeupdate", handleTimeUpdate);
 		audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+		audio.addEventListener("durationchange", handleDurationChange);
+		audio.addEventListener("loadeddata", handleLoadedData);
 		audio.addEventListener("ended", handleEnded);
 		audio.addEventListener("error", handleError);
 		audio.addEventListener("canplay", handleCanPlay);
 		audio.addEventListener("loadstart", handleLoadStart);
+		audio.addEventListener("canplaythrough", handleCanPlayThrough);
 		audio.addEventListener("play", handlePlay);
 		audio.addEventListener("playing", handlePlaying);
 		audio.addEventListener("pause", handlePause);
 		audio.addEventListener("waiting", handleLoadStart);
 		audio.addEventListener("seeking", handleSeeking);
 		audio.addEventListener("seeked", handleSeeked);
+		audio.addEventListener("emptied", handleEmptied);
+		audio.addEventListener("stalled", handleStalled);
 
 		if (open && audioSrc) {
 			if (audio.src !== audioSrc) {
-				console.log("AudioPlayerSheet - Setting up audio with source:", audioSrc);
+				// Reset UI and timers for new source
+				stopProgressInterval();
+				setCurrentTime(0);
+				setDuration(0);
+				// Apply new source
+				audio.crossOrigin = "anonymous";
 				audio.src = audioSrc;
 			}
-			// Ensure the element preloads for snappier start
-			audio.preload = "auto";
+			// Ensure the element preloads metadata for snappier start
+			audio.preload = "metadata";
 			// Reset loading state when setting up new audio
 			pendingPlayRef.current = false;
 			clearLoadingTimeout();
 			setIsLoading(false);
-			// Do not call audio.load() here to avoid cancelling a user-initiated play()
+			// Safe to load metadata now (no user-initiated play yet on new source)
+			try {
+				audio.currentTime = 0;
+				audio.load();
+			} catch { }
 		} else if (!(open || audio.paused)) {
-			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			pendingPlayRef.current = false;
 			setIsPlaying(false);
 			clearLoadingTimeout();
 			setIsLoading(false);
+			stopProgressInterval();
 		}
 
 		return () => {
 			audio.removeEventListener("timeupdate", handleTimeUpdate);
 			audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+			audio.removeEventListener("durationchange", handleDurationChange);
+			audio.removeEventListener("loadeddata", handleLoadedData);
 			audio.removeEventListener("ended", handleEnded);
 			audio.removeEventListener("error", handleError);
 			audio.removeEventListener("canplay", handleCanPlay);
 			audio.removeEventListener("loadstart", handleLoadStart);
+			audio.removeEventListener("canplaythrough", handleCanPlayThrough);
 			audio.removeEventListener("play", handlePlay);
 			audio.removeEventListener("playing", handlePlaying);
 			audio.removeEventListener("pause", handlePause);
 			audio.removeEventListener("waiting", handleLoadStart);
 			audio.removeEventListener("seeking", handleSeeking);
 			audio.removeEventListener("seeked", handleSeeked);
+			audio.removeEventListener("emptied", handleEmptied);
+			audio.removeEventListener("stalled", handleStalled);
 			clearCanPlayDebounce();
+			stopProgressInterval();
 		};
-	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce]);
+	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -263,6 +359,8 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				pendingPlayRef.current = true;
 				if (audio.paused) {
 					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
+					// Proactively start progress interval in case listeners aren't attached yet
+					startProgressInterval();
 					const playPromise = audio.play();
 					if (playPromise && typeof (playPromise as Promise<void>).then === "function") {
 						playPromise
@@ -273,6 +371,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								setIsPlaying(true);
 								clearLoadingTimeout();
 								setIsLoading(false);
+								startProgressInterval();
 							})
 							.catch((err: unknown) => {
 								console.error("AudioPlayerSheet - Audio play() failed:", err);
@@ -397,6 +496,9 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="bg-[#0d0f14] p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0">
 				{/* Sections */}
+
+
+				{/* Hero Section starts */}
 				<div className="hero-bg h-full min-h-[320px] items-center flex-col">
 					{/* Hero background per Figma (radial + overlay) */}
 					{/* Artwork + Meta */}
@@ -416,14 +518,24 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
-							{episode ? ("description" in episode ? episode.description : "User Generated Episode") : "Podcast source"}
+							{episode
+								? (
+									"title" in episode
+										? (() => {
+											const e = episode as unknown as { podcast?: { name?: string } };
+											return e.podcast?.name || "Podcast episode";
+										})()
+										: "User Generated Episode"
+								)
+								: "Podcast source"}
 						</SheetDescription>
 					</SheetHeader>
 				</div>
+				{/* Hero Section ends */}
 
 				<div className="bg-sidebar rounded-none max-h-[300px] pt-10 px-12">
 					{/* Transcript */}
-					{episode && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)) && (
+					{episode && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)) && (
 						<div className="flex flex-col gap-[10px]">
 							<div className="flex items-center justify-between">
 								<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
@@ -438,7 +550,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							<div
 								className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "max-h-[600px]" : "max-h-[150px]"
 									}`}>
-								{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)}
+								{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)}
 							</div>
 						</div>
 					)}
