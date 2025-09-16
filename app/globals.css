@@ -24,9 +24,9 @@
 			height: auto;
 			background: #194A53;
 
-			background-blend-mode:multiply;
+			background-blend-mode: multiply;
 			mix-blend-mode: multiply, multiply;
-				background: #000000;
+			background: #000000;
 			background: linear-gradient(135deg,
 					oklch(0.67 0.24 325.6 / 0.53),
 					rgba(10 122 141 / 0.67),
@@ -253,7 +253,7 @@
 			padding: 10px 20px;
 			font-size: 1rem !important;
 			background: var(--sidebar);
-			background-image: linear-gradient(to bottom,oklch(0.21 0 0 / 0.93),	oklch(0.46 0.12 306.85 / 0.99)) !important;
+			background-image: linear-gradient(to bottom, oklch(0.21 0 0 / 0.93), oklch(0.46 0.12 306.85 / 0.99)) !important;
 			border-radius: 30px;
 			outline: 1px solid #000000 !important;
 			outline-offset: 1px !important;
@@ -263,7 +263,7 @@
 		}
 
 		.page-header-bg {
-				background-image: linear-gradient(to bottom right, #01537457, #101016B5);
+			background-image: linear-gradient(to bottom right, #01537457, #101016B5);
 			border: 1px solid #1e262884 !important;
 			border-radius: 20px !important;
 		}
@@ -333,15 +333,27 @@
 	/* ============================================= */
 	@layer utilities {
 		.bg-card {
-		background-color: #1E202B;
+			background-color: #1E202B;
 			box-shadow:
 				inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.77),
-				2px 3px 3px 1px oklch(0.29 0.01 296.92 / 0.81),
+				2px 3px 3px 1px oklch(0.47 0.05 300.72 / 0.81),
 				2px 2px 8px 2px #000000B5;
-				padding: 20px !important;
-				/* border: 1px solid #24242A;	 */
-				outline-offset: 1px;
+			padding: 20px !important;
+			/* border: 1px solid #24242A;	 */
+			outline-offset: 1px;
 			outline: 1px solid #121414C4 !important;
+		}
+
+		.hero-bg {
+			background: transparent;
+			background-image: linear-gradient(180deg, oklch(0.88 0.13 201.88 / 0.27) -20%,
+					oklch(0.85 0.04 17.87 / 0.19) 40%, oklab(0.18 0.02 -0.1 / 0.56) 120%);
+			background-blend-mode: multiply, multiply;
+			box-shadow:
+				inset 0px 0px 9px 0px #0A0A0A41, 
+				inset 0px -9px 19px 0px #0A0A0ABC,
+				inset 0px 20px 89px 10px #0A0A0A66 !important;
+					backdrop-filter: blur(8px) !important;
 		}
 
 		.bg-bundle-card,
@@ -431,7 +443,8 @@
 			font-size: 0.9rem;
 			font-weight: 300 !important;
 		}
-	.episode-info {
+
+		.episode-info {
 			display: none !important;
 		}
 	}
@@ -507,9 +520,11 @@
 		body {
 			position: fixed;
 		}
-	.timeDisplay {
-	font-size: 2rem !important;
-	}
+
+		.timeDisplay {
+			font-size: 2rem !important;
+		}
+
 		.episode-card {
 			padding-top: 15px;
 			padding-bottom: 10px;
@@ -530,11 +545,11 @@
 			margin: 0 !important;
 		}
 
-	@media screen and (min-width: 460) {
-		.episode-info {
-			display: none !important;
-		}
+		@media screen and (min-width: 460) {
+			.episode-info {
+				display: none !important;
+			}
 
-	}
+		}
 
 	}

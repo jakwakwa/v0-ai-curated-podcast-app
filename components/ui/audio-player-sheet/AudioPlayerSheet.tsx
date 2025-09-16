@@ -1,11 +1,14 @@
 "use client";
 
 import { ChevronDown, ChevronUp, Loader2, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-client";
 import Image from "next/image";
 import type { FC } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
 import type { Episode, UserEpisode } from "@/lib/types";
 
 type AudioPlayerSheetProps = {
@@ -28,6 +31,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const pendingPlayRef = useRef(false);
 	const canPlayDebounceRef = useRef<NodeJS.Timeout | null>(null);
 	const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Get YouTube channel name and image for user episodes
+	const youtubeUrl = episode && "youtube_url" in episode ? episode.youtube_url : null;
+	const { channelName: youtubeChannelName, channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl);
 
 	const clearCanPlayDebounce = useCallback(() => {
 		if (canPlayDebounceRef.current) {
@@ -494,69 +501,109 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="bg-[#0d0f14] p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0">
+			<SheetContent side="right" className="bg-[#0d0f1429] p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0">
 				{/* Sections */}
 
-
 				{/* Hero Section starts */}
-				<div className="hero-bg h-full min-h-[320px] items-center flex-col">
-					{/* Hero background per Figma (radial + overlay) */}
+				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center hero-bg">
 					{/* Artwork + Meta */}
-					<div className="flex flex-col items-center justify-center px-0 align-middle justify-centre py-10 w-full">
-						{episode && "image_url" in episode && episode.image_url && (
-							<Image
-								src={episode.image_url}
-								alt={episode.title}
-								width={56}
-								height={56}
-								className="h-full w-fit max-h-[120px] shrink-0 rounded-[19.8347px] object-cover shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)]"
-							/>
-						)}
-					</div>
+
+					{episode && (() => {
+						// For bundle episodes, use the episode's image_url
+						if ("image_url" in episode && episode.image_url) {
+							return (
+								<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+									<Image
+										src={episode.image_url}
+										alt={episode.title}
+										width={200}
+										height={200}
+										className="object-fit"
+									/>
+								</div>
+							);
+						}
+						// For user episodes, use YouTube channel image if available
+						if ("youtube_url" in episode) {
+							if (youtubeChannelImage) {
+								return (
+									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+										<Image
+											src={youtubeChannelImage}
+											alt={youtubeChannelName || "YouTube Channel"}
+											width={200}
+											height={200}
+											className="w-full h-full object-cover"
+										/>
+									</div>
+								);
+							}
+							// Show loading state for user episodes while fetching channel image
+							if (isChannelLoading) {
+								return (
+									<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[200px] aspect-square flex items-center justify-center">
+										<Loader2 className="h-6 w-6 text-gray-400" />
+									</div>
+								);
+							}
+						}
+						return null;
+					})()}
+
 					<SheetHeader>
-						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center">
+						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center px-6">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
 							{episode
-								? (
-									"title" in episode
-										? (() => {
-											const e = episode as unknown as { podcast?: { name?: string } };
-											return e.podcast?.name || "Podcast episode";
-										})()
-										: "User Generated Episode"
-								)
+								? "title" in episode
+									? (() => {
+										const e = episode as unknown as { podcast?: { name?: string } };
+										return e.podcast?.name || "Podcast episode";
+									})()
+									: (() => {
+										// For user episodes, show YouTube channel name or fallback
+										if (isChannelLoading) {
+											return "Loading...";
+										}
+										return youtubeChannelName || "User Generated Episode";
+									})()
 								: "Podcast source"}
 						</SheetDescription>
+						<div className="flex items-center justify-center pt-4">
+							<button
+								type="button"
+								onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
+								className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/90 hover:text-[var(--audio-sheet-foreground)] transition-colors border border-[var(--audio-sheet-border)] rounded-md px-3 py-1 bg-[#261f23]">
+								{isTranscriptExpanded ? "Hide Transcription" : "Show Transcription"}
+								{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+							</button>
+						</div>
 					</SheetHeader>
 				</div>
 				{/* Hero Section ends */}
 
-				<div className="bg-sidebar rounded-none max-h-[300px] pt-10 px-12">
+				<div className="bg-sidebar rounded-none">
 					{/* Transcript */}
-					{episode && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)) && (
-						<div className="flex flex-col gap-[10px]">
-							<div className="flex items-center justify-between">
-								<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
-								<button
-									type="button"
-									onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
-									className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/70 hover:text-[var(--audio-sheet-foreground)] transition-colors">
-									{isTranscriptExpanded ? "Show Less" : "Show More"}
-									{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-								</button>
-							</div>
-							<div
-								className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "max-h-[600px]" : "max-h-[150px]"
-									}`}>
-								{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)}
-							</div>
-						</div>
-					)}
+					<AnimatePresence initial={false}>
+						{episode && isTranscriptExpanded && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)) ? (
+							<motion.div
+								key="transcript"
+								initial={{ height: 0, opacity: 0 }}
+								animate={{ height: "auto", opacity: 1 }}
+								exit={{ height: 0, opacity: 0 }}
+								transition={{ type: "spring", stiffness: 260, damping: 30 }}
+								className="flex flex-col gap-[10px]">
+								<div
+									className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "px-12 max-h-[280px]" : "max-h-[150px]"}`}>
+									{("summary" in episode && episode.summary) || ("description" in episode && episode.description)}
+								</div>
+							</motion.div>
+						) : null}
+					</AnimatePresence>
 				</div>
 
-				<div className=" w-ful h-full flex bg-[#020106]  p-8 flex-col my-0 gap-8">
+				<div className="bg-[#0300057d] backdrop-blur-sm  w-ful h-full flex p-8 flex-col my-0 gap-8">
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button

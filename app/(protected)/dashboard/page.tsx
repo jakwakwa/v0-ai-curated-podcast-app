@@ -12,8 +12,8 @@ import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Body, Typography } from "@/components/ui/typography";
-import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
 interface SubscriptionInfo {
 	plan_type: string;
@@ -115,9 +115,8 @@ export default function CurationProfileManagementPage() {
 	};
 
 	// Get the latest bundle episode
-	const latestBundleEpisode = _bundleEpisodes.length > 0
-		? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0]
-		: null;
+	const latestBundleEpisode =
+		_bundleEpisodes.length > 0 ? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0] : null;
 
 	return (
 		<div className="flex flex-col gap-3 w-full episode-card-wrapper ">
@@ -129,10 +128,10 @@ export default function CurationProfileManagementPage() {
 			{/* Latest Bundle Episode Section */}
 			{latestBundleEpisode && (
 				<div className="w-full space-y-0 episode-card-wrapper border-dark border-b-dark">
-					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd"><span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle</CardTitle>
-					<CardDescription className="text-sm opacity-90 mb-4">
-						The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}
-					</CardDescription>
+					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd">
+						<span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle
+					</CardTitle>
+					<CardDescription className="text-sm opacity-90 mb-4">The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}</CardDescription>
 					<CardContent className="px-0">
 						<EpisodeCard
 							imageUrl={latestBundleEpisode.image_url}
@@ -240,10 +239,11 @@ export default function CurationProfileManagementPage() {
 													title={`${episode.episode_title}`}
 													description={episode.summary}
 													publishedAt={episode.updated_at}
+													youtubeUrl={episode.youtube_url}
 													actions={
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
-															<Button 
+															<Button
 																onClick={() => {
 																	// Create a normalized episode for the audio player
 																	const normalizedEpisode: UserEpisode = {
@@ -262,9 +262,9 @@ export default function CurationProfileManagementPage() {
 																	console.log("Dashboard - Setting normalized UserEpisode:", normalizedEpisode);
 																	console.log("Dashboard - Original episode signedAudioUrl:", episode.signedAudioUrl);
 																	setEpisode(normalizedEpisode);
-																}} 
-																variant="play" 
-																className={episode.episode_id ? " m-0" : ""} 
+																}}
+																variant="play"
+																className={episode.episode_id ? " m-0" : ""}
 															/>
 														)
 													}

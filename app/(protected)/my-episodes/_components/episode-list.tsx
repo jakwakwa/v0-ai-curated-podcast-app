@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 import type { UserEpisode } from "@/lib/types";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
 type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 
@@ -76,18 +76,17 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 				) : (
 					episodes.map(episode => (
 						<div key={episode.episode_id} className="p-1">
-
 							<EpisodeCard
 								imageUrl={null}
 								title={episode.episode_title}
 								description={episode.summary}
 								publishedAt={episode.created_at}
 								durationSeconds={episode.duration_seconds ?? null}
+								youtubeUrl={episode.youtube_url}
 								actions={
 									<>
-
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (
-											<Button 
+											<Button
 												onClick={() => {
 													// Create a normalized episode for the audio player
 													const normalizedEpisode: UserEpisode = {
@@ -106,10 +105,10 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 													console.log("MyEpisodes - Setting normalized episode:", normalizedEpisode);
 													console.log("MyEpisodes - Original episode signedAudioUrl:", episode.signedAudioUrl);
 													setEpisode(normalizedEpisode);
-												}} 
-												variant="play" 
-												size="sm" 
-												className={episode.episode_id ? " m-0" : ""} 
+												}}
+												variant="play"
+												size="sm"
+												className={episode.episode_id ? " m-0" : ""}
 											/>
 										)}
 										{enableDebug && (
