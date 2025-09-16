@@ -25,10 +25,23 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 
 	const audioSrc = useMemo(() => {
-		if (!episode) return "";
-		if ("audio_url" in episode && episode.audio_url) return episode.audio_url;
-		if ("gcs_audio_url" in episode && episode.gcs_audio_url) return episode.gcs_audio_url;
-		return "";
+		if (!episode) {
+			console.log("AudioPlayerSheet - No episode provided");
+			return "";
+		}
+		
+		let src = "";
+		if ("audio_url" in episode && episode.audio_url) {
+			src = episode.audio_url;
+			console.log("AudioPlayerSheet - Using audio_url:", src);
+		} else if ("gcs_audio_url" in episode && episode.gcs_audio_url) {
+			src = episode.gcs_audio_url;
+			console.log("AudioPlayerSheet - Using gcs_audio_url:", src);
+		} else {
+			console.warn("AudioPlayerSheet - No audio source found in episode:", episode);
+		}
+		
+		return src;
 	}, [episode]);
 
 	useEffect(() => {
@@ -62,12 +75,16 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const audio = audioRef.current;
 		if (!audio) return;
 		
+		console.log("AudioPlayerSheet - useEffect [open, audioSrc]:", { open, audioSrc });
+		
 		if (open && audioSrc) {
+			console.log("AudioPlayerSheet - Loading audio source:", audioSrc);
 			audio.src = audioSrc;
 			audio.load();
 			setIsPlaying(false);
 		} else if (!open && !audio.paused) {
 			// Only pause if currently playing
+			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			setIsPlaying(false);
 		}
@@ -81,7 +98,12 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	const togglePlayPause = async () => {
 		const audio = audioRef.current;
-		if (!(audio && audioSrc)) return;
+		if (!(audio && audioSrc)) {
+			console.warn("AudioPlayerSheet - togglePlayPause: Missing audio element or audioSrc", { audio: !!audio, audioSrc });
+			return;
+		}
+		
+		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState });
 		
 		try {
 			if (isPlaying) {
@@ -90,16 +112,28 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			} else {
 				// Ensure audio is ready before attempting to play
 				if (audio.readyState < 2) {
+					console.log("AudioPlayerSheet - Waiting for audio to be ready...");
 					// Wait for audio to be ready
 					await new Promise((resolve, reject) => {
-						const onCanPlay = () => {
+						const timeoutId = setTimeout(() => {
 							audio.removeEventListener('canplay', onCanPlay);
 							audio.removeEventListener('error', onError);
+							console.error("AudioPlayerSheet - Audio loading timeout");
+							reject(new Error('Audio loading timeout'));
+						}, 10000); // 10 second timeout
+						
+						const onCanPlay = () => {
+							clearTimeout(timeoutId);
+							audio.removeEventListener('canplay', onCanPlay);
+							audio.removeEventListener('error', onError);
+							console.log("AudioPlayerSheet - Audio ready to play");
 							resolve(void 0);
 						};
-						const onError = () => {
+						const onError = (e) => {
+							clearTimeout(timeoutId);
 							audio.removeEventListener('canplay', onCanPlay);
 							audio.removeEventListener('error', onError);
+							console.error("AudioPlayerSheet - Audio load error:", e);
 							reject(new Error('Audio failed to load'));
 						};
 						audio.addEventListener('canplay', onCanPlay);
@@ -112,11 +146,13 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					});
 				}
 				
+				console.log("AudioPlayerSheet - Attempting to play audio");
 				await audio.play();
+				console.log("AudioPlayerSheet - Audio playing successfully");
 				setIsPlaying(true);
 			}
 		} catch (err) {
-			console.error("Audio play/pause failed", err);
+			console.error("AudioPlayerSheet - Audio play/pause failed:", err);
 			setIsPlaying(false);
 		}
 	};
