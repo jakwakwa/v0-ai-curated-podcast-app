@@ -68,11 +68,11 @@ export function BundleSelectionDialog({
 			<DialogContent className="max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>
-						{isAlreadySelected ? "Whoops!" : "Switching Bundle Selection..."}
+						{isAlreadySelected ? "Just a reminder!" : "Switching Bundle Selection..."}
 					</DialogTitle>
-					<DialogDescription>
+					<DialogDescription className="mt-4">
 						{isAlreadySelected
-							? `You already have "${sanitizeText(selectedBundle.name)}" selected as your curated podcast bundle.`
+							? `You already have "${sanitizeText(selectedBundle.name)}" selected`
 							: currentBundleName
 								? `You're about to change from '${sanitizeText(currentBundleName)} Bundle' to '${sanitizeText(selectedBundle.name)} Bundle'`
 								: `You're about to select '${sanitizeText(selectedBundle.name)}' as your curated podcast bundle. This will update your podcast feed.`}
@@ -82,8 +82,8 @@ export function BundleSelectionDialog({
 				{!isAlreadySelected && (
 					<div className="space-y-4">
 						{/* Warning Message */}
-						<div className="px-2 py-1 bg-amber-50 dark:bg-amber-600/50 outline outline-2 outline-amber-600/70 dark:border-amber-800 rounded-lg inline-block">
-							<Typography variant="body" className="text-amber-400 dark:text-amber-400/70 text-sm">
+						<div className="px-2 bg-amber-50 dark:bg-amber-600/10 outline outline-amber-700/50 dark:border-amber-800 rounded-lg inline-block">
+							<Typography variant="body" className="text-amber-400 dark:text-amber-400/70 text-xs">
 								{`You won't have access to ${sanitizeText(currentBundleName)}'s episodes after changing`}
 							</Typography>
 						</div>
@@ -93,15 +93,15 @@ export function BundleSelectionDialog({
 				{isAlreadySelected && (
 					<div className="space-y-4">
 						{/* Reminder Message */}
-						<div className="p-3 bg-blue-50 dark:bg-teal-400/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-							<Typography variant="body" className="text-teal-100 dark:text-teal-200 text-sm">
+						<div className="px-2 bg-blue-50 dark:bg-teal-400/10 border border-blue-200 dark:border-teal-800 rounded-lg w-fit">
+							<Typography variant="body" className="text-teal-100 dark:text-teal-200 text-xs">
 								This bundle is already active in your profile.
 							</Typography>
 						</div>
 					</div>
 				)}
 
-				<DialogFooter className="gap-2">
+				<DialogFooter className="gap-2 mt-4">
 					{isAlreadySelected ? (
 						<Button type="button" variant="default" onClick={onClose} className="w-1/3">
 							Close
@@ -113,10 +113,10 @@ export function BundleSelectionDialog({
 							</Button>
 							<Button type="button" variant="default" onClick={handleConfirm} disabled={isConfirming || isLoading} className="min-w-[120px]">
 								{isConfirming ? (
-									<>
+									<div className="flex items-center">
 										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
 										Updating...
-									</>
+									</div>
 								) : (
 									"Confirm Selection"
 								)}
@@ -125,6 +125,6 @@ export function BundleSelectionDialog({
 					)}
 				</DialogFooter>
 			</DialogContent>
-		</Dialog>
+		</Dialog >
 	)
 }

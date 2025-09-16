@@ -9,7 +9,7 @@ import EpisodeCard from "./ui/episode-card"
 
 interface EpisodeListProps {
 	episodes: Episode[]
-	onPlayEpisode?: (episodeId: string) => void
+	onPlayEpisode?: (episode: Episode) => void
 	playingEpisodeId?: string | null
 	_href?: string // TODO: remove this
 }
@@ -34,8 +34,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 			try {
 				const response = await fetch("/api/account/subscription", {
 					next: {
-						revalidate: 30 * 24 * 60 * 60, // 30 days in seconds
-						tags: ["user-subscription"],
+						tags: ["user_subscription"],
 					},
 				})
 				if (response.ok) {
@@ -107,7 +106,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 			<div className="relative transition-all duration-200 text-card-foreground episode-card-wrapper-dark p-0 md:min-h-[420px] w-full h-fit">
 				<CardContent>
 					{episodes.length > 0 ? (
-						<ul className="inline-block gap-1 w-full inline-flex flex-col gap-1">
+						<ul className="w-full inline-flex flex-col gap-4">
 							{episodes.map(episode => (
 								<EpisodeCard
 									key={episode.episode_id}
@@ -120,7 +119,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									actions={
 										<>
 											{episode.audio_url && onPlayEpisode && (
-												<Button onClick={() => onPlayEpisode(episode.episode_id)} variant="play" size="play" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
+												<Button onClick={() => onPlayEpisode(episode)} variant="play" size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
 											)}
 											{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
 												<Button

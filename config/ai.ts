@@ -4,7 +4,6 @@
 export const PAYMENT_CONFIG = {
 	// Payment provider selection
 	ACTIVE_PROVIDER: process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || "paddle", // 'paddle'
-
 	// Feature flags
 	ENABLE_PADDLE: process.env.NEXT_PUBLIC_ENABLE_PADDLE === "true",
 
@@ -16,11 +15,5 @@ export const PAYMENT_CONFIG = {
 } as const;
 
 export const aiConfig = {
-	geminiModel: "gemini-2.5-flash", // Default Gemini model
-	geminiTTSModel: "gemini-2.5-flash-preview-tts",
-	maxSources: 1, // Maximum number of sources allowed per collection
-	simulateAudioSynthesis: false, // Set to `true` to simulate, `false` to use ElevenLabs API
-
-	// Episode generation settings
-	useShortEpisodes: true,
+	useShortEpisodes: false,
 };

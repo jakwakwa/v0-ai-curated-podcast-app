@@ -19,7 +19,6 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	try {
 		const uploader = getStorageUploader();
 		const bucketName = ensureBucketName();
-		console.log(`Uploading to bucket: ${bucketName}`);
 
 		const [exists] = await uploader.bucket(bucketName).exists();
 
@@ -28,13 +27,12 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 			throw new Error(`Bucket ${bucketName} does not exist`);
 		}
 
-		console.log("Bucket exists, uploading file…");
 		await uploader.bucket(bucketName).file(destinationFileName).save(data);
-		console.log("File uploaded successfully");
 		// Return the GCS URI
 		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (error) {
-		console.error("Failed to upload content:", error);
+	} catch (_error) {
+		// Avoid leaking internal error details in logs
+		console.error("Failed to upload content");
 		// Avoid leaking internal error details
 		throw new Error("Failed to upload content");
 	}
@@ -122,16 +120,54 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 
 	return buffer;
 }
+
+function isWav(buffer: Buffer): boolean {
+	return buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WAVE";
+}
+
+function extractWavOptions(buffer: Buffer): WavConversionOptions {
+	const numChannels = buffer.readUInt16LE(22);
+	const sampleRate = buffer.readUInt32LE(24);
+	const bitsPerSample = buffer.readUInt16LE(34);
+	return { numChannels, sampleRate, bitsPerSample };
+}
+
+function getPcmData(buffer: Buffer): Buffer {
+	return buffer.subarray(44);
+}
+
+function _concatenateWavs(buffers: Buffer[]): Buffer {
+	if (buffers.length === 0) throw new Error("No buffers to concatenate");
+	const first = buffers[0];
+	if (!isWav(first)) throw new Error("First buffer is not a WAV file");
+	const options = extractWavOptions(first);
+	const pcmParts = buffers.map(buf => (isWav(buf) ? getPcmData(buf) : buf));
+	const totalPcmLength = pcmParts.reduce((acc, b) => acc + b.length, 0);
+	const header = createWavHeader(totalPcmLength, options);
+	return Buffer.concat([header, ...pcmParts]);
+}
+
+function _splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string[] {
+	const words = text.split(/\s+/).filter(Boolean);
+	const chunks: string[] = [];
+	let current: string[] = [];
+	for (const w of words) {
+		current.push(w);
+		if (current.length >= approxWordsPerChunk) {
+			chunks.push(current.join(" "));
+			current = [];
+		}
+	}
+	if (current.length) chunks.push(current.join(" "));
+	return chunks;
+}
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 	// Try both env variable names for compatibility
-	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 	if (!geminiApiKey) {
-		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY or GEMINI_API_KEY is not set.");
+		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
-
-	console.log("🎤 Starting audio generation with Zephyr voice...");
-	console.log(`📝 Script length: ${script.length} characters`);
 
 	// Dynamic script length limits based on episode type
 	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
@@ -146,41 +182,34 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		apiKey: geminiApiKey,
 	});
 
-	const model = "gemini-2.5-flash-preview-tts"; // Using faster Flash TTS model
-	console.log(`🤖 Using TTS model: ${model}`);
+	const model = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts"; // Using TTS model for speech synthesis
 	const contents = [
 		{
 			role: "user",
 			parts: [
 				{
-					text: `Please read the following script aloud in a clear, engaging podcast style:\n\n${script}`,
+					text: `Please read the following podcast script aloud in a clear, engaging style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements:\n\n${script}`,
 				},
 			],
 		},
 	];
 
-	console.log("📡 Sending request to Gemini TTS API...");
 	const response = await ai.models.generateContentStream({
 		model,
 		config: geminiTTSConfig,
 		contents,
 	});
-
-	console.log("📨 Response received, processing stream...");
 	let audioBuffer: Buffer | null = null;
-	let chunkCount = 0;
+	let _chunkCount = 0;
 
 	for await (const chunk of response) {
-		chunkCount++;
-		console.log(`📦 Processing chunk ${chunkCount}...`);
+		_chunkCount++;
 
-		// biome-ignore lint/complexity/useOptionalChain: <fix later>
-		if (!(chunk.candidates && chunk.candidates[0].content && chunk.candidates[0].content.parts)) {
+		if (!chunk.candidates?.[0]?.content?.parts) {
 			console.log("⚠️ Chunk missing expected structure");
 			continue;
 		}
 		if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-			console.log("🎵 Found audio data in chunk!");
 			const inlineData = chunk.candidates[0].content.parts[0].inlineData;
 			let fileExtension = mime.getExtension(inlineData.mimeType || "");
 			let buffer = Buffer.from(inlineData.data || "", "base64");
@@ -191,13 +220,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 			}
 
 			audioBuffer = buffer;
-			console.log(`✅ Audio buffer created: ${buffer.length} bytes`);
 			break; // Take the first audio chunk
-		} else {
-			// Log any text responses (for debugging)
-			if (chunk.text) {
-				console.log("📝 TTS text response:", chunk.text);
-			}
 		}
 	}
 
@@ -205,7 +228,6 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		throw new Error("Failed to generate audio with Gemini TTS");
 	}
 
-	console.log("✅ Audio generation completed!");
 	return audioBuffer;
 }
 
@@ -291,7 +313,8 @@ export const generateUserEpisode = inngest.createFunction(
 
 		// Step 2: Summarize Transcript
 		const summary = await step.run("summarize-transcript", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
+			const model = googleAI(modelName);
 			try {
 				// Dynamic episode length based on config flag
 				const episodeConfig = aiConfig.useShortEpisodes
@@ -305,8 +328,6 @@ export const generateUserEpisode = inngest.createFunction(
 							duration: "about 3-4 minutes of audio",
 							description: "production version",
 						};
-
-				console.log(`📝 Generating ${episodeConfig.description}: ${episodeConfig.words}`);
 
 				const { text } = await generateText({
 					model: model,
@@ -331,23 +352,52 @@ Transcript: ${transcript}`,
 
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
 
-		// Step 3: Convert to Audio and Upload to GCS (combined to avoid large data transfer)
+		// Step 3: Generate Script at target length (default 5 minutes)
+		const script = await step.run("generate-script", async () => {
+			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
+			const model2 = googleAI(modelName2);
+			const targetMinutes = Math.max(3, Number(process.env.EPISODE_TARGET_MINUTES || 1));
+			const minWords = Math.floor(targetMinutes * 140);
+			const maxWords = Math.floor(targetMinutes * 180);
+			const { text } = await generateText({
+				model: model2,
+				prompt: `Using the summary, write a single-narrator podcast script of approximately ${minWords}-${maxWords} words (about ${targetMinutes} minutes).
+
+Requirements:
+- Strong hook in the first 2-3 sentences
+- Clear structure with smooth transitions
+- Concrete examples and explanations
+- Compelling conclusion with a call-to-thought/action
+- Natural, spoken tone (no stage directions, no timestamps)
+- ONLY include spoken words that will be read aloud
+- NO sound effects, music cues, or descriptive text in brackets
+- NO stage directions or production notes
+- Write as if you are speaking directly to the listener
+
+Summary:
+${summary}`,
+			});
+			return text;
+		});
+
+		// Step 4: Convert to Audio (chunked) and Upload to GCS
 		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
-			console.log("🎤 Generating audio and uploading directly to GCS...");
-			const audioBuffer = await generateAudioWithGeminiTTS(summary);
+			const parts = _splitScriptIntoChunks(script, 130);
+			const wavChunks: Buffer[] = [];
+			for (const part of parts) {
+				const buf = await generateAudioWithGeminiTTS(part);
+				wavChunks.push(buf);
+			}
+			const finalWav = _concatenateWavs(wavChunks);
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
-			console.log(`📁 Uploading ${audioBuffer.length} bytes to GCS...`);
-
-			// Extract duration from the generated audio
-			const duration = extractAudioDuration(audioBuffer, "audio/wav");
-			console.log(`🎵 Extracted audio duration: ${duration ? `${duration}s` : "unknown"}`);
-
-			const gcsUrl = await uploadContentToBucket(audioBuffer, fileName);
+			const duration = extractAudioDuration(finalWav, "audio/wav");
+			const gcsUrl = await uploadContentToBucket(finalWav, fileName);
 			return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
 		});
 
@@ -365,11 +415,8 @@ Transcript: ${transcript}`,
 
 		// Step 5: Extract duration (fallback if initial extraction failed)
 		await step.run("extract-duration", async () => {
-			console.log(`[DURATION_EXTRACTION] Starting duration extraction for episode ${userEpisodeId}`);
 			const result = await extractUserEpisodeDuration(userEpisodeId);
-			if (result.success) {
-				console.log(`[DURATION_EXTRACTION] Successfully extracted duration: ${result.duration}s`);
-			} else {
+			if (!result.success) {
 				console.warn(`[DURATION_EXTRACTION] Failed to extract duration: ${result.error}`);
 			}
 			return result;

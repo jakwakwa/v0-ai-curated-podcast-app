@@ -2,28 +2,20 @@
 
 import { AlertCircle, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
-import { createPortal } from "react-dom"
 import { EpisodeList } from "@/components/episode-list"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AppSpinner } from "@/components/ui/app-spinner"
-import AudioPlayer from "@/components/ui/audio-player"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/ui/page-header"
 import { H3 } from "@/components/ui/typography"
+import { useAudioPlayerStore } from "@/store/audioPlayerStore"
 import type { Episode } from "@/lib/types"
 
 export default function EpisodesPage() {
 	const [episodes, setEpisodes] = useState<Episode[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
-	const [playingEpisodeId, setPlayingEpisodeId] = useState<string | null>(null)
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
-
-	// Find the portal container on mount
-	useEffect(() => {
-		const container = document.getElementById("global-audio-player")
-		setPortalContainer(container)
-	}, [])
+	const { setEpisode } = useAudioPlayerStore()
 
 	const fetchEpisodes = useCallback(async () => {
 		try {
@@ -50,17 +42,18 @@ export default function EpisodesPage() {
 		fetchEpisodes()
 	}, [fetchEpisodes])
 
-	const handlePlayEpisode = (episodeId: string) => {
-		setPlayingEpisodeId(episodeId)
-	}
-
-	const handleClosePlayer = () => {
-		setPlayingEpisodeId(null)
+	const handlePlayEpisode = (episode: Episode) => {
+		console.log("Episodes - Setting episode:", episode);
+		setEpisode(episode)
 	}
 
 	return (
-		<div className="w-full space-y-0">
-			<PageHeader title="Bundle Episodes" description="Listen to all your curated podcast episodes from your selected bundles." />
+		<div className="w-full episode-card-wrapper">
+			<PageHeader
+				title="Bundle Episodes"
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."
+			/>
+
 
 			{isLoading ? (
 				<div className="px-0 md:p-8 mx-auto">
@@ -99,36 +92,10 @@ export default function EpisodesPage() {
 			) : (
 				<div className="flex episode-card-wrapper bg-primary-card flex-col justify-center mx-auto w-screen md:w-screen max-w-full mt-0">
 					<H3 className="pl-3">Episodes ({episodes.length})</H3>
-					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} playingEpisodeId={playingEpisodeId} />
-
-					{/* Spacer for fixed audio player */}
-					{playingEpisodeId && <div className="h-24" />}
+					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} />
 				</div>
 			)}
 
-			{/* Portal audio player to global container */}
-			{playingEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-1.5 md:px-12 flex items-center justify-center">
-						<AudioPlayerWrapper playingEpisodeId={playingEpisodeId} episodes={episodes} onClose={handleClosePlayer} />
-					</div>,
-					portalContainer
-				)}
 		</div>
 	)
-}
-
-function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
-	// Force fresh lookup of episode to avoid caching issues
-	const currentEpisode = episodes.find(ep => ep.episode_id === playingEpisodeId)
-
-	// biome-ignore lint/complexity/useOptionalChain: <keep>
-	if (!(currentEpisode && currentEpisode.audio_url)) {
-		// Don't render anything - let the parent handle the conditional rendering
-		// This prevents the player from "hiding" when switching between episodes
-		return null
-	}
-
-	return <AudioPlayer episode={currentEpisode} onClose={onClose} />
 }

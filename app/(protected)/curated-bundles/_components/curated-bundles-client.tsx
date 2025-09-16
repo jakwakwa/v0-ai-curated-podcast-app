@@ -145,26 +145,26 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 				{bundles.map(bundle => (
 					<Card
 						key={bundle.bundle_id}
-						className="h-auto flex flex-col px-8 rounded-2xl shadow-lg bg-[#181D23] h-[220px] border-2 border-[#40545ACE] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-4 bundle-card-hover"
+						className="flex flex-col px-5 rounded-2xl shadow-lg bg-[#1d1c24c5]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-3 bundle-card-hover"
 						onClick={() => handleBundleClick(bundle)}>
 						<CardHeader className="w-full py-4 px-2">
 							<div className="w-full flex flex-row gap-6">
 								<div className="flex items-start gap-3 text-sm font-normal tracking-wide flex-col w-full max-w-[240px]">
-									<H3 className="text-[1rem] text-secondary-foreground font-black font-sans mt-2 mb-3 leading-9 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
+									<H3 className="text-[1rem] text-[#77B1A5]/70 font-black font-sans mt-2 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
 
-									<Badge variant="outline" size="sm" className="font-normal tracking-wide">
+									<Badge variant="outline" className="font-normal tracking-wide">
 										<Lock size={8} className="mr-2" />
 										<Typography className="text-xxs">Fixed Podcast Shows</Typography>
 									</Badge>
 
-									<CardContent className="bg-[#2D383D] mx-auto shadow-sm rounded-md w-full p-2 m-0 pb-3 mt-2 outline-1 outline-[#63758AB7]">
+									<CardContent className="bg-[#0b0c0d] mx-auto shadow-sm rounded-md w-full p-2 m-0 pb-3 mt-2 outline-1 outline-[#2d3845b7]">
 										<ul className="list-none p-0 m-0 flex flex-col gap-2">
 											{bundle.podcasts?.map((podcast: Podcast) => (
 												<li key={podcast.podcast_id} className="flex w-full justify-end gap-0">
 													<div className="w-full flex flex-col gap-0">
-														<Typography as="p" className="text-md font-bold leading-normal tracking-tight my-0 px-1 mx-0 opacity-80">
+														<p className="text-xs font-semibold leading-normal tracking-tight my-0 px-1 mx-0 opacity-80">
 															{podcast.name}
-														</Typography>
+														</p>
 													</div>
 												</li>
 											))}
@@ -173,7 +173,7 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 								</div>
 
 								<div className="flex items-start gap-2 text-sm font-normal tracking-wide w-full">
-									<div className="relative my-2 rounded-lg outline-4 overflow-hidden w-full min-w-[150px] h-26">
+									<div className="relative my-2 rounded-lg outline-4 overflow-hidden w-full min-w-[200px] h-28">
 										{bundle.image_url && <Image className="w-full object-cover" src={bundle.image_url} alt={bundle.name} width={190} height={110} />}
 									</div>
 								</div>

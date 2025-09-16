@@ -1,50 +1,86 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import type React from "react"
-import { Badge } from "./badge"
-import DateIndicator from "./date-indicator"
-import DurationIndicator from "./duration-indicator"
+import Image from "next/image";
+import type React from "react";
+import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
+import { Badge } from "./badge";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
+import DateIndicator from "./date-indicator";
+import DurationIndicator from "./duration-indicator";
 
 type EpisodeCardProps = {
-	as?: "li" | "div"
-	imageUrl?: string | null
-	title: string
-	description?: string | null
-	publishedAt?: Date | string | null
-	durationSeconds?: number | null
-	actions?: React.ReactNode
-}
+	as?: "li" | "div";
+	imageUrl?: string | null;
+	title: string;
+	description?: string | null;
+	publishedAt?: Date | string | null;
+	durationSeconds?: number | null;
+	actions?: React.ReactNode;
+	// YouTube channel props for user episodes
+	youtubeUrl?: string | null;
+};
 
-export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions }: EpisodeCardProps) {
+export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions, youtubeUrl }: EpisodeCardProps) {
 	// biome-ignore lint/suspicious/noExplicitAny: <temp>
-	const Root: any = as
-	const date: Date = publishedAt ? new Date(publishedAt) : new Date()
+	const _Root: any = as;
+	const date: Date = publishedAt ? new Date(publishedAt) : new Date();
+
+	// Get YouTube channel image for user episodes
+	const { channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl ?? null);
 
 	return (
-		<Root className="relative flex flex-row items-center hover:bg-card content/10 active:bg-card justify-between px-8 pt-2 pb-0 w-full gap-8 episode-card w-full relative">
-			{imageUrl ? (
-				<div className="w-14 items-center">
-					<Image src={imageUrl} alt={title} className="absolute top-4 left-2 h-14 w-14 md:h-14 md:w-full border-2 m-2 max-w-14 shadow-md border-[#98CAD35C] rounded-xl object-fill" width={100} height={60} />
-				</div>
-			) : null}
-			<div className="relative flex w-full flex-col justify-between pb-4 px-0 md:px-0 gap-1">
-				<div className="episode-card-title leading-normal font-bold m-0 w-full max-w-full block text-[#fff]/90">{title}</div>
-				<p className="text-card-foreground episode-card-description mb-0 w-full m-0 p-0">{description || "No description available."}</p>
+		<Card className="bg-card w-full px-2 py-5 relative">
+			<CardAction>{actions}</CardAction>
+			<div className="w-full flex flex-row gap-4">
+				<CardHeader>
+					{(() => {
+						// For bundle episodes, use the episode's image_url
+						if (imageUrl) {
+							return <Image src={imageUrl} alt={title} className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl object-cover" width={100} height={60} />;
+						}
+						// For user episodes, use YouTube channel image if available
+						if (youtubeUrl) {
+							if (youtubeChannelImage) {
+								return (
+									<Image
+										src={youtubeChannelImage}
+										alt={`${title} - YouTube Channel`}
+										className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl object-cover"
+										width={100}
+										height={60}
+									/>
+								);
+							}
+							// Show loading state for user episodes while fetching channel image
+							if (isChannelLoading) {
+								return (
+									<div className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl bg-gray-600 animate-pulse flex items-center justify-center">
+										<div className="h-4 w-4 bg-gray-400 rounded animate-pulse" />
+									</div>
+								);
+							}
+						}
+						return null;
+					})()}
+				</CardHeader>
 
-				<div className=" flex flex-col justify-end w-full">
-
-					<div className="absolute right-0 top-0 flex block ">
-						{actions}
+				<div className="flex flex-col w-full">
+					<CardTitle className="w-full">{title}</CardTitle>
+					<CardContent>
+						<CardDescription>{description || "No description available."}</CardDescription>
+					</CardContent>
+					<div className="flex flex-row gap-2">
+						<Badge variant="outline">
+							<DateIndicator size="sm" indicator={date} label={null} />
+						</Badge>
+						<Badge variant="secondary">
+							<DurationIndicator seconds={durationSeconds ?? null} />
+						</Badge>
 					</div>
-
-					<Badge size="md" variant="default" className="w-fit text-card-foreground mt-1">
-						<DateIndicator size="sm" indicator={date} label={null} /><span>-</span><DurationIndicator size="sm" seconds={durationSeconds ?? null} />
-					</Badge>
 				</div>
 			</div>
-		</Root>
-	)
+		</Card>
+	);
 }
 
-export default EpisodeCard
+export default EpisodeCard;

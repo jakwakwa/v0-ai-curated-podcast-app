@@ -278,7 +278,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 			data-slot="sidebar-inset"
 			className={cn(
 				"relative overflow-x-hidden flex w-full flex-1 flex-col",
-				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 h-screen",
 				className
 			)}
 			{...props}
@@ -405,7 +405,9 @@ function SidebarMenuButton({
 	const { isMobile, state } = useSidebar()
 
 	const button = (
-		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props} />
+		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props}>
+
+		</Comp>
 	)
 
 	if (!tooltip) {
@@ -454,7 +456,9 @@ function SidebarMenuAction({
 				className
 			)}
 			{...props}
-		/>
+		>
+
+		</Comp>
 	)
 }
 
@@ -548,7 +552,9 @@ function SidebarMenuSubButton({
 				className
 			)}
 			{...props}
-		/>
+		>
+
+		</Comp>
 	)
 }
 

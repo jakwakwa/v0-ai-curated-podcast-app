@@ -27,6 +27,11 @@ export default function AdminIndexPage() {
 													</Link>
                         </li>
                         <li>
+                            <Link className="underline" href="/admin/email-management">
+                                Email Management
+													</Link>
+                        </li>
+                        <li>
                             <Link className="underline" href="/admin/audio-duration">
                                 Audio Duration Extractor
 													</Link>

@@ -112,12 +112,12 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					sources,
 				}),
 			})
-			
+
 			if (!resp.ok) {
 				const errorText = await resp.text()
 				throw new Error(errorText || "Failed to start generation")
 			}
-			
+
 			toast.success("Episode generation started")
 			setSelectedBundleId("")
 			setSelectedPodcastId("")
@@ -167,12 +167,12 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		setIsLoading(true)
 		try {
 			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData })
-			
+
 			if (!resp.ok) {
 				const errorText = await resp.text()
 				throw new Error(errorText || "Failed to upload episode")
 			}
-			
+
 			toast.success("Episode uploaded")
 			setSelectedBundleId("")
 			setSelectedPodcastId("")
@@ -229,7 +229,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 							<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 							<div className="flex flex-wrap gap-2">
 								{selectedBundle.podcasts.map(p => (
-									<Badge size="sm" key={p.podcast_id} variant="outline">
+									<Badge key={p.podcast_id} variant="outline">
 										{p.name}
 									</Badge>
 								))}
@@ -265,7 +265,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 						</Select>
 						{selectedPodcast && (
 							<div className="mt-2">
-								<Badge size="sm" variant="secondary">
+								<Badge variant="secondary">
 									Selected: {selectedPodcast.name}
 								</Badge>
 							</div>
