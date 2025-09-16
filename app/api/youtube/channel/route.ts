@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Allowed YouTube hostnames for video extraction/sanitization
+const YOUTUBE_HOSTS = ["youtube.com", "www.youtube.com", "m.youtube.com"];
+const YOUTU_BE_HOSTS = ["youtu.be", "www.youtu.be"];
 // Cache for YouTube channel data (in-memory cache)
 const channelCache = new Map<string, { channelName: string; channelImage: string; timestamp: number }>();
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
@@ -8,10 +11,10 @@ const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 function extractVideoId(url: string): string | null {
 	try {
 		const parsedUrl = new URL(url);
-		if (parsedUrl.hostname.includes("youtube.com")) {
+		if (YOUTUBE_HOSTS.includes(parsedUrl.hostname)) {
 			return parsedUrl.searchParams.get("v");
 		}
-		if (parsedUrl.hostname.includes("youtu.be")) {
+		if (YOUTU_BE_HOSTS.includes(parsedUrl.hostname)) {
 			return parsedUrl.pathname.substring(1);
 		}
 	} catch (e) {
@@ -24,11 +27,11 @@ function extractVideoId(url: string): string | null {
 function cleanYouTubeUrl(url: string): string {
 	try {
 		const parsedUrl = new URL(url);
-		if (parsedUrl.hostname.includes("youtube.com")) {
+		if (YOUTUBE_HOSTS.includes(parsedUrl.hostname)) {
 			const videoId = parsedUrl.searchParams.get("v");
 			return videoId ? `yu.tube/${videoId}` : "yu.tube/video";
 		}
-		if (parsedUrl.hostname.includes("youtu.be")) {
+		if (YOUTU_BE_HOSTS.includes(parsedUrl.hostname)) {
 			const videoId = parsedUrl.pathname.substring(1);
 			return videoId ? `yu.tube/${videoId}` : "yu.tube/video";
 		}
