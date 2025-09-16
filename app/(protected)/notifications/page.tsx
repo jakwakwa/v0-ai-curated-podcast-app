@@ -145,7 +145,7 @@ export default function NotificationsPage() {
 	}
 
 	return (
-		<Card variant="glass" className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
+		<Card className="w-full lg:w-full lg:min-w-screen/[60%]  h-auto mb-0 px-2">
 			<div className="mb-8 mt-4 flex flex-col items-center justify-start">
 				<div className="w-full flex items-center justify-between flex-wrap gap-4">
 					<div className="flex flex-row gap-3 h-14">
@@ -153,13 +153,13 @@ export default function NotificationsPage() {
 					</div>
 					<div className="flex gap-2 flex-wrap">
 						{unreadCount > 0 && (
-							<Button variant="outline" size="sm" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
+							<Button variant="ghost" size="xs" onClick={handleMarkAllAsRead} className="flex items-center gap-2 text-sm">
 								<Check size={16} />
 								Mark all as read
 							</Button>
 						)}
 						{notifications.length > 0 && (
-							<Button variant="default" size="sm" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
+							<Button variant="default" size="xs" onClick={handleClearAll} className="flex items-center gap-2 text-sm">
 								<Trash2 size={16} />
 								Clear all
 							</Button>
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
 
 			<div className="min-h-[400px] px-0 episode-card-wrapper-dark">
 				{notifications.length === 0 ? (
-					<Card variant={"episode"} className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
+					<Card className="text-center px-0 py-18 mt-8 border-2 border-dashed border-border bg-card content">
 						<CardContent className="flex flex-col items-center gap-4">
 							<Bell className="w-8 h-8 text-muted-foreground opacity-50" />
 							<h3 className="text-xl font-semibold text-foreground m-0">No notifications</h3>
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
 				) : (
 					<div className="w-full flex flex-col gap-2 px-2 py-2">
 						{notifications.slice(0, 10).map(notification => (
-							<Card variant="default" className="py-1 bg-accent-dark" key={notification.notification_id}>
+							<Card className="py-1 bg-accent-dark" key={notification.notification_id}>
 								<div className=" flex flex-col">
 									<div className="flex items-start justify-between py-2 ">
 										<time className="text-sm text-foreground/40">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</time>
@@ -189,22 +189,23 @@ export default function NotificationsPage() {
 
 									<div className="flex justify-start items-center gap-4 h-full py-2">
 										<span className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</span>
-										<p className="text-body font-medium leading-relaxed">{notification.message}</p>
+										<p className="text-body  font-medium leading-relaxed">{notification.message}</p>
 									</div>
 
 									<div className="flex gap-2 items-center justify-end">
-										<Button variant="default" size="sm" className="text-xs px-2 " onClick={() => router.push("/my-episodes")}>
+										<Button variant="default" size="xs" className="text-xs px-2 " onClick={() => router.push("/my-episodes")}>
 											My Episodes
 										</Button>
 										{!notification.is_read && (
-											<Button variant="outline" size="sm" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
 												<Check size={12} />
-												Mark read
+												Mark as read
 											</Button>
 										)}
-										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+										<Button variant="destructive" size="xs" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+
+											Clear
 											<X size={12} />
-											Delete
 										</Button>
 									</div>
 								</div>

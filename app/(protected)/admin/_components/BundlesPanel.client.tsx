@@ -254,7 +254,7 @@ export default function BundlesPanelClient({
 										<p className="text-xxs mt-1 episode-card-description text-foreground/50 mb-2">{bundle.description}</p>
 										<div className="flex flex-wrap gap-1 mb-1">
 											{bundle.podcasts.map(p => (
-												<Badge size="sm" key={p.podcast_id} variant="outline" className="text-xs">
+												<Badge key={p.podcast_id} variant="outline" className="text-xs">
 													{p.name}
 												</Badge>
 											))}

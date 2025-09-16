@@ -40,6 +40,10 @@ export async function GET(_request: Request) {
 					userProfile: true,
 				},
 				orderBy: { created_at: "desc" },
+				cacheStrategy: {
+					swr: 60,
+					ttl: 2000,
+				},
 			})
 		);
 

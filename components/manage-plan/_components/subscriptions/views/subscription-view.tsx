@@ -30,7 +30,7 @@ export function SubscriptionView() {
 
 				const data = await res.json();
 				setSubscription(data);
-			} catch {}
+			} catch { }
 		};
 		fetchSubscription();
 	}, [setSubscription]);
@@ -38,8 +38,6 @@ export function SubscriptionView() {
 	const _syncMembership = async () => {
 		setIsSyncing(true);
 		try {
-			console.log("Starting subscription sync...");
-
 			// First try to sync with Paddle
 			const syncRes = await fetch("/api/account/subscription/sync", {
 				method: "POST",
@@ -47,11 +45,9 @@ export function SubscriptionView() {
 			});
 
 			if (syncRes.ok) {
-				const syncData = await syncRes.json();
-				console.log("Sync successful:", syncData);
+				const _syncData = await syncRes.json();
 			} else {
-				const syncError = await syncRes.json();
-				console.log("Sync endpoint error:", syncError);
+				const _syncError = await syncRes.json();
 			}
 
 			// Then fetch the updated subscription data
@@ -63,13 +59,11 @@ export function SubscriptionView() {
 
 			// Handle 204 No Content case (no subscription found)
 			if (res.status === 204) {
-				console.log("No subscription found after sync");
 				setSubscription(null);
 				return;
 			}
 
 			const data = await res.json();
-			console.log("Subscription data after sync:", data);
 			setSubscription(data);
 		} catch (error) {
 			console.error("Failed to sync membership:", error);
@@ -100,7 +94,7 @@ export function SubscriptionView() {
 			}
 			const data = await res.json();
 			setSubscription(data);
-		} catch {}
+		} catch { }
 	}, [setSubscription]);
 
 	const pollingTimerRef = useRef<number | null>(null);
@@ -145,7 +139,7 @@ export function SubscriptionView() {
 				try {
 					await fetch("/api/account/subscription/sync-paddle", { method: "POST" });
 					lastSyncAtRef.current = now;
-				} catch {}
+				} catch { }
 				syncTriggeredRef.current = true;
 			}
 			try {
@@ -161,7 +155,7 @@ export function SubscriptionView() {
 					stopPortalPolling();
 					return;
 				}
-			} catch {}
+			} catch { }
 		};
 		void tick();
 		pollingTimerRef.current = window.setInterval(() => {
@@ -186,7 +180,7 @@ export function SubscriptionView() {
 				window.open(overviewUrl, "_blank");
 				startPortalPolling();
 			}
-		} catch {}
+		} catch { }
 	};
 
 	useEffect(() => {
@@ -206,7 +200,7 @@ export function SubscriptionView() {
 				<CardTitle className="flex justify-between items-center pb-2">
 					<span className={"text-xl font-medium"}>Subscription</span>
 					{subscription?.status && (
-						<Badge variant="secondary" size="sm">
+						<Badge variant="secondary">
 							{subscription.status}
 						</Badge>
 					)}

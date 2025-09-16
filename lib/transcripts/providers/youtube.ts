@@ -1,13 +1,11 @@
+import { getYouTubeTranscriptText } from "@/lib/youtube";
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types";
-import { getYouTubeTranscriptText } from "@/lib/youtube-safe";
 
 export const YouTubeCaptionsProvider: TranscriptProvider = {
 	name: "youtube-captions",
 	canHandle(request) {
-		// Disabled on Vercel by default due to anti-bot; guard with env flag
-		const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
-		const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true";
-		return /youtu(be\.be|be\.com)/i.test(request.url) && (!isVercel || enableServerYtdl);
+		// Always allow server-side caption fetching for YouTube URLs (no flags).
+		return /youtu(\.be|be\.com)/i.test(request.url);
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {

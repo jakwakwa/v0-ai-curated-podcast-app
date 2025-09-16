@@ -18,7 +18,6 @@ export async function POST() {
 		});
 
 		if (existingSubscription) {
-			console.log(`[SUBSCRIPTION_SYNC] Found existing subscription in database:`, existingSubscription);
 			return NextResponse.json({
 				message: "Found existing subscription",
 				subscription: existingSubscription,

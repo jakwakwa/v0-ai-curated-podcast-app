@@ -41,7 +41,7 @@ export const ProviderStartedSchema = z.object({
 	jobId: z.string().min(1),
 	userEpisodeId: z.string().min(1),
 	srcUrl: z.string().url(),
-	provider: z.enum(["assemblyai", "revai", "gemini"]),
+	provider: z.enum(["gemini"]),
 	lang: z.string().optional(),
 });
 
@@ -51,7 +51,7 @@ export const ProviderSucceededSchema = z.object({
 	jobId: z.string().min(1),
 	userEpisodeId: z.string().min(1),
 	transcript: z.string().min(1),
-	provider: z.enum(["assemblyai", "revai", "gemini"]),
+	provider: z.enum(["gemini"]),
 	meta: z.record(z.any()).optional(),
 });
 
@@ -60,7 +60,7 @@ export type ProviderSucceeded = z.infer<typeof ProviderSucceededSchema>;
 export const ProviderFailedSchema = z.object({
 	jobId: z.string().min(1),
 	userEpisodeId: z.string().min(1),
-	provider: z.enum(["assemblyai", "revai", "gemini"]),
+	provider: z.enum(["gemini"]),
 	errorType: z.custom<ErrorType>(),
 	errorMessage: z.string(),
 	meta: z.record(z.any()).optional(),

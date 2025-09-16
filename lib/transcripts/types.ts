@@ -23,7 +23,7 @@ export interface TranscriptResponseFailure {
 
 export type TranscriptResponse = TranscriptResponseSuccess | TranscriptResponseFailure;
 
-export type ProviderName = "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "podcast-rss" | "listen-notes" | "revai" | "paid-asr" | "assemblyai";
+export type ProviderName = "gemini-video" | "youtube-captions" | "youtube-client" | "youtube-audio-extractor" | "youtube-stream-resolver" | "grok-search" | "paid-asr" | "openai-text-fallback";
 
 export interface TranscriptProvider {
 	name: ProviderName;
@@ -43,6 +43,6 @@ export interface YouTubeProviderOptions {
 }
 
 export interface PaidAsrOptions {
-	provider: "revai" | "assemblyai" | "whisper";
+	provider: "whisper" | "gemini";
 	apiKey?: string;
 }

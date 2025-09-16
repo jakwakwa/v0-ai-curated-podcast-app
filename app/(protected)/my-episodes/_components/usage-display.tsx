@@ -32,16 +32,19 @@ export function UsageDisplay() {
 	}
 
 	return (
-		<Card variant="glass" className="bg-bundle-card w-3/4">
-			<div className="w-full flex flex-col p-2 gap-3">
-				<H2 className="text-secondary-foreground">Monthly Usage</H2>
+		<Card className="bg-[#060506] border rounded-none p-8 min-w-1/3">
+			<div className="w-full flex flex-col gap-3">
+				<H2 className=" text-lg text-primary-foreground">Monthly Usage</H2>
 
 				<Body className="font-normal">
-					You have generated{" "}
-					<span className="font- text-accent-foreground bg-[#5727AB] rounded-full w-[11px] h-[13px] py-[14px] px-[15px] inline-flex justify-center items-center mx-2">{usage.count} </span>of your{" "}
-					{usage.limit} monthly episodes
+					You have generated <br /> <strong>{usage.count}</strong> of your <strong>{usage.count}</strong> monthly episodes
+
+				</Body>
+				<Body className="text-amber-600">
+					{usage.count === usage.limit ? <div><span className="mr-3">⚠️</span>Limit reached for the month </div> : ""}
 				</Body>
 			</div>
+
 		</Card>
 	);
 }

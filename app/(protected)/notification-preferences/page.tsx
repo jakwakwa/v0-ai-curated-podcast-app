@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { PageHeader } from "@/components/ui/page-header";
-import { NotificationPreferences } from "@/components/user-account/notification-preferences";
+import type { Metadata } from "next"
+import { PageHeader } from "@/components/ui/page-header"
+import { NotificationPreferences } from "@/components/user-account/notification-preferences"
 
 export const revalidate = 0;
 

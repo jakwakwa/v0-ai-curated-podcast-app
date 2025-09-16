@@ -1,8 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { POST } from "@/app/api/sync-user/route";
-import { prisma } from "@/lib/prisma";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import type { User as PrismaUser } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { POST } from "../app/api/sync-user/route";
+import { prisma } from "../lib/prisma";
+
+type AuthReturn = Awaited<ReturnType<typeof auth>>;
+type CurrentUserReturn = Awaited<ReturnType<typeof currentUser>>;
 
 // Mock Clerk auth
 vi.mock("@clerk/nextjs/server", () => ({
@@ -39,7 +42,9 @@ describe("User Sync API", () => {
 
 	describe("POST /api/sync-user", () => {
 		it("should return 401 when user is not authenticated", async () => {
-			vi.mocked(auth).mockResolvedValue({ userId: null });
+			vi.mocked(auth).mockResolvedValue({
+				userId: null,
+			} as unknown as AuthReturn);
 
 			const response = await POST();
 			const data = await response.json();
@@ -49,8 +54,10 @@ describe("User Sync API", () => {
 		});
 
 		it("should return 404 when user is not found in Clerk", async () => {
-			vi.mocked(auth).mockResolvedValue({ userId: "user_123" });
-			vi.mocked(currentUser).mockResolvedValue(null);
+			vi.mocked(auth).mockResolvedValue({
+				userId: "user_123",
+			} as unknown as AuthReturn);
+			vi.mocked(currentUser).mockResolvedValue(null as unknown as CurrentUserReturn);
 
 			const response = await POST();
 			const data = await response.json();
@@ -63,7 +70,12 @@ describe("User Sync API", () => {
 			const mockClerkUser: MockClerkUser = {
 				fullName: "John Doe",
 				firstName: "John",
-				emailAddresses: [{ emailAddress: "john@example.com", verification: { status: "verified" } }],
+				emailAddresses: [
+					{
+						emailAddress: "john@example.com",
+						verification: { status: "verified" },
+					},
+				],
 				imageUrl: "https://example.com/avatar.jpg",
 			};
 			const mockExistingUser: Partial<PrismaUser> = {
@@ -71,10 +83,16 @@ describe("User Sync API", () => {
 				email: "old@example.com",
 				name: "Old Name",
 			};
-			const mockUpdatedUser: Partial<PrismaUser> = { ...mockExistingUser, email: "john@example.com", name: "John Doe" };
+			const mockUpdatedUser: Partial<PrismaUser> = {
+				...mockExistingUser,
+				email: "john@example.com",
+				name: "John Doe",
+			};
 
-			vi.mocked(auth).mockResolvedValue({ userId: "user_123" });
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser);
+			vi.mocked(auth).mockResolvedValue({
+				userId: "user_123",
+			} as unknown as AuthReturn);
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as unknown as CurrentUserReturn);
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(mockExistingUser as PrismaUser);
 			vi.mocked(prisma.user.update).mockResolvedValue(mockUpdatedUser as PrismaUser);
 
@@ -103,7 +121,12 @@ describe("User Sync API", () => {
 			const mockClerkUser: MockClerkUser = {
 				fullName: "Jane Doe",
 				firstName: "Jane",
-				emailAddresses: [{ emailAddress: "jane@example.com", verification: { status: "verified" } }],
+				emailAddresses: [
+					{
+						emailAddress: "jane@example.com",
+						verification: { status: "verified" },
+					},
+				],
 				imageUrl: "https://example.com/avatar.jpg",
 			};
 			const mockNewUser: Partial<PrismaUser> = {
@@ -112,8 +135,10 @@ describe("User Sync API", () => {
 				name: "Jane Doe",
 			};
 
-			vi.mocked(auth).mockResolvedValue({ userId: "user_456" });
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser);
+			vi.mocked(auth).mockResolvedValue({
+				userId: "user_456",
+			} as unknown as AuthReturn);
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as unknown as CurrentUserReturn);
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 			vi.mocked(prisma.user.create).mockResolvedValue(mockNewUser as PrismaUser);
 
@@ -144,8 +169,10 @@ describe("User Sync API", () => {
 				imageUrl: null,
 			};
 
-			vi.mocked(auth).mockResolvedValue({ userId: "user_error" });
-			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as MockClerkUser);
+			vi.mocked(auth).mockResolvedValue({
+				userId: "user_error",
+			} as unknown as AuthReturn);
+			vi.mocked(currentUser).mockResolvedValue(mockClerkUser as unknown as CurrentUserReturn);
 			vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 			vi.mocked(prisma.user.create).mockRejectedValue(new Error("Database error"));
 

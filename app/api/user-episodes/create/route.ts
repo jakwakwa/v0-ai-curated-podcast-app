@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 		});
 
 		// Get episode limit from plan configuration
-		const EPISODE_LIMIT = 20; // CURATE_CONTROL plan limit
+		const EPISODE_LIMIT = 10; // CURATE_CONTROL plan limit
 		if (existingEpisodeCount >= EPISODE_LIMIT) {
 			return new NextResponse("You have reached your monthly episode creation limit.", { status: 403 });
 		}

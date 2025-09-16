@@ -97,7 +97,7 @@ async function fetchYouTubeCaption(videoId: string): Promise<string> {
 export const YouTubeClientProvider: TranscriptProvider = {
 	name: "youtube-client",
 	canHandle(request) {
-		return /youtu(be\.be|be\.com)/i.test(request.url);
+		return /youtu(\.be|be\.com)/i.test(request.url);
 	},
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {

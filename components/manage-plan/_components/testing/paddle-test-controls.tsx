@@ -154,21 +154,21 @@ export function SubscriptionTestControlsPaddle() {
 
 						{/* Status Badges */}
 						<div className="flex flex-wrap gap-1">
-							<Badge variant="secondary" size="sm" className="text-xs">
+							<Badge variant="secondary" className="text-xs">
 								{subscription?.status || "Free"}
 							</Badge>
 							{subscription?.trial_end && new Date(subscription.trial_end) > new Date() && (
-								<Badge variant="outline" size="sm" className="text-xs">
+								<Badge variant="outline" className="text-xs">
 									Trial
 								</Badge>
 							)}
 							{subscription?.cancel_at_period_end && (
-								<Badge variant="outline" size="sm" className="text-xs text-yellow-600">
+								<Badge variant="outline" className="text-xs text-yellow-600">
 									Canceling
 								</Badge>
 							)}
 							{subscription?.canceled_at && (
-								<Badge variant="destructive" size="sm" className="text-xs">
+								<Badge variant="destructive" className="text-xs">
 									Canceled
 								</Badge>
 							)}

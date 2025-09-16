@@ -110,12 +110,12 @@ export function NavUser({
 						</SidebarMenuButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
-						className="dropdown-menu-card w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] text-sm leading-tight"
+						className="dropdown-menu-card w-[--radix-dropdown-menu-trigger-width] min-w-full md:min-w-56 rounded-lg text-foreground text-sm font-[400] leading-tight"
 						side={isMobile ? "bottom" : "right"}
 						align="end"
 						sideOffset={4}>
 						<DropdownMenuLabel className="p-0 font-normal">
-							<div className="flex items-center gap-2 px-1 md:px-2 pb-4.5 text-left text-sm  text-foreground text-sm font-[400] text-sm leading-tight">
+							<div className="flex items-center gap-2 px-1 md:px-2 pb-4.5 text-left text-sm  text-foreground font-[400] leading-tight">
 								<Avatar className="h-8 w-8 rounded-lg filter">
 									<AvatarImage src={user.avatar} alt={user.name} />
 									<AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>

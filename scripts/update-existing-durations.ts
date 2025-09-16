@@ -52,6 +52,9 @@ async function updateUserEpisodes(): Promise<{ updated: number; failed: number }
 	const episodes = await prisma.userEpisode.findMany({
 		where: { gcs_audio_url: { not: null }, duration_seconds: null, status: "COMPLETED" },
 		select: { episode_id: true, gcs_audio_url: true, episode_title: true },
+		cacheStrategy: {
+			swr: 60,
+		},
 	});
 
 	let updated = 0;

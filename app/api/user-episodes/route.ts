@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { ensureBucketName, getStorageReader } from "@/lib/gcs";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
 	try {
@@ -28,6 +28,10 @@ export async function GET(request: Request) {
 		const episodes = await prisma.userEpisode.findMany({
 			where: { user_id: userId },
 			orderBy: { created_at: "desc" },
+			cacheStrategy: {
+				swr: 60,
+				ttl: 200,
+			},
 		});
 
 		const storageReader = getStorageReader();

@@ -98,7 +98,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			toast.error("All sources must be YouTube links");
 			return;
 		}
-		setIsLoading(true);
+		setIsLoading(true)
 		try {
 			const resp = await fetch("/api/admin/generate-bundle-episode", {
 				method: "POST",
@@ -111,27 +111,27 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					image_url: episodeImageUrl || undefined,
 					sources,
 				}),
-			});
+			})
 
 			if (!resp.ok) {
-				const errorText = await resp.text();
-				throw new Error(errorText || "Failed to start generation");
+				const errorText = await resp.text()
+				throw new Error(errorText || "Failed to start generation")
 			}
 
-			toast.success("Episode generation started");
-			setSelectedBundleId("");
-			setSelectedPodcastId("");
-			setEpisodeTitle("");
-			setEpisodeDescription("");
-			setEpisodeImageUrl("");
-			setSources([]);
+			toast.success("Episode generation started")
+			setSelectedBundleId("")
+			setSelectedPodcastId("")
+			setEpisodeTitle("")
+			setEpisodeDescription("")
+			setEpisodeImageUrl("")
+			setSources([])
 		} catch (error) {
-			console.error("Failed to generate episode:", error);
-			toast.error(error instanceof Error ? error.message : "Failed to start generation");
+			console.error("Failed to generate episode:", error)
+			toast.error(error instanceof Error ? error.message : "Failed to start generation")
 		} finally {
-			setIsLoading(false);
+			setIsLoading(false)
 		}
-	};
+	}
 
 	const uploadEpisode = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -156,41 +156,41 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			toast.error("Please provide an audio URL");
 			return;
 		}
-		const formData = new FormData();
-		formData.append("bundleId", selectedBundleId);
-		formData.append("podcastId", selectedPodcastId);
-		formData.append("title", episodeTitle);
-		formData.append("description", episodeDescription);
-		if (episodeImageUrl) formData.append("image_url", episodeImageUrl);
-		if (uploadMethod === "upload" && mp3File) formData.append("file", mp3File);
-		if (uploadMethod === "direct" && audioUrl) formData.append("audioUrl", audioUrl);
-		setIsLoading(true);
+		const formData = new FormData()
+		formData.append("bundleId", selectedBundleId)
+		formData.append("podcastId", selectedPodcastId)
+		formData.append("title", episodeTitle)
+		formData.append("description", episodeDescription)
+		if (episodeImageUrl) formData.append("image_url", episodeImageUrl)
+		if (uploadMethod === "upload" && mp3File) formData.append("file", mp3File)
+		if (uploadMethod === "direct" && audioUrl) formData.append("audioUrl", audioUrl)
+		setIsLoading(true)
 		try {
-			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData });
+			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData })
 
 			if (!resp.ok) {
-				const errorText = await resp.text();
-				throw new Error(errorText || "Failed to upload episode");
+				const errorText = await resp.text()
+				throw new Error(errorText || "Failed to upload episode")
 			}
 
-			toast.success("Episode uploaded");
-			setSelectedBundleId("");
-			setSelectedPodcastId("");
-			setEpisodeTitle("");
-			setEpisodeDescription("");
-			setEpisodeImageUrl("");
-			setMp3File(null);
-			setAudioUrl("");
-			setNewSourceName("");
-			setNewSourceUrl("");
-			if (fileInputRef.current) fileInputRef.current.value = "";
+			toast.success("Episode uploaded")
+			setSelectedBundleId("")
+			setSelectedPodcastId("")
+			setEpisodeTitle("")
+			setEpisodeDescription("")
+			setEpisodeImageUrl("")
+			setMp3File(null)
+			setAudioUrl("")
+			setNewSourceName("")
+			setNewSourceUrl("")
+			if (fileInputRef.current) fileInputRef.current.value = ""
 		} catch (error) {
-			console.error("Failed to upload episode:", error);
-			toast.error(error instanceof Error ? error.message : "Failed to upload episode");
+			console.error("Failed to upload episode:", error)
+			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
 		} finally {
-			setIsLoading(false);
+			setIsLoading(false)
 		}
-	};
+	}
 
 	return (
 		<div className="space-y-6">
@@ -229,7 +229,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 							<p className="text-sm text-muted-foreground mb-3">{selectedBundle.description}</p>
 							<div className="flex flex-wrap gap-2">
 								{selectedBundle.podcasts.map(p => (
-									<Badge size="sm" key={p.podcast_id} variant="outline">
+									<Badge key={p.podcast_id} variant="outline">
 										{p.name}
 									</Badge>
 								))}
@@ -265,7 +265,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 						</Select>
 						{selectedPodcast && (
 							<div className="mt-2">
-								<Badge size="sm" variant="secondary">
+								<Badge variant="secondary">
 									Selected: {selectedPodcast.name}
 								</Badge>
 							</div>

@@ -38,7 +38,12 @@ function scoreCandidate(item: YouTubeSearchItem, q: YouTubeSearchInput): number 
 }
 
 export async function searchYouTubeByMetadata(input: YouTubeSearchInput): Promise<string | null> {
-	const schema = z.object({ title: z.string().min(2), podcastName: z.string().optional(), publishedAt: z.string().optional(), dateBufferDays: z.number().optional() });
+	const schema = z.object({
+		title: z.string().min(2),
+		podcastName: z.string().optional(),
+		publishedAt: z.string().optional(),
+		dateBufferDays: z.number().optional(),
+	});
 	const parsed = schema.safeParse(input);
 	if (!parsed.success) return null;
 	const apiKey = process.env.YOUTUBE_API_KEY;

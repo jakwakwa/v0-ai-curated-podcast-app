@@ -14,7 +14,7 @@ export function getPaidServiceUsageSnapshot(): Record<string, number> {
 	return { ...counters };
 }
 
-type PaidService = "listen-notes" | "revai";
+type PaidService = "listen-notes";
 
 type Counters = Record<PaidService, number>;
 
@@ -35,7 +35,7 @@ function getMonthKey(now: Date = new Date()): string {
 function _ensureBucket(): UsageBucket {
 	const monthKey = getMonthKey();
 	if (!global.__paidServiceUsage || global.__paidServiceUsage.monthKey !== monthKey) {
-		global.__paidServiceUsage = { monthKey, counters: { "listen-notes": 0, revai: 0 } };
+		global.__paidServiceUsage = { monthKey, counters: { "listen-notes": 0 } };
 	}
 	return global.__paidServiceUsage;
 }

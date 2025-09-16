@@ -4,13 +4,13 @@ import { dark } from "@clerk/themes";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-
 import type React from "react";
 import { Toaster } from "sonner";
+import { GlobalAudioPlayerSheet } from "@/components/ui/global-audio-player-sheet";
 import { GlobalProgressBar } from "@/components/ui/global-progress-bar";
 import { ClientProviders } from "./client-providers";
 
-import "./globals.css";
+const _workSans = Inter({ subsets: ["latin"] });
 
 const workSans = Inter({ subsets: ["latin"] });
 
@@ -117,6 +117,7 @@ export default function RootLayout({
 					<ClientProviders>
 						{children}
 						<Toaster />
+						<GlobalAudioPlayerSheet />
 					</ClientProviders>
 				</ClerkProvider>
 				<Analytics />

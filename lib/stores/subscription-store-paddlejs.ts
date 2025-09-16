@@ -83,7 +83,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 				});
 			}
 		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to cancel subscription" });
+			set({
+				error: error instanceof Error ? error.message : "Failed to cancel subscription",
+			});
 		} finally {
 			set({ isLoading: false });
 		}
@@ -102,7 +104,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 				});
 			}
 		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to resume subscription" });
+			set({
+				error: error instanceof Error ? error.message : "Failed to resume subscription",
+			});
 		} finally {
 			set({ isLoading: false });
 		}
@@ -110,23 +114,11 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
 	updatePaymentMethod: async () => {
 		set({ isLoading: true });
-		try {
-			console.log("Update payment method called");
-		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to update payment method" });
-		} finally {
-			set({ isLoading: false });
-		}
+		set({ isLoading: false });
 	},
 
-	updateSubscription: async (priceId: string) => {
+	updateSubscription: async (_priceId: string) => {
 		set({ isLoading: true });
-		try {
-			console.log("Update subscription called with priceId:", priceId);
-		} catch (error) {
-			set({ error: error instanceof Error ? error.message : "Failed to update subscription" });
-		} finally {
-			set({ isLoading: false });
-		}
+		set({ isLoading: false });
 	},
 }));

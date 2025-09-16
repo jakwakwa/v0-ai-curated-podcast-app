@@ -23,9 +23,9 @@ export const cardVariants = cva("border sm:px-24 md:px-4 transition-all duration
 	variants: {
 		variant: {
 			toggle: "bg-dark",
-			default: " border text-card-foreground px-4",
-			glass: "bg-cardglass	backdrop-blur-[2px]",
-			episode: "episode-card bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
+			default: "bg-background border text-card-foreground px-4",
+			glass: "md:bg-background/80 md:backdrop-blur-[24px] border text-card-foreground px-4",
+			episode: "bg-linear-to-br from-card/20 via-accent/90 to-muted  hover:shadow-md hover:-translate-y-2 ",
 			bundle: "border-light border-1 px-0  shadow-lg text-card-foreground hover:bg-card/25 hover:shadow-md pb-6 bg-bundle",
 			transparent: "main-card",
 		},
@@ -123,20 +123,6 @@ export const selectVariants = cva("", {
 	},
 });
 
-// Label variants - form label styling
-export const labelVariants = cva("text-sm font-bold text-[var(--color-form-input-text)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", {
-	variants: {
-		size: {
-			default: "font-bold text-sm",
-			sm: "font-bold text-xs",
-			lg: "font-bold text-base",
-		},
-	},
-	defaultVariants: {
-		size: "default",
-	},
-});
-
 // Switch variants - toggle component styling
 export const switchVariants = cva(
 	"popper inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ",
@@ -200,7 +186,6 @@ export type HeaderProps = VariantProps<typeof headerVariants>;
 export type InputProps = VariantProps<typeof inputVariants>;
 export type TextareaProps = VariantProps<typeof textareaVariants>;
 export type SelectProps = VariantProps<typeof selectVariants>;
-export type LabelProps = VariantProps<typeof labelVariants>;
 export type SwitchProps = VariantProps<typeof switchVariants>;
 export type BadgeProps = VariantProps<typeof badgeVariants>;
 // Spinner variants - loading indicators with animations

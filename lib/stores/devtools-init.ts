@@ -21,14 +21,9 @@ export const initializeStoresForDevTools = () => {
 	const subscriptionStore = null;
 	const userCurationProfileStore = useUserCurationProfileStore.getState();
 
-	console.log("Notification Store initialized:", !!notificationStore);
-	console.log("Subscription Store initialized:", !!subscriptionStore);
-	console.log("User Curation Profile Store initialized:", !!userCurationProfileStore);
-
 	// Dispatch test actions to make stores visible in DevTools
 	try {
 		useNotificationStore.getState().setError(null);
-		console.log("✅ Notification store test action dispatched");
 	} catch (error) {
 		console.error("❌ Notification store error:", error);
 	}

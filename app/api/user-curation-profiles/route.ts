@@ -60,6 +60,10 @@ export async function GET(_request: Request) {
 			if (podcastIds.length > 0) {
 				computedBundleEpisodes = await prisma.episode.findMany({
 					where: { podcast_id: { in: podcastIds } },
+					include: {
+						podcast: true,
+						userProfile: true,
+					},
 					orderBy: { published_at: "desc" },
 				});
 			}

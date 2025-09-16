@@ -28,17 +28,34 @@ export async function POST(request: Request) {
 		const { title, podcastName, publishedAt, youtubeUrl, lang, generationMode = "single", voiceA, voiceB } = parsed.data;
 
 		// Enforce monthly limit on COMPLETED episodes
-		const existingEpisodeCount = await prisma.userEpisode.count({ where: { user_id: userId, status: "COMPLETED" } });
-		const EPISODE_LIMIT = 20;
+		const existingEpisodeCount = await prisma.userEpisode.count({
+			where: { user_id: userId, status: "COMPLETED" },
+		});
+		const EPISODE_LIMIT = 10;
 		if (existingEpisodeCount >= EPISODE_LIMIT) return new NextResponse("You have reached your monthly episode creation limit.", { status: 403 });
 
 		const newEpisode = await prisma.userEpisode.create({
-			data: { user_id: userId, youtube_url: "metadata", episode_title: title, status: "PENDING" },
+			data: {
+				user_id: userId,
+				youtube_url: "metadata",
+				episode_title: title,
+				status: "PENDING",
+			},
 		});
 
 		await inngest.send({
 			name: "user.episode.metadata.requested",
-			data: { userEpisodeId: newEpisode.episode_id, title, podcastName, publishedAt, youtubeUrl, lang, generationMode, voiceA, voiceB },
+			data: {
+				userEpisodeId: newEpisode.episode_id,
+				title,
+				podcastName,
+				publishedAt,
+				youtubeUrl,
+				lang,
+				generationMode,
+				voiceA,
+				voiceB,
+			},
 		});
 
 		return NextResponse.json(newEpisode, { status: 201 });

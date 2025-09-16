@@ -19,9 +19,10 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 			if (ct?.startsWith("audio/") && (cl === undefined || cl > 0)) {
 				return success({ url, contentType: ct, contentLength: cl, suspectedAudio: true });
 			}
-		} catch (err) {
+		} catch (_err) {
 			// HEAD requests may be blocked or not supported; we log and continue to a small GET probe
-			console.warn(`HEAD request failed for ${url}:`, err);
+			// Avoid logging full error details that might contain sensitive information
+			console.warn(`HEAD request failed for URL`);
 		} finally {
 			clearTimeout(_t);
 		}
@@ -39,7 +40,14 @@ export async function preflightProbe(url: string, timeoutMs = 6000): Promise<Res
 			const buf = Buffer.from(await range.arrayBuffer());
 			const startsWithTag = buf.toString("utf8", 0, Math.min(buf.length, 32)).trimStart().startsWith("<");
 			const suspectedAudio = ct?.startsWith("audio/") === true || !startsWithTag;
+
+			// Per project "dos-and-donts": treat watch/watch?v (YouTube) HTML responses as
+			// neither fatal nor audio. We want the orchestrator to proceed (captions-first)
+			// rather than failing immediately on HTML from YouTube landing pages / consent walls.
 			if (!suspectedAudio) {
+				if (/youtu\.be|youtube\.com/i.test(url)) {
+					return success({ url, contentType: ct, contentLength: undefined, suspectedAudio: false });
+				}
 				return failure("invalid_input", `Source not audio. content-type: ${ct || "unknown"}`);
 			}
 			return success({ url, contentType: ct, contentLength: undefined, suspectedAudio });

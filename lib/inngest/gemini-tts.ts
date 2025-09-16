@@ -3,7 +3,6 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { GoogleGenAI } from "@google/genai";
 import { generateText } from "ai";
 import mime from "mime";
-import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageReader, getStorageUploader } from "@/lib/gcs";
 import { prisma } from "@/lib/prisma";
@@ -32,7 +31,6 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	try {
 		const storageUploader = getStorageUploader();
 		const bucketName = ensureBucketName();
-		console.log(`Uploading to bucket: ${bucketName}`);
 
 		const [exists] = await storageUploader.bucket(bucketName).exists();
 
@@ -41,9 +39,7 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 			throw new Error(`Bucket ${bucketName} does not exist`);
 		}
 
-		console.log("Bucket exists, uploading file…");
 		await storageUploader.bucket(bucketName).file(destinationFileName).save(data);
-		console.log("File uploaded successfully");
 		return { success: true, fileName: destinationFileName };
 	} catch {
 		// Avoid leaking internal error details
@@ -168,7 +164,7 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		apiKey: geminiApiKey,
 	});
 
-	const model = "gemini-2.5-pro-preview-tts";
+	const model = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts";
 	const contents = [
 		{
 			role: "user",
@@ -253,7 +249,10 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true });
+						const result = await getTranscriptOrchestrated({
+							url: s.url,
+							allowPaid: true,
+						});
 						if (result.success) {
 							transcriptContent = result.transcript;
 						} else {
@@ -284,11 +283,12 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 			if (!geminiApiKey) {
 				throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 			}
-			if (!aiConfig.geminiModel) {
-				throw new Error("aiConfig.geminiModel is not defined.");
+			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
+			if (!modelName) {
+				throw new Error("GEMINI_GENAI_MODEL (or aiConfig.geminiModel fallback) is not defined.");
 			}
 
-			const model = googleAI(aiConfig.geminiModel);
+			const model = googleAI(modelName);
 
 			try {
 				const { text } = await generateText({
@@ -297,14 +297,16 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
 
 		// Stage 3: Script Generation
 		const script = await step.run("generate-script", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash";
+			const model = googleAI(modelName2);
 			try {
 				const { text } = await generateText({
 					model: model,
@@ -312,17 +314,14 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during script generation:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during script generation");
 				throw new Error(`Failed to generate script: ${(error as Error).message}`);
 			}
 		});
 
 		// Stage 4: Audio Synthesis with Gemini TTS and Upload to Google Cloud Storage
 		const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
-			if (aiConfig.simulateAudioSynthesis) {
-				return "sample-for-simulated-tests.mp3";
-			}
-
 			try {
 				const audioBuffer = await generateAudioWithGeminiTTS(script);
 				const audioFileName = `podcasts/${collectionId}-${Date.now()}.wav`;
@@ -402,20 +401,11 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction(
 			}
 		});
 
-		if (aiConfig.simulateAudioSynthesis) {
-			// DO NOT CHANGE THIS RETURN STATEMENT
-			return {
-				success: true,
-				collectionId,
-				audioUrl: "public/sample-for-simulated-tests.mp3",
-				isSimulated: aiConfig.simulateAudioSynthesis,
-			};
-		}
 		return {
 			success: true,
 			collectionId,
 			audioUrl: publicUrl,
-			isSimulated: aiConfig.simulateAudioSynthesis,
+			isSimulated: false,
 		};
 	}
 );
@@ -444,7 +434,10 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 
 				if (videoId) {
 					try {
-						const result = await getTranscriptOrchestrated({ url: s.url, allowPaid: true });
+						const result = await getTranscriptOrchestrated({
+							url: s.url,
+							allowPaid: true,
+						});
 						if (result.success) {
 							transcriptContent = result.transcript;
 						} else {
@@ -477,11 +470,12 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			if (!geminiApiKey) {
 				throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 			}
-			if (!aiConfig.geminiModel) {
-				throw new Error("aiConfig.geminiModel is not defined.");
+			const modelName3 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
+			if (!modelName3) {
+				throw new Error("GEMINI_GENAI_MODEL (or aiConfig.geminiModel fallback) is not defined.");
 			}
 
-			const model = googleAI(aiConfig.geminiModel);
+			const model = googleAI(modelName3);
 
 			try {
 				const { text } = await generateText({
@@ -490,14 +484,16 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during summarization:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
 
 		// Stage 3: Script Generation
 		const script = await step.run("generate-script", async () => {
-			const model = googleAI(aiConfig.geminiModel);
+			const modelName4 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
+			const model = googleAI(modelName4);
 			try {
 				const { text } = await generateText({
 					model: model,
@@ -505,17 +501,14 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 				});
 				return text;
 			} catch (error) {
-				console.error("Error during script generation:", error);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during script generation");
 				throw new Error(`Failed to generate script: ${(error as Error).message}`);
 			}
 		});
 
 		// Stage 4: Audio Synthesis with Gemini TTS and Upload to Google Cloud Storage
 		const publicUrl = await step.run("synthesize-audio-and-upload", async () => {
-			if (aiConfig.simulateAudioSynthesis) {
-				return "admin-sample-for-simulated-tests.mp3";
-			}
-
 			try {
 				const audioBuffer = await generateAudioWithGeminiTTS(script);
 				const audioFileName = `podcasts/${bundleId}-${Date.now()}.wav`;
@@ -526,7 +519,8 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 					return file.fileName;
 				}
 			} catch (error) {
-				console.error("Error during admin audio synthesis/upload:", (error as Error).message);
+				// Avoid logging full error details that might contain sensitive information
+				console.error("Error during admin audio synthesis/upload");
 				throw new Error(`Failed to generate admin episode audio: ${(error as Error).message}`);
 			}
 		});
@@ -626,20 +620,11 @@ export const generateAdminBundleEpisodeWithGeminiTTS = inngest.createFunction(
 			console.log(`Sent notifications to ${usersWithBundle.length} users for bundle episode: ${episode.title}`);
 		});
 
-		if (aiConfig.simulateAudioSynthesis) {
-			return {
-				success: true,
-				bundleId,
-				audioUrl: "public/admin-sample-for-simulated-tests.mp3",
-				isSimulated: aiConfig.simulateAudioSynthesis,
-				title: episodeTitle,
-			};
-		}
 		return {
 			success: true,
 			bundleId,
 			audioUrl: `https://storage.cloud.google.com/${ensureBucketName()}/${publicUrl}`,
-			isSimulated: aiConfig.simulateAudioSynthesis,
+			isSimulated: false,
 			title: episodeTitle,
 		};
 	}

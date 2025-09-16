@@ -28,7 +28,7 @@ const PRICING_TIER: PlanTier[] = [
 		icon: "/assets/icons/price-tiers/free-icon.svg",
 		features: ["Advanced Profile Features", "Generate 30 Ai Podcasts per month", "Access to more Podcasts Bundles"],
 		description: "Ideal for the power user.",
-		episodeLimit: 16,
+		episodeLimit: 10,
 		featured: false,
 	},
 ];

@@ -25,12 +25,12 @@
 	"formatter": {
 		"enabled": true,
 		"useEditorconfig": true,
-		"formatWithErrors": true,
+		"formatWithErrors": false,
 		"indentStyle": "tab",
 		"indentWidth": 2,
 		"lineEnding": "lf",
 		"lineWidth": 200,
-		"attributePosition": "auto",
+		"attributePosition": "multiline",
 		"bracketSpacing": true
 	},
 	"linter": {
@@ -126,7 +126,11 @@
 				"noSparseArray": "error",
 				"noConsole": {
 					"options": {
-						"allow": ["assert", "error", "warn"]
+						"allow": [
+							"assert",
+							"error",
+							"warn"
+						]
 					},
 					"fix": "safe"
 				}

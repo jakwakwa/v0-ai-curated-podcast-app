@@ -16,7 +16,7 @@ interface EmptyStateCardProps {
 
 const EmptyStateCard = ({ title, message, selectStateAction }: EmptyStateCardProps): React.ReactElement => {
 	return (
-		<Card variant="default" className="bg-card">
+		<Card className="bg-card">
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-xl font-semibold tracking-tight mt-2 mb-2">{title}</CardTitle>
 			</CardHeader>

@@ -1,15 +1,15 @@
 "use client";
 
-import { Check as CheckIcon, Loader2, Mail, Radio, Smartphone, StopCircleIcon, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ComponentSpinner from "@/components/ui/component-spinner";
-import DateIndicator from "@/components/ui/date-indicator";
-import { Separator } from "@/components/ui/separator";
-import SubmitBtn from "@/components/ui/submit-btn";
-import { useNotificationStore } from "@/lib/stores/notification-store";
+import { Check as CheckIcon, Loader2, Mail, Radio, Smartphone, StopCircleIcon, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import ComponentSpinner from "@/components/ui/component-spinner"
+import DateIndicator from "@/components/ui/date-indicator"
+import { Separator } from "@/components/ui/separator"
+import SubmitBtn from "@/components/ui/submit-btn"
+import { useNotificationStore } from "@/lib/stores/notification-store"
 
 type NotificationSettingsProps = {
 	emailNotifications: boolean;
@@ -75,7 +75,7 @@ export function NotificationPreferences() {
 	}
 
 	return (
-		<div className="episode-card-wrapper flex flex-col pb-12 w-full px-4 gap-4 md:p-2">
+		<div className="episode-card-wrapper flex flex-col pb-12 w-full px-4 gap-4 md:p-2" >
 			<div className="space-y-6 w-full">
 				{/* Email Notifications */}
 				<div className="space-y-4">

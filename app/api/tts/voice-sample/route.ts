@@ -60,14 +60,14 @@ export async function GET(request: Request) {
 			return new NextResponse("Invalid voice", { status: 400 });
 		}
 
-		const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+		const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 		if (!apiKey) return new NextResponse("Missing API key", { status: 500 });
 
 		const sampleText = VOICE_OPTIONS.find(v => v.name === voice)?.sample || "This is a quick voice sample for your episode.";
 
 		const ai = new GoogleGenAI({ apiKey });
 		const response = await ai.models.generateContentStream({
-			model: "gemini-2.5-flash-preview-tts",
+			model: process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts",
 			config: { responseModalities: ["audio"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } },
 			contents: [{ role: "user", parts: [{ text: sampleText }] }],
 		});

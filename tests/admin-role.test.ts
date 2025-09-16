@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { auth } from "@clerk/nextjs/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isAdmin, requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 
 // Mock Clerk auth
 vi.mock("@clerk/nextjs/server", () => ({

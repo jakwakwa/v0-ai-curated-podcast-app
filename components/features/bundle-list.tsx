@@ -18,10 +18,10 @@ interface BundleListProps {
 	selectedBundleId?: string;
 }
 
-export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps) {
-	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+export function BundleList({ onBundleSelect }: BundleListProps) {
+	const [curatedBundles, setCuratedBundles] = useState<BundleWithPodcasts[]>([])
+	const [isLoading, setIsLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
 
 	const fetchCuratedBundles = useCallback(async () => {
 		try {
@@ -89,10 +89,10 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 	return (
 		<div className="flex flex-col gap-2 justify-center items-center w-full max-w-md">
 			{curatedBundles.map(bundle => {
-				const isSelected = selectedBundleId === bundle.bundle_id;
-				const disabled = bundle.canInteract === false;
+
+				const disabled = bundle.canInteract === false
 				return (
-					<Card key={bundle.bundle_id} variant="bundle" selected={isSelected} hoverable={true} className={`w-full ${disabled ? "opacity-60" : ""}`} onClick={() => onBundleSelect(bundle)}>
+					<Card key={bundle.bundle_id} className={`w-full ${disabled ? "opacity-60" : ""}`} onClick={() => onBundleSelect(bundle)}>
 						<CardContent className="p-2">
 							<div className="flex flex-col">
 								{/* Bundle info section */}
@@ -118,7 +118,7 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 													<TooltipTrigger asChild>
 														<p className="text-sm text-muted-foreground line-clamp-2 leading-tight">
 															{bundle.description}
-															{bundle.description && bundle.description.length > 100 && <span className="font-bold text-primary ml-1">read more</span>}
+
 														</p>
 													</TooltipTrigger>
 													<TooltipContent side="top" className="max-w-xs">
@@ -157,5 +157,5 @@ export function BundleList({ onBundleSelect, selectedBundleId }: BundleListProps
 				);
 			})}
 		</div>
-	);
+	)
 }

@@ -3,7 +3,6 @@
 import { AlertCircle, BoxesIcon, Edit } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import EditUserFeedModal from "@/components/edit-user-feed-modal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -13,8 +12,8 @@ import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Body, Typography } from "@/components/ui/typography";
-import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
 interface SubscriptionInfo {
 	plan_type: string;
@@ -38,14 +37,7 @@ export default function CurationProfileManagementPage() {
 
 	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
-	const [currentlyPlayingUserEpisodeId, setCurrentlyPlayingUserEpisodeId] = useState<string | null>(null);
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-
-	// Find the portal container on mount
-	useEffect(() => {
-		const container = document.getElementById("global-audio-player");
-		setPortalContainer(container);
-	}, []);
+	const { setEpisode } = useAudioPlayerStore();
 
 	const fetchAndUpdateData = useCallback(async () => {
 		try {
@@ -65,7 +57,6 @@ export default function CurationProfileManagementPage() {
 			setUserCurationProfile(fetchedProfile);
 			setEpisodes(fetchedEpisodes);
 			setUserEpisodes(fetchedUserEpisodes);
-			console.log(fetchedSubscription);
 			setSubscription(fetchedSubscription);
 
 			// Get bundle episodes if user has a bundle selection
@@ -80,7 +71,6 @@ export default function CurationProfileManagementPage() {
 		}
 	}, []);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <temp fix>
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -95,7 +85,6 @@ export default function CurationProfileManagementPage() {
 		};
 
 		fetchData();
-		console.log(subscription);
 	}, [fetchAndUpdateData]);
 
 	const handleSaveUserCurationProfile = async (updatedData: Partial<UserCurationProfile>) => {
@@ -125,9 +114,45 @@ export default function CurationProfileManagementPage() {
 		}
 	};
 
+	// Get the latest bundle episode
+	const latestBundleEpisode =
+		_bundleEpisodes.length > 0 ? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0] : null;
+
 	return (
-		<div className="w-full space-y-8">
-			<PageHeader title="Dashboard: Profile" description="Change or select bundles, view or create custom episodes from any podcast episode." />
+		<div className="flex flex-col gap-3 w-full episode-card-wrapper ">
+			<PageHeader
+				title="Welcome back!"
+				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."
+			/>
+
+			{/* Latest Bundle Episode Section */}
+			{latestBundleEpisode && (
+				<div className="w-full space-y-0 episode-card-wrapper border-dark border-b-dark">
+					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd">
+						<span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle
+					</CardTitle>
+					<CardDescription className="text-sm opacity-90 mb-4">The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}</CardDescription>
+					<CardContent className="px-0">
+						<EpisodeCard
+							imageUrl={latestBundleEpisode.image_url}
+							title={latestBundleEpisode.title}
+							description={latestBundleEpisode.description}
+							publishedAt={latestBundleEpisode.published_at || latestBundleEpisode.created_at}
+							durationSeconds={latestBundleEpisode.duration_seconds}
+							actions={
+								<Button
+									variant="play"
+									onClick={() => {
+										console.log("Dashboard - Setting bundle episode:", latestBundleEpisode);
+										setEpisode(latestBundleEpisode);
+									}}
+								/>
+							}
+						/>
+					</CardContent>
+				</div>
+			)}
+
 			{isLoading ? (
 				<div className="p-0 max-w-[1200px] mx-auto">
 					<div className="flex items-center justify-center min-h-[400px]">
@@ -136,13 +161,13 @@ export default function CurationProfileManagementPage() {
 				</div>
 			) : userCurationProfile ? (
 				<div className="flex flex-col lg:flex-row gap-4">
-					<div className="w-full lg:w-1/2 episode-card-wrapper border-dark border-b-dark">
-						<div className="w-full flex flex-col justify-between pb-0">
-							<CardTitle className=" mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
+					<div className="w-full lg:w-1/2 episode-card-wrapper border border-b-[#fff]">
+						<div className="w-full flex flex-col justify-between pb-0 rounded-2xl">
+							<CardTitle className="mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
 
 							{/*  */}
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
-								<div className="bg-[#1920214E] rounded-t-md  p-4">
+								<div className="bg-[#7f6aad3b]  border-1 border-[#ffffff0f]  rounded-t-md  p-4">
 									<Button className="inline-flex justify-end w-full px-2" variant="ghost" size="xs" onClick={() => setIsModalOpen(true)}>
 										<Edit />
 									</Button>
@@ -165,11 +190,11 @@ export default function CurationProfileManagementPage() {
 							)}
 						</div>
 
-						<div>
-							<div className="bg-[#000]/30 rounded-b-2xl  shadow-none border-none px-4 p-4">
+						<div className="mt-0 w-full overflow-hidden ">
+							<div className="bg-[#4C3E67]/30 rounded-b-2xl   border-1 border-[#63515142] shadow-none px-4 p-4">
 								<Body className="pt-4 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
-								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden px-1 pb-6 pt-4">
-									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary bg-muted-foreground/10 py-4 px-1">
+								<div className="flex flex-col justify-start gap-2 items-start my-2 px-1 w-full border rounded-md overflow-hidden pb-6 pt-4">
+									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full text-primary-forefround bg-muted-foreground/10 py-4 px-1">
 										<span className="font-sans text-foreground/60 text-sm">Bundle Episode/s:</span>
 										<span className="uppercase left text-teal-300/60 text-sm font-sans font-bold">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 									</div>
@@ -182,8 +207,8 @@ export default function CurationProfileManagementPage() {
 							</div>
 						</div>
 					</div>
-					<div className="w-full episode-card-wrapper px-4 mx-0 md:px-12 border-dark border-b-dark " style={{ padding: "20rem !important" }}>
-						<CardTitle className="w-full my-4">Your recently generated episodes</CardTitle>
+					<div className="w-full episode-card-wrapper px-4 mx-0 md:px-12 border-dark border-b-dark">
+						<CardTitle className="w-full mb-4">Your recently generated episodes</CardTitle>
 						<CardDescription className="text-sm opacity-90">View and manage your recently generated episodes.</CardDescription>
 						{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
 							<Link href="/my-episodes" passHref className="mr-4">
@@ -198,26 +223,49 @@ export default function CurationProfileManagementPage() {
 							</Button>
 						</Link>
 
-						<CardContent className="mt-4 px-0">
+						<CardContent className=" px-0">
 							{userEpisodes.length === 0 ? (
 								<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
 							) : (
-								<ul className=" gap-3">
+								<ul className="bg-black p-4 rounded-xl flex flex-col w-full gap-3">
 									{userEpisodes
 										.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
 										.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
 										.slice(0, 3)
 										.map(episode => (
-											<li key={episode.episode_id} className="list-none w-[90%]">
+											<li key={episode.episode_id} className="list-none">
 												<EpisodeCard
 													imageUrl={null}
 													title={`${episode.episode_title}`}
 													description={episode.summary}
 													publishedAt={episode.updated_at}
+													youtubeUrl={episode.youtube_url}
 													actions={
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
-															<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" size="play" className={episode.episode_id ? " m-0" : ""} />
+															<Button
+																onClick={() => {
+																	// Create a normalized episode for the audio player
+																	const normalizedEpisode: UserEpisode = {
+																		episode_id: episode.episode_id,
+																		episode_title: episode.episode_title,
+																		gcs_audio_url: episode.signedAudioUrl,
+																		summary: episode.summary,
+																		created_at: episode.created_at,
+																		updated_at: episode.updated_at,
+																		user_id: episode.user_id,
+																		youtube_url: episode.youtube_url,
+																		transcript: episode.transcript,
+																		status: episode.status,
+																		duration_seconds: episode.duration_seconds,
+																	};
+																	console.log("Dashboard - Setting normalized UserEpisode:", normalizedEpisode);
+																	console.log("Dashboard - Original episode signedAudioUrl:", episode.signedAudioUrl);
+																	setEpisode(normalizedEpisode);
+																}}
+																variant="play"
+																className={episode.episode_id ? " m-0" : ""}
+															/>
 														)
 													}
 												/>
@@ -238,38 +286,6 @@ export default function CurationProfileManagementPage() {
 				</div>
 			)}
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
-			{currentlyPlayingUserEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
-						<UserAudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />
-					</div>,
-					portalContainer
-				)}
 		</div>
 	);
-}
-
-export function UserAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
-	// Force fresh lookup of episode and require a signed URL for playback
-	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
-	if (!episode?.signedAudioUrl) {
-		return null;
-	}
-
-	const normalizedEpisode: UserEpisode = {
-		episode_id: episode.episode_id,
-		episode_title: episode.episode_title,
-		gcs_audio_url: episode.signedAudioUrl,
-		summary: episode.summary,
-		created_at: episode.created_at,
-		updated_at: episode.updated_at,
-		user_id: episode.user_id,
-		youtube_url: episode.youtube_url,
-		transcript: episode.transcript,
-		status: episode.status,
-		duration_seconds: episode.duration_seconds,
-	};
-
-	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />;
 }

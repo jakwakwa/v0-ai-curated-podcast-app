@@ -1,6 +1,6 @@
-import { memo } from "react";
-import { Body, Typography } from "@/components/ui/typography";
-import type { UserCurationProfileWithRelations } from "@/lib/types";
+import { memo } from "react"
+import { Body, Typography } from "@/components/ui/typography"
+import type { UserCurationProfileWithRelations } from "@/lib/types"
 
 interface ProfileFeedCardsProps {
 	userCurationProfile: UserCurationProfileWithRelations | null;

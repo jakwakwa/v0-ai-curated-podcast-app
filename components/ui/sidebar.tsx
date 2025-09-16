@@ -229,10 +229,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
 			data-sidebar="trigger"
 			data-slot="sidebar-trigger"
 			size="sm"
-			className={cn(
-				"inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-[1px] bg-[#000]/40",
-				className
-			)}
+			className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap leading-5 tracking-wide transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-[1px] bg-[#000]/40", className)}
 			onClick={event => {
 				onClick?.(event);
 				toggleSidebar();
@@ -275,7 +272,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
 			data-slot="sidebar-inset"
 			className={cn(
 				"relative overflow-x-hidden flex w-full flex-1 flex-col",
-				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+				"md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 h-screen",
 				className
 			)}
 			{...props}
@@ -402,8 +399,10 @@ function SidebarMenuButton({
 	const { isMobile, state } = useSidebar();
 
 	const button = (
-		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props} />
-	);
+		<Comp data-slot="sidebar-menu-button" data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props}>
+
+		</Comp>
+	)
 
 	if (!tooltip) {
 		return button;
@@ -447,12 +446,14 @@ function SidebarMenuAction({
 				"peer-data-[size=lg]/menu-button:top-2.5",
 				"group-data-[collapsible=icon]:hidden",
 				showOnHover &&
-					"peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+				"peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
 				className
 			)}
 			{...props}
-		/>
-	);
+		>
+
+		</Comp>
+	)
 }
 
 function SidebarMenuBadge({ className, ...props }: React.ComponentProps<"div">) {
@@ -545,8 +546,10 @@ function SidebarMenuSubButton({
 				className
 			)}
 			{...props}
-		/>
-	);
+		>
+
+		</Comp>
+	)
 }
 
 export {

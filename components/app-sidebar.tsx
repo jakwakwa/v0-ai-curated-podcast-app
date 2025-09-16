@@ -1,11 +1,11 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
-import { Bell, Home, Info, Play, Radio } from "lucide-react";
-import type * as React from "react";
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
+import { useUser } from "@clerk/nextjs"
+import { Bell, Home, Info, Play, Radio } from "lucide-react"
+import type * as React from "react"
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import { Sidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { user } = useUser();
@@ -30,15 +30,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Info,
 		},
 
+
 		{
 			title: "Bundle Episodes",
 			url: "/episodes",
-			icon: Play,
+			icon: Play
 		},
 		{
 			title: "My Episodes",
 			url: "/my-episodes",
-			icon: Play,
+			icon: Play
 		},
 		{
 			title: "Explore Curated Bundles",
@@ -55,8 +56,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "About Podslice",
 			url: "/welcome",
 			icon: Info,
-		},
-	];
+		}
+
+
+	]
 
 	return (
 		<Sidebar collapsible="offcanvas" {...props} className=" border-2 border-l-0 border-b-0 border-r-[#000] ">

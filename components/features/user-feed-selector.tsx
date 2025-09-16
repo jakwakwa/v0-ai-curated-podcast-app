@@ -5,7 +5,7 @@ import type { Bundle, Podcast, UserCurationProfile } from "@prisma/client";
 // Type for bundle with podcasts array from API
 type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null };
 
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -149,12 +149,6 @@ function UserFeedSelectorWizard() {
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
 							<Link href="/dashboard">
 								<Button variant="default" className="w-full sm:w-auto">
-									<ArrowLeft className="w-4 h-4 mr-2" />
-									Go to Dashboard
-								</Button>
-							</Link>
-							<Link href="/curation-profile-management">
-								<Button variant="default" className="w-full sm:w-auto">
 									Manage Profile
 								</Button>
 							</Link>
@@ -170,11 +164,11 @@ function UserFeedSelectorWizard() {
 			{/* Step 1: Choose User Curation Profile Type */}
 			{step === 1 && (
 				<div className="w-full">
-					<Card className="w-full" variant="bundle">
+					<Card className="w-full" >
 						<CardHeader>
-							<CardTitle className="text-primary w-full inline-block">PODSLICE Bundles</CardTitle>
+							<CardTitle className="text-primary-forefround w-full inline-block">PODSLICE Bundles</CardTitle>
 							<CardDescription>
-								<Typography className="text-primary w-full" variant="body" as="span">
+								<Typography className="text-primary-forefround w-full" variant="body" as="span">
 									Choose from pre-selected bundles.
 								</Typography>
 							</CardDescription>
@@ -188,7 +182,7 @@ function UserFeedSelectorWizard() {
 									fetchBundles();
 								}}
 								variant="default"
-								size="bundles"
+								size="md"
 								className="w-full min-h-12 h-auto">
 								Choose from pre-selected bundles
 							</Button>
@@ -200,10 +194,10 @@ function UserFeedSelectorWizard() {
 								variant="default"
 								className="w-full h-auto">
 								<div className="flex flex-col gap-2 w-full items-start px-2 md:px-4 py-2">
-									<Typography className="text-primary w-full inline-block" variant="h4" as="h4">
+									<Typography className="text-primary-forefround w-full inline-block" variant="h4" as="h4">
 										Custom Personalized Feed
 									</Typography>
-									<Typography className="text-primary w-full" variant="body" as="span">
+									<Typography className="text-primary-forefround w-full" variant="body" as="span">
 										Select up to 5 individual podcasts.
 									</Typography>
 								</div>
@@ -241,7 +235,7 @@ function UserFeedSelectorWizard() {
 									<div className="text-sm text-muted-foreground">
 										<Typography variant="body">
 											Need more details about bundles?{" "}
-											<Link href="/curated-bundles" className="text-primary hover:underline">
+											<Link href="/curated-bundles" className="text-primary-forefround hover:underline">
 												View bundle details here
 											</Link>
 										</Typography>
@@ -275,7 +269,7 @@ function UserFeedSelectorWizard() {
 									<div className="text-sm text-muted-foreground">
 										<Typography variant="body" className="mb-2">
 											Need more details about the bundles?{" "}
-											<Link href="/curated-bundles" className="text-primary hover:underline">
+											<Link href="/curated-bundles" className="text-primary-forefround hover:underline">
 												View bundle details here
 											</Link>
 										</Typography>
@@ -314,11 +308,11 @@ function UserFeedSelectorWizard() {
 			{/* Step 3: Review and Create */}
 			{step === 3 && (
 				<div className="w-full">
-					<Card className="w-full" variant="bundle">
+					<Card className="w-full" >
 						<CardHeader>
-							<CardTitle className="text-primary w-full inline-block">Review Your Personalized Feed</CardTitle>
+							<CardTitle className="text-primary-forefround w-full inline-block">Review Your Personalized Feed</CardTitle>
 							<CardDescription>
-								<Typography className="text-primary w-full" variant="body" as="span">
+								<Typography className="text-primary-forefround w-full" variant="body" as="span">
 									Personalized Feed Details
 								</Typography>
 							</CardDescription>
