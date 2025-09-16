@@ -103,8 +103,6 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 														status: episode.status,
 														duration_seconds: episode.duration_seconds,
 													};
-													console.log("MyEpisodes - Setting normalized episode:", normalizedEpisode);
-													console.log("MyEpisodes - Original episode signedAudioUrl:", episode.signedAudioUrl);
 													setEpisode(normalizedEpisode);
 												}} 
 												variant="play" 

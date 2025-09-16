@@ -43,7 +43,6 @@ export default function EpisodesPage() {
 	}, [fetchEpisodes])
 
 	const handlePlayEpisode = (episode: Episode) => {
-		console.log("Episodes - Setting episode:", episode);
 		setEpisode(episode)
 	}
 

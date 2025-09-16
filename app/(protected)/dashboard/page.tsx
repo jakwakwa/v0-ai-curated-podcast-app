@@ -144,7 +144,6 @@ export default function CurationProfileManagementPage() {
 								<Button
 									variant="play"
 									onClick={() => {
-										console.log("Dashboard - Setting bundle episode:", latestBundleEpisode);
 										setEpisode(latestBundleEpisode);
 									}}
 								/>
@@ -259,8 +258,6 @@ export default function CurationProfileManagementPage() {
 																		status: episode.status,
 																		duration_seconds: episode.duration_seconds,
 																	};
-																	console.log("Dashboard - Setting normalized UserEpisode:", normalizedEpisode);
-																	console.log("Dashboard - Original episode signedAudioUrl:", episode.signedAudioUrl);
 																	setEpisode(normalizedEpisode);
 																}} 
 																variant="play" 

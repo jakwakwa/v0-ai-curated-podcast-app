@@ -25,23 +25,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 
 	const audioSrc = useMemo(() => {
-		if (!episode) {
-			console.log("AudioPlayerSheet - No episode provided");
-			return "";
-		}
-		
-		let src = "";
-		if ("audio_url" in episode && episode.audio_url) {
-			src = episode.audio_url;
-			console.log("AudioPlayerSheet - Using audio_url:", src);
-		} else if ("gcs_audio_url" in episode && episode.gcs_audio_url) {
-			src = episode.gcs_audio_url;
-			console.log("AudioPlayerSheet - Using gcs_audio_url:", src);
-		} else {
-			console.warn("AudioPlayerSheet - No audio source found in episode:", episode);
-		}
-		
-		return src;
+		if (!episode) return "";
+		if ("audio_url" in episode && episode.audio_url) return episode.audio_url;
+		if ("gcs_audio_url" in episode && episode.gcs_audio_url) return episode.gcs_audio_url;
+		return "";
 	}, [episode]);
 
 	useEffect(() => {
@@ -75,16 +62,12 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const audio = audioRef.current;
 		if (!audio) return;
 		
-		console.log("AudioPlayerSheet - useEffect [open, audioSrc]:", { open, audioSrc });
-		
 		if (open && audioSrc) {
-			console.log("AudioPlayerSheet - Loading audio source:", audioSrc);
 			audio.src = audioSrc;
 			audio.load();
 			setIsPlaying(false);
 		} else if (!open && !audio.paused) {
 			// Only pause if currently playing
-			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			setIsPlaying(false);
 		}
@@ -98,12 +81,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	const togglePlayPause = async () => {
 		const audio = audioRef.current;
-		if (!(audio && audioSrc)) {
-			console.warn("AudioPlayerSheet - togglePlayPause: Missing audio element or audioSrc", { audio: !!audio, audioSrc });
-			return;
-		}
-		
-		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState });
+		if (!(audio && audioSrc)) return;
 		
 		try {
 			if (isPlaying) {
@@ -112,19 +90,16 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			} else {
 				// Ensure audio is ready before attempting to play
 				if (audio.readyState < 2) {
-					console.log("AudioPlayerSheet - Waiting for audio to be ready...");
 					// Wait for audio to be ready
 					await new Promise((resolve, reject) => {
 						const onCanPlay = () => {
 							audio.removeEventListener('canplay', onCanPlay);
 							audio.removeEventListener('error', onError);
-							console.log("AudioPlayerSheet - Audio ready to play");
 							resolve(void 0);
 						};
 						const onError = () => {
 							audio.removeEventListener('canplay', onCanPlay);
 							audio.removeEventListener('error', onError);
-							console.error("AudioPlayerSheet - Audio load error");
 							reject(new Error('Audio failed to load'));
 						};
 						audio.addEventListener('canplay', onCanPlay);
@@ -137,9 +112,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					});
 				}
 				
-				console.log("AudioPlayerSheet - Attempting to play audio");
 				await audio.play();
-				console.log("AudioPlayerSheet - Audio playing successfully");
 				setIsPlaying(true);
 			}
 		} catch (err) {
@@ -248,7 +221,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						{episode && "image_url" in episode && episode.image_url && (
 							<Image
 								src={episode.image_url}
-								alt={"title" in episode ? episode.title : "Episode artwork"}
+								alt={episode.title}
 								width={56}
 								height={56}
 								className="h-full w-fit max-h-[120px] shrink-0 rounded-[19.8347px] object-cover shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)]"
@@ -257,10 +230,16 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					</div>
 					<SheetHeader>
 						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center">
-							{episode && "title" in episode ? episode.title : "Episode title"}
+							{episode ? 
+								("title" in episode ? episode.title : episode.episode_title) 
+								: "Episode title"
+							}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
-							{episode && "description" in episode ? episode.description : "Podcast source"}
+							{episode ? 
+								("description" in episode ? episode.description : "User Generated Episode")
+								: "Podcast source"
+							}
 						</SheetDescription>
 					</SheetHeader>
 				</div>
