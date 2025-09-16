@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
 import type { FC } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -20,6 +20,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [_currentTime, setCurrentTime] = useState(0);
 	const [_duration, setDuration] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [volume, setVolume] = useState(1);
 	const [isMuted, setIsMuted] = useState(false);
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
@@ -52,20 +53,25 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const handleLoadedMetadata = () => {
 			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
 			setDuration(audio.duration || 0);
+			setIsLoading(false); // Audio is ready, stop loading
 		};
 		const handleEnded = () => {
 			console.log("AudioPlayerSheet - Audio playback ended");
 			setIsPlaying(false);
 			setCurrentTime(0);
+			setIsLoading(false);
 		};
 		const handleError = (e: Event) => {
 			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
+			setIsLoading(false); // Stop loading on error
 		};
 		const handleCanPlay = () => {
 			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
+			setIsLoading(false); // Audio can play, stop loading
 		};
 		const handleLoadStart = () => {
 			console.log("AudioPlayerSheet - Audio load started");
+			setIsLoading(true); // Start loading indicator
 		};
 
 		console.log("AudioPlayerSheet - useEffect [open, audioSrc, isPlaying]:", { open, audioSrc, isPlaying });
@@ -74,6 +80,9 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Setting up audio with source:", audioSrc);
 			audio.src = audioSrc;
 			audio.volume = isMuted ? 0 : volume;
+			
+			// Reset loading state when setting up new audio
+			setIsLoading(false);
 			
 			// Add event listeners
 			audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -98,6 +107,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			setIsPlaying(false);
+			setIsLoading(false);
 		}
 
 		return () => {
@@ -130,24 +140,35 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				console.log("AudioPlayerSheet - Pausing audio");
 				audio.pause();
 				setIsPlaying(false);
+				setIsLoading(false);
 			} else {
+				// Set loading state if audio isn't ready
+				if (audio.readyState < 2) {
+					console.log("AudioPlayerSheet - Audio not ready, showing loading state");
+					setIsLoading(true);
+				}
+				
 				// Check if audio is paused before playing to prevent AbortError (legacy approach)
 				if (audio.paused) {
 					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
 					await audio.play();
 					setIsPlaying(true);
+					setIsLoading(false);
 				} else {
 					console.log("AudioPlayerSheet - Audio not paused, setting playing state");
 					setIsPlaying(true);
+					setIsLoading(false);
 				}
 			}
 		} catch (error) {
 			console.error("AudioPlayerSheet - Audio Player Error:", error);
 			setIsPlaying(false);
+			setIsLoading(false);
 			
 			// Try to reload if play failed (fallback)
 			if (!isPlaying) {
 				console.log("AudioPlayerSheet - Reloading audio after play failure");
+				setIsLoading(true);
 				audio.load();
 			}
 		}
@@ -311,12 +332,18 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					<div className="flex items-center justify-center">
 						<button
 							type="button"
-							aria-label={isPlaying ? "Pause" : "Play"}
+							aria-label={isLoading ? "Loading..." : isPlaying ? "Pause" : "Play"}
 							aria-pressed={isPlaying}
 							onClick={togglePlayPause}
-							disabled={!audioSrc}
+							disabled={!audioSrc || isLoading}
 							className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[14px] border border-[var(--audio-sheet-border)] bg-[radial-gradient(circle_at_30%_18%,rgba(82,167,151,0.99)_0%,rgba(80,84,205,0.42)_100%)] text-sm font-semibold shadow-[0px_1px_3px_rgba(0,0,0,0.3),0px_4px_8px_3px_rgba(0,0,0,0.15)] transition-all hover:brightness-110 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--audio-sheet-accent)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--audio-sheet-bg)] disabled:opacity-50 disabled:cursor-not-allowed">
-							{isPlaying ? <Pause className="h-[18px] w-[18px]" /> : <Play className="h-[18px] w-[18px]" />}
+							{isLoading ? (
+								<Loader2 className="h-[18px] w-[18px] animate-spin" />
+							) : isPlaying ? (
+								<Pause className="h-[18px] w-[18px]" />
+							) : (
+								<Play className="h-[18px] w-[18px]" />
+							)}
 						</button>
 					</div>
 
