@@ -68,12 +68,37 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Audio load started");
 		};
 
-		audio.addEventListener("timeupdate", handleTimeUpdate);
-		audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-		audio.addEventListener("ended", handleEnded);
-		audio.addEventListener("error", handleError);
-		audio.addEventListener("canplay", handleCanPlay);
-		audio.addEventListener("loadstart", handleLoadStart);
+		console.log("AudioPlayerSheet - useEffect [open, audioSrc, isPlaying]:", { open, audioSrc, isPlaying });
+		
+		if (open && audioSrc) {
+			console.log("AudioPlayerSheet - Setting up audio with source:", audioSrc);
+			audio.src = audioSrc;
+			audio.volume = isMuted ? 0 : volume;
+			
+			// Add event listeners
+			audio.addEventListener("timeupdate", handleTimeUpdate);
+			audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+			audio.addEventListener("ended", handleEnded);
+			audio.addEventListener("error", handleError);
+			audio.addEventListener("canplay", handleCanPlay);
+			audio.addEventListener("loadstart", handleLoadStart);
+			
+			if (isPlaying) {
+				// If we want to play, try to play immediately (like legacy player)
+				console.log("AudioPlayerSheet - Auto-playing because isPlaying is true");
+				audio.play().catch(e => console.error("AudioPlayerSheet - Error playing audio on episode change:", e));
+			} else {
+				// Load and pause (like legacy player)
+				console.log("AudioPlayerSheet - Loading and pausing audio");
+				audio.load();
+				audio.pause();
+			}
+		} else if (!open && !audio.paused) {
+			// Only pause if currently playing
+			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
+			audio.pause();
+			setIsPlaying(false);
+		}
 
 		return () => {
 			audio.removeEventListener("timeupdate", handleTimeUpdate);
@@ -83,28 +108,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			audio.removeEventListener("canplay", handleCanPlay);
 			audio.removeEventListener("loadstart", handleLoadStart);
 		};
-	}, [audioSrc]);
-
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio) return;
-		
-		console.log("AudioPlayerSheet - useEffect [open, audioSrc]:", { open, audioSrc });
-		
-		if (open && audioSrc) {
-			console.log("AudioPlayerSheet - Loading audio source:", audioSrc);
-			audio.src = audioSrc;
-			audio.load();
-			// Don't try to play here, just load and pause
-			audio.pause();
-			setIsPlaying(false);
-		} else if (!open && !audio.paused) {
-			// Only pause if currently playing
-			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
-			audio.pause();
-			setIsPlaying(false);
-		}
-	}, [open, audioSrc]);
+	}, [open, audioSrc, isPlaying, isMuted, volume]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -119,7 +123,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			return;
 		}
 		
-		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState, networkState: audio.networkState });
+		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState, paused: audio.paused });
 		
 		try {
 			if (isPlaying) {
@@ -127,17 +131,21 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				audio.pause();
 				setIsPlaying(false);
 			} else {
-				// Simple approach: just try to play
-				console.log("AudioPlayerSheet - Attempting to play audio");
-				await audio.play();
-				console.log("AudioPlayerSheet - Audio playing successfully");
-				setIsPlaying(true);
+				// Check if audio is paused before playing to prevent AbortError (legacy approach)
+				if (audio.paused) {
+					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
+					await audio.play();
+					setIsPlaying(true);
+				} else {
+					console.log("AudioPlayerSheet - Audio not paused, setting playing state");
+					setIsPlaying(true);
+				}
 			}
-		} catch (err) {
-			console.error("AudioPlayerSheet - Audio play/pause failed:", err);
+		} catch (error) {
+			console.error("AudioPlayerSheet - Audio Player Error:", error);
 			setIsPlaying(false);
 			
-			// Try to reload if play failed
+			// Try to reload if play failed (fallback)
 			if (!isPlaying) {
 				console.log("AudioPlayerSheet - Reloading audio after play failure");
 				audio.load();
