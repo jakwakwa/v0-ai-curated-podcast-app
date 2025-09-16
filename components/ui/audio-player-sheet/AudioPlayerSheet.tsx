@@ -24,6 +24,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [volume, setVolume] = useState(1);
 	const [isMuted, setIsMuted] = useState(false);
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
+	const [userWantsToPlay, setUserWantsToPlay] = useState(false);
 	const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const clearLoadingTimeout = () => {
@@ -77,28 +78,60 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		if (!audio) return;
 
 		const handleTimeUpdate = () => setCurrentTime(audio.currentTime || 0);
-		const handleLoadedMetadata = () => {
+		const handleLoadedMetadata = async () => {
 			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
 			setDuration(audio.duration || 0);
 			clearLoadingTimeout();
 			setIsLoading(false); // Audio is ready, stop loading
+			
+			// If user wanted to play and audio is now ready, start playback
+			if (userWantsToPlay && audio.paused) {
+				console.log("AudioPlayerSheet - Auto-playing because user wanted to play and metadata is loaded");
+				try {
+					await audio.play();
+					console.log("AudioPlayerSheet - Auto-play succeeded after metadata load");
+					setIsPlaying(true);
+					setUserWantsToPlay(false); // Reset the intent flag
+				} catch (error) {
+					console.error("AudioPlayerSheet - Auto-play failed after metadata load:", error);
+					setIsPlaying(false);
+					setUserWantsToPlay(false);
+				}
+			}
 		};
 		const handleEnded = () => {
 			console.log("AudioPlayerSheet - Audio playback ended");
 			setIsPlaying(false);
+			setUserWantsToPlay(false); // Clear play intent when audio ends
 			setCurrentTime(0);
 			clearLoadingTimeout();
 			setIsLoading(false);
 		};
 		const handleError = (e: Event) => {
 			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
+			setUserWantsToPlay(false); // Clear play intent on error
 			clearLoadingTimeout();
 			setIsLoading(false); // Stop loading on error
 		};
-		const handleCanPlay = () => {
+		const handleCanPlay = async () => {
 			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
 			clearLoadingTimeout();
 			setIsLoading(false); // Audio can play, stop loading
+			
+			// If user wanted to play and audio is now ready, start playback
+			if (userWantsToPlay && audio.paused) {
+				console.log("AudioPlayerSheet - Auto-playing because user wanted to play and audio is now ready");
+				try {
+					await audio.play();
+					console.log("AudioPlayerSheet - Auto-play succeeded");
+					setIsPlaying(true);
+					setUserWantsToPlay(false); // Reset the intent flag
+				} catch (error) {
+					console.error("AudioPlayerSheet - Auto-play failed:", error);
+					setIsPlaying(false);
+					setUserWantsToPlay(false);
+				}
+			}
 		};
 		const handleLoadStart = () => {
 			console.log("AudioPlayerSheet - Audio load started");
@@ -139,6 +172,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			setIsPlaying(false);
+			setUserWantsToPlay(false); // Clear play intent when sheet closes
 			clearLoadingTimeout();
 			setIsLoading(false);
 		}
@@ -173,26 +207,32 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				console.log("AudioPlayerSheet - Pausing audio");
 				audio.pause();
 				setIsPlaying(false);
+				setUserWantsToPlay(false); // Clear play intent
 				clearLoadingTimeout();
 				setIsLoading(false);
 			} else {
-				// Set loading state if audio isn't ready
-				if (audio.readyState < 2) {
-					console.log("AudioPlayerSheet - Audio not ready, showing loading state");
-					setLoadingWithTimeout(true);
-				}
+				// User wants to play
+				setUserWantsToPlay(true);
 				
-				// Check if audio is paused before playing to prevent AbortError (legacy approach)
-				if (audio.paused) {
-					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
+				// Check if audio is ready to play immediately
+				if (audio.readyState >= 2 && audio.paused) {
+					console.log("AudioPlayerSheet - Playing audio immediately (audio was ready and paused)");
 					await audio.play();
-					console.log("AudioPlayerSheet - Audio play() succeeded");
+					console.log("AudioPlayerSheet - Audio play() succeeded immediately");
 					setIsPlaying(true);
-					clearLoadingTimeout(); // Clear timeout immediately after successful play
+					setUserWantsToPlay(false); // Reset intent since we played successfully
+					clearLoadingTimeout();
 					setIsLoading(false);
+				} else if (audio.readyState < 2) {
+					// Audio not ready yet, show loading and wait for canplay/loadedmetadata events
+					console.log("AudioPlayerSheet - Audio not ready, showing loading state and waiting for ready event");
+					setLoadingWithTimeout(true);
+					setIsPlaying(false); // Don't set playing until audio actually plays
 				} else {
-					console.log("AudioPlayerSheet - Audio not paused, setting playing state");
+					// Audio is ready but not paused (edge case)
+					console.log("AudioPlayerSheet - Audio ready but not paused, setting playing state");
 					setIsPlaying(true);
+					setUserWantsToPlay(false);
 					clearLoadingTimeout();
 					setIsLoading(false);
 				}
@@ -200,15 +240,14 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		} catch (error) {
 			console.error("AudioPlayerSheet - Audio Player Error:", error);
 			setIsPlaying(false);
+			setUserWantsToPlay(false); // Clear play intent on error
 			clearLoadingTimeout();
 			setIsLoading(false);
 			
 			// Try to reload if play failed (fallback)
-			if (!isPlaying) {
-				console.log("AudioPlayerSheet - Reloading audio after play failure");
-				setLoadingWithTimeout(true);
-				audio.load();
-			}
+			console.log("AudioPlayerSheet - Reloading audio after play failure");
+			setLoadingWithTimeout(true);
+			audio.load();
 		}
 	};
 
