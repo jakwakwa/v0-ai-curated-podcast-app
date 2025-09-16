@@ -26,9 +26,19 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	const audioSrc = useMemo(() => {
 		if (!episode) return "";
-		if ("audio_url" in episode && episode.audio_url) return episode.audio_url;
-		if ("gcs_audio_url" in episode && episode.gcs_audio_url) return episode.gcs_audio_url;
-		return "";
+		
+		let src = "";
+		if ("audio_url" in episode && episode.audio_url) {
+			src = episode.audio_url;
+		} else if ("gcs_audio_url" in episode && episode.gcs_audio_url) {
+			src = episode.gcs_audio_url;
+		}
+		
+		// Debug logging
+		console.log("AudioPlayerSheet - Episode:", episode);
+		console.log("AudioPlayerSheet - Detected audioSrc:", src);
+		
+		return src;
 	}, [episode]);
 
 	useEffect(() => {
@@ -61,11 +71,16 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	useEffect(() => {
 		const audio = audioRef.current;
 		if (!audio) return;
+		
 		if (open && audioSrc) {
-			audio.src = audioSrc;
-			audio.load();
+			// Only reload if the source has actually changed
+			if (audio.src !== audioSrc) {
+				audio.src = audioSrc;
+				audio.load();
+			}
 			setIsPlaying(false);
-		} else if (!open) {
+		} else if (!open && !audio.paused) {
+			// Only pause if currently playing
 			audio.pause();
 			setIsPlaying(false);
 		}
@@ -80,11 +95,36 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const togglePlayPause = async () => {
 		const audio = audioRef.current;
 		if (!(audio && audioSrc)) return;
+		
 		try {
 			if (isPlaying) {
 				audio.pause();
 				setIsPlaying(false);
 			} else {
+				// Ensure audio is ready before attempting to play
+				if (audio.readyState < 2) {
+					// Wait for audio to be ready
+					await new Promise((resolve, reject) => {
+						const onCanPlay = () => {
+							audio.removeEventListener('canplay', onCanPlay);
+							audio.removeEventListener('error', onError);
+							resolve(void 0);
+						};
+						const onError = () => {
+							audio.removeEventListener('canplay', onCanPlay);
+							audio.removeEventListener('error', onError);
+							reject(new Error('Audio failed to load'));
+						};
+						audio.addEventListener('canplay', onCanPlay);
+						audio.addEventListener('error', onError);
+						
+						// If already ready, resolve immediately
+						if (audio.readyState >= 2) {
+							onCanPlay();
+						}
+					});
+				}
+				
 				await audio.play();
 				setIsPlaying(true);
 			}
