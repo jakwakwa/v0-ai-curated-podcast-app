@@ -24,6 +24,33 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [volume, setVolume] = useState(1);
 	const [isMuted, setIsMuted] = useState(false);
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
+	const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	const clearLoadingTimeout = () => {
+		if (loadingTimeoutRef.current) {
+			clearTimeout(loadingTimeoutRef.current);
+			loadingTimeoutRef.current = null;
+		}
+	};
+
+	const setLoadingWithTimeout = (loading: boolean) => {
+		clearLoadingTimeout();
+		setIsLoading(loading);
+		
+		if (loading) {
+			// Set a 5-second timeout to clear loading state as fallback
+			loadingTimeoutRef.current = setTimeout(() => {
+				console.log("AudioPlayerSheet - Loading timeout, clearing loading state");
+				setIsLoading(false);
+				loadingTimeoutRef.current = null;
+			}, 5000);
+		}
+	};
+
+	// Clean up timeout on unmount
+	useEffect(() => {
+		return () => clearLoadingTimeout();
+	}, []);
 
 	const audioSrc = useMemo(() => {
 		if (!episode) {
@@ -53,25 +80,29 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const handleLoadedMetadata = () => {
 			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
 			setDuration(audio.duration || 0);
+			clearLoadingTimeout();
 			setIsLoading(false); // Audio is ready, stop loading
 		};
 		const handleEnded = () => {
 			console.log("AudioPlayerSheet - Audio playback ended");
 			setIsPlaying(false);
 			setCurrentTime(0);
+			clearLoadingTimeout();
 			setIsLoading(false);
 		};
 		const handleError = (e: Event) => {
 			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
+			clearLoadingTimeout();
 			setIsLoading(false); // Stop loading on error
 		};
 		const handleCanPlay = () => {
 			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
+			clearLoadingTimeout();
 			setIsLoading(false); // Audio can play, stop loading
 		};
 		const handleLoadStart = () => {
 			console.log("AudioPlayerSheet - Audio load started");
-			setIsLoading(true); // Start loading indicator
+			setLoadingWithTimeout(true); // Start loading indicator with timeout
 		};
 
 		console.log("AudioPlayerSheet - useEffect [open, audioSrc, isPlaying]:", { open, audioSrc, isPlaying });
@@ -82,6 +113,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			audio.volume = isMuted ? 0 : volume;
 			
 			// Reset loading state when setting up new audio
+			clearLoadingTimeout();
 			setIsLoading(false);
 			
 			// Add event listeners
@@ -107,6 +139,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
 			setIsPlaying(false);
+			clearLoadingTimeout();
 			setIsLoading(false);
 		}
 
@@ -140,35 +173,40 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				console.log("AudioPlayerSheet - Pausing audio");
 				audio.pause();
 				setIsPlaying(false);
+				clearLoadingTimeout();
 				setIsLoading(false);
 			} else {
 				// Set loading state if audio isn't ready
 				if (audio.readyState < 2) {
 					console.log("AudioPlayerSheet - Audio not ready, showing loading state");
-					setIsLoading(true);
+					setLoadingWithTimeout(true);
 				}
 				
 				// Check if audio is paused before playing to prevent AbortError (legacy approach)
 				if (audio.paused) {
 					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
 					await audio.play();
+					console.log("AudioPlayerSheet - Audio play() succeeded");
 					setIsPlaying(true);
+					clearLoadingTimeout(); // Clear timeout immediately after successful play
 					setIsLoading(false);
 				} else {
 					console.log("AudioPlayerSheet - Audio not paused, setting playing state");
 					setIsPlaying(true);
+					clearLoadingTimeout();
 					setIsLoading(false);
 				}
 			}
 		} catch (error) {
 			console.error("AudioPlayerSheet - Audio Player Error:", error);
 			setIsPlaying(false);
+			clearLoadingTimeout();
 			setIsLoading(false);
 			
 			// Try to reload if play failed (fallback)
 			if (!isPlaying) {
 				console.log("AudioPlayerSheet - Reloading audio after play failure");
-				setIsLoading(true);
+				setLoadingWithTimeout(true);
 				audio.load();
 			}
 		}
