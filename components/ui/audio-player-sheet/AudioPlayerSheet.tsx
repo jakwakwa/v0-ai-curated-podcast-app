@@ -49,25 +49,39 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		if (!audio) return;
 
 		const handleTimeUpdate = () => setCurrentTime(audio.currentTime || 0);
-		const handleLoadedMetadata = () => setDuration(audio.duration || 0);
+		const handleLoadedMetadata = () => {
+			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
+			setDuration(audio.duration || 0);
+		};
 		const handleEnded = () => {
+			console.log("AudioPlayerSheet - Audio playback ended");
 			setIsPlaying(false);
 			setCurrentTime(0);
 		};
-		const handleError = () => {
-			console.error("Audio failed to load", { audioSrc });
+		const handleError = (e: Event) => {
+			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
+		};
+		const handleCanPlay = () => {
+			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
+		};
+		const handleLoadStart = () => {
+			console.log("AudioPlayerSheet - Audio load started");
 		};
 
 		audio.addEventListener("timeupdate", handleTimeUpdate);
 		audio.addEventListener("loadedmetadata", handleLoadedMetadata);
 		audio.addEventListener("ended", handleEnded);
 		audio.addEventListener("error", handleError);
+		audio.addEventListener("canplay", handleCanPlay);
+		audio.addEventListener("loadstart", handleLoadStart);
 
 		return () => {
 			audio.removeEventListener("timeupdate", handleTimeUpdate);
 			audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
 			audio.removeEventListener("ended", handleEnded);
 			audio.removeEventListener("error", handleError);
+			audio.removeEventListener("canplay", handleCanPlay);
+			audio.removeEventListener("loadstart", handleLoadStart);
 		};
 	}, [audioSrc]);
 
@@ -81,6 +95,8 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.log("AudioPlayerSheet - Loading audio source:", audioSrc);
 			audio.src = audioSrc;
 			audio.load();
+			// Don't try to play here, just load and pause
+			audio.pause();
 			setIsPlaying(false);
 		} else if (!open && !audio.paused) {
 			// Only pause if currently playing
@@ -103,49 +119,15 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			return;
 		}
 		
-		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState });
+		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState, networkState: audio.networkState });
 		
 		try {
 			if (isPlaying) {
+				console.log("AudioPlayerSheet - Pausing audio");
 				audio.pause();
 				setIsPlaying(false);
 			} else {
-				// Ensure audio is ready before attempting to play
-				if (audio.readyState < 2) {
-					console.log("AudioPlayerSheet - Waiting for audio to be ready...");
-					// Wait for audio to be ready
-					await new Promise((resolve, reject) => {
-						const timeoutId = setTimeout(() => {
-							audio.removeEventListener('canplay', onCanPlay);
-							audio.removeEventListener('error', onError);
-							console.error("AudioPlayerSheet - Audio loading timeout");
-							reject(new Error('Audio loading timeout'));
-						}, 10000); // 10 second timeout
-						
-						const onCanPlay = () => {
-							clearTimeout(timeoutId);
-							audio.removeEventListener('canplay', onCanPlay);
-							audio.removeEventListener('error', onError);
-							console.log("AudioPlayerSheet - Audio ready to play");
-							resolve(void 0);
-						};
-						const onError = (e) => {
-							clearTimeout(timeoutId);
-							audio.removeEventListener('canplay', onCanPlay);
-							audio.removeEventListener('error', onError);
-							console.error("AudioPlayerSheet - Audio load error:", e);
-							reject(new Error('Audio failed to load'));
-						};
-						audio.addEventListener('canplay', onCanPlay);
-						audio.addEventListener('error', onError);
-						
-						// If already ready, resolve immediately
-						if (audio.readyState >= 2) {
-							onCanPlay();
-						}
-					});
-				}
-				
+				// Simple approach: just try to play
 				console.log("AudioPlayerSheet - Attempting to play audio");
 				await audio.play();
 				console.log("AudioPlayerSheet - Audio playing successfully");
@@ -154,6 +136,12 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		} catch (err) {
 			console.error("AudioPlayerSheet - Audio play/pause failed:", err);
 			setIsPlaying(false);
+			
+			// Try to reload if play failed
+			if (!isPlaying) {
+				console.log("AudioPlayerSheet - Reloading audio after play failure");
+				audio.load();
+			}
 		}
 	};
 
