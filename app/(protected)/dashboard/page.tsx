@@ -3,19 +3,17 @@
 import { AlertCircle, BoxesIcon, Edit } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import EditUserFeedModal from "@/components/edit-user-feed-modal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppSpinner } from "@/components/ui/app-spinner";
-import AudioPlayer from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import EpisodeCard from "@/components/ui/episode-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Body, Typography } from "@/components/ui/typography";
-import UserEpisodeAudioPlayer from "@/components/ui/user-episode-audio-player";
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
 interface SubscriptionInfo {
 	plan_type: string;
@@ -39,15 +37,7 @@ export default function CurationProfileManagementPage() {
 
 	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
-	const [currentlyPlayingUserEpisodeId, setCurrentlyPlayingUserEpisodeId] = useState<string | null>(null);
-	const [currentlyPlayingBundleEpisodeId, setCurrentlyPlayingBundleEpisodeId] = useState<string | null>(null);
-	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-
-	// Find the portal container on mount
-	useEffect(() => {
-		const container = document.getElementById("global-audio-player");
-		setPortalContainer(container);
-	}, []);
+	const { setEpisode } = useAudioPlayerStore();
 
 	const fetchAndUpdateData = useCallback(async () => {
 		try {
@@ -125,9 +115,8 @@ export default function CurationProfileManagementPage() {
 	};
 
 	// Get the latest bundle episode
-	const latestBundleEpisode = _bundleEpisodes.length > 0
-		? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0]
-		: null;
+	const latestBundleEpisode =
+		_bundleEpisodes.length > 0 ? _bundleEpisodes.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())[0] : null;
 
 	return (
 		<div className="flex flex-col gap-3 w-full episode-card-wrapper ">
@@ -139,10 +128,10 @@ export default function CurationProfileManagementPage() {
 			{/* Latest Bundle Episode Section */}
 			{latestBundleEpisode && (
 				<div className="w-full space-y-0 episode-card-wrapper border-dark border-b-dark">
-					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd"><span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle</CardTitle>
-					<CardDescription className="text-sm opacity-90 mb-4">
-						The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}
-					</CardDescription>
+					<CardTitle className="mb-4 flex items-center **:  not-visited:wwdddddd">
+						<span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle
+					</CardTitle>
+					<CardDescription className="text-sm opacity-90 mb-4">The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}</CardDescription>
 					<CardContent className="px-0">
 						<EpisodeCard
 							imageUrl={latestBundleEpisode.image_url}
@@ -154,7 +143,8 @@ export default function CurationProfileManagementPage() {
 								<Button
 									variant="play"
 									onClick={() => {
-										setCurrentlyPlayingBundleEpisodeId(latestBundleEpisode.episode_id);
+										console.log("Dashboard - Setting bundle episode:", latestBundleEpisode);
+										setEpisode(latestBundleEpisode);
 									}}
 								/>
 							}
@@ -249,10 +239,33 @@ export default function CurationProfileManagementPage() {
 													title={`${episode.episode_title}`}
 													description={episode.summary}
 													publishedAt={episode.updated_at}
+													youtubeUrl={episode.youtube_url}
 													actions={
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
-															<Button onClick={() => setCurrentlyPlayingUserEpisodeId(episode.episode_id)} variant="play" className={episode.episode_id ? " m-0" : ""} />
+															<Button
+																onClick={() => {
+																	// Create a normalized episode for the audio player
+																	const normalizedEpisode: UserEpisode = {
+																		episode_id: episode.episode_id,
+																		episode_title: episode.episode_title,
+																		gcs_audio_url: episode.signedAudioUrl,
+																		summary: episode.summary,
+																		created_at: episode.created_at,
+																		updated_at: episode.updated_at,
+																		user_id: episode.user_id,
+																		youtube_url: episode.youtube_url,
+																		transcript: episode.transcript,
+																		status: episode.status,
+																		duration_seconds: episode.duration_seconds,
+																	};
+																	console.log("Dashboard - Setting normalized UserEpisode:", normalizedEpisode);
+																	console.log("Dashboard - Original episode signedAudioUrl:", episode.signedAudioUrl);
+																	setEpisode(normalizedEpisode);
+																}}
+																variant="play"
+																className={episode.episode_id ? " m-0" : ""}
+															/>
 														)
 													}
 												/>
@@ -273,58 +286,6 @@ export default function CurationProfileManagementPage() {
 				</div>
 			)}
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
-			{currentlyPlayingUserEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full h-20 px-2 md:px-4 flex items-center justify-center">
-						<AudioPlayerWrapper playingEpisodeId={currentlyPlayingUserEpisodeId} episodes={userEpisodes} onClose={() => setCurrentlyPlayingUserEpisodeId(null)} />
-					</div>,
-					portalContainer
-				)}
-
-			{/* Bundle Episode Audio Player Portal */}
-			{currentlyPlayingBundleEpisodeId &&
-				portalContainer &&
-				createPortal(
-					<div className="bg-background border-t border-border shadow-lg w-full px-2 md:px-4 flex items-center justify-center">
-						<BundleAudioPlayerWrapper playingEpisodeId={currentlyPlayingBundleEpisodeId} episodes={_bundleEpisodes} onClose={() => setCurrentlyPlayingBundleEpisodeId(null)} />
-					</div>,
-					portalContainer
-				)}
 		</div>
 	);
-}
-
-export function AudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: (UserEpisode & { signedAudioUrl: string | null })[]; onClose: () => void }) {
-	// Force fresh lookup of episode and require a signed URL for playback
-	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
-	if (!episode?.signedAudioUrl) {
-		return null;
-	}
-
-	const normalizedEpisode: UserEpisode = {
-		episode_id: episode.episode_id,
-		episode_title: episode.episode_title,
-		gcs_audio_url: episode.signedAudioUrl,
-		summary: episode.summary,
-		created_at: episode.created_at,
-		updated_at: episode.updated_at,
-		user_id: episode.user_id,
-		youtube_url: episode.youtube_url,
-		transcript: episode.transcript,
-		status: episode.status,
-		duration_seconds: episode.duration_seconds,
-	};
-
-	return <UserEpisodeAudioPlayer episode={normalizedEpisode} onClose={onClose} />;
-}
-
-export function BundleAudioPlayerWrapper({ playingEpisodeId, episodes, onClose }: { playingEpisodeId: string; episodes: Episode[]; onClose: () => void }) {
-	// Force fresh lookup of episode and require an audio URL for playback
-	const episode = episodes.find(ep => ep.episode_id === playingEpisodeId);
-	if (!episode?.audio_url) {
-		return null;
-	}
-
-	return <AudioPlayer episode={episode} onClose={onClose} />;
 }

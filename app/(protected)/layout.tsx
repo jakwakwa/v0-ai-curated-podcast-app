@@ -127,9 +127,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 	return (
 		<SidebarProvider>
 			<ProtectedLayoutInner>{children}</ProtectedLayoutInner>
-
-			{/* Global audio player - always on top */}
-			<div id="global-audio-player" className="fixed bottom-0 left-64 right-0 z-[9999] pointer-events-auto" />
 		</SidebarProvider>
 	);
 }

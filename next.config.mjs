@@ -5,6 +5,7 @@ const nextConfig = {
 			remotePatterns: [
 					{ protocol: 'https', hostname: 'images.unsplash.com' },
 					{ protocol: 'https', hostname: 'youtu.be' },
+					{ protocol: 'https', hostname: 'yt3.ggpht.com', pathname: '/**' },
 					{ protocol: 'https', hostname: 'storage.cloud.google.com' },
 					{ protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
 					{ protocol: 'https', hostname: 'lh3.googleusercontent.com' },
@@ -16,6 +17,7 @@ const nextConfig = {
 					{ protocol: 'https', hostname: 'res.cloudinary.com' },
 					{ protocol: 'https', hostname: 'img.clerk.com' },
 			],
+			domains: ['yt3.ggpht.com'],
 	},
 	webpack: (config) => {
 			config.resolve.alias = {
@@ -49,6 +51,7 @@ const nextConfig = {
 							'data:',
 							'images.unsplash.com',
 							'youtu.be',
+							'yt3.ggpht.com',
 							'storage.cloud.google.com',
 							'storage.googleapis.com',
 							'firebasestorage.googleapis.com',
@@ -60,6 +63,7 @@ const nextConfig = {
 							'images.ctfassets.net',
 							'res.cloudinary.com',
 							'img.clerk.com',
+							'via.placeholder.com'
 					],
 					'font-src': ["'self'", 'https://fonts.gstatic.com'],
 					'media-src': [
