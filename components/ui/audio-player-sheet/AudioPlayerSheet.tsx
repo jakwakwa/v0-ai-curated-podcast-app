@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Loader2, Pause, Play, Volume2, VolumeX } from "lucide-react";
 import Image from "next/image";
 import type { FC } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { Episode, UserEpisode } from "@/lib/types";
@@ -25,39 +25,51 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const [isMuted, setIsMuted] = useState(false);
 	const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 	const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const pendingPlayRef = useRef(false);
+	const canPlayDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-	const clearLoadingTimeout = () => {
+	const clearCanPlayDebounce = useCallback(() => {
+		if (canPlayDebounceRef.current) {
+			clearTimeout(canPlayDebounceRef.current);
+			canPlayDebounceRef.current = null;
+		}
+	}, []);
+
+	const clearLoadingTimeout = useCallback(() => {
 		if (loadingTimeoutRef.current) {
 			clearTimeout(loadingTimeoutRef.current);
 			loadingTimeoutRef.current = null;
 		}
-	};
+	}, []);
 
-	const setLoadingWithTimeout = (loading: boolean) => {
-		clearLoadingTimeout();
-		setIsLoading(loading);
-		
-		if (loading) {
-			// Set a 5-second timeout to clear loading state as fallback
-			loadingTimeoutRef.current = setTimeout(() => {
-				console.log("AudioPlayerSheet - Loading timeout, clearing loading state");
-				setIsLoading(false);
-				loadingTimeoutRef.current = null;
-			}, 5000);
-		}
-	};
+	const setLoadingWithTimeout = useCallback(
+		(loading: boolean) => {
+			clearLoadingTimeout();
+			setIsLoading(loading);
+
+			if (loading) {
+				// Set a 5-second timeout to clear loading state as fallback
+				loadingTimeoutRef.current = setTimeout(() => {
+					console.log("AudioPlayerSheet - Loading timeout, clearing loading state");
+					setIsLoading(false);
+					loadingTimeoutRef.current = null;
+				}, 5000);
+			}
+		},
+		[clearLoadingTimeout]
+	);
 
 	// Clean up timeout on unmount
 	useEffect(() => {
 		return () => clearLoadingTimeout();
-	}, []);
+	}, [clearLoadingTimeout]);
 
 	const audioSrc = useMemo(() => {
 		if (!episode) {
 			console.log("AudioPlayerSheet - No episode provided");
 			return "";
 		}
-		
+
 		let src = "";
 		if ("audio_url" in episode && episode.audio_url) {
 			src = episode.audio_url;
@@ -68,7 +80,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		} else {
 			console.warn("AudioPlayerSheet - No audio source found in episode:", episode);
 		}
-		
+
 		return src;
 	}, [episode]);
 
@@ -80,64 +92,117 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		const handleLoadedMetadata = () => {
 			console.log("AudioPlayerSheet - Audio loaded metadata, duration:", audio.duration);
 			setDuration(audio.duration || 0);
-			clearLoadingTimeout();
-			setIsLoading(false); // Audio is ready, stop loading
+			// Keep loading until actual playback starts
 		};
 		const handleEnded = () => {
 			console.log("AudioPlayerSheet - Audio playback ended");
 			setIsPlaying(false);
 			setCurrentTime(0);
+			pendingPlayRef.current = false;
 			clearLoadingTimeout();
 			setIsLoading(false);
 		};
 		const handleError = (e: Event) => {
 			console.error("AudioPlayerSheet - Audio error event:", e, { audioSrc });
+			pendingPlayRef.current = false;
 			clearLoadingTimeout();
-			setIsLoading(false); // Stop loading on error
+			setIsLoading(false);
+			setIsPlaying(false);
 		};
 		const handleCanPlay = () => {
 			console.log("AudioPlayerSheet - Audio can play, readyState:", audio.readyState);
-			clearLoadingTimeout();
-			setIsLoading(false); // Audio can play, stop loading
+			// If a play was requested while not ready, try again now
+			if (pendingPlayRef.current && audio.paused) {
+				void audio.play().catch(err => {
+					console.error("AudioPlayerSheet - play() retry on canplay failed:", err);
+					pendingPlayRef.current = false;
+					clearLoadingTimeout();
+					setIsLoading(false);
+				});
+			}
+			// Debounce clearing loading on canplay to avoid flicker for signed URLs
+			clearCanPlayDebounce();
+			canPlayDebounceRef.current = setTimeout(() => {
+				// If we still aren't playing after a short grace period, clear loading
+				if (!audio.paused || audio.readyState >= 3) {
+					clearLoadingTimeout();
+					setIsLoading(false);
+				}
+				canPlayDebounceRef.current = null;
+			}, 250);
 		};
 		const handleLoadStart = () => {
 			console.log("AudioPlayerSheet - Audio load started");
-			setLoadingWithTimeout(true); // Start loading indicator with timeout
+			clearCanPlayDebounce();
+			setLoadingWithTimeout(true);
 		};
-
-		console.log("AudioPlayerSheet - useEffect [open, audioSrc, isPlaying]:", { open, audioSrc, isPlaying });
-		
-		if (open && audioSrc) {
-			console.log("AudioPlayerSheet - Setting up audio with source:", audioSrc);
-			audio.src = audioSrc;
-			audio.volume = isMuted ? 0 : volume;
-			
-			// Reset loading state when setting up new audio
+		const handlePlay = () => {
+			console.log("AudioPlayerSheet - Audio play event");
+			pendingPlayRef.current = false;
+			setIsPlaying(true);
 			clearLoadingTimeout();
 			setIsLoading(false);
-			
-			// Add event listeners
-			audio.addEventListener("timeupdate", handleTimeUpdate);
-			audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-			audio.addEventListener("ended", handleEnded);
-			audio.addEventListener("error", handleError);
-			audio.addEventListener("canplay", handleCanPlay);
-			audio.addEventListener("loadstart", handleLoadStart);
-			
-			if (isPlaying) {
-				// If we want to play, try to play immediately (like legacy player)
-				console.log("AudioPlayerSheet - Auto-playing because isPlaying is true");
-				audio.play().catch(e => console.error("AudioPlayerSheet - Error playing audio on episode change:", e));
-			} else {
-				// Load and pause (like legacy player)
-				console.log("AudioPlayerSheet - Loading and pausing audio");
-				audio.load();
-				audio.pause();
+			clearCanPlayDebounce();
+		};
+		const handlePlaying = () => {
+			console.log("AudioPlayerSheet - Audio playing event");
+			pendingPlayRef.current = false;
+			setIsPlaying(true);
+			clearLoadingTimeout();
+			setIsLoading(false);
+			clearCanPlayDebounce();
+		};
+		const handlePause = () => {
+			console.log("AudioPlayerSheet - Audio pause event");
+			setIsPlaying(false);
+			clearCanPlayDebounce();
+		};
+		const handleSeeking = () => {
+			console.log("AudioPlayerSheet - Audio seeking");
+			clearCanPlayDebounce();
+			setLoadingWithTimeout(true);
+		};
+		const handleSeeked = () => {
+			console.log("AudioPlayerSheet - Audio seeked");
+			if (!audio.paused) {
+				clearLoadingTimeout();
+				setIsLoading(false);
 			}
-		} else if (!open && !audio.paused) {
-			// Only pause if currently playing
+			clearCanPlayDebounce();
+		};
+
+		console.log("AudioPlayerSheet - useEffect [open, audioSrc]:", { open, audioSrc });
+
+		// Add event listeners once per mount of this effect
+		audio.addEventListener("timeupdate", handleTimeUpdate);
+		audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+		audio.addEventListener("ended", handleEnded);
+		audio.addEventListener("error", handleError);
+		audio.addEventListener("canplay", handleCanPlay);
+		audio.addEventListener("loadstart", handleLoadStart);
+		audio.addEventListener("play", handlePlay);
+		audio.addEventListener("playing", handlePlaying);
+		audio.addEventListener("pause", handlePause);
+		audio.addEventListener("waiting", handleLoadStart);
+		audio.addEventListener("seeking", handleSeeking);
+		audio.addEventListener("seeked", handleSeeked);
+
+		if (open && audioSrc) {
+			if (audio.src !== audioSrc) {
+				console.log("AudioPlayerSheet - Setting up audio with source:", audioSrc);
+				audio.src = audioSrc;
+			}
+			// Ensure the element preloads for snappier start
+			audio.preload = "auto";
+			// Reset loading state when setting up new audio
+			pendingPlayRef.current = false;
+			clearLoadingTimeout();
+			setIsLoading(false);
+			// Do not call audio.load() here to avoid cancelling a user-initiated play()
+		} else if (!(open || audio.paused)) {
 			console.log("AudioPlayerSheet - Sheet closed, pausing audio");
 			audio.pause();
+			pendingPlayRef.current = false;
 			setIsPlaying(false);
 			clearLoadingTimeout();
 			setIsLoading(false);
@@ -150,8 +215,15 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			audio.removeEventListener("error", handleError);
 			audio.removeEventListener("canplay", handleCanPlay);
 			audio.removeEventListener("loadstart", handleLoadStart);
+			audio.removeEventListener("play", handlePlay);
+			audio.removeEventListener("playing", handlePlaying);
+			audio.removeEventListener("pause", handlePause);
+			audio.removeEventListener("waiting", handleLoadStart);
+			audio.removeEventListener("seeking", handleSeeking);
+			audio.removeEventListener("seeked", handleSeeked);
+			clearCanPlayDebounce();
 		};
-	}, [open, audioSrc, isPlaying, isMuted, volume]);
+	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -165,44 +237,64 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			console.warn("AudioPlayerSheet - togglePlayPause: Missing audio element or audioSrc", { audio: !!audio, audioSrc });
 			return;
 		}
-		
+
 		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState, paused: audio.paused });
-		
+
 		try {
-			if (isPlaying) {
+			const isActuallyPaused = audio.paused;
+			if (!isActuallyPaused) {
 				console.log("AudioPlayerSheet - Pausing audio");
 				audio.pause();
 				setIsPlaying(false);
+				pendingPlayRef.current = false;
 				clearLoadingTimeout();
 				setIsLoading(false);
 			} else {
-				// Set loading state if audio isn't ready
+				// Ensure source is applied immediately on first interaction
+				if (audio.src !== audioSrc) {
+					console.log("AudioPlayerSheet - Applying src before play:", audioSrc);
+					audio.src = audioSrc;
+				}
+				// If media is not ready, show loading and mark a pending play intent
 				if (audio.readyState < 2) {
 					console.log("AudioPlayerSheet - Audio not ready, showing loading state");
 					setLoadingWithTimeout(true);
 				}
-				
-				// Check if audio is paused before playing to prevent AbortError (legacy approach)
+				pendingPlayRef.current = true;
 				if (audio.paused) {
 					console.log("AudioPlayerSheet - Playing audio (audio was paused)");
-					await audio.play();
-					console.log("AudioPlayerSheet - Audio play() succeeded");
-					setIsPlaying(true);
-					clearLoadingTimeout(); // Clear timeout immediately after successful play
-					setIsLoading(false);
+					const playPromise = audio.play();
+					if (playPromise && typeof (playPromise as Promise<void>).then === "function") {
+						playPromise
+							.then(() => {
+								console.log("AudioPlayerSheet - play() promise resolved");
+								// Ensure UI is responsive even if 'playing' event is delayed
+								pendingPlayRef.current = false;
+								setIsPlaying(true);
+								clearLoadingTimeout();
+								setIsLoading(false);
+							})
+							.catch((err: unknown) => {
+								console.error("AudioPlayerSheet - Audio play() failed:", err);
+								pendingPlayRef.current = false;
+								setIsPlaying(false);
+								clearLoadingTimeout();
+								setIsLoading(false);
+							});
+					}
 				} else {
-					console.log("AudioPlayerSheet - Audio not paused, setting playing state");
-					setIsPlaying(true);
-					clearLoadingTimeout();
-					setIsLoading(false);
+					console.log("AudioPlayerSheet - Audio not paused, setting playing intent");
+					// If already playing but state out of sync, rely on 'playing' event to correct
+					pendingPlayRef.current = true;
 				}
 			}
 		} catch (error) {
 			console.error("AudioPlayerSheet - Audio Player Error:", error);
 			setIsPlaying(false);
+			pendingPlayRef.current = false;
 			clearLoadingTimeout();
 			setIsLoading(false);
-			
+
 			// Try to reload if play failed (fallback)
 			if (!isPlaying) {
 				console.log("AudioPlayerSheet - Reloading audio after play failure");
@@ -321,51 +413,38 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					</div>
 					<SheetHeader>
 						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center">
-							{episode ? 
-								("title" in episode ? episode.title : episode.episode_title) 
-								: "Episode title"
-							}
+							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
-							{episode ? 
-								("description" in episode ? episode.description : "User Generated Episode")
-								: "Podcast source"
-							}
+							{episode ? ("description" in episode ? episode.description : "User Generated Episode") : "Podcast source"}
 						</SheetDescription>
 					</SheetHeader>
 				</div>
 
 				<div className="bg-sidebar rounded-none max-h-[300px] pt-10 px-12">
-
 					{/* Transcript */}
-					{episode && (
-						(("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)) && (
-							<div className="flex flex-col gap-[10px]">
-								<div className="flex items-center justify-between">
-									<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
-									<button
-										type="button"
-										onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
-										className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/70 hover:text-[var(--audio-sheet-foreground)] transition-colors"
-									>
-										{isTranscriptExpanded ? "Show Less" : "Show More"}
-										{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-									</button>
-								</div>
-								<div className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${
-									isTranscriptExpanded ? "max-h-[600px]" : "max-h-[150px]"
-								}`}>
-									{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)}
-								</div>
+					{episode && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)) && (
+						<div className="flex flex-col gap-[10px]">
+							<div className="flex items-center justify-between">
+								<h3 className="text-[14px] font-semibold text-[var(--audio-sheet-foreground)]">Episode Transcript</h3>
+								<button
+									type="button"
+									onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
+									className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/70 hover:text-[var(--audio-sheet-foreground)] transition-colors">
+									{isTranscriptExpanded ? "Show Less" : "Show More"}
+									{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+								</button>
 							</div>
-						)
+							<div
+								className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "max-h-[600px]" : "max-h-[150px]"
+									}`}>
+								{("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary)}
+							</div>
+						</div>
 					)}
-
 				</div>
 
-
 				<div className=" w-ful h-full flex bg-[#020106]  p-8 flex-col my-0 gap-8">
-
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button
@@ -375,13 +454,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							onClick={togglePlayPause}
 							disabled={!audioSrc || isLoading}
 							className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[14px] border border-[var(--audio-sheet-border)] bg-[radial-gradient(circle_at_30%_18%,rgba(82,167,151,0.99)_0%,rgba(80,84,205,0.42)_100%)] text-sm font-semibold shadow-[0px_1px_3px_rgba(0,0,0,0.3),0px_4px_8px_3px_rgba(0,0,0,0.15)] transition-all hover:brightness-110 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--audio-sheet-accent)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--audio-sheet-bg)] disabled:opacity-50 disabled:cursor-not-allowed">
-							{isLoading ? (
-								<Loader2 className="h-[18px] w-[18px] animate-spin" />
-							) : isPlaying ? (
-								<Pause className="h-[18px] w-[18px]" />
-							) : (
-								<Play className="h-[18px] w-[18px]" />
-							)}
+							{isLoading ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : isPlaying ? <Pause className="h-[18px] w-[18px]" /> : <Play className="h-[18px] w-[18px]" />}
 						</button>
 					</div>
 
@@ -431,14 +504,12 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							<div className="absolute inset-y-0 left-0 rounded-[11px] bg-[var(--audio-sheet-foreground)]/50 transition-all" style={{ width: `${volumePercent}%` }} />
 						</div>
 					</div>
-
 				</div>
 				{/* Hidden audio element */}
 				<audio ref={audioRef} className="hidden">
 					<track kind="captions" />
 				</audio>
-
 			</SheetContent>
-		</Sheet >
+		</Sheet>
 	);
 };
