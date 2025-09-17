@@ -428,6 +428,52 @@
 			min-height: 190px !important;
 		}
 
+	
+		button.btn-playicon > svg {
+			position: relative !important;
+			width: 32px !important;
+			height: 32px !important;
+			padding: 0.5rem !important;
+			justify-self: center !important;
+			background: oklch(0.32 0.06 211.61) !important;
+			align-self: center !important;
+			border-radius: 1rem !important;
+					box-shadow: 0px 3px 4px #000 !important;
+
+		}
+			button.btn-playicon {
+				width: 32px !important;
+				height: 32px !important;
+				padding: 0 !important;
+	
+
+			}
+				button.btn-playicon:hover {
+					width: 32px !important;
+				height: 32px !important;
+				padding: 0 !important;
+				padding: 0 !important;
+				outline: 1px solid transparent !important;
+				border: none !important;
+				box-shadow: none !important;
+			}
+
+			button.btn-playicon:hover > svg  {
+				background: 
+				darkslategray !important;
+					position: relative !important;
+			width: 32px !important;
+			height: 32px !important;
+			padding: 0.5rem !important;
+			justify-self: center !important;
+			align-self: center !important;
+			border-radius: 1rem !important;
+				outline: 1px solid transparent !important;
+					border: none !important;
+							box-shadow: none !important;
+							outline-offset: initial;
+			}
+
 		/* Clerk-specific form overrides */
 		.cl-formFieldInput {
 			padding: 1.3rem;
@@ -514,6 +560,7 @@
 		.episode-info {
 			display: none !important;
 		}
+
 	}
 
 	@media screen and (max-width: 460) {

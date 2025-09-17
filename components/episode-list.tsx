@@ -1,4 +1,4 @@
-import { Download, Music } from "lucide-react"
+import { Download, Music, PlayIcon } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -119,7 +119,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 									actions={
 										<>
 											{episode.audio_url && onPlayEpisode && (
-												<Button onClick={() => onPlayEpisode(episode)} variant="play" size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1" : ""} />
+												<Button onClick={() => onPlayEpisode(episode)} variant="play" icon={<PlayIcon size={32} />} size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1 w-32 btn-playicon" : ""} />
 											)}
 											{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
 												<Button

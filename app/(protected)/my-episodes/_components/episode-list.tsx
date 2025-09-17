@@ -1,5 +1,6 @@
 "use client";
 
+import { PlayIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -109,6 +110,7 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 												variant="play"
 												size="sm"
 												className={episode.episode_id ? " m-0" : ""}
+												icon={<PlayIcon />}
 											/>
 										)}
 										{enableDebug && (

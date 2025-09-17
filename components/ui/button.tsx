@@ -14,17 +14,17 @@ const buttonVariants = cva(
 				secondary: "bg-[#000] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)]",
 				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
 				link: "text-primary-forefround underline-offset-4 hover:underline",
-				play: "p-0 m-0 h-32 w-32",
+				play: "p-0 m-0 btn-playicon hover:btn-playicon",
 				icon: "",
 			},
 			size: {
-				default: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
+				default: "text-sm",
 				sm: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
 				lg: "h-9 px-2 py-2 text-xs",
-				md: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
+				md: "h-12 rounded-md p-0 text-sm",
 				xs: "p-2",
-				icon: "h-24 w-24",
-				play: "h-24 w-24",
+				icon: "h-32 w-32",
+				play: "",
 			},
 		},
 		defaultVariants: {
@@ -56,7 +56,7 @@ function Button({
 
 	return (
 		<Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
-			{children}
+			{variant === "play" && icon ? icon : children}
 		</Comp>
 	);
 }

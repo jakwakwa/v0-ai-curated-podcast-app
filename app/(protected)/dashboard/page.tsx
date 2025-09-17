@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, BoxesIcon, Edit } from "lucide-react";
+import { AlertCircle, BoxesIcon, Edit, PlayIcon } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -146,6 +146,9 @@ export default function CurationProfileManagementPage() {
 										console.log("Dashboard - Setting bundle episode:", latestBundleEpisode);
 										setEpisode(latestBundleEpisode);
 									}}
+									icon={<PlayIcon size={64} />}
+									size="sm"
+
 								/>
 							}
 						/>
@@ -244,8 +247,10 @@ export default function CurationProfileManagementPage() {
 														episode.status === "COMPLETED" &&
 														episode.signedAudioUrl && (
 															<Button
+																size="md"
 																onClick={() => {
 																	// Create a normalized episode for the audio player
+
 																	const normalizedEpisode: UserEpisode = {
 																		episode_id: episode.episode_id,
 																		episode_title: episode.episode_title,
@@ -265,6 +270,7 @@ export default function CurationProfileManagementPage() {
 																}}
 																variant="play"
 																className={episode.episode_id ? " m-0" : ""}
+																icon={<PlayIcon />}
 															/>
 														)
 													}
