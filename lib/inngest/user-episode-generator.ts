@@ -450,7 +450,7 @@ ${summary}`,
 					data: {
 						user_id: episode.user_id,
 						type: "episode_ready",
-						message: `Your episode "${episode.episode_title}" is ready to listen.`,
+						message: `Your generated episode "${episode.episode_title}" is ready.`,
 					},
 				});
 			}

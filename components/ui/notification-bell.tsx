@@ -146,7 +146,7 @@ export function NotificationBell() {
 						notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/90")}
+								className={cn("bg-card mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-2")}
 							>
 								<div className="py-5">
 									<div className="flex items-start justify-between mb-2">
@@ -158,21 +158,21 @@ export function NotificationBell() {
 										</div>
 									</div>
 
-									<p className=" text-sm font-bold text-foreground leading-[2.5]">{notification.message}</p>
+									<p className=" text-sm font-bold text-foreground leading-[2.5] my-4 text-right">{notification.message}</p>
 
 									<div className="flex gap-4 items-center justify-end">
 
 										{!notification.is_read && (
-											<Button variant="ghost" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5text-sm h-6">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5 text-sm h-9">
 
 												Mark as read
 												<CheckCircle2Icon className="w-40 h-40" size={"md"} width={30} height={30} />
 											</Button>
 										)}
-										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+										<Button variant="outline" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-9">
 
 											clear
-											<X size={12} />
+											<X size={24} />
 										</Button>
 									</div>
 								</div>
