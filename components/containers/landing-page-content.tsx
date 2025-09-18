@@ -323,7 +323,7 @@ export default function LandingPageContent() {
 						<Link href="/sign-up" className="hover:text-foreground transition-colors">
 							Sign Up
 						</Link>
-						<Link href="/login" className="hover:text-foreground transition-colors">
+						<Link href="/sign-in" className="hover:text-foreground transition-colors">
 							Login
 						</Link>
 						<Link href="/terms" className="hover:text-foreground transition-colors">

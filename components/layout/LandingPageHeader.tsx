@@ -11,7 +11,7 @@ export function LandingPageHeader() {
 					<Image src="/logo.png" width={100} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />
 				</Link>
 				<nav className={styles.landingNav}>
-					<Link href="/login">
+					<Link href="/sign-in">
 						<Button variant="outline" size="lg">
 							Sign In
 						</Button>
