@@ -166,7 +166,7 @@ export function NotificationBell() {
 											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5 text-sm h-9">
 
 												Mark as read
-												<CheckCircle2Icon className="w-40 h-40" size={"md"} width={30} height={30} />
+												<CheckCircle2Icon size={30} />
 											</Button>
 										)}
 										<Button variant="outline" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-9">
