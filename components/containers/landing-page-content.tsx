@@ -115,6 +115,11 @@ export default function LandingPageContent() {
 					}}
 				/>
 				<div className={styles.heroContainer}>
+					<div className={'grain-blur background-base'} />
+					<div className={'grain-background background-base'} />
+					<div className={'grid-bg background-base'} />
+					<div className={'large-blur background-base'} />
+					<div className={'small-blur background-base'} />
 					<div className={styles.heroContent}>
 						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
 							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

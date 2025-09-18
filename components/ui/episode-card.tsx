@@ -29,7 +29,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 	const { channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl ?? null);
 
 	return (
-		<Card className="bg-card w-full px-2 py-5 relative">
+		<Card className="bg-card w-full px-2 py-5 relative mb-4">
 			<CardAction>{actions}</CardAction>
 			<div className="w-full flex flex-row gap-4">
 				<CardHeader>

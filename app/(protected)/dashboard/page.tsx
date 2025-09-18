@@ -230,7 +230,7 @@ export default function CurationProfileManagementPage() {
 							{userEpisodes.length === 0 ? (
 								<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
 							) : (
-								<ul className="bg-black p-4 rounded-xl flex flex-col w-full gap-3">
+								<ul className="bg-[#0c0c0f] p-4 rounded-xl flex flex-col w-full gap-3">
 									{userEpisodes
 										.filter(e => e.status === "COMPLETED" && !!e.signedAudioUrl)
 										.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
