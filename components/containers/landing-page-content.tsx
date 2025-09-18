@@ -6,11 +6,12 @@ import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import LandingAudioPlayer from "@/components/demo/landing-audio-player";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getClerkSignInUrl } from "@/lib/env";
 import styles from "@/styles/landing-page-content.module.css";
 import { LandingPageHeader } from "../layout/LandingPageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Typography } from "../ui/typography";
 
 // Hardcoded subscription tiers for landing page
@@ -42,7 +43,7 @@ const SUBSCRIPTION_TIERS = [
 ];
 
 export default function LandingPageContent() {
-	const features = [
+	const _features = [
 		{
 			icon: <UilStar className="w-6 h-6" />,
 			title: "Instantly grasp key takeaways in minutes, not hours",
@@ -115,11 +116,11 @@ export default function LandingPageContent() {
 					}}
 				/>
 				<div className={styles.heroContainer}>
-					<div className={'grain-blur background-base'} />
-					<div className={'grain-background background-base'} />
-					<div className={'grid-bg background-base'} />
-					<div className={'large-blur background-base'} />
-					<div className={'small-blur background-base'} />
+					<div className={"grain-blur background-base left-50 top-70"} />
+					<div className={"grain-background background-base"} />
+					<div className={"grid-bg background-base"} />
+					<div className={"large-blur background-base"} />
+					<div className={"small-blur background-base top-50"} />
 					<div className={styles.heroContent}>
 						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
 							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -154,63 +155,14 @@ export default function LandingPageContent() {
 				</div>
 			</section>
 
-			{/* Features Section */}
-			<section className={styles.featuresSection}>
-				<div className={styles.featuresContainer}>
-					<motion.div className={styles.featuresHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-secondary-light font-bold mt-18 text-[3rem]">
-							Why Choose Podslice.ai?
-						</Typography>
-						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
-							We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.
-						</Typography>
-					</motion.div>
-					<div className={styles.featuresGrid}>
-						{features.map((feature, index) => (
-							<motion.div
-								key={index}
-								className="main-card rounded-xl flex flex-col p-16"
-								initial={{ opacity: 0, y: 30, scale: 0.95 }}
-								whileInView={{ opacity: 1, y: 0, scale: 1 }}
-								viewport={{ once: true, margin: "-100px" }}
-								transition={{
-									duration: 0.5,
-									ease: "easeOut",
-									delay: index * 0.1,
-								}}
-								whileHover={{
-									y: -5,
-									transition: { duration: 0.2 },
-								}}>
-								<motion.div
-									className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
-									whileHover={{
-										scale: 1.1,
-										rotate: 5,
-										transition: { duration: 0.2 },
-									}}>
-									{feature.icon}
-								</motion.div>
-								<Typography as="h3" className="text-custom-lg font-medium text-secondary-foreground/80 mb-2">
-									{feature.title}
-								</Typography>
-								<Typography as="h5" className="text-[#fff]/60 text-custom-h5 font-normal leading-[20px]">
-									{feature.description}
-								</Typography>
-							</motion.div>
-						))}
-					</div>
-				</div>
-			</section>
-
 			{/* How It Works Section */}
 			<section className={styles.featuresSection}>
 				<div className={styles.howItWorksContainer}>
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-accent-light font-bold mt-18 text-[3rem]">
-							How Podslice.ai Works
+						<Typography as="h1" className="text-left  sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[2rem]">
+							How Podslice Works
 						</Typography>
-						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
+						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
 					</motion.div>
@@ -218,7 +170,7 @@ export default function LandingPageContent() {
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className="default-card flex flex-col justify-center p-8 rounded-[20px] border-2 border-light shadow-lg items-center "
+								className="bg-card flex flex-col justify-center p-0 rounded-[20px] border-2 border-light shadow-lg items-center "
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -232,9 +184,9 @@ export default function LandingPageContent() {
 									scale: 1.02,
 									transition: { duration: 0.2 },
 								}}>
-								<div className="rounded-full align-center text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10">{step.step}</div>
-								<h3 className={styles.stepTitle}>{step.title}</h3>
-								<p className="text-body-md text-center my-6 w-full p-0">{step.description}</p>
+								<div className="rounded-full align-center font-bold text-[#fff] bg-[#A35DC4]/50 mb-3 inline-flex justify-center items-center w-10 h-10">{step.step}</div>
+								<h3 className="text-xl font-bold text-popover-foreground">{step.title}</h3>
+								<p className="text-md leading-7 text-center my-6 w-full p-0">{step.description}</p>
 							</motion.div>
 						))}
 					</div>
@@ -245,10 +197,10 @@ export default function LandingPageContent() {
 			<section className={styles.pricingSection}>
 				<div className={styles.pricingContainer}>
 					<div className={styles.pricingHeader}>
-						<Typography as="h1" className="text-custom-display">
+						<Typography as="h1" className="text-left sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[2rem]">
 							Choose Your Plan
 						</Typography>
-						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
+						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
 							From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
 						</Typography>
 					</div>
@@ -256,23 +208,25 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}>
-								{tier.popular && (
-									<Badge
-										variant="default"
-										className="bg-accent p-0 mx-auto border-light text-secondary-foreground px-9 py-3 font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
-										Most Popular
-									</Badge>
-								)}
-								<CardHeader>
+								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "outline-" : "border-primary /10"}`}>
+								< CardHeader >
 									<div className="flex flex-col mt-4">
-										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
+										<h5 className="text-4xl leading-7 font-semibold tracking-tight  text-[#94c7d5] mb-8">{tier.name}</h5>
 										<div className="flex items-baseline gap-1 mb-4">
-											<span className="text-[4rem] leading-9 font-bold tracking-tight">${tier.price}</span>
+											<span className="text-[3rem] leading-9 font-bold tracking-tight">{tier.price}</span>USD
 											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
 										</div>
-										<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
+										<p className="text-md text-foreground my-2 leading-relaxed">{tier.description}</p>
 									</div>
+									{
+										tier.popular && (
+											<Badge
+												variant="secondary"
+												className="bg-accent p-0 border-light text-secondary-foreground py-3 px-0 text-center font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
+												Most Popular
+											</Badge>
+										)
+									}
 								</CardHeader>
 								<CardContent className="flex flex-col flex-1 justify-between">
 									<ul className="list-none p-0 m-0 mb-8">
@@ -295,26 +249,13 @@ export default function LandingPageContent() {
 							</Card>
 						))}
 					</div>
-				</div>
-			</section>
+				</div >
+			</section >
 
-			{/* Waitlist Form (hero inline style) */}
-			<section>
-				<form className={styles.waitlistForm}>
-					<div className={styles.waitlistInput}>
-						<input className={styles.waitlistInputField} type="email" placeholder="Enter your email for early access" />
-					</div>
-					<button className={styles.waitlistButton} type="button">
-						Join Waitlist
-						<svg className={styles.arrowIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M13 5l7 7-7 7M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-						</svg>
-					</button>
-				</form>
-			</section>
+
 
 			{/* Footer */}
-			<footer className="py-8 md:py-12 px-2 md:px-4 bg-radial-gradient mt-24">
+			< footer className="py-8 md:py-12 px-2 md:px-4 bg-radial-gradient mt-24" >
 				<motion.div className="max-w-screen md:max-w-7xl mx-auto text-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
 					<div className="flex justify-center items-center mb-4">
 						<Image src="/logo.png" width={90} height={40} alt="PODSLICE Logo" />
@@ -323,8 +264,8 @@ export default function LandingPageContent() {
 						<Link href="/sign-up" className="hover:text-foreground transition-colors">
 							Sign Up
 						</Link>
-						<Link href="/login" className="hover:text-foreground transition-colors">
-							Login
+						<Link href={getClerkSignInUrl()} className="hover:text-foreground transition-colors">
+							Log in
 						</Link>
 						<Link href="/terms" className="hover:text-foreground transition-colors">
 							Terms
@@ -334,7 +275,7 @@ export default function LandingPageContent() {
 						</Link>
 					</div>
 				</motion.div>
-			</footer>
-		</div>
+			</footer >
+		</div >
 	);
 }
