@@ -169,7 +169,7 @@ export function NotificationBell() {
 												<CheckCircle2Icon size={30} />
 											</Button>
 										)}
-										<Button variant="outline" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-9">
+										<Button variant="outline" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading}>
 
 											clear
 											<X size={24} />
