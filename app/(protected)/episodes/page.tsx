@@ -1,51 +1,51 @@
-"use client"
+"use client";
 
-import { AlertCircle, RefreshCw } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
-import { EpisodeList } from "@/components/episode-list"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AppSpinner } from "@/components/ui/app-spinner"
-import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/ui/page-header"
-import { H3 } from "@/components/ui/typography"
-import { useAudioPlayerStore } from "@/store/audioPlayerStore"
-import type { Episode } from "@/lib/types"
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { EpisodeList } from "@/components/episode-list";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AppSpinner } from "@/components/ui/app-spinner";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { H3 } from "@/components/ui/typography";
+import type { Episode } from "@/lib/types";
+import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
 export default function EpisodesPage() {
-	const [episodes, setEpisodes] = useState<Episode[]>([])
-	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
-	const { setEpisode } = useAudioPlayerStore()
+	const [episodes, setEpisodes] = useState<Episode[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const { setEpisode } = useAudioPlayerStore();
 
 	const fetchEpisodes = useCallback(async () => {
 		try {
-			setIsLoading(true)
-			setError(null)
+			setIsLoading(true);
+			setError(null);
 
-			const response = await fetch("/api/episodes")
+			const response = await fetch("/api/episodes");
 
 			if (!response.ok) {
-				throw new Error(`Failed to load episodes. Server responded with status ${response.status}.`)
+				throw new Error(`Failed to load episodes. Server responded with status ${response.status}.`);
 			}
 
-			const episodesData = await response.json()
-			setEpisodes(episodesData)
+			const episodesData = await response.json();
+			setEpisodes(episodesData);
 		} catch (error) {
-			console.error("Error fetching episodes:", error)
-			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading episodes.")
+			console.error("Error fetching episodes:", error);
+			setError(error instanceof Error ? error.message : "An unexpected error occurred while loading episodes.");
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}, [])
+	}, []);
 
 	useEffect(() => {
-		fetchEpisodes()
-	}, [fetchEpisodes])
+		fetchEpisodes();
+	}, [fetchEpisodes]);
 
 	const handlePlayEpisode = (episode: Episode) => {
 		console.log("Episodes - Setting episode:", episode);
-		setEpisode(episode)
-	}
+		setEpisode(episode);
+	};
 
 	return (
 		<div className="w-full episode-card-wrapper">
@@ -53,7 +53,6 @@ export default function EpisodesPage() {
 				title="Bundle Episodes"
 				description="Choose from our pre-curated podcast bundles. Each bundle is a fixed selection of 2-5 carefully selected shows and cannot be modified once selected."
 			/>
-
 
 			{isLoading ? (
 				<div className="px-0 md:p-8 mx-auto">
@@ -90,12 +89,11 @@ export default function EpisodesPage() {
 					</div>
 				</div>
 			) : (
-				<div className="flex episode-card-wrapper bg-primary-card flex-col justify-center mx-auto w-screen md:w-screen max-w-full mt-0">
+				<div className="flex episode-card-wrapper mt-4 flex-col justify-center mx-auto w-screen md:w-screen max-w-full mt-0">
 					<H3 className="pl-3">Episodes ({episodes.length})</H3>
 					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} />
 				</div>
 			)}
-
 		</div>
-	)
+	);
 }
