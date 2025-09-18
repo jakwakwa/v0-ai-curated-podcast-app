@@ -25,21 +25,31 @@ const nextConfig = {
 			};
 			return config;
 	},
-	async headers() {
-			const clerkHostname = 'joint-weevil-31.clerk.accounts.dev';
+		async headers() {
+				const clerkHosts = [
+						'joint-weevil-31.clerk.accounts.dev',
+						'clerk.podslice.ai',
+						'accounts.podslice.ai',
+				];
 
-			const csp = {
+				const extraHosts = [
+						'https://joint-weevil-31.clerk.accounts.dev',
+						'https://challenges.cloudflare.com',
+						'https://vendors.paddle.com',
+						'https://checkout.paddle.com',
+						'https://va.vercel-scripts.com',
+						'https://vercel.live',
+						'https://clerk.podslice.ai',
+				];
+
+				const csp = {
 					'default-src': ["'self'"],
-					'script-src': [
+						'script-src': [
 							"'self'",
 							"'unsafe-eval'",
 							"'unsafe-inline'",
-							`https://${clerkHostname}`,
-							'https://challenges.cloudflare.com',
-							'https://vendors.paddle.com',
-							'https://checkout.paddle.com',
-							'https://va.vercel-scripts.com',
-							'https://vercel.live', // Add this line
+								...clerkHosts.map(h => `https://${h}`),
+								...extraHosts,
 					],
 					'style-src': [
 							"'self'",
@@ -73,21 +83,24 @@ const nextConfig = {
 							'https://storage.cloud.google.com',
 							'*.googleusercontent.com', // Added wildcard for GCS redirects
 					],
-					'connect-src': [
+						'connect-src': [
 							"'self'",
-							`https://${clerkHostname}`,
-							'https://api.paddle.com',
+								...clerkHosts.map(h => `https://${h}`),
+								...extraHosts,
+								'https://api.paddle.com',
 							'https://vitals.vercel-insights.com',
 							'https://storage.googleapis.com',
 							'https://storage.cloud.google.com',
 							'*.googleusercontent.com', // Added wildcard for GCS redirects
-							'https://vercel.live', // Add Vercel.live for live preview
 					],
 					'worker-src': ["'self'", 'blob:'],
-					'frame-src': [
+						'frame-src': [
 							'https://challenges.cloudflare.com',
-							'https://sandbox-buy.paddle.com',
-							'https://vercel.live', // Add Vercel.live for live preview
+								'https://sandbox-buy.paddle.com',
+								'https://checkout.paddle.com',
+								'https://vendors.paddle.com',
+								...clerkHosts.map(h => `https://${h}`),
+								...extraHosts,
 					],
 					'object-src': ["'none'"],
 					'base-uri': ["'self'"],
