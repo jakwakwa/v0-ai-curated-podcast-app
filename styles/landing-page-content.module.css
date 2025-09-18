@@ -79,8 +79,8 @@
 
 .heroBackground {
 	position: absolute;
-	height: 120%;
-	max-height: 150vh;
+	height: 150%;
+	max-height: 100vh;
 	overflow: hidden;
 	inset: 0;
 	pointer-events: none;
@@ -212,10 +212,15 @@
 
 /* Audio Player */
 .audioPlayerContainer {
-	width: 100%;
-	max-width: 520px;
+	width: 90%;
+	display: flex;
+	justify-content: flex-center;
+	align-items: center;
+	align-content: center;
+	max-width: 400px;
+	gap: 1rem;
 	margin: 2rem auto 0;
-	padding: 1.25rem 2.2rem;
+	padding: 1.25rem 1.2rem;
 	border-radius: 3rem;
 	border: 1px solid rgba(107 241 248 / 0.08);
 	background: rgba(112 141 192 / 0.13);
@@ -247,23 +252,25 @@
 .audioPlayerSubtitle {
 	margin: 0;
 	color: rgba(127 141 157 / 0.75);
-	font-size: 0.875rem;
+	font-size: 0.75rem;
 }
 
 .playPauseButton {
-	display: inline-flex;
-	align-items: center;
+	display:flex;
+	flex-direction: column;
+	align-content: center;
 	justify-content: center;
-	/* width: 60px;
-  height: 60px; */
 	border-radius: 9999px;
 	border: none;
 	color: white;
-	padding: 10px 11px 6px 15px !important;
+	padding-top: 6px;
+	/* padding: 5px 5px 2px 5px !important; */
 	background-image: linear-gradient(90deg, rgb(136 87 183), rgb(0 95 167));
 	box-shadow: 0 6px 18px rgba(168, 85, 247, 0.25);
 	transform: translateZ(0);
 	transition: transform .2s ease;
+	height: 40px;
+	width: 40px;
 	cursor: pointer;
 }
 
@@ -272,25 +279,27 @@
 }
 
 .playButtonIcon {
-	width: 20px !important;
-	height: 20px !important;
+	width: 45px !important;
+	height: 25px !important;
 }
 
 .waveformContainer {
 	display: flex;
-	align-items: end;
-	justify-content: center;
+	align-items: flex-start;
+	justify-content: flex-start;
+	align-content: flex-start;
 	gap: 2px;
-	padding-top: 0.75rem;
-	height: 64px;
+	padding-top: 0rem;
+	padding-left: 0;
+	height: 44px;
 	width: 100%;
 }
 
 .waveformBar {
-	width: 4px;
+	width: 5px;
 	height: 100%;
 	border-radius: 2px;
-	background: linear-gradient(180deg, rgba(168, 85, 247, 0.9), rgba(16, 185, 129, 0.9));
+	background: linear-gradient(180deg, rgba(168, 85, 247, 0.9) 20%, rgba(26 125 84 / 0.9) 30%, rgba(16 112 185 / 0.9) 70%);
 	opacity: 0.95;
 	transform-origin: bottom center;
 	will-change: transform;

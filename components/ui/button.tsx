@@ -8,7 +8,7 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#093942]/90 w-full md:max-w-[300px] min-h-12 h-auto text-lg",
+				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#045A69] w-full md:max-w-[300px] min-h-11 h-auto text-lg",
 				destructive: "bg-destructive text-destructive-foreground shadow-[0 -2px 2px 1px #000000BA] hover:bg-destructive/90",
 				outline: "border border-[#9FB3D031] bg-[#0B1010C7] rounded-full shadow-sm hover:bg-sidebar hover:text-accent-foreground text-[0.9rem] font-bold",
 				secondary: "bg-[#3724A0] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)] w-full md:max-w-[50%] min-h-12 h-auto text-lg",
@@ -21,7 +21,7 @@ const buttonVariants = cva(
 				default: "text-[0.9rem] font-bold",
 				sm: "h-10 rounded-md px-4 pt-3 pb-3 text-xs",
 				lg: "h-9 px-2 py-2 text-lg",
-				md: "h-12 rounded-md text-[0.9rem] font-bold",
+				md: "h-9 rounded-md text-[0.9rem] pb-1 font-bold",
 				xs: "p-2 text-xs",
 				icon: "h-32 w-32",
 				play: "",

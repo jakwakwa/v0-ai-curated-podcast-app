@@ -194,14 +194,7 @@ export default function LandingAudioPlayer({ title, subtitle }: LandingAudioPlay
 
 	return (
 		<div className={styles.audioPlayerContainer}>
-			{/** biome-ignore lint/a11y/useMediaCaption: <keep> */}
-			<audio ref={audioRef} src="/Podslice_ AI's Solution to Information Overload and Content Drowning.mp3" onEnded={() => setIsPlaying(false)} />
-			<div className={styles.audioPlayerHeader}>
-				<div className={styles.audioPlayerInfo}>
-					<h5 className={styles.audioPlayerTitle}>{title}</h5>
-					{subtitle && <p className={styles.audioPlayerSubtitle}>{subtitle}</p>}
-				</div>
-
+			<div className="flex justify-center m-0 w-[60px]">
 				<button className={styles.playPauseButton} onClick={() => setIsPlaying(v => !v)} aria-label={isPlaying ? "Pause" : "Play"} type="button">
 					{isPlaying ? (
 						<svg className={styles.playButtonIcon} viewBox="0 0 32 32" fill="currentColor">
@@ -214,18 +207,34 @@ export default function LandingAudioPlayer({ title, subtitle }: LandingAudioPlay
 					)}
 				</button>
 			</div>
-			<div className={styles.waveformContainer}>
-				{bars.map((_, index) => (
-					<div
-						key={index}
-						className={styles.waveformBar}
-						ref={el => {
-							barElsRef.current[index] = el
-						}}
-						// initial transform set via seed pattern in effect
-						style={{ transform: `scaleY(${prevHeightsRef.current[index]?.toFixed(3) ?? 0.4})` }}
-					/>
-				))}
+			<div className="w-[100%] flex flex-col">
+
+
+				{/** biome-ignore lint/a11y/useMediaCaption: <keep> */}
+				<audio ref={audioRef} src="/Podslice_ AI's Solution to Information Overload and Content Drowning.mp3" onEnded={() => setIsPlaying(false)} />
+				{/* <div className="w-[100%]">
+					<div className={styles.audioPlayerInfo}>
+						<h5 className={styles.audioPlayerTitle}>{title}</h5>
+						{subtitle && <p className={styles.audioPlayerTitle}>{subtitle}</p>}
+					</div>
+
+
+				</div> */}
+				<div className={styles.waveformContainer}>
+
+
+					{bars.map((_, index) => (
+						<div
+							key={index}
+							className={styles.waveformBar}
+							ref={el => {
+								barElsRef.current[index] = el
+							}}
+							// initial transform set via seed pattern in effect
+							style={{ transform: `scaleY(${prevHeightsRef.current[index]?.toFixed(3) ?? 0.4})` }}
+						/>
+					))}
+				</div>
 			</div>
 		</div>
 	)

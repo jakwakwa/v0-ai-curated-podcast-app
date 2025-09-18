@@ -122,12 +122,7 @@ export default function LandingPageContent() {
 					<div className={"large-blur background-base"} />
 					<div className={"small-blur background-base top-50"} />
 					<div className={styles.heroContent}>
-						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
-							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="currentColor" />
-							</svg>
-							Coming Soon - Revolutionary AI Audio Processing
-						</motion.div>
+
 						<motion.h1 className={styles.heroHeading} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
 							Cut the chatter.
 							<br />
@@ -150,7 +145,7 @@ export default function LandingPageContent() {
 					</motion.div>
 					{/* Demo Audio Player */}
 					<div className="mt-4 w-full max-w-3xl mx-auto px-4">
-						<LandingAudioPlayer title="Podslice Sample" subtitle="Listen here for a short sample of what you can expect" />
+						<LandingAudioPlayer title="Podslice Sample" subtitle="a short sample" />
 					</div>
 				</div>
 			</section>
