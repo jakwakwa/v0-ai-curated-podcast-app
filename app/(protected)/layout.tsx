@@ -49,7 +49,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 					className={`flex flex-col flex-grow transition-all duration-300 ease-in-out px-0 md:px-0 mt-8 md:mt-0 mb-2 m-0 p-0 h-screen ${state === "expanded" ? "ml-0 w-full md:ml-6 md:max-w-[80vw] " : "ml-0 md:ml-12 w-full md:max-w-[95vw]"}`}>
 					{/* <div className={'grain-blur background-base'} /> */}
 					<div className={'grain-background background-base'} />
-					<div className={'grid-bg background-base'} />
+					<div className={'grid-bg-one background-base'} />
 					<div className={'large-blur background-base'} />
 					<div className={'small-blur background-base  layout-inset-background'} />
 					<div className="w-full p-0 flex flex-col md:flex-row pt-10 pb-12 md:pt-24 px-2 min-w-full md:px-0 my-0 md:pr-4">{children}</div>

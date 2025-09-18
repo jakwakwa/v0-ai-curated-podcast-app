@@ -49,7 +49,7 @@ export default function RootLayout({
 				<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Vend+Sans:wght@500&display=swap" rel="stylesheet" />
 				<link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
 			</head>
-			<body className={`${workSans.className} home-body`}>
+			<body className={`${workSans.className}`}>
 				<GlobalProgressBar />
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
