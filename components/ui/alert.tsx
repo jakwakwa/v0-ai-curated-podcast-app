@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils"
 const alertVariants = cva("relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground", {
 	variants: {
 		variant: {
-			default: "bg-background text-foreground",
-			destructive: "border-[#F42566] text-primary-forefround bg-[#1A040B]",
+			default: "bg-card text-foreground",
+			destructive: "border-[#F42566] text-primary-forefround bg-[#6E253C]",
 		},
 	},
 	defaultVariants: {
@@ -21,12 +21,12 @@ const Alert = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEleme
 Alert.displayName = "Alert"
 
 const AlertTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
-	<h5 ref={ref} className={cn("text-[12px] uppercase font-sans font-bold mb-1 leading-none tracking-tight", className)} {...props} />
+	<h5 ref={ref} className={cn("flex  gap-2 py-4 text-lg font-sans font-bold mb-1 leading-none tracking-tight", className)} {...props} />
 ))
 AlertTitle.displayName = "AlertTitle"
 
 const AlertDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }, ref) => (
-	<div ref={ref} className={cn("text-[12px] [&_p]:leading-relaxed", className)} {...props} />
+	<div ref={ref} className={cn("text-sm  py-2 [&_p]:leading-relaxed", className)} {...props} />
 ))
 AlertDescription.displayName = "AlertDescription"
 

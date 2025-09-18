@@ -113,7 +113,7 @@ export default function EmailManagementClient({
 
 							<div className="space-y-4">
 								<div>
-									<Label htmlFor="bundle">Select Bundle</Label>
+
 									<Select value={formData.bundleId} onValueChange={(value) => setFormData(prev => ({ ...prev, bundleId: value, episodeId: "" }))}>
 										<SelectTrigger>
 											<SelectValue placeholder="Choose a bundle" />

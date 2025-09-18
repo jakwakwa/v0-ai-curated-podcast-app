@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 // Label variants - form label styling
 const labelVariants = cva(
-	'text-sm font-bold text-[var(--color-form-input-text)] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+	'text-md font-bold text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
 	{
 		variants: {
 			variant: {
@@ -18,7 +18,7 @@ const labelVariants = cva(
 
 			},
 			size: {
-				default: 'px-3 py-2 text-sm',
+				default: 'text-sm',
 				sm: 'px-2 py-1 text-xs',
 				lg: 'px-4 py-3 text-base',
 			},

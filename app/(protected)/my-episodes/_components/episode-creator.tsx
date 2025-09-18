@@ -210,10 +210,10 @@ export function EpisodeCreator() {
 								<div className="space-y-2">
 									<Label size="lg">Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
-										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md">
+										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md" className="px-4">
 											Single speaker
 										</Button>
-										<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="md">
+										<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="md" className="px-4">
 											Multi speaker
 										</Button>
 									</div>
@@ -293,7 +293,7 @@ export function EpisodeCreator() {
 								)}
 							</div>
 
-							<Button type="submit" variant="default" disabled={!canSubmit} className="w-full">
+							<Button type="submit" variant="secondary" disabled={!canSubmit} className="w-full p-4">
 								{isCreating ? "Creating..." : "Create & Generate"}
 							</Button>
 						</form>

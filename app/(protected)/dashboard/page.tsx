@@ -296,10 +296,10 @@ export default function CurationProfileManagementPage() {
 					</div>
 				</div>
 			) : (
-				<div className="max-w-2xl mx-auto mt-8">
+				<div className="max-w-2xl mt-8">
 					<Alert>
-						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>No Weekly Bundled Feed Found</AlertTitle>
+
+						<AlertTitle><AlertCircle className="h-4 w-4" />Would you like to get started with your feed?</AlertTitle>
 						<AlertDescription className="mt-2">You haven't created a Weekly Bundled Feed yet. Create one to start managing your podcast curation.</AlertDescription>
 						<div className="mt-4">
 							<Button variant="default" size="sm" onClick={() => setIsCreateWizardOpen(true)}>
