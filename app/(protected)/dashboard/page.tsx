@@ -5,13 +5,16 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import EditUserFeedModal from "@/components/edit-user-feed-modal";
+import UserFeedSelector from "@/components/features/user-feed-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppSpinner } from "@/components/ui/app-spinner";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EpisodeCard from "@/components/ui/episode-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Body, Typography } from "@/components/ui/typography";
+import { useUserCurationProfileStore } from "@/lib/stores/user-curation-profile-store";
 import type { Episode, UserCurationProfile, UserCurationProfileWithRelations, UserEpisode } from "@/lib/types";
 import { useAudioPlayerStore } from "@/store/audioPlayerStore";
 
@@ -34,6 +37,7 @@ export default function CurationProfileManagementPage() {
 	const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false);
 
 	type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 	const [userEpisodes, setUserEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
@@ -52,7 +56,17 @@ export default function CurationProfileManagementPage() {
 			const fetchedProfile = profileResponse.ok ? await profileResponse.json() : null;
 			const fetchedEpisodes = episodesResponse.ok ? await episodesResponse.json() : [];
 			const fetchedUserEpisodes: UserEpisodeWithSignedUrl[] = userEpisodesResponse.ok ? await userEpisodesResponse.json() : [];
-			const fetchedSubscription = subscriptionResponse.ok ? await subscriptionResponse.json() : null;
+			// Handle 204 No Content for subscription endpoint without attempting to parse JSON
+			let fetchedSubscription: SubscriptionInfo | null = null;
+			if (subscriptionResponse.status === 204) {
+				fetchedSubscription = null;
+			} else if (subscriptionResponse.ok) {
+				try {
+					fetchedSubscription = await subscriptionResponse.json();
+				} catch {
+					fetchedSubscription = null;
+				}
+			}
 
 			setUserCurationProfile(fetchedProfile);
 			setEpisodes(fetchedEpisodes);
@@ -148,7 +162,6 @@ export default function CurationProfileManagementPage() {
 									}}
 									icon={<PlayIcon size={64} />}
 									size="sm"
-
 								/>
 							}
 						/>
@@ -288,10 +301,46 @@ export default function CurationProfileManagementPage() {
 						<AlertCircle className="h-4 w-4" />
 						<AlertTitle>No Weekly Bundled Feed Found</AlertTitle>
 						<AlertDescription className="mt-2">You haven't created a Weekly Bundled Feed yet. Create one to start managing your podcast curation.</AlertDescription>
+						<div className="mt-4">
+							<Button variant="default" size="sm" onClick={() => setIsCreateWizardOpen(true)}>
+								Select a Bundle
+							</Button>
+						</div>
 					</Alert>
 				</div>
 			)}
 			{userCurationProfile && <EditUserFeedModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} collection={userCurationProfile} onSave={handleSaveUserCurationProfile} />}
+
+			{/* Create Personalized Feed / Bundle selection wizard */}
+			<Dialog open={isCreateWizardOpen} onOpenChange={setIsCreateWizardOpen}>
+				<DialogContent className="w-full overflow-y-auto px-8">
+					<DialogHeader>
+						<DialogTitle>
+							<Typography variant="h3">Personalized Feed Builder</Typography>
+						</DialogTitle>
+					</DialogHeader>
+					<UserFeedWizardWrapper
+						onSuccess={async () => {
+							setIsCreateWizardOpen(false);
+							await fetchAndUpdateData();
+						}}
+					/>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
+}
+
+function UserFeedWizardWrapper({ onSuccess }: { onSuccess: () => void }) {
+	const { userCurationProfile } = useUserCurationProfileStore();
+	const [hasCreated, setHasCreated] = useState(false);
+
+	useEffect(() => {
+		if (userCurationProfile && !hasCreated) {
+			setHasCreated(true);
+			onSuccess();
+		}
+	}, [userCurationProfile, hasCreated, onSuccess]);
+
+	return <UserFeedSelector />;
 }

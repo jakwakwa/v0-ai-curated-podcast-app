@@ -22,7 +22,7 @@ if (!clerkPublishableKey) {
 
 export const metadata: Metadata = {
 	title: "PODSLICE | AI Podcast Summaries | Cut the Chatter, Keep the Insight.",
-	description: "Experience the future of listening. PODSLICE crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
+	description: "Experience the future  of listening. PODSLICE crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
 	openGraph: {
 		title: "Cut the Chatter, Keep the Insight.",
 		description: "Experience the future of listening. PODSLICE crafts weekly AI summaries of top podcasts with a stunningly realistic voice. Get your intelligence briefing in minutes",
@@ -51,7 +51,6 @@ export default function RootLayout({
 			</head>
 			<body className={`${workSans.className} home-body`}>
 				<GlobalProgressBar />
-
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
@@ -115,9 +114,7 @@ export default function RootLayout({
 							},
 						},
 					}}>
-					<ClientProviders>
-
-						{children}
+					<ClientProviders>{children}
 						<Toaster />
 						<GlobalAudioPlayerSheet />
 					</ClientProviders>

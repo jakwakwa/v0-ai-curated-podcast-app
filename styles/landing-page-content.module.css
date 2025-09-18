@@ -82,10 +82,10 @@
 	overflow: hidden;
 	inset: 0;
 	pointer-events: none;
-			background-color: linear-gradient(140deg, oklch(0.7 0.11 198.06 / 0.49), rgba(0 0 58 / 0.18), oklch(0.21 0.02 268.96), rgba(9 9 11 / 0.23));
+			/* background-color: linear-gradient(140deg, oklch(0.7 0.11 198.06 / 0.49), rgba(0 0 58 / 0.18), oklch(0.21 0.02 268.96), rgba(9 9 11 / 0.23));
 	background: url('/assets/background/grid-bg.svg') no-repeat, 
 		url('/assets/background/grain-blur.svg'),
-	url('/assets/background/grain-bg.svg');
+	url('/assets/background/grain-bg.svg'); */
 	background-blend-mode: multiply;
 	/* Layered subtle gradients */
 	background-size: 110% 110%, 110% 110%, 250% 250%;

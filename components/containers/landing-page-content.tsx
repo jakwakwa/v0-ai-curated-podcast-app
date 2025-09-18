@@ -6,12 +6,12 @@ import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import LandingAudioPlayer from "@/components/demo/landing-audio-player";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getClerkSignInUrl } from "@/lib/env";
 import styles from "@/styles/landing-page-content.module.css";
 import { LandingPageHeader } from "../layout/LandingPageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Typography } from "../ui/typography";
 
 // Hardcoded subscription tiers for landing page
@@ -43,7 +43,7 @@ const SUBSCRIPTION_TIERS = [
 ];
 
 export default function LandingPageContent() {
-	const features = [
+	const _features = [
 		{
 			icon: <UilStar className="w-6 h-6" />,
 			title: "Instantly grasp key takeaways in minutes, not hours",
@@ -116,11 +116,11 @@ export default function LandingPageContent() {
 					}}
 				/>
 				<div className={styles.heroContainer}>
-					<div className={"grain-blur background-base"} />
+					<div className={"grain-blur background-base left-50 top-70"} />
 					<div className={"grain-background background-base"} />
 					<div className={"grid-bg background-base"} />
 					<div className={"large-blur background-base"} />
-					<div className={"small-blur background-base"} />
+					<div className={"small-blur background-base top-50"} />
 					<div className={styles.heroContent}>
 						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
 							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -151,55 +151,6 @@ export default function LandingPageContent() {
 					{/* Demo Audio Player */}
 					<div className="mt-4 w-full max-w-3xl mx-auto px-4">
 						<LandingAudioPlayer title="Podslice Sample" subtitle="Listen here for a short sample of what you can expect" />
-					</div>
-				</div>
-			</section>
-
-			{/* Features Section */}
-			<section className={styles.featuresSection}>
-				<div className={styles.featuresContainer}>
-					<motion.div className={styles.featuresHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-secondary-light font-bold mt-18 text-[3rem]">
-							Why Choose Podslice.ai?
-						</Typography>
-						<Typography className="max-w-full text-left md:max-w-2xl mx-auto px-4 md:text-center pb-8 mt-4 text-[1.4rem] my-8 leading-[2.8]">
-							We combine human curation with intelligent filtering to deliver focused content that respects your time and delivers maximum value.
-						</Typography>
-					</motion.div>
-					<div className={styles.featuresGrid}>
-						{features.map((feature, index) => (
-							<motion.div
-								key={index}
-								className="main-card rounded-xl flex flex-col p-16"
-								initial={{ opacity: 0, y: 30, scale: 0.95 }}
-								whileInView={{ opacity: 1, y: 0, scale: 1 }}
-								viewport={{ once: true, margin: "-100px" }}
-								transition={{
-									duration: 0.5,
-									ease: "easeOut",
-									delay: index * 0.1,
-								}}
-								whileHover={{
-									y: -5,
-									transition: { duration: 0.2 },
-								}}>
-								<motion.div
-									className="rounded-full text-accent bg-[#000]/50 mb-3 inline-flex justify-center items-center w-10 h-10"
-									whileHover={{
-										scale: 1.1,
-										rotate: 5,
-										transition: { duration: 0.2 },
-									}}>
-									{feature.icon}
-								</motion.div>
-								<Typography as="h3" className="text-custom-lg font-medium text-secondary-foreground/80 mb-2">
-									{feature.title}
-								</Typography>
-								<Typography as="h5" className="text-[#fff]/60 text-custom-h5 font-normal leading-[20px]">
-									{feature.description}
-								</Typography>
-							</motion.div>
-						))}
 					</div>
 				</div>
 			</section>
@@ -257,23 +208,23 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-8 border-light" : "border-dark"}`}>
-								{tier.popular && (
-									<Badge
-										variant="default"
-										className="bg-accent p-0 mx-auto border-light text-secondary-foreground px-9 py-3 font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
-										Most Popular
-									</Badge>
-								)}
+								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "border-4 border-[#94D5BC]/50" : "border-primary/10"}`}>
 								<CardHeader>
 									<div className="flex flex-col mt-4">
-										<CardTitle className="text-xl leading-7 font-semibold tracking-tight mb-2">{tier.name}</CardTitle>
+										<h5 className="text-4xl leading-7 font-semibold tracking-tight  text-[#94c7d5] mb-8">{tier.name}</h5>
 										<div className="flex items-baseline gap-1 mb-4">
-											<span className="text-[4rem] leading-9 font-bold tracking-tight">${tier.price}</span>
+											<span className="text-[3rem] leading-9 font-bold tracking-tight">{tier.price}</span>USD
 											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
 										</div>
-										<p className="text-sm text-muted-foreground mt-2 leading-relaxed">{tier.description}</p>
+										<p className="text-md text-foreground my-2 leading-relaxed">{tier.description}</p>
 									</div>
+									{tier.popular && (
+										<Badge
+											variant="secondary"
+											className="bg-accent p-0 border-light text-secondary-foreground py-3 px-0 text-center font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
+											Most Popular
+										</Badge>
+									)}
 								</CardHeader>
 								<CardContent className="flex flex-col flex-1 justify-between">
 									<ul className="list-none p-0 m-0 mb-8">
@@ -325,7 +276,7 @@ export default function LandingPageContent() {
 							Sign Up
 						</Link>
 						<Link href={getClerkSignInUrl()} className="hover:text-foreground transition-colors">
-							Login
+							Log in
 						</Link>
 						<Link href="/terms" className="hover:text-foreground transition-colors">
 							Terms

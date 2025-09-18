@@ -496,8 +496,9 @@
 }
 
 .grain-blur {
-  top: -120px;
-  background: url('/assets/background/grain-blur.svg') no-repeat 50%;
+	position: absolute;
+  bottom: -320px;
+  background: url('/assets/background/grain-blur.svg') no-repeat 0% 0%;
 }
 
 .large-blur {
@@ -508,10 +509,10 @@
 			text-align: left;
 			height: auto;
 	  background: url('/assets/background/grain-bg.svg') repeat;
-			background: linear-gradient(135deg,
+			/* background: linear-gradient(135deg,
 					rgba(3 105 123 / 0.67) -100%,
 						rgba(50 48 97 / 0.15) 55%,
-					rgba(4 5 5 / 0.91) 130% ) !important ;
+					rgba(4 5 5 / 0.91) 130% ) !important ; */
 			background-blend-mode: multiply;
 			backdrop-filter: blur(2px);
 			mix-blend-mode: screen, soft-light;

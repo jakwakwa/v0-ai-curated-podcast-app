@@ -13,8 +13,8 @@ export function LandingPageHeader() {
 				</Link>
 				<nav className={styles.landingNav}>
 					<Link href={getClerkSignInUrl()}>
-						<Button variant="outline" size="lg">
-							Sign In
+						<Button variant="default" size="md" className="text-[0.9rem] px-5 font-bold">
+							Log in
 						</Button>
 					</Link>
 				</nav>

@@ -1,83 +1,102 @@
-"use client"
+"use client";
 
-import { PlayCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { VOICE_OPTIONS } from "@/lib/constants/voices"
+import { PlayCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { VOICE_OPTIONS } from "@/lib/constants/voices";
 
-const EPISODE_LIMIT = 10
+const EPISODE_LIMIT = 10;
 
 export function EpisodeCreator() {
-	const router = useRouter()
+	const router = useRouter();
 
 	// Unified single form
-	const [title, setTitle] = useState("")
+	const [title, setTitle] = useState("");
 	// Removed: publishedDate, lang per simplified mandate
-	const [podcastName, setPodcastName] = useState("")
-	const [youtubeUrl, setYouTubeUrl] = useState("")
-	const [youtubeUrlError, setYouTubeUrlError] = useState<string | null>(null)
+	const [podcastName, setPodcastName] = useState("");
+	const [youtubeUrl, setYouTubeUrl] = useState("");
+	const [youtubeUrlError, setYouTubeUrlError] = useState<string | null>(null);
 
 	// Generation options
-	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
-	const [voiceA, setVoiceA] = useState<string>("Zephyr")
-	const [voiceB, setVoiceB] = useState<string>("Kore")
-	const [isPlaying, setIsPlaying] = useState<string | null>(null)
-	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({})
+	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single");
+	const [voiceA, setVoiceA] = useState<string>("Zephyr");
+	const [voiceB, setVoiceB] = useState<string>("Kore");
+	const [isPlaying, setIsPlaying] = useState<string | null>(null);
+	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({});
 
 	// UX
-	const [isCreating, setIsCreating] = useState(false)
-	const [error, setError] = useState<string | null>(null)
-	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT })
-	const [isLoadingUsage, setIsLoadingUsage] = useState(true)
+	const [isCreating, setIsCreating] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT });
+	const [isLoadingUsage, setIsLoadingUsage] = useState(true);
 
-	const isBusy = isCreating
-	const isAudioPlaying = isPlaying !== null
+	// Restriction dialog state
+	const [showRestrictionDialog, setShowRestrictionDialog] = useState(false);
+
+	const isBusy = isCreating;
+	const isAudioPlaying = isPlaying !== null;
 	function isYouTubeUrl(url: string): boolean {
 		try {
-			const { hostname } = new URL(url)
-			const host = hostname.toLowerCase()
-			return host === "youtu.be" || host.endsWith(".youtu.be") || host === "youtube.com" || host.endsWith(".youtube.com")
+			const { hostname } = new URL(url);
+			const host = hostname.toLowerCase();
+			return host === "youtu.be" || host.endsWith(".youtu.be") || host === "youtube.com" || host.endsWith(".youtube.com");
 		} catch {
-			return false
+			return false;
 		}
 	}
 
-	const isYouTubeValid = youtubeUrl.length === 0 ? false : isYouTubeUrl(youtubeUrl)
-	const canSubmit = Boolean(title) && isYouTubeValid && !isBusy
+	const isYouTubeValid = youtubeUrl.length === 0 ? false : isYouTubeUrl(youtubeUrl);
+	const canSubmit = Boolean(title) && isYouTubeValid && !isBusy;
 
 	useEffect(() => {
 		const fetchUsage = async () => {
 			try {
-				setIsLoadingUsage(true)
-				const res = await fetch("/api/user-episodes?count=true")
+				setIsLoadingUsage(true);
+				const res = await fetch("/api/user-episodes?count=true");
 				if (res.ok) {
-					const { count } = await res.json()
-					setUsage({ count, limit: EPISODE_LIMIT })
+					const { count } = await res.json();
+					setUsage({ count, limit: EPISODE_LIMIT });
 				}
 			} catch (error) {
-				console.error("Failed to fetch user episodes data:", error)
+				console.error("Failed to fetch user episodes data:", error);
 			} finally {
-				setIsLoadingUsage(false)
+				setIsLoadingUsage(false);
 			}
+		};
+		fetchUsage();
+	}, []);
+
+	// Timer effect for restriction dialog
+	useEffect(() => {
+		let timer: NodeJS.Timeout;
+
+		if (!isLoadingUsage && usage.count >= usage.limit) {
+			timer = setTimeout(() => {
+				setShowRestrictionDialog(true);
+			}, 3000); // 3 second delay
 		}
-		fetchUsage()
-	}, [])
+
+		return () => {
+			if (timer) clearTimeout(timer);
+		};
+	}, [isLoadingUsage, usage.count, usage.limit]);
 
 	async function handleCreate() {
-		setIsCreating(true)
-		setError(null)
+		setIsCreating(true);
+		setError(null);
 		try {
 			// Client-side validation to avoid wasting backend/ingest time
 			if (!isYouTubeValid) {
-				setYouTubeUrlError("Please enter a valid YouTube URL")
-				setIsCreating(false)
-				return
+				setYouTubeUrlError("Please enter a valid YouTube URL");
+				setIsCreating(false);
+				return;
 			}
 			const payload = {
 				title,
@@ -86,64 +105,74 @@ export function EpisodeCreator() {
 				generationMode,
 				voiceA,
 				voiceB,
-			}
+			};
 			const res = await fetch("/api/user-episodes/create-from-metadata", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
-			})
-			if (!res.ok) throw new Error(await res.text())
-			toast.message("We’re searching for the episode and transcribing it. We’ll email you when it’s ready.")
-			router.push("/dashboard")
+			});
+			if (!res.ok) throw new Error(await res.text());
+			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.");
+			router.push("/dashboard");
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to start metadata flow")
+			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
 		} finally {
-			setIsCreating(false)
+			setIsCreating(false);
 		}
 	}
 
 	async function playSample(voiceName: string) {
 		try {
-			setIsPlaying(voiceName)
-			const cached = audioUrlCache[voiceName]
-			let url = cached
+			setIsPlaying(voiceName);
+			const cached = audioUrlCache[voiceName];
+			let url = cached;
 			if (!url) {
-				const res = await fetch(`/api/tts/voice-sample?voice=${encodeURIComponent(voiceName)}`)
-				if (!res.ok) throw new Error(await res.text())
-				const blob = await res.blob()
-				url = URL.createObjectURL(blob)
-				setAudioUrlCache(prev => ({ ...prev, [voiceName]: url }))
+				const res = await fetch(`/api/tts/voice-sample?voice=${encodeURIComponent(voiceName)}`);
+				if (!res.ok) throw new Error(await res.text());
+				const blob = await res.blob();
+				url = URL.createObjectURL(blob);
+				setAudioUrlCache(prev => ({ ...prev, [voiceName]: url }));
 			}
-			const audio = new Audio(url)
-			audio.onended = () => setIsPlaying(null)
-			await audio.play()
+			const audio = new Audio(url);
+			audio.onended = () => setIsPlaying(null);
+			await audio.play();
 		} catch (err) {
-			setIsPlaying(null)
-			console.error("Failed to play sample", err)
-			toast.error("Could not load voice sample")
+			setIsPlaying(null);
+			console.error("Failed to play sample", err);
+			toast.error("Could not load voice sample");
 		}
 	}
 
-	const hasReachedLimit = usage.count >= usage.limit
+	const hasReachedLimit = usage.count >= usage.limit;
+
+	const handleUpgradeMembership = () => {
+		router.push("/manage-membership");
+	};
+
+	const handleGoBack = () => {
+		router.back();
+	};
 
 	return (
 		<div className="w-full h-auto mb-0 px-16 py-12">
 			<Card className="w-full flex flex-col gap-8">
 				<CardHeader>
 					<h1 className="text-xl text-foreground font-bold mb-4">Generate a custom episode</h1>
-					<CardDescription>Provide episode details. We’ll resolve sources and transcribe in the background.</CardDescription>
+					<CardDescription>Provide episode details. We'll resolve sources and transcribe in the background.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{isLoadingUsage ? (
 						<p>Loading usage data...</p>
 					) : hasReachedLimit ? (
-						<p className="text-amber-500"><span className="mr-3">⚠️</span>You have reached your monthly limit for episode creation.</p>
+						<p className="text-amber-500">
+							<span className="mr-3">⚠️</span>You have reached your monthly limit for episode creation.
+						</p>
 					) : (
 						<form
 							className="space-y-6 w-full"
 							onSubmit={e => {
-								e.preventDefault()
-								void handleCreate()
+								e.preventDefault();
+								void handleCreate();
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-2">
@@ -157,11 +186,11 @@ export function EpisodeCreator() {
 										placeholder="https://www.youtube.com/watch?v=..."
 										value={youtubeUrl}
 										onChange={e => {
-											setYouTubeUrl(e.target.value)
-											setYouTubeUrlError(null)
+											setYouTubeUrl(e.target.value);
+											setYouTubeUrlError(null);
 										}}
 										onBlur={() => {
-											if (youtubeUrl && !isYouTubeValid) setYouTubeUrlError("Please enter a valid YouTube URL")
+											if (youtubeUrl && !isYouTubeValid) setYouTubeUrlError("Please enter a valid YouTube URL");
 										}}
 										disabled={isBusy}
 										required
@@ -178,9 +207,8 @@ export function EpisodeCreator() {
 							</div>
 
 							<div className="space-y-6 border border-[#3a383c67] rounded-xl shadow-md p-4 bg-[#000]/40">
-
 								<div className="space-y-2">
-									<Label size="lg" >Voice Settings</Label>
+									<Label size="lg">Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
 										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md">
 											Single speaker
@@ -211,13 +239,11 @@ export function EpisodeCreator() {
 																	type="button"
 																	onMouseDown={e => e.preventDefault()}
 																	onClick={e => {
-																		e.stopPropagation()
-																		void playSample(v.name)
+																		e.stopPropagation();
+																		void playSample(v.name);
 																	}}
 																	aria-label={`Play ${v.name} sample`}
-																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
-
-																</button>
+																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100"></button>
 															</div>
 														</SelectItem>
 													))}
@@ -247,13 +273,11 @@ export function EpisodeCreator() {
 																	type="button"
 																	onMouseDown={e => e.preventDefault()}
 																	onClick={e => {
-																		e.stopPropagation()
-																		void playSample(v.name)
+																		e.stopPropagation();
+																		void playSample(v.name);
 																	}}
 																	aria-label={`Play ${v.name} sample`}
-																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
-
-																</button>
+																	className="inline-flex items-center gap-1 text-xs opacity-80 hover:opacity-100"></button>
 															</div>
 														</SelectItem>
 													))}
@@ -269,8 +293,6 @@ export function EpisodeCreator() {
 								)}
 							</div>
 
-
-
 							<Button type="submit" variant="default" disabled={!canSubmit} className="w-full">
 								{isCreating ? "Creating..." : "Create & Generate"}
 							</Button>
@@ -279,6 +301,35 @@ export function EpisodeCreator() {
 					{error && <p className="text-red-500 mt-4">{error}</p>}
 				</CardContent>
 			</Card>
+
+			{/* Restriction Dialog */}
+			<Dialog
+				open={showRestrictionDialog}
+				onOpenChange={() => { }} // Prevent closing
+				modal={true}>
+				<DialogContent
+					className="sm:max-w-md"
+					onInteractOutside={e => e.preventDefault()} // Prevent closing on outside click
+					onEscapeKeyDown={e => e.preventDefault()} // Prevent closing on escape
+				>
+					<DialogHeader>
+						<DialogTitle className="text-center text-xl">Episode Creation Limit Reached</DialogTitle>
+						<DialogDescription className="text-center space-y-4">
+							<p>You've reached your monthly limit of {usage.limit} episodes for your current membership plan.</p>
+							<p className="font-medium">To create more episodes, you'll need to upgrade your membership to unlock higher limits and premium features.</p>
+							<p className="text-sm text-muted-foreground">Choose an option below to continue:</p>
+						</DialogDescription>
+					</DialogHeader>
+					<div className="flex flex-col gap-3 mt-6">
+						<Button onClick={handleUpgradeMembership} className="w-full" size="lg" variant={"link"}>
+							Upgrade Membership
+						</Button>
+						<Button onClick={handleGoBack} variant="outline" className="w-full" size="lg">
+							Go Back
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
-	)
+	);
 }

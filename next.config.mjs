@@ -16,6 +16,7 @@ const nextConfig = {
 					{ protocol: 'https', hostname: 'images.ctfassets.net' },
 					{ protocol: 'https', hostname: 'res.cloudinary.com' },
 					{ protocol: 'https', hostname: 'img.clerk.com' },
+					{ protocol: 'https', hostname: 'i.ytimg.com' },
 			],
 			domains: ['yt3.ggpht.com'],
 	},
@@ -40,6 +41,7 @@ const nextConfig = {
 						'https://va.vercel-scripts.com',
 						'https://vercel.live',
 						'https://clerk.podslice.ai',
+						'https://cdn.paddle.com/paddle/v2/paddle.js'
 				];
 
 				const csp = {
@@ -73,7 +75,8 @@ const nextConfig = {
 							'images.ctfassets.net',
 							'res.cloudinary.com',
 							'img.clerk.com',
-							'via.placeholder.com'
+							'via.placeholder.com',
+							'i.ytimg.com',
 					],
 					'font-src': ["'self'", 'https://fonts.gstatic.com'],
 					'media-src': [
