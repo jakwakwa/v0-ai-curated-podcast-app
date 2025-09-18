@@ -146,10 +146,10 @@ export function NotificationBell() {
 						notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn("bg-card mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-2")}
+								className={cn("bg-card mb-1 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-2")}
 							>
-								<div className="py-5">
-									<div className="flex items-start justify-between mb-2">
+								<div className="py-1">
+									<div className="flex items-start justify-between mb-1">
 
 										<div className="flex items-center gap-2 ml-auto">
 											<div className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</div>
