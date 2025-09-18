@@ -8,6 +8,7 @@ import Link from "next/link";
 import LandingAudioPlayer from "@/components/demo/landing-audio-player";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getClerkSignInUrl } from "@/lib/env";
 import styles from "@/styles/landing-page-content.module.css";
 import { LandingPageHeader } from "../layout/LandingPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -115,11 +116,11 @@ export default function LandingPageContent() {
 					}}
 				/>
 				<div className={styles.heroContainer}>
-					<div className={'grain-blur background-base'} />
-					<div className={'grain-background background-base'} />
-					<div className={'grid-bg background-base'} />
-					<div className={'large-blur background-base'} />
-					<div className={'small-blur background-base'} />
+					<div className={"grain-blur background-base"} />
+					<div className={"grain-background background-base"} />
+					<div className={"grid-bg background-base"} />
+					<div className={"large-blur background-base"} />
+					<div className={"small-blur background-base"} />
 					<div className={styles.heroContent}>
 						<motion.div className={styles.badge} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
 							<svg className={styles.badgeIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -323,7 +324,7 @@ export default function LandingPageContent() {
 						<Link href="/sign-up" className="hover:text-foreground transition-colors">
 							Sign Up
 						</Link>
-						<Link href="/sign-in" className="hover:text-foreground transition-colors">
+						<Link href={getClerkSignInUrl()} className="hover:text-foreground transition-colors">
 							Login
 						</Link>
 						<Link href="/terms" className="hover:text-foreground transition-colors">
