@@ -11,7 +11,7 @@ const buttonVariants = cva(
 				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#045A69] w-full md:max-w-[200px] min-h-11 h-auto text-lg",
 				destructive: "bg-destructive text-destructive-foreground shadow-[0 -2px 2px 1px #000000BA] hover:bg-destructive/90",
 				outline: "border border-[#9FB3D031] bg-[#0B1010C7] rounded-full shadow-sm hover:bg-sidebar hover:text-accent-foreground text-[0.9rem] font-bold",
-				secondary: "bg-[#3724A0] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)] w-full md:max-w-[180px]  lg:max-w-[80px] min-h-12 h-auto text-lg",
+				secondary: "bg-[#3724A0] disabled:bg-[#5E5C6F] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)] w-full md:max-w-[280px]  lg:max-w-[280px] min-h-12 h-auto text-lg",
 				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
 				link: "text-primary-forefround underline-offset-4 hover:underline",
 				play: "p-0 m-0 btn-playicon hover:btn-playicon",

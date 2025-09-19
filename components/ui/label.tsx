@@ -14,13 +14,13 @@ const labelVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'font-bold text-sm',
+				default: 'font-bold text-sm mt-2',
 
 			},
 			size: {
-				default: 'text-sm',
-				sm: 'px-2 py-1 text-xs',
-				lg: 'px-4 py-3 text-base',
+				default: 'my-1 text-sm',
+				sm: 'h-11 mt-2 my-2 text-sm',
+				lg: 'my-3 text-base',
 			},
 		},
 		defaultVariants: {
