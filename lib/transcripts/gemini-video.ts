@@ -38,19 +38,27 @@ export async function transcribeWithGeminiFromUrl(
 		if (startTime !== undefined && duration !== undefined) {
 			console.log(`[GEMINI] Processing video chunk: ${startTime}s-${startTime + duration}s`);
 			
-			// Get video stream from YouTube and process the segment
-			const videoBuffer = await getVideoSegmentBuffer(url, startTime, duration);
-			
-			// Convert buffer to base64 for Gemini API
-			const base64Data = videoBuffer.toString('base64');
-			mediaPart = { 
-				inlineData: { 
-					data: base64Data, 
-					mimeType: "video/mp4" 
-				} 
-			};
+			try {
+				// Get video stream from YouTube and process the segment
+				const videoBuffer = await getVideoSegmentBuffer(url, startTime, duration);
+				
+				// Convert buffer to base64 for Gemini API
+				const base64Data = videoBuffer.toString('base64');
+				mediaPart = { 
+					inlineData: { 
+						data: base64Data, 
+						mimeType: "video/mp4" 
+					} 
+				};
+				console.log(`[GEMINI] Successfully created chunk buffer: ${base64Data.length} bytes`);
+			} catch (chunkError) {
+				console.error(`[GEMINI] Failed to process video chunk, falling back to full video:`, chunkError);
+				// Fallback to full video if chunking fails
+				mediaPart = { fileData: { fileUri: url, mimeType: "video/*" } };
+			}
 		} else {
 			// Original behavior for non-chunked videos
+			console.log(`[GEMINI] Processing full video (no chunking)`);
 			mediaPart = { fileData: { fileUri: url, mimeType: "video/*" } };
 		}
 

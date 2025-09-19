@@ -58,7 +58,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 					meta: { durationSeconds: lengthSeconds, maxSingleJobSeconds: MAX_DURATION_FOR_SINGLE_JOB_SECONDS },
 				});
 				
-				return lengthSeconds || undefined;
+				return lengthSeconds > 0 ? lengthSeconds : undefined;
 			} catch (error) {
 				await writeEpisodeDebugLog(userEpisodeId, {
 					step: "duration-check",
@@ -70,11 +70,31 @@ export const transcriptionCoordinator = inngest.createFunction(
 		});
 
 		// Decide whether to chunk the video or process it as a single job
+		await writeEpisodeDebugLog(userEpisodeId, {
+			step: "chunking-decision",
+			status: "info",
+			meta: { 
+				videoDuration, 
+				maxSingleJobSeconds: MAX_DURATION_FOR_SINGLE_JOB_SECONDS,
+				willChunk: videoDuration && videoDuration > MAX_DURATION_FOR_SINGLE_JOB_SECONDS
+			},
+		});
+
 		if (!videoDuration || videoDuration <= MAX_DURATION_FOR_SINGLE_JOB_SECONDS) {
 			// Process as single job (existing workflow)
+			await writeEpisodeDebugLog(userEpisodeId, {
+				step: "chunking-decision",
+				status: "info",
+				message: `Processing as single job: duration=${videoDuration}s, max=${MAX_DURATION_FOR_SINGLE_JOB_SECONDS}s`,
+			});
 			return await processSingleVideo(step, { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB });
 		} else {
 			// Process as chunked video
+			await writeEpisodeDebugLog(userEpisodeId, {
+				step: "chunking-decision",
+				status: "info",
+				message: `Processing as chunked job: duration=${videoDuration}s, max=${MAX_DURATION_FOR_SINGLE_JOB_SECONDS}s`,
+			});
 			return await processChunkedVideo(step, { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB, videoDuration });
 		}
 	}
