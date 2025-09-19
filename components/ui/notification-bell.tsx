@@ -106,7 +106,7 @@ export function NotificationBell() {
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
-							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50"
+							className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-5 h-5 p-0 rounded-full text-[0.5rem] flex items-center justify-center font-semibold border-2 border-[#8e2eee] bg-[#5f0fbd] shadow-[0px_0px_20px_#ec3be4] animate-pulse"
 						>
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>
@@ -189,6 +189,6 @@ export function NotificationBell() {
 					)}
 				</div>
 			</DropdownMenuContent>
-		</DropdownMenu>
+		</DropdownMenu >
 	)
 }
