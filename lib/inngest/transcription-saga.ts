@@ -206,9 +206,8 @@ async function processChunkedVideo(
 						select: { user_id: true }
 					}))?.user_id || '',
 					type: 'error',
-					title: 'Episode Generation Failed',
-					message: 'The episode generation failed because the source video is too long.',
-					read: false,
+					message: 'Episode Generation Failed: The episode generation failed because the source video is too long.',
+					is_read: false,
 				}
 			});
 		});
@@ -289,9 +288,8 @@ async function processChunkedVideo(
 							select: { user_id: true }
 						}))?.user_id || '',
 						type: 'error',
-						title: 'Episode Generation Failed',
-						message: 'The AI model failed to transcribe the video due to a technical issue. Please try again in 10 minutes.',
-						read: false,
+						message: 'Episode Generation Failed: The AI model failed to transcribe the video due to a technical issue. Please try again in 10 minutes.',
+						is_read: false,
 					}
 				});
 			});
