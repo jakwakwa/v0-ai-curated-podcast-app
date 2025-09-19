@@ -163,7 +163,7 @@ export function NotificationBell() {
 									<div className="flex gap-4 items-center justify-end">
 
 										{!notification.is_read && (
-											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5 text-sm h-9">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border text-sm h-9">
 
 												Mark as read
 												<CheckCircle2Icon size={30} />

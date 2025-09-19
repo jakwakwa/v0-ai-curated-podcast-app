@@ -205,7 +205,7 @@ export function SubscriptionView() {
 			<div className={"p-0 my-4"}>
 				<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between my-8">
 					<div className="flex flex-col gap-2">
-						<span className="text-sm">Change Subscriptions,View Invoices, Update Payment methdods:</span>
+						<span className="text-sm">Change Subscriptions, View Invoices, Update Payment methods:</span>
 
 						<div className="flex gap-1 w-full md:w-fit">
 							<Button variant="outline" size="sm" onClick={openPortal}>
