@@ -218,7 +218,7 @@
 		--destructive-foreground: hsl(210 40% 98%);
 		--border: hsl(187 10% 17%);
 		--input: hsla(203.64 18.64% 34.71% / 0.77);
-		--ring: hsl(162.18 40.56% 48.82%);
+		--ring: hsl(254.85 40.56% 48.82%);
 		--chart-1: hsl(220 70% 50%);
 		--chart-2: hsl(160 60% 45%);
 		--chart-3: hsl(30 80% 55%);
@@ -272,9 +272,10 @@
 		}
 
 		.page-header-bg {
-			background-image: linear-gradient(to bottom right, #01537457, #101016B5);
-			border: 1px solid #1e262884 !important;
+			background-image: linear-gradient(to bottom right, #153E4457 20%, #000000E5 150%);
+			border: 2px solid hsla(0 6.67% 2.94% / 0.87) 130% !important;
 			border-radius: 20px !important;
+			box-shadow: 1px 5px 12px 0px #00000073 !important;
 		}
 
 
@@ -329,7 +330,7 @@
 			text-shadow: 0px 2px 0px 1px #26223480;
 			font-size: 0.9rem !important;
 			font-weight: 700 !important;
-			border-radius: 1rem !important;
+			border-radius: 0.8rem !important;
 			box-shadow:
 				inset 0px 1px 1px 0px #2ef09637,
 				inset 0px -2px 3px #1f1c279d,
@@ -405,26 +406,25 @@
 			font-size: 0.5rem;
 			line-height: 1rem;
 			font-weight: 500;
+		
 			letter-spacing: 0.0015em;
 			color: oklch(0.92 0.04 173.12 / 0.8) !important;
-			background-color: #0c0b0e !important;
-			outline: 1px solid transparent !important;
+			background-color: #131416 !important;
+			outline: 1px solid #2C3434F4 !important;
 			border-radius: 10px !important;
-			box-shadow: inset 0px 2px 3px 2px #1212136a !important;
+			box-shadow: inset 1px 2px 3px 1px #000000 !important;
 			transition: all 0.2s ease-in-out;
+			outline-offset: 2px !important;
+			border: var(--ring) !important;
 		}
 
 		input::placeholder,
 		textarea::placeholder {
-			color: oklch(0.69 0.04 212.96 / 0.7);
+			color: color(a98-rgb 0.96 0.96 0.96 / 0.57) !important;
 			font-weight: 300 !important;
 			font-style: italic;
 			opacity: 0.4;
-			display: flex;
-			align-items: center;
-			width: 100% !important;
-			min-width: 100% !important;
-			max-width: initial !important;
+		
 		}
 
 		input:focus-visible,

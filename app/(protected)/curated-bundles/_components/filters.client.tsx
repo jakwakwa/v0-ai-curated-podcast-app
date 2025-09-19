@@ -73,11 +73,11 @@ export function CuratedBundlesFilters() {
 	const selectedLabel = useMemo(() => currentOptions.find(p => p.value === plan)?.label ?? "All plans", [plan, currentOptions])
 
 	return (
-		<form onSubmit={onSubmit} className="mt-0 mb-6 sticky">
-			<div className="flex flex-col md:flex-row gap-3 md:items-center">
-				<Select value={plan} onValueChange={setPlan}>
-					<SelectTrigger aria-label="Minimum plan">
-						<SelectValue placeholder="Filter">{selectedLabel}</SelectValue>
+		<form onSubmit={onSubmit} className="mt-4 mb-6 sticky">
+			<div className="flex flex-col md:flex-row gap-2 md:items-center border w-full rounded-2xl px-3 py-2">
+				<Select value={plan} onValueChange={setPlan} >
+					<SelectTrigger aria-label="Minimum plan" className="w-full md:w-[280px] h-18">
+						<SelectValue className="h-18" placeholder="Filter">{selectedLabel}</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						{currentOptions.map(option => (
@@ -87,12 +87,12 @@ export function CuratedBundlesFilters() {
 						))}
 					</SelectContent>
 				</Select>
-				<div className="flex-1">
+				<div className="w-full md:max-w-[260px]">
 					<Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search bundles or podcasts..." aria-label="Search bundles or podcasts" />
 				</div>
 
-				<div className="flex gap-2">
-					<Button type="submit" variant="default" disabled={isPending}>
+				<div className="flex gap-2 md:w-[150px] ml-2">
+					<Button type="submit" variant="default" size="lg" disabled={isPending}>
 						Search
 					</Button>
 					{(initialQuery || initialPlan) && (

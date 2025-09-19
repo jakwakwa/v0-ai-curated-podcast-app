@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
 	return (
-		<div className="container w-full mx-auto py-8 px-2 md:px-4 mt-4">
-			<PageHeader title="Manage / Add a Subscription" description=" Choose Your Plan." level={1} spacing="default" />
+		<div className=" w-full mx-auto py-8 px-2 md:px-4 mt-4">
+			<PageHeader title="Manage Subscription" description="" level={1} spacing="default" />
 			<ManagPlanLandingPage />
 			{/* <Suspense fallback={<div>Loading…</div>}></Suspense> */}
 		</div>

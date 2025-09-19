@@ -4,9 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// Removed plan swap UI
-import { Separator } from "@/components/ui/separator";
 import { PRICING_TIER } from "@/config/paddle-config";
 import { useSubscriptionStore } from "@/lib/stores/subscription-store-paddlejs";
 
@@ -195,21 +192,29 @@ export function SubscriptionView() {
 	}, [refreshSubscription, stopPortalPolling]);
 
 	return (
-		<Card className={"bg-background/50 border-border p-6 col-span-12 md:col-span-8"}>
-			<CardHeader className="p-0 space-y-0">
-				<CardTitle className="flex justify-between items-center pb-2">
-					<span className={"text-xl font-medium"}>Subscription</span>
-					{subscription?.status && (
-						<Badge variant="secondary">
-							{subscription.status}
-						</Badge>
-					)}
-				</CardTitle>
-			</CardHeader>
-			<CardContent className={"p-0 space-y-4"}>
-				<div className="text-base leading-6 text-secondary">Current plan: {currentPlan?.productTitle ?? "Free Slice"}</div>
-				<Separator className="my-2" />
-				{/* Subscription details */}
+		<div className={"episode-card-wrapper rounded-xl mt-8"}>
+			{isPolling && <span className="ml-2 text-xs text-muted-foreground">(syncing changes…)</span>}
+			<div className="p-0 space-y-0">
+				<div className="flex justify-start items-center pb-2">
+					<div className="text-base leading-6 text-[#72c9ac] mr-4">
+						Subscription:<span className="text-[#fff] ml-2 font-bold">{currentPlan?.productTitle ?? "Free Slice"}</span>{" "}
+					</div>
+					{subscription?.status && <Badge variant="secondary">{subscription.status}</Badge>}
+				</div>
+			</div>
+			<div className={"p-0 my-4"}>
+				<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between my-8">
+					<div className="flex flex-col gap-2">
+						<span className="text-sm">Change Subscriptions,View Invoices, Update Payment methdods:</span>
+
+						<div className="flex gap-1 w-full md:w-fit">
+							<Button variant="outline" size="sm" onClick={openPortal}>
+								Update Membership
+							</Button>
+						</div>
+					</div>
+				</div>
+
 				{subscription && (
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
 						<div className="flex items-center justify-between border rounded-md px-3 py-2">
@@ -240,19 +245,8 @@ export function SubscriptionView() {
 						</div>
 					</div>
 				)}
-				<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-					<div className="text-sm text-muted-foreground">
-						Manage your subscription
-						{isPolling && <span className="ml-2 text-xs text-muted-foreground">(syncing changes…)</span>}
-					</div>
-					<div className="flex gap-2 w-full md:w-auto">
-						<Button variant="default" onClick={openPortal}>
-							Open Paddle portal
-						</Button>
-					</div>
-				</div>
-			</CardContent>
+			</div>
 			{/* Manual force sync removed; automatic polling handles updates */}
-		</Card>
+		</div>
 	);
 }
