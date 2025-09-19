@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VOICE_OPTIONS } from "@/lib/constants/voices";
+import { useNotificationStore } from "@/lib/stores";
 
 const EPISODE_LIMIT = 10;
 
 export function EpisodeCreator() {
 	const router = useRouter();
+	const { resumeAfterSubmission } = useNotificationStore();
 
 	// Unified single form
 	const [title, setTitle] = useState("");
@@ -115,10 +117,19 @@ export function EpisodeCreator() {
 				body: JSON.stringify(payload),
 			});
 			if (!res.ok) throw new Error(await res.text());
-			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.");
+			toast.message(
+				"We're searching for the episode and transcribing it. We'll email you when it's ready.",
+				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
+			);
+			// Resume notifications polling only after a new submission is initiated
+			resumeAfterSubmission();
 			router.push("/dashboard");
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
+			toast.error(
+				(err instanceof Error ? err.message : "Failed to start metadata flow") || "",
+				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
+			);
 		} finally {
 			setIsCreating(false);
 		}

@@ -264,15 +264,22 @@ export const generateUserEpisode = inngest.createFunction(
 				if (episode) {
 					const user = await prisma.user.findUnique({
 						where: { user_id: episode.user_id },
-						select: { in_app_notifications: true },
+						select: { in_app_notifications: true, email: true, name: true },
 					});
 					if (user?.in_app_notifications) {
 						await prisma.notification.create({
 							data: {
 								user_id: episode.user_id,
 								type: "episode_failed",
-								message: `We couldn't generate your episode "${episode.episode_title}". Please try again.`,
+								message: `We couldn't generate your episode "${episode.episode_title}". Some videos might not work. Try single vs multi-speaker, or contact support and try later.`,
 							},
+						});
+					}
+					if (user?.email) {
+						const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
+						await emailService.sendEpisodeFailedEmail(episode.user_id, user.email, {
+							userFirstName,
+							episodeTitle: episode.episode_title,
 						});
 					}
 				}

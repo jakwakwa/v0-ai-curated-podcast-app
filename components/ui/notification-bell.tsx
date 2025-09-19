@@ -15,15 +15,17 @@ import { Typography } from "./typography"
 export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState(false)
 
-	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
+	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling, pausedUntilSubmission } = useNotificationStore()
 
 	// Start polling when component mounts, stop when it unmounts
 	useEffect(() => {
-		startPolling()
+		if (!pausedUntilSubmission) {
+			startPolling()
+		}
 		return () => {
 			stopPolling()
 		}
-	}, [startPolling, stopPolling])
+	}, [startPolling, stopPolling, pausedUntilSubmission])
 
 	// Restart polling when user opens the dropdown (in case auth was restored)
 	useEffect(() => {

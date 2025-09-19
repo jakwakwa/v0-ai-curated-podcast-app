@@ -115,7 +115,7 @@ export default function RootLayout({
 						},
 					}}>
 					<ClientProviders>{children}
-						<Toaster />
+						<Toaster closeButton richColors />
 						<GlobalAudioPlayerSheet />
 					</ClientProviders>
 				</ClerkProvider>

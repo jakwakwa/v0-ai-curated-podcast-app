@@ -27,6 +27,8 @@ export interface NotificationStore {
 	isPolling: boolean;
 	pollInterval: number;
 	pollIntervalId: NodeJS.Timeout | null;
+	pausedUntilSubmission: boolean;
+	locallyReadIds: Set<string>;
 
 	// Actions for preferences
 	loadPreferences: () => Promise<void>;
@@ -45,6 +47,7 @@ export interface NotificationStore {
 	startPolling: (interval?: number) => void;
 	stopPolling: () => void;
 	restartPolling: (interval?: number) => void;
+	resumeAfterSubmission: () => void;
 
 	// Utility actions
 	setLoading: (loading: boolean) => void;
@@ -61,6 +64,8 @@ const initialState = {
 	isPolling: false,
 	pollInterval: 30000, // 30 seconds default
 	pollIntervalId: null,
+	pausedUntilSubmission: false,
+	locallyReadIds: new Set<string>(),
 };
 
 export const useNotificationStore = create<NotificationStore>()(
@@ -174,18 +179,12 @@ export const useNotificationStore = create<NotificationStore>()(
 						throw new Error(`Failed to load notifications: ${response.status}`);
 					}
 
-					const notifications = await response.json();
-
-					// Calculate unread count
-					const unreadCount = notifications.filter((notification: Notification) => !notification.is_read).length;
-
-					// console.log(`[NOTIFICATION_UPDATE] Loaded ${notifications.length} notifications, ${unreadCount} unread`);
-
-					set({
-						notifications,
-						unreadCount,
-						isLoading: false,
-					});
+					const fetched: Notification[] = await response.json();
+					const { locallyReadIds } = get();
+					// Ensure locally marked-as-read stay read even if server cache is stale
+					const normalized = fetched.map(n => (locallyReadIds.has(n.notification_id) ? { ...n, is_read: true } : n));
+					const unreadCount = normalized.filter(n => !n.is_read).length;
+					set({ notifications: normalized, unreadCount, isLoading: false });
 				} catch (error) {
 					const message = error instanceof Error ? error.message : "Unknown error";
 					set({
@@ -206,16 +205,14 @@ export const useNotificationStore = create<NotificationStore>()(
 						throw new Error(`Failed to mark notification as read: ${response.status}`);
 					}
 
-					// Update local state
-					const { notifications } = get();
+					// Update local state and pause polling until next submission
+					const { notifications, locallyReadIds } = get();
+					const nextLocallyRead = new Set(locallyReadIds);
+					nextLocallyRead.add(notificationId);
 					const updatedNotifications = notifications.map((notification: Notification) => (notification.notification_id === notificationId ? { ...notification, is_read: true } : notification));
-
-					const unreadCount = updatedNotifications.filter((notification: Notification) => !notification.is_read).length;
-
-					set({
-						notifications: updatedNotifications,
-						unreadCount,
-					});
+					const unreadCount = updatedNotifications.filter((n: Notification) => !n.is_read).length;
+					set({ notifications: updatedNotifications, unreadCount, locallyReadIds: nextLocallyRead, pausedUntilSubmission: true });
+					get().stopPolling();
 				} catch (error) {
 					const _message = error instanceof Error ? error.message : "Unknown error";
 					console.error("Failed to mark notification as read:", error);
@@ -233,18 +230,13 @@ export const useNotificationStore = create<NotificationStore>()(
 						throw new Error(`Failed to mark all notifications as read: ${response.status}`);
 					}
 
-					// Update local state
-					const { notifications } = get();
-					const updatedNotifications = notifications.map((notification: Notification) => ({
-						...notification,
-						is_read: true,
-					}));
-
-					set({
-						notifications: updatedNotifications,
-						unreadCount: 0,
-					});
-
+					// Update local state and pause polling until next submission
+					const { notifications, locallyReadIds } = get();
+					const nextLocallyRead = new Set(locallyReadIds);
+					for (const n of notifications) nextLocallyRead.add(n.notification_id);
+					const updatedNotifications = notifications.map((notification: Notification) => ({ ...notification, is_read: true }));
+					set({ notifications: updatedNotifications, unreadCount: 0, locallyReadIds: nextLocallyRead, pausedUntilSubmission: true });
+					get().stopPolling();
 					toast.success("All notifications marked as read");
 				} catch (error) {
 					const _message = error instanceof Error ? error.message : "Unknown error";
@@ -308,7 +300,8 @@ export const useNotificationStore = create<NotificationStore>()(
 			// Polling actions
 			startPolling: (interval?: number) => {
 				const { isPolling } = get();
-				if (isPolling) return;
+				const { pausedUntilSubmission } = get();
+				if (isPolling || pausedUntilSubmission) return;
 
 				const pollInterval = interval ?? get().pollInterval;
 				set({ isPolling: true, pollInterval });
@@ -363,6 +356,11 @@ export const useNotificationStore = create<NotificationStore>()(
 				setTimeout(() => {
 					get().startPolling(interval);
 				}, 100);
+			},
+
+			resumeAfterSubmission: () => {
+				set({ pausedUntilSubmission: false });
+				get().startPolling();
 			},
 
 			// Utility actions
