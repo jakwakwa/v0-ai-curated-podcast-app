@@ -266,24 +266,13 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		const isShort = useShortEpisodesOverride ?? aiConfig.useShortEpisodes;
 
-		const summary = await step.run('summarize-transcript', async () => {
+		const summary = await step.run('generate-summary', async () => {
 			const modelName =
 				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName);
-			const episodeConfig = isShort
-				? {
-						words: '150-220 words',
-						duration: '~1 minute',
-						description: 'testing version',
-					}
-				: {
-						words: '550-800 words',
-						duration: '~3-5 minutes',
-						description: 'production version',
-					};
 			const { text } = await generateText({
 				model,
-				prompt: `Create a concise summary in ${episodeConfig.words} (${episodeConfig.duration}) capturing the main points and narrative arc of the following transcript. Write as a neutral narrator (no dialogues), suitable to expand into a two-host podcast script.\n\nTranscript: ${transcript}`,
+				prompt: `Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`,
 			});
 			await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
@@ -298,18 +287,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			const model = googleAI(modelName2);
 			const { text } = await generateText({
 				model,
-				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${isShort ? 'short (~1 minute)' : 'around 3-5 minutes'}.
-
-Requirements:
-- Do not include stage directions or timestamps
-- NO sound effects, music cues, or descriptive text in brackets
-- NO stage directions or production notes
-- ONLY include spoken dialogue that will be read aloud
-- Write as if the hosts are speaking directly to each other and the audience
-
-Output ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.
-
-Summary: ${summary}`,
+				prompt: `Task: Based on the SUMMARY below, write a two-host podcast conversation where Podslice hosts A and B explain the highlights to listeners. Alternate speakers naturally. Keep it ${isShort ? 'short (~1 minute)' : 'around 3-5 minutes)'}.\n\nIdentity & framing:\n- Hosts are from Podslice and are commenting on someone else's content.\n- They do NOT reenact or impersonate the original speakers.\n- They present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly, spoken by A):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken dialogue only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nOutput ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.\n\nSUMMARY:\n${summary}`,
 			});
 			return coerceJsonArray(text);
 		});
