@@ -74,6 +74,7 @@
 		"dayjs": "^1.11.13",
 		"fast-xml-parser": "^5.2.5",
 		"framer-motion": "^12.23.12",
+		"googleapis": "^160.0.0",
 		"inngest": "^3.40.1",
 		"lodash.throttle": "^4.1.1",
 		"lucide-react": "^0.541.0",

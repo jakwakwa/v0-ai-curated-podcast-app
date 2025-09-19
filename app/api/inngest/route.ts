@@ -1,7 +1,7 @@
 import { serve } from "inngest/next";
 import { inngest } from "@/lib/inngest/client";
 import { generateAdminBundleEpisodeWithGeminiTTS, generatePodcastWithGeminiTTS } from "@/lib/inngest/gemini-tts";
-import { geminiVideoWorker } from "@/lib/inngest/providers/gemini-video-worker";
+import { geminiVideoWorker, geminiVideoChunkWorker } from "@/lib/inngest/providers/gemini-video-worker";
 import { enqueueTranscriptionJob } from "@/lib/inngest/transcribe-from-metadata";
 import { transcriptionCoordinator } from "@/lib/inngest/transcription-saga";
 import { generateUserEpisode } from "@/lib/inngest/user-episode-generator";
@@ -19,6 +19,7 @@ export const { GET, POST, PUT } = serve({
 		enqueueTranscriptionJob,
 		transcriptionCoordinator,
 		geminiVideoWorker,
+		geminiVideoChunkWorker,
 	],
 	streaming: "allow",
 });

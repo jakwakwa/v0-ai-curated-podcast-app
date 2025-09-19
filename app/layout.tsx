@@ -115,7 +115,15 @@ export default function RootLayout({
 						},
 					}}>
 					<ClientProviders>{children}
-						<Toaster />
+						<Toaster 
+							position="top-right"
+							toastOptions={{
+								duration: 4000, // Default 4 seconds for most toasts
+								className: "toast-custom",
+							}}
+							richColors
+							closeButton
+						/>
 						<GlobalAudioPlayerSheet />
 					</ClientProviders>
 				</ClerkProvider>

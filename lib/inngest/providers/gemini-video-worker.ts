@@ -45,7 +45,10 @@ export const geminiVideoWorker = inngest.createFunction(
 			await writeEpisodeDebugLog(userEpisodeId, {
 				step: 'gemini',
 				status: 'start',
-				meta: { jobId },
+				meta: { 
+					jobId,
+					isChunk: false 
+				},
 			});
 		});
 
@@ -70,6 +73,91 @@ export const geminiVideoWorker = inngest.createFunction(
 						userEpisodeId,
 						provider: 'gemini',
 						transcript,
+						meta: {},
+					},
+				});
+			} else {
+				await writeEpisodeDebugLog(userEpisodeId, {
+					step: 'gemini',
+					status: 'fail',
+					message: 'empty transcript or failure; check server logs',
+				});
+				await step.sendEvent('failed', {
+					name: 'transcription.failed',
+					data: {
+						jobId,
+						userEpisodeId,
+						provider: 'gemini',
+						errorType: 'unknown',
+						errorMessage: 'Gemini returned empty transcript',
+					},
+				});
+			}
+		} catch (e) {
+			await writeEpisodeDebugLog(userEpisodeId, {
+				step: 'gemini',
+				status: 'fail',
+				message: e instanceof Error ? e.message : String(e),
+			});
+			const { errorType, errorMessage } = classifyError(e);
+			await step.sendEvent('failed', {
+				name: 'transcription.failed',
+				data: {
+					jobId,
+					userEpisodeId,
+					provider: 'gemini',
+					errorType,
+					errorMessage,
+				},
+			});
+		}
+	}
+);
+
+export const geminiVideoChunkWorker = inngest.createFunction(
+	{ id: 'provider-gemini-video-chunk', name: 'Provider: Gemini Video Chunk', retries: 0 },
+	{ event: 'transcription.provider.gemini.chunk.start' },
+	async ({ event, step }) => {
+		const { jobId, userEpisodeId, srcUrl, startTime, duration } = ProviderStartedSchema.parse(
+			event.data
+		);
+
+		await step.run('log-start', async () => {
+			await writeEpisodeDebugLog(userEpisodeId, {
+				step: 'gemini',
+				status: 'start',
+				meta: { 
+					jobId, 
+					startTime, 
+					duration,
+					isChunk: true 
+				},
+			});
+		});
+
+		try {
+			const timeoutMs = Number(
+				process.env.GEMINI_TRANSCRIBE_TIMEOUT_MS || 260000
+			); // < 300s Next limit
+			const transcript = await step.run(
+				'run',
+				async () =>
+					await withTimeout(
+						transcribeWithGeminiFromUrl(srcUrl, startTime, duration),
+						timeoutMs,
+						'Gemini transcription timed out'
+					)
+			);
+			if (transcript) {
+				await step.sendEvent('succeeded', {
+					name: 'transcription.succeeded',
+					data: {
+						jobId,
+						userEpisodeId,
+						provider: 'gemini',
+						transcript,
+						startTime,
+						duration,
 						meta: {},
 					},
 				});

@@ -1,12 +1,24 @@
 import { XMLParser } from "fast-xml-parser";
 // Removed youtube-transcript; keep ytdl-core based approach only
 import { z } from "zod";
+import { extractYouTubeVideoId as extractYouTubeVideoIdAPI, getYouTubeVideoTitle as getYouTubeVideoTitleAPI, isYouTubeAPIConfigured } from "./youtube-api";
 
 export async function getYouTubeVideoTitle(videoUrl: string): Promise<string> {
-	// Try oEmbed first (reliable, no API key), then fall back to parsing HTML
+	// Try oEmbed first (reliable, no API key), then YouTube Data API v3, then fall back to parsing HTML
 	try {
 		const viaOEmbed = await getYouTubeTitleViaOEmbed(videoUrl);
 		if (viaOEmbed) return viaOEmbed;
+	} catch {}
+
+	// Try YouTube Data API v3 if configured
+	try {
+		if (isYouTubeAPIConfigured()) {
+			const videoId = extractYouTubeVideoId(videoUrl);
+			if (videoId) {
+				const viaAPI = await getYouTubeVideoTitleAPI(videoId);
+				if (viaAPI) return viaAPI;
+			}
+		}
 	} catch {}
 
 	try {
@@ -63,11 +75,7 @@ function decodeHTMLEntities(text: string): string {
 }
 
 export function extractYouTubeVideoId(urlOrId: string): string | null {
-	// If already a plausible 11-char ID, return as-is
-	if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId;
-
-	const urlMatch = urlOrId.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.*?&v=))([\w-]{11})/);
-	return urlMatch ? urlMatch[1] : null;
+	return extractYouTubeVideoIdAPI(urlOrId);
 }
 
 export type YouTubeTranscriptItem = { text: string; duration: number; offset: number };

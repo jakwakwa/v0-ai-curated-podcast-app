@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+alwaysApply: true
 ---
 # Fixing Build Errors
 
@@ -14,12 +14,6 @@ DO:
 pnpm build`
 ```
 
-DO: 
-```bash
-git add .
-git commit -m "Fix: Build error ...."
-git push
-```
 
 
 DON NOT!

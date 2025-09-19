@@ -677,3 +677,34 @@
 		}
 
 	}
+
+/* ============================================= */
+/* TOAST CUSTOM STYLES                     */
+/* ============================================= */
+
+/* Custom toast styles for persistent messages (submission confirmation) */
+.toast-custom[data-duration="Infinity"] {
+	border-left: 4px solid #3b82f6 !important;
+	background: #eff6ff !important;
+	color: #1e40af !important;
+}
+
+.toast-custom[data-duration="Infinity"] [data-close-button] {
+	color: #1e40af !important;
+	opacity: 0.8;
+}
+
+.toast-custom[data-duration="Infinity"] [data-close-button]:hover {
+	opacity: 1;
+}
+
+/* Dark mode persistent toast styles */
+.dark .toast-custom[data-duration="Infinity"] {
+	background: #1e3a8a !important;
+	color: #93c5fd !important;
+	border-left: 4px solid #60a5fa !important;
+}
+
+.dark .toast-custom[data-duration="Infinity"] [data-close-button] {
+	color: #93c5fd !important;
+}
