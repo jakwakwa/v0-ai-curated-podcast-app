@@ -33,6 +33,7 @@ export const TranscriptionRequestedSchema = z.object({
 	generationMode: z.enum(["single", "multi"]).optional(),
 	voiceA: z.string().optional(),
 	voiceB: z.string().optional(),
+	targetLength: z.enum(["short", "medium", "long"]).optional(),
 });
 
 export type TranscriptionRequested = z.infer<typeof TranscriptionRequestedSchema>;

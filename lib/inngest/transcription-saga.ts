@@ -19,7 +19,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 	{ event: Events.JobRequested },
 	async ({ event, step }) => {
 		const input = TranscriptionRequestedSchema.parse(event.data);
-		const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB } = input;
+		const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB, targetLength } = input;
 
 		await step.run("mark-processing", async () => {
 			await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "PROCESSING", youtube_url: srcUrl } });
@@ -69,7 +69,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 						message: "Gemini transcription failed or timed out; fallback also failed",
 					});
 				});
-				await step.sendEvent("finalize-failed", {
+			await step.sendEvent("finalize-failed", {
 					name: Events.Finalized,
 					data: { jobId, userEpisodeId, status: "failed" },
 				});
@@ -83,7 +83,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 			});
 			await step.sendEvent("forward-generation", {
 				name: generationMode === "multi" ? "user.episode.generate.multi.requested" : "user.episode.generate.requested",
-				data: { userEpisodeId, voiceA, voiceB },
+				data: { userEpisodeId, voiceA, voiceB, targetLength },
 			});
 			await step.run("write-final-report", async () => {
 				const report = `# Transcription Saga Report\n- job: ${jobId}\n- provider: ${provider}\n- transcriptChars: ${transcriptText.length}\n`;
@@ -106,7 +106,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 
 		await step.sendEvent("forward-generation", {
 			name: generationMode === "multi" ? "user.episode.generate.multi.requested" : "user.episode.generate.requested",
-			data: { userEpisodeId, voiceA, voiceB },
+			data: { userEpisodeId, voiceA, voiceB, targetLength },
 		});
 
 		await step.run("write-final-report", async () => {

@@ -285,7 +285,7 @@ export const generateUserEpisode = inngest.createFunction(
 		event: "user.episode.generate.requested",
 	},
 	async ({ event, step }) => {
-		const { userEpisodeId } = event.data as { userEpisodeId: string };
+		const { userEpisodeId, targetLength } = event.data as { userEpisodeId: string; targetLength?: "short" | "medium" | "long" };
 
 		await step.run("update-status-to-processing", async () => {
 			return await prisma.userEpisode.update({
@@ -358,11 +358,21 @@ Transcript: ${transcript}`,
 			}
 		});
 
-		// Step 3: Generate Script at target length (default 5 minutes)
+		// Step 3: Generate Script at target length (user-selected)
 		const script = await step.run("generate-script", async () => {
 			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
 			const model2 = googleAI(modelName2);
-			const targetMinutes = Math.max(3, Number(process.env.EPISODE_TARGET_MINUTES || 1));
+			const targetMinutes = (() => {
+				switch (targetLength) {
+					case "short":
+						return 3; // 2-5 minutes target ~3
+					case "long":
+						return 18; // 15-20 minutes target ~18
+					case "medium":
+					default:
+						return 8; // 5-10 minutes target ~8
+				}
+			})();
 			const minWords = Math.floor(targetMinutes * 140);
 			const maxWords = Math.floor(targetMinutes * 180);
 			const { text } = await generateText({

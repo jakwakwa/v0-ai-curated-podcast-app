@@ -213,11 +213,12 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 	},
 	{ event: "user.episode.generate.multi.requested" },
 	async ({ event, step }) => {
-		const { userEpisodeId, voiceA, voiceB, useShortEpisodesOverride } = event.data as {
+		const { userEpisodeId, voiceA, voiceB, useShortEpisodesOverride, targetLength } = event.data as {
 			userEpisodeId: string;
 			voiceA: string;
 			voiceB: string;
 			useShortEpisodesOverride?: boolean;
+			targetLength?: "short" | "medium" | "long";
 		};
 
 		await step.run("update-status-to-processing", async () => {
@@ -236,7 +237,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			return episode.transcript;
 		});
 
-		const isShort = useShortEpisodesOverride ?? aiConfig.useShortEpisodes;
+		const isShort = (useShortEpisodesOverride ?? aiConfig.useShortEpisodes) || targetLength === "short";
 
 		const summary = await step.run("summarize-transcript", async () => {
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
@@ -268,7 +269,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			const model = googleAI(modelName2);
 			const { text } = await generateText({
 				model,
-				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${isShort ? "short (~1 minute)" : "around 3-5 minutes"}.
+				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${targetLength === "long" ? "around 15-20 minutes" : targetLength === "medium" ? "around 5-10 minutes" : "short (2-5 minutes)"}.
 
 Requirements:
 - Do not include stage directions or timestamps

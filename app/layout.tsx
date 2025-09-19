@@ -15,9 +15,7 @@ const _workSans = Inter({ subsets: ["latin"] });
 const workSans = Inter({ subsets: ["latin"] });
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-if (!clerkPublishableKey) {
-	throw new Error("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set");
-}
+const shouldUseClerk = Boolean(clerkPublishableKey);
 
 export const metadata: Metadata = {
 	title: "PODSLICE | AI Podcast Summaries | Cut the Chatter, Keep the Insight.",
@@ -51,75 +49,83 @@ export default function RootLayout({
 			<body className={`${workSans.className}`}>
 				<GlobalProgressBar />
 
-				<ClerkProvider
-					publishableKey={clerkPublishableKey || ""}
-					appearance={{
-						baseTheme: dark, // <-- Move baseTheme here
-						elements: {
-							rootBox: {
-								width: "90vw",
-								display: "flex",
-								flexDirection: "column",
-								justifyContent: "center",
-								maxWidth: "500px",
-								minWidth: "700px",
-							},
-							variables: {
-								fontWeight: {
-									normal: 200,
-									medium: 300,
-									semibold: 600,
-									bold: 700,
+				{shouldUseClerk ? (
+					<ClerkProvider
+						publishableKey={clerkPublishableKey || ""}
+						appearance={{
+							baseTheme: dark, // <-- Move baseTheme here
+							elements: {
+								rootBox: {
+									width: "90vw",
+									display: "flex",
+									flexDirection: "column",
+									justifyContent: "center",
+									maxWidth: "500px",
+									minWidth: "700px",
 								},
-							},
-							socialButtons: {
-								display: "flex",
-								justifyContent: "center",
-								gap: "0.5rem",
-							},
-							button: {
-								display: "flex",
-								alignSelf: "center",
-								justifyContent: "center",
-							},
-							form: {
-								display: "flex",
-								justifyContent: "center",
-							},
-							cardBox: {
-								background: "#121928 !important",
-								width: "90vw",
-								display: "flex",
-								flexDirection: "column",
-								justifyContent: "center",
-								margin: "0 auto",
-								maxWidth: "500px",
-								minWidth: "300px",
-							},
-							card: {
-								background: "#1B1822",
-							},
-							footer: {
-								background: "#354F4C28",
-
-								p: {
-									color: "#37A1A3 !important",
+								variables: {
+									fontWeight: {
+										normal: 200,
+										medium: 300,
+										semibold: 600,
+										bold: 700,
+									},
 								},
-							},
-							footerAction: {
-								color: "#121928 !important",
-								p: {
+								socialButtons: {
+									display: "flex",
+									justifyContent: "center",
+									gap: "0.5rem",
+								},
+								button: {
+									display: "flex",
+									alignSelf: "center",
+									justifyContent: "center",
+								},
+								form: {
+									display: "flex",
+									justifyContent: "center",
+								},
+								cardBox: {
+									background: "#121928 !important",
+									width: "90vw",
+									display: "flex",
+									flexDirection: "column",
+									justifyContent: "center",
+									margin: "0 auto",
+									maxWidth: "500px",
+									minWidth: "300px",
+								},
+								card: {
+									background: "#1B1822",
+								},
+								footer: {
+									background: "#354F4C28",
+									
+									p: {
+										color: "#37A1A3 !important",
+									},
+								},
+								footerAction: {
 									color: "#121928 !important",
+									p: {
+										color: "#121928 !important",
+									},
 								},
 							},
-						},
-					}}>
+						}}>
+						<ClientProviders>
+							{children}
+							<Toaster />
+							<GlobalAudioPlayerSheet />
+						</ClientProviders>
+					</ClerkProvider>
+				) : (
 					<ClientProviders>
 						{children}
 						<Toaster />
 						<GlobalAudioPlayerSheet />
 					</ClientProviders>
-				</ClerkProvider>
+				)}
 				<Analytics />
 			</body>
 		</html>
