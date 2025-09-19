@@ -16,7 +16,8 @@ Output ONLY valid JSON array of objects with fields: speaker ("A" or "B") and te
 export async function transcribeWithGeminiFromUrl(url: string, startTime?: number, duration?: number): Promise<string | null> {
 	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 	if (!apiKey) {
-		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
+		console.error("[GEMINI] GOOGLE_GENERATIVE_AI_API_KEY is not set");
+		return null;
 	}
 
 	try {
@@ -42,11 +43,18 @@ export async function transcribeWithGeminiFromUrl(url: string, startTime?: numbe
 
 		// Let the caller control timeout; this call may legitimately take >2 minutes.
 		const result = await model.generateContent([prompt, mediaPart]);
+		const text = result.response.text();
 
-		return result.response.text();
+		// Check if we got a valid transcription
+		if (!text || text.trim().length === 0) {
+			console.error("[GEMINI] Empty transcription response");
+			return null;
+		}
+
+		return text;
 	} catch (error) {
 		console.error("[GEMINI][youtube-url] Error:", error);
-		throw error;
+		return null;
 	}
 }
 
