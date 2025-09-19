@@ -84,11 +84,7 @@ export const transcriptionCoordinator = inngest.createFunction(
  * Process a single video (existing workflow)
  */
 async function processSingleVideo(
-	step: {
-		sendEvent: (id: string, event: any) => Promise<void>;
-		waitForEvent: (id: string, options: any) => Promise<any>;
-		run: (id: string, fn: () => Promise<any>) => Promise<any>;
-	},
+	step: any,
 	params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string }
 ) {
 	const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB } = params;
@@ -186,11 +182,7 @@ async function processSingleVideo(
  * Process a chunked video using fan-out/gather pattern
  */
 async function processChunkedVideo(
-	step: {
-		sendEvent: (id: string, event: any) => Promise<void>;
-		waitForEvent: (id: string, options: any) => Promise<any>;
-		run: (id: string, fn: () => Promise<any>) => Promise<any>;
-	},
+	step: any,
 	params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string; videoDuration: number }
 ) {
 	const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB, videoDuration } = params;
