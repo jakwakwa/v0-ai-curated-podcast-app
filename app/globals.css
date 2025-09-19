@@ -677,3 +677,34 @@
 		}
 
 	}
+
+/* ============================================= */
+/* TOAST CUSTOM STYLES                     */
+/* ============================================= */
+
+/* Custom toast styles for better error visibility */
+.toast-custom[data-type="error"] {
+	border-left: 4px solid #ef4444 !important;
+	background: #fef2f2 !important;
+	color: #dc2626 !important;
+}
+
+.toast-custom[data-type="error"] [data-close-button] {
+	color: #dc2626 !important;
+	opacity: 0.8;
+}
+
+.toast-custom[data-type="error"] [data-close-button]:hover {
+	opacity: 1;
+}
+
+/* Dark mode error toast styles */
+.dark .toast-custom[data-type="error"] {
+	background: #1f2937 !important;
+	color: #fca5a5 !important;
+	border-left: 4px solid #f87171 !important;
+}
+
+.dark .toast-custom[data-type="error"] [data-close-button] {
+	color: #fca5a5 !important;
+}
