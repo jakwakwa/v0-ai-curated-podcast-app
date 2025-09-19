@@ -10,6 +10,7 @@ type MetadataPayload = {
 	podcastName?: string;
 	youtubeUrl: string;
 	generationMode?: "single" | "multi";
+	targetLength?: "short" | "medium" | "long";
 	voiceA?: string;
 	voiceB?: string;
 };
@@ -36,7 +37,7 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 	{ event: "user.episode.metadata.requested" },
 	async ({ event, step }) => {
 		const payload = event.data as MetadataPayload;
-		const { userEpisodeId, title, podcastName, youtubeUrl, generationMode, voiceA, voiceB } = payload;
+		const { userEpisodeId, title, podcastName, youtubeUrl, generationMode, targetLength, voiceA, voiceB } = payload;
 
 		const inputSchema = z.object({
 			userEpisodeId: z.string().min(1),
@@ -75,7 +76,7 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "info", message: "sending transcription.job.requested", meta: { jobId } });
 		await step.sendEvent("start-saga", {
 			name: "transcription.job.requested",
-			data: { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB },
+			data: { jobId, userEpisodeId, srcUrl, generationMode, targetLength, voiceA, voiceB },
 		});
 		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "success", message: "sent transcription.job.requested", meta: { jobId } });
 

@@ -6,7 +6,6 @@ import mime from "mime";
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
-import { aiConfig } from "@/config/ai";
 import { extractAudioDuration } from "@/lib/audio-metadata";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
@@ -42,6 +41,38 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 const googleAI = createGoogleGenerativeAI({
 	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
+
+// Helper function to get episode configuration based on target length
+function getEpisodeConfig(targetLength: "short" | "medium" | "long" = "medium") {
+	switch (targetLength) {
+		case "short":
+			return {
+				words: "200-300 words",
+				duration: "2-5 minutes",
+				targetMinutes: 3.5, // midpoint of 2-5
+				minWords: Math.floor(3.5 * 140),
+				maxWords: Math.floor(3.5 * 180),
+			};
+		case "medium":
+			return {
+				words: "500-700 words",
+				duration: "5-10 minutes",
+				targetMinutes: 7.5, // midpoint of 5-10
+				minWords: Math.floor(7.5 * 140),
+				maxWords: Math.floor(7.5 * 180),
+			};
+		case "long":
+			return {
+				words: "1200-1600 words",
+				duration: "15-20 minutes",
+				targetMinutes: 17.5, // midpoint of 15-20
+				minWords: Math.floor(17.5 * 140),
+				maxWords: Math.floor(17.5 * 180),
+			};
+		default:
+			return getEpisodeConfig("medium");
+	}
+}
 
 // Gemini TTS configuration - Single speaker for faster processing
 const geminiTTSConfig = {
@@ -161,7 +192,21 @@ function _splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string
 	if (current.length) chunks.push(current.join(" "));
 	return chunks;
 }
-async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
+// Helper function to get max script character length based on target length
+function getMaxScriptLength(targetLength: "short" | "medium" | "long" = "medium") {
+	switch (targetLength) {
+		case "short":
+			return 1500; // ~2-5 minutes
+		case "medium":
+			return 3500; // ~5-10 minutes  
+		case "long":
+			return 8000; // ~15-20 minutes
+		default:
+			return getMaxScriptLength("medium");
+	}
+}
+
+async function generateAudioWithGeminiTTS(script: string, targetLength: "short" | "medium" | "long" = "medium"): Promise<Buffer> {
 	// Try both env variable names for compatibility
 	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
@@ -169,12 +214,12 @@ async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
 		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
-	// Dynamic script length limits based on episode type
-	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
-	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute";
+	// Dynamic script length limits based on target length
+	const maxLength = getMaxScriptLength(targetLength);
+	const episodeType = `${targetLength} episode`;
 
 	if (script.length > maxLength) {
-		console.log(`⚠️ Script too long for ${episodeType} episode (${script.length} chars), truncating to ${maxLength} chars`);
+		console.log(`⚠️ Script too long for ${episodeType} (${script.length} chars), truncating to ${maxLength} chars`);
 		script = `${script.substring(0, maxLength)}...`;
 	}
 
@@ -285,7 +330,10 @@ export const generateUserEpisode = inngest.createFunction(
 		event: "user.episode.generate.requested",
 	},
 	async ({ event, step }) => {
-		const { userEpisodeId } = event.data as { userEpisodeId: string };
+		const { userEpisodeId, targetLength } = event.data as { 
+			userEpisodeId: string; 
+			targetLength?: "short" | "medium" | "long" 
+		};
 
 		await step.run("update-status-to-processing", async () => {
 			return await prisma.userEpisode.update({
@@ -316,18 +364,8 @@ export const generateUserEpisode = inngest.createFunction(
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
 			const model = googleAI(modelName);
 			try {
-				// Dynamic episode length based on config flag
-				const episodeConfig = aiConfig.useShortEpisodes
-					? {
-							words: "200 - 300 words",
-							duration: "about 3 minute of audio",
-							description: "testing version",
-						}
-					: {
-							words: "500-600 words",
-							duration: "about 3-4 minutes of audio",
-							description: "production version",
-						};
+				// Dynamic episode length based on target length
+				const episodeConfig = getEpisodeConfig(targetLength);
 
 				const { text } = await generateText({
 					model: model,
@@ -358,16 +396,14 @@ Transcript: ${transcript}`,
 			}
 		});
 
-		// Step 3: Generate Script at target length (default 5 minutes)
+		// Step 3: Generate Script at target length
 		const script = await step.run("generate-script", async () => {
 			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
 			const model2 = googleAI(modelName2);
-			const targetMinutes = Math.max(3, Number(process.env.EPISODE_TARGET_MINUTES || 1));
-			const minWords = Math.floor(targetMinutes * 140);
-			const maxWords = Math.floor(targetMinutes * 180);
+			const episodeConfig = getEpisodeConfig(targetLength);
 			const { text } = await generateText({
 				model: model2,
-				prompt: `Using the summary, write a single-narrator podcast script of approximately ${minWords}-${maxWords} words (about ${targetMinutes} minutes).
+				prompt: `Using the summary, write a single-narrator podcast script of approximately ${episodeConfig.minWords}-${episodeConfig.maxWords} words (about ${episodeConfig.targetMinutes} minutes).
 
 Requirements:
 - Strong hook in the first 2-3 sentences
@@ -391,7 +427,7 @@ ${summary}`,
 			const parts = _splitScriptIntoChunks(script, 130);
 			const wavChunks: Buffer[] = [];
 			for (const part of parts) {
-				const buf = await generateAudioWithGeminiTTS(part);
+				const buf = await generateAudioWithGeminiTTS(part, targetLength);
 				wavChunks.push(buf);
 			}
 			const finalWav = _concatenateWavs(wavChunks);

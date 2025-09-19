@@ -12,6 +12,7 @@ const createFromMetadataSchema = z.object({
 	youtubeUrl: z.string().url().optional(),
 	lang: z.string().min(2).max(10).optional(),
 	generationMode: z.enum(['single', 'multi']).default('single').optional(),
+	targetLength: z.enum(['short', 'medium', 'long']).default('medium').optional(),
 	voiceA: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
 	voiceB: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
 });
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
 			youtubeUrl,
 			lang,
 			generationMode = 'single',
+			targetLength = 'medium',
 			voiceA,
 			voiceB,
 		} = parsed.data;
@@ -67,6 +69,7 @@ export async function POST(request: Request) {
 				youtubeUrl,
 				lang,
 				generationMode,
+				targetLength,
 				voiceA,
 				voiceB,
 			},
