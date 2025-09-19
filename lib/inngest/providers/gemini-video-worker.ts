@@ -8,9 +8,9 @@ import { classifyError, ProviderStartedSchema } from '../utils/results';
 
 export const geminiVideoWorker = inngest.createFunction(
 	{ id: 'provider-gemini-video', name: 'Provider: Gemini Video', retries: 0 },
-	{ event: 'transcription.provider.gemini.start' },
+	{ event: ['transcription.provider.gemini.start', 'transcription.provider.gemini.chunk.start'] },
 	async ({ event, step }) => {
-		const { jobId, userEpisodeId, srcUrl } = ProviderStartedSchema.parse(
+		const { jobId, userEpisodeId, srcUrl, startTime, duration } = ProviderStartedSchema.parse(
 			event.data
 		);
 
@@ -45,7 +45,12 @@ export const geminiVideoWorker = inngest.createFunction(
 			await writeEpisodeDebugLog(userEpisodeId, {
 				step: 'gemini',
 				status: 'start',
-				meta: { jobId },
+				meta: { 
+					jobId, 
+					startTime, 
+					duration,
+					isChunk: startTime !== undefined && duration !== undefined 
+				},
 			});
 		});
 
@@ -57,7 +62,7 @@ export const geminiVideoWorker = inngest.createFunction(
 				'run',
 				async () =>
 					await withTimeout(
-						transcribeWithGeminiFromUrl(srcUrl),
+						transcribeWithGeminiFromUrl(srcUrl, startTime, duration),
 						timeoutMs,
 						'Gemini transcription timed out'
 					)
@@ -70,6 +75,8 @@ export const geminiVideoWorker = inngest.createFunction(
 						userEpisodeId,
 						provider: 'gemini',
 						transcript,
+						startTime,
+						duration,
 						meta: {},
 					},
 				});

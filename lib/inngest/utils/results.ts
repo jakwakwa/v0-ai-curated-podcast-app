@@ -42,6 +42,8 @@ export const ProviderStartedSchema = z.object({
 	userEpisodeId: z.string().min(1),
 	srcUrl: z.string().url(),
 	provider: z.enum(["gemini"]),
+	startTime: z.number().optional(),
+	duration: z.number().optional(),
 	lang: z.string().optional(),
 });
 
@@ -52,6 +54,8 @@ export const ProviderSucceededSchema = z.object({
 	userEpisodeId: z.string().min(1),
 	transcript: z.string().min(1),
 	provider: z.enum(["gemini"]),
+	startTime: z.number().optional(),
+	duration: z.number().optional(),
 	meta: z.record(z.any()).optional(),
 });
 
