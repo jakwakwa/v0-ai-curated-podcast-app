@@ -26,6 +26,7 @@ export function EpisodeCreator() {
 
 	// Generation options
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single");
+	const [targetLength, setTargetLength] = useState<"short" | "medium" | "long">("medium");
 	const [voiceA, setVoiceA] = useState<string>("Zephyr");
 	const [voiceB, setVoiceB] = useState<string>("Kore");
 	const [isPlaying, setIsPlaying] = useState<string | null>(null);
@@ -106,6 +107,7 @@ export function EpisodeCreator() {
 				youtubeUrl: youtubeUrl || undefined,
 				podcastName: podcastName || undefined,
 				generationMode,
+				targetLength,
 				voiceA,
 				voiceB,
 			};
@@ -206,6 +208,22 @@ export function EpisodeCreator() {
 								<div className="space-y-2">
 									<Label htmlFor="podcastName">Podcast Name (optional)</Label>
 									<Input id="podcastName" placeholder="Podcast show name" value={podcastName} onChange={e => setPodcastName(e.target.value)} disabled={isBusy} />
+								</div>
+							</div>
+
+							<div className="space-y-6 border border-[#3a383c67] rounded-xl shadow-md p-4 bg-[#000]/40">
+								<div className="space-y-2">
+									<Label size="lg">Summary Length</Label>
+									<Select value={targetLength} onValueChange={(value: "short" | "medium" | "long") => setTargetLength(value)} disabled={isBusy}>
+										<SelectTrigger>
+											<SelectValue placeholder="Choose episode length" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="short">Short (2-5 minutes)</SelectItem>
+											<SelectItem value="medium">Medium (5-10 minutes)</SelectItem>
+											<SelectItem value="long">Long (15-20 minutes)</SelectItem>
+										</SelectContent>
+									</Select>
 								</div>
 							</div>
 

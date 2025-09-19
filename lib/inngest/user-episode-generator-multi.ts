@@ -4,7 +4,6 @@ import { generateText } from 'ai';
 import mime from 'mime';
 import { z } from 'zod';
 import { extractUserEpisodeDuration } from '@/app/(protected)/admin/audio-duration/duration-extractor';
-import { aiConfig } from '@/config/ai';
 import emailService from '@/lib/email-service';
 import { ensureBucketName, getStorageUploader } from '@/lib/gcs';
 import { prisma } from '@/lib/prisma';
@@ -34,6 +33,32 @@ async function uploadContentToBucket(
 const googleAI = createGoogleGenerativeAI({
 	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
+
+// Helper function to get episode configuration for multi-speaker based on target length
+function getMultiEpisodeConfig(targetLength: "short" | "medium" | "long" = "medium") {
+	switch (targetLength) {
+		case "short":
+			return {
+				words: '150-220 words',
+				duration: '~2-5 minutes',
+				scriptDescription: 'short (~2-5 minutes)',
+			};
+		case "medium":
+			return {
+				words: '350-500 words',
+				duration: '~5-10 minutes',
+				scriptDescription: 'around 5-10 minutes',
+			};
+		case "long":
+			return {
+				words: '800-1200 words',
+				duration: '~15-20 minutes',
+				scriptDescription: 'around 15-20 minutes',
+			};
+		default:
+			return getMultiEpisodeConfig("medium");
+	}
+}
 
 const DEFAULT_TTS_MODEL =
 	process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts';
@@ -238,12 +263,12 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 	},
 	{ event: 'user.episode.generate.multi.requested' },
 	async ({ event, step }) => {
-		const { userEpisodeId, voiceA, voiceB, useShortEpisodesOverride } =
+		const { userEpisodeId, voiceA, voiceB, targetLength } =
 			event.data as {
 				userEpisodeId: string;
 				voiceA: string;
 				voiceB: string;
-				useShortEpisodesOverride?: boolean;
+				targetLength?: "short" | "medium" | "long";
 			};
 
 		await step.run('update-status-to-processing', async () => {
@@ -264,23 +289,11 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			return episode.transcript;
 		});
 
-		const isShort = useShortEpisodesOverride ?? aiConfig.useShortEpisodes;
-
 		const summary = await step.run('summarize-transcript', async () => {
 			const modelName =
 				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName);
-			const episodeConfig = isShort
-				? {
-						words: '150-220 words',
-						duration: '~1 minute',
-						description: 'testing version',
-					}
-				: {
-						words: '550-800 words',
-						duration: '~3-5 minutes',
-						description: 'production version',
-					};
+			const episodeConfig = getMultiEpisodeConfig(targetLength);
 			const { text } = await generateText({
 				model,
 				prompt: `Create a concise summary in ${episodeConfig.words} (${episodeConfig.duration}) capturing the main points and narrative arc of the following transcript. Write as a neutral narrator (no dialogues), suitable to expand into a two-host podcast script.\n\nTranscript: ${transcript}`,
@@ -296,9 +309,10 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			const modelName2 =
 				process.env.GEMINI_GENAI_MODEL || 'gemini-2.0-flash-lite';
 			const model = googleAI(modelName2);
+			const episodeConfig = getMultiEpisodeConfig(targetLength);
 			const { text } = await generateText({
 				model,
-				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${isShort ? 'short (~1 minute)' : 'around 3-5 minutes'}.
+				prompt: `Using the following summary, write a two-host podcast conversation between Host A and Host B. Alternate speakers naturally. Keep it ${episodeConfig.scriptDescription}.
 
 Requirements:
 - Do not include stage directions or timestamps

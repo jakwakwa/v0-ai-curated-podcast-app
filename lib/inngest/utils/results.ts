@@ -31,6 +31,7 @@ export const TranscriptionRequestedSchema = z.object({
 	srcUrl: z.string().url(),
 	lang: z.string().optional(),
 	generationMode: z.enum(["single", "multi"]).optional(),
+	targetLength: z.enum(["short", "medium", "long"]).optional(),
 	voiceA: z.string().optional(),
 	voiceB: z.string().optional(),
 });
