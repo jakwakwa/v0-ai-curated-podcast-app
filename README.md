@@ -50,6 +50,7 @@ npm install prisma --save-dev
 Create `.env.local` with:
 - `DATABASE_URL` (pooler-ready, port 6543 for Supabase)
 - `DIRECT_URL` (direct connection, port 5432 for Supabase)
+- `YOUTUBE_API_KEY` (YouTube Data API v3 key - optional, enables enhanced video metadata fetching)
 - Clerk, Resend, Inngest, and Google Cloud credentials
 
 3. **Initialize database:**

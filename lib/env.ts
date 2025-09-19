@@ -2,6 +2,11 @@
 
 type RuntimeEnv = "production" | "preview" | "development";
 
+// YouTube Data API v3 key
+export function getYouTubeAPIKey(): string | undefined {
+	return process.env.YOUTUBE_API_KEY;
+}
+
 function getRuntimeEnv(): RuntimeEnv {
 	const vercelEnv = process.env.VERCEL_ENV as RuntimeEnv | undefined;
 	if (vercelEnv === "production" || vercelEnv === "preview" || vercelEnv === "development") {

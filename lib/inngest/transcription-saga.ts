@@ -1,6 +1,7 @@
 import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/prisma";
+import { extractYouTubeVideoId, getYouTubeVideoDuration, isYouTubeAPIConfigured } from "@/lib/youtube-api";
 import { preflightProbe } from "./utils/preflight";
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results";
 
@@ -40,24 +41,27 @@ export const transcriptionCoordinator = inngest.createFunction(
 		// Fetch video duration for chunking decision
 		const videoDuration = await step.run("get-video-duration", async () => {
 			try {
-				const { extractVideoId } = await import('@/lib/transcripts/utils/youtube-audio');
-				const videoId = extractVideoId(srcUrl);
+				const videoId = extractYouTubeVideoId(srcUrl);
 				if (!videoId) return undefined;
 
-				// Only when allowed in this env; else skip duration detection
-				const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === 'true';
-				if (!enableServerYtdl) return undefined;
+				// Only when YouTube API is configured; else skip duration detection
+				if (!isYouTubeAPIConfigured()) {
+					await writeEpisodeDebugLog(userEpisodeId, {
+						step: "duration-check",
+						status: "info",
+						message: "YouTube Data API not configured",
+					});
+					return undefined;
+				}
 
-				const ytdl = (await import('@distube/ytdl-core')).default ?? (await import('@distube/ytdl-core'));
-				const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoId}`);
-				const lengthSeconds = Number(info?.videoDetails?.lengthSeconds || 0);
-				
+				const lengthSeconds = await getYouTubeVideoDuration(videoId);
+
 				await writeEpisodeDebugLog(userEpisodeId, {
 					step: "duration-check",
 					status: "success",
 					meta: { durationSeconds: lengthSeconds, maxSingleJobSeconds: MAX_DURATION_FOR_SINGLE_JOB_SECONDS },
 				});
-				
+
 				return lengthSeconds > 0 ? lengthSeconds : undefined;
 			} catch (error) {
 				await writeEpisodeDebugLog(userEpisodeId, {
@@ -73,10 +77,10 @@ export const transcriptionCoordinator = inngest.createFunction(
 		await writeEpisodeDebugLog(userEpisodeId, {
 			step: "chunking-decision",
 			status: "info",
-			meta: { 
-				videoDuration, 
+			meta: {
+				videoDuration,
 				maxSingleJobSeconds: MAX_DURATION_FOR_SINGLE_JOB_SECONDS,
-				willChunk: videoDuration && videoDuration > MAX_DURATION_FOR_SINGLE_JOB_SECONDS
+				willChunk: videoDuration && videoDuration > MAX_DURATION_FOR_SINGLE_JOB_SECONDS,
 			},
 		});
 
@@ -103,10 +107,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 /**
  * Process a single video (existing workflow)
  */
-async function processSingleVideo(
-	step: any,
-	params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string }
-) {
+async function processSingleVideo(step: any, params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string }) {
 	const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB } = params;
 
 	// Direct Gemini transcription - no fallbacks, no orchestrator complexity
@@ -201,10 +202,7 @@ async function processSingleVideo(
 /**
  * Process a chunked video using fan-out/gather pattern
  */
-async function processChunkedVideo(
-	step: any,
-	params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string; videoDuration: number }
-) {
+async function processChunkedVideo(step: any, params: { jobId: string; userEpisodeId: string; srcUrl: string; generationMode?: string; voiceA?: string; voiceB?: string; videoDuration: number }) {
 	const { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB, videoDuration } = params;
 
 	// Handle excessively long videos (over 3 hours)
@@ -217,21 +215,24 @@ async function processChunkedVideo(
 				status: "fail",
 				message: `Video too long: ${Math.round(videoDuration / 60)}min > ${Math.round(MAX_TOTAL_DURATION_SECONDS / 60)}min`,
 			});
-			
+
 			// Create user notification for excessively long video
 			await prisma.notification.create({
 				data: {
-					user_id: (await prisma.userEpisode.findUnique({ 
-						where: { episode_id: userEpisodeId },
-						select: { user_id: true }
-					}))?.user_id || '',
-					type: 'error',
-					message: 'Episode Generation Failed: The episode generation failed because the source video is too long.',
+					user_id:
+						(
+							await prisma.userEpisode.findUnique({
+								where: { episode_id: userEpisodeId },
+								select: { user_id: true },
+							})
+						)?.user_id || "",
+					type: "error",
+					message: "Episode Generation Failed: The episode generation failed because the source video is too long.",
 					is_read: false,
-				}
+				},
 			});
 		});
-		
+
 		await step.sendEvent("finalize-failed", {
 			name: Events.Finalized,
 			data: { jobId, userEpisodeId, status: "failed" },
@@ -241,14 +242,14 @@ async function processChunkedVideo(
 
 	// Calculate number of chunks needed
 	const numChunks = Math.ceil(videoDuration / MAX_DURATION_FOR_SINGLE_JOB_SECONDS);
-	
+
 	await writeEpisodeDebugLog(userEpisodeId, {
 		step: "chunking",
 		status: "start",
-		meta: { 
-			videoDuration, 
-			numChunks, 
-			chunkDuration: MAX_DURATION_FOR_SINGLE_JOB_SECONDS 
+		meta: {
+			videoDuration,
+			numChunks,
+			chunkDuration: MAX_DURATION_FOR_SINGLE_JOB_SECONDS,
 		},
 	});
 
@@ -257,7 +258,7 @@ async function processChunkedVideo(
 	for (let i = 0; i < numChunks; i++) {
 		const startTime = i * MAX_DURATION_FOR_SINGLE_JOB_SECONDS;
 		const duration = Math.min(MAX_DURATION_FOR_SINGLE_JOB_SECONDS, videoDuration - startTime);
-		
+
 		chunkEvents.push({
 			name: Events.ProviderStart.GeminiChunk,
 			data: {
@@ -282,7 +283,7 @@ async function processChunkedVideo(
 			timeout: "900s", // 15 minutes per chunk
 			if: `event.data.jobId == "${jobId}" && event.data.startTime == ${i * MAX_DURATION_FOR_SINGLE_JOB_SECONDS}`,
 		});
-		
+
 		if (!chunkEvent) {
 			// Check if this chunk failed
 			await step.waitForEvent(`wait-chunk-${i}-failed`, {
@@ -290,7 +291,7 @@ async function processChunkedVideo(
 				timeout: "1s",
 				if: `event.data.jobId == "${jobId}"`,
 			});
-			
+
 			// Handle chunk failure
 			await step.run("mark-chunk-failed", async () => {
 				await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } });
@@ -299,49 +300,52 @@ async function processChunkedVideo(
 					status: "fail",
 					message: `Chunk ${i} failed or timed out`,
 				});
-				
+
 				// Create user notification
 				await prisma.notification.create({
 					data: {
-						user_id: (await prisma.userEpisode.findUnique({ 
-							where: { episode_id: userEpisodeId },
-							select: { user_id: true }
-						}))?.user_id || '',
-						type: 'error',
-						message: 'Episode Generation Failed: The AI model failed to transcribe the video due to a technical issue. Please try again in 10 minutes.',
+						user_id:
+							(
+								await prisma.userEpisode.findUnique({
+									where: { episode_id: userEpisodeId },
+									select: { user_id: true },
+								})
+							)?.user_id || "",
+						type: "error",
+						message: "Episode Generation Failed: The AI model failed to transcribe the video due to a technical issue. Please try again in 10 minutes.",
 						is_read: false,
-					}
+					},
 				});
 			});
-			
+
 			await step.sendEvent("finalize-failed", {
 				name: Events.Finalized,
 				data: { jobId, userEpisodeId, status: "failed" },
 			});
 			return { ok: false, jobId };
 		}
-		
+
 		chunkResults.push(ProviderSucceededSchema.parse((chunkEvent as { data: unknown }).data));
 	}
 
 	// Sort chunks by startTime and stitch transcripts together
 	chunkResults.sort((a, b) => (a.startTime || 0) - (b.startTime || 0));
-	const finalTranscript = chunkResults.map(chunk => chunk.transcript).join(' ');
+	const finalTranscript = chunkResults.map(chunk => chunk.transcript).join(" ");
 
 	await writeEpisodeDebugLog(userEpisodeId, {
 		step: "chunking",
 		status: "success",
-		meta: { 
+		meta: {
 			chunksProcessed: chunkResults.length,
-			finalTranscriptLength: finalTranscript.length 
+			finalTranscriptLength: finalTranscript.length,
 		},
 	});
 
 	// Store the combined transcript
 	await step.run("store-combined-transcript", async () => {
-		await prisma.userEpisode.update({ 
-			where: { episode_id: userEpisodeId }, 
-			data: { transcript: finalTranscript } 
+		await prisma.userEpisode.update({
+			where: { episode_id: userEpisodeId },
+			data: { transcript: finalTranscript },
 		});
 	});
 
