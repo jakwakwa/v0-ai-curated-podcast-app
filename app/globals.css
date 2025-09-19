@@ -682,29 +682,29 @@
 /* TOAST CUSTOM STYLES                     */
 /* ============================================= */
 
-/* Custom toast styles for better error visibility */
-.toast-custom[data-type="error"] {
-	border-left: 4px solid #ef4444 !important;
-	background: #fef2f2 !important;
-	color: #dc2626 !important;
+/* Custom toast styles for persistent messages (submission confirmation) */
+.toast-custom[data-duration="Infinity"] {
+	border-left: 4px solid #3b82f6 !important;
+	background: #eff6ff !important;
+	color: #1e40af !important;
 }
 
-.toast-custom[data-type="error"] [data-close-button] {
-	color: #dc2626 !important;
+.toast-custom[data-duration="Infinity"] [data-close-button] {
+	color: #1e40af !important;
 	opacity: 0.8;
 }
 
-.toast-custom[data-type="error"] [data-close-button]:hover {
+.toast-custom[data-duration="Infinity"] [data-close-button]:hover {
 	opacity: 1;
 }
 
-/* Dark mode error toast styles */
-.dark .toast-custom[data-type="error"] {
-	background: #1f2937 !important;
-	color: #fca5a5 !important;
-	border-left: 4px solid #f87171 !important;
+/* Dark mode persistent toast styles */
+.dark .toast-custom[data-duration="Infinity"] {
+	background: #1e3a8a !important;
+	color: #93c5fd !important;
+	border-left: 4px solid #60a5fa !important;
 }
 
-.dark .toast-custom[data-type="error"] [data-close-button] {
-	color: #fca5a5 !important;
+.dark .toast-custom[data-duration="Infinity"] [data-close-button] {
+	color: #93c5fd !important;
 }

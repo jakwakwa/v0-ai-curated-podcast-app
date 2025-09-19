@@ -118,7 +118,7 @@ export default function RootLayout({
 						<Toaster 
 							position="top-right"
 							toastOptions={{
-								duration: Infinity, // All toasts require manual dismissal
+								duration: 4000, // Default 4 seconds for most toasts
 								className: "toast-custom",
 							}}
 							richColors

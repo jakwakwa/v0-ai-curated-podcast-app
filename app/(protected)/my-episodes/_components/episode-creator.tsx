@@ -115,7 +115,9 @@ export function EpisodeCreator() {
 				body: JSON.stringify(payload),
 			});
 			if (!res.ok) throw new Error(await res.text());
-			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.");
+			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.", {
+				duration: Infinity, // Don't auto-dismiss this important message
+			});
 			router.push("/dashboard");
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
