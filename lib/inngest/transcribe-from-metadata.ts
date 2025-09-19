@@ -12,6 +12,7 @@ type MetadataPayload = {
 	generationMode?: "single" | "multi";
 	voiceA?: string;
 	voiceB?: string;
+	targetLength?: "short" | "medium" | "long";
 };
 
 // AssemblyAI helpers removed — AssemblyAI is no longer used as a fallback.
@@ -36,7 +37,7 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 	{ event: "user.episode.metadata.requested" },
 	async ({ event, step }) => {
 		const payload = event.data as MetadataPayload;
-		const { userEpisodeId, title, podcastName, youtubeUrl, generationMode, voiceA, voiceB } = payload;
+		const { userEpisodeId, title, podcastName, youtubeUrl, generationMode, voiceA, voiceB, targetLength } = payload;
 
 		const inputSchema = z.object({
 			userEpisodeId: z.string().min(1),
@@ -75,7 +76,7 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "info", message: "sending transcription.job.requested", meta: { jobId } });
 		await step.sendEvent("start-saga", {
 			name: "transcription.job.requested",
-			data: { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB },
+			data: { jobId, userEpisodeId, srcUrl, generationMode, voiceA, voiceB, targetLength },
 		});
 		await writeEpisodeDebugLog(userEpisodeId, { step: "saga", status: "success", message: "sent transcription.job.requested", meta: { jobId } });
 

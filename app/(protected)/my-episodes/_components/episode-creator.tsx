@@ -27,6 +27,7 @@ export function EpisodeCreator() {
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single")
 	const [voiceA, setVoiceA] = useState<string>("Zephyr")
 	const [voiceB, setVoiceB] = useState<string>("Kore")
+	const [targetLength, setTargetLength] = useState<"short" | "medium" | "long">("medium")
 	const [isPlaying, setIsPlaying] = useState<string | null>(null)
 	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({})
 
@@ -86,6 +87,7 @@ export function EpisodeCreator() {
 				generationMode,
 				voiceA,
 				voiceB,
+				targetLength,
 			};
 			const res = await fetch("/api/user-episodes/create-from-metadata", {
 				method: "POST",
@@ -190,6 +192,22 @@ export function EpisodeCreator() {
 										</Button>
 									</div>
 								</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<Label>Summary Length</Label>
+									<Select value={targetLength} onValueChange={value => setTargetLength(value as "short" | "medium" | "long")}>
+										<SelectTrigger className="w/full" disabled={isBusy}>
+											<SelectValue placeholder="Select length" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="short">Short (2-5 minutes)</SelectItem>
+											<SelectItem value="medium">Medium (5-10 minutes)</SelectItem>
+											<SelectItem value="long">Long (15-20 minutes)</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+							</div>
 
 								{generationMode === "multi" && (
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">

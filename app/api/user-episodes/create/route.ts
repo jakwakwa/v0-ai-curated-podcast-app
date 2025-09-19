@@ -13,6 +13,7 @@ const createEpisodeSchema = z.object({
 	voiceA: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
 	voiceB: z.enum(VOICE_NAMES as unknown as [string, ...string[]]).optional(),
 	useShortEpisodesOverride: z.boolean().optional(),
+	targetLength: z.enum(["short", "medium", "long"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
 			return new NextResponse(parsed.error.message, { status: 400 });
 		}
 
-		const { youtubeUrl, episodeTitle, transcript, generationMode = "single", voiceA, voiceB, useShortEpisodesOverride } = parsed.data;
+		const { youtubeUrl, episodeTitle, transcript, generationMode = "single", voiceA, voiceB, useShortEpisodesOverride, targetLength } = parsed.data;
 
 		// Count only completed user episodes for this user
 		const existingEpisodeCount = await prisma.userEpisode.count({
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
 					voiceA,
 					voiceB,
 					useShortEpisodesOverride,
+					targetLength,
 				},
 			});
 		} else {
@@ -73,6 +75,7 @@ export async function POST(request: Request) {
 				name: "user.episode.generate.requested",
 				data: {
 					userEpisodeId: newEpisode.episode_id,
+					targetLength,
 				},
 			});
 		}
