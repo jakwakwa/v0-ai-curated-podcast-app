@@ -21,7 +21,7 @@ const SUBSCRIPTION_TIERS = [
 		name: "FreeSlice",
 		price: 0,
 		description: "Perfect for podcast discovery and light listening",
-		features: ["Always free", "Free member", "Free Bundle"],
+		features: ["Always free", "Access to free bundled feeds: Automated Weekly Summarised Audio Episodes, centred around popular podcast shows - refreshed monthly by our team to ensure the content remains relevant and exciting."],
 		popular: false,
 	},
 	{
@@ -29,7 +29,7 @@ const SUBSCRIPTION_TIERS = [
 		name: "Casual Listener",
 		price: 5,
 		description: "Enhanced experience with premium features and priority access",
-		features: ["Only billed monthly", "Free member", "Free Bundle"],
+		features: ["Stay Informed with Smart Notifications", "Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.", "Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection."],
 		popular: false,
 	},
 	{
@@ -37,11 +37,22 @@ const SUBSCRIPTION_TIERS = [
 		name: "Curate & Control",
 		price: 10,
 		description: "Ultimate control with unlimited custom curation profiles",
-		features: ["Only billed monthly", "custom-curation-profiles", "Free member", "Free Bundle"],
+		features: ["Stay Informed with Smart Notifications", "Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.", "Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection."],
 		popular: true,
 	},
 ];
+const _curateText = `**Key Features & How They Benefit You:**
 
+- **One Focused Bundle Per User:** To ensure the highest quality of your personalised episodes and to manage the significant costs associated with advanced AI processing (like ElevenReader), each user can now manage one primary collection at a time. This focus allows us to dedicate our resources to creating one truly exceptional weekly episode for you.
+- **Effortless Show Selection:** We offer two intuitive ways for you to build your perfect collection:
+    - **Editor's Choice Shows:** Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection. Your interests can change, and so can your collection – you'll be able to easily add or remove shows at any time.
+    - **Pre-curated Bundles:** For ultimate convenience, we've created three special "Editor's Choice" bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme (e.g., "Tech Weekly," "Business Insights," "Science & Discovery"). If you opt for a bundle, its contents are expertly chosen and fixed, meaning you can't edit the individual shows within it. These bundles will be refreshed monthly by our team to ensure the content remains relevant and exciting.
+- **Automated Weekly Episodes – Delivered to You:** This is where the magic happens! Once your collection is set up, PodSlice will automatically generate a brand-new, single podcast episode for you every week. This process operates on a precise schedule, with a set cut-off time (e.g., every Friday at midnight). Our system will gather the latest content from your selected shows and intelligently summarise it into a cohesive, engaging episode.
+- **Stay Informed with Smart Notifications:** You'll always know when your fresh episode is ready. We're implementing a robust notification system designed for your convenience:
+    - **In-App Alerts:** A clear on-screen notification (like a bell icon) will appear within the app to let you know your new episode is waiting.
+    - **Weekly Email Reminders:** A helpful email will be sent out weekly, reminding you about your newly generated podcast episode and encouraging you to listen.
+    - **Personalised Preferences:** You'll have full control over your notification preferences in your account settings, allowing you to tailor how and when you receive updates.
+- **Your Episodes, Always Accessible:** Should you decide to remove a collection, rest assured that any episodes previously generated from it will remain accessible in your "all podcast episodes" view. Your listening history is always preserved.`;
 export default function LandingPageContent() {
 	const _features = [
 		{
@@ -122,7 +133,6 @@ export default function LandingPageContent() {
 					<div className={"large-blur background-base"} />
 					<div className={"small-blur background-base top-50"} />
 					<div className={styles.heroContent}>
-
 						<motion.h1 className={styles.heroHeading} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
 							Cut the chatter.
 							<br />
@@ -203,54 +213,57 @@ export default function LandingPageContent() {
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={`bg-card content transition-all border-muted-foreground/10 duration-200 ease-in-out relative h-full flex border-2 flex-col hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? "outline-" : "border-primary /10"}`}>
-								< CardHeader >
+								className={` content transition-all duration-200 ease-in-out relative h-full flex  border-slate-500 flex-col px-5 py-4 hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? " border-[#50EAF8]/50 border-2 md:min-w-[450px] bg-primary-card " : "bg-card  border-1 border-slate-900/50 "}`}>
+								<CardHeader>
 									<div className="flex flex-col mt-4">
-										<h5 className="text-4xl leading-7 font-semibold tracking-tight  text-[#94c7d5] mb-8">{tier.name}</h5>
+										<h5 className="text-4xl leading-7 font-semibold tracking-tight  text-[#d2eaf0] mb-8">{tier.name}</h5>
 										<div className="flex items-baseline gap-1 mb-4">
-											<span className="text-[3rem] leading-9 font-bold tracking-tight">{tier.price}</span>USD
-											{tier.price !== 0 && <span className="text-sm text-muted-foreground">/month</span>}
+											<p className="text-teal-100/40 font-bold">
+
+
+												<span className="text-green-300 text-[3rem] leading-9  tracking-tight "><span className="text-green-300 text-4xl">$</span>{tier.price}</span></p>
+											{tier.price !== 0 && <span className="text-sm text-foreground">/month</span>}
 										</div>
-										<p className="text-md text-foreground my-2 leading-relaxed">{tier.description}</p>
+										<p className="text-md text-foreground my-2 font-semibold leading-normal">{tier.description}</p>
 									</div>
-									{
-										tier.popular && (
-											<Badge
-												variant="secondary"
-												className="bg-accent p-0 border-light text-secondary-foreground py-3 px-0 text-center font-semibold border-primary/10 rounded-2xl shadow-xl w-full max-w-[160px]">
-												Most Popular
-											</Badge>
-										)
-									}
+									{tier.popular && (
+
+
+										<Badge
+											variant="secondary"
+											className=" bg-[#043e4e] p-0 border-light text-secondary-foreground py-8 px-4 text-left font-semibold border-primary/10 gap-1 rounded-2xl shadow-xl w-full text-[0.9rem]">
+											{/* <CheckCircle size={16} className="text-teal-300/80 flex-shrink-0" /> */}
+											<span className="text-[2.1rem]">✨ </span>Create your own Ai Generated Audio Summaries from any podcast show
+										</Badge>
+
+									)}
 								</CardHeader>
 								<CardContent className="flex flex-col flex-1 justify-between">
 									<ul className="list-none p-0 m-0 mb-8">
 										{tier.features.map((feature, index) => (
-											<li key={index} className="flex items-center gap-3 py-2 text-muted-foreground text-[1rem] font-bold ">
-												<CheckCircle size={16} className="text-teal-300/80 flex-shrink-0" />
+											<li key={index} className="flex items-start gap-3 py-3 text-foreground/80 text-sm font-light ">
+												<CheckCircle size={16} className="text-amber flex-shrink-0 mt-1" color={"#B550F8"} />
 												{feature}
 											</li>
 										))}
 									</ul>
 									<Link href="/sign-up">
 										<Button
-											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? " text-accent-foreground hover:bg-radial-gradient-secondary/80 transition-all duration-200 ease-in-out h-14" : "h-14"}`}
-											variant={tier.popular ? "default" : "default"}
+											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? " text-accent-foreground hover:bg-radial-gradient-secondary/80 transition-all duration-200 ease-in-out h-10" : "h-10"}`}
+											variant={tier.popular ? "secondary" : "default"}
 											size="lg">
-											{tier.name === "FreeSlice" ? "Start Free" : "Start Free Trial"}
+											{tier.name === "FreeSlice" ? "Start Free Trial" : "Subscribe Today"}
 										</Button>
 									</Link>
 								</CardContent>
 							</Card>
 						))}
 					</div>
-				</div >
-			</section >
-
-
+				</div>
+			</section>
 
 			{/* Footer */}
-			< footer className="py-8 md:py-12 px-2 md:px-4 bg-radial-gradient mt-24" >
+			<footer className="py-8 md:py-12 px-2 md:px-4 bg-radial-gradient mt-24">
 				<motion.div className="max-w-screen md:max-w-7xl mx-auto text-center" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
 					<div className="flex justify-center items-center mb-4">
 						<Image src="/logo.png" width={90} height={40} alt="PODSLICE Logo" />
@@ -270,7 +283,7 @@ export default function LandingPageContent() {
 						</Link>
 					</div>
 				</motion.div>
-			</footer >
-		</div >
+			</footer>
+		</div>
 	);
 }
