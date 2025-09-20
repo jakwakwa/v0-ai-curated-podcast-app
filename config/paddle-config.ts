@@ -26,9 +26,9 @@ const PRICING_TIER: PlanTier[] = [
 		productTitle: "Curate Control",
 		planId: "CURATE_CONTROL",
 		icon: "/assets/icons/price-tiers/free-icon.svg",
-		features: ["Advanced Profile Features", "Generate 30 Ai Podcasts per month", "Access to more Podcasts Bundles"],
+		features: ["Advanced Profile Features", "Generate 16 AI podcasts per 30-day period", "Access to more Podcasts Bundles"],
 		description: "Ideal for the power user.",
-		episodeLimit: 10,
+		episodeLimit: 16,
 		featured: false,
 	},
 ];
