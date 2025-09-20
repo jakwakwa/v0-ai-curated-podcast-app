@@ -20,6 +20,7 @@ type AudioPlayerSheetProps = {
 
 export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange, episode }) => {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const lastEpisodeKeyRef = useRef<string | null>(null);
 	const [_currentTime, setCurrentTime] = useState(0);
 	const [_duration, setDuration] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -94,23 +95,19 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	}, [clearLoadingTimeout]);
 
 	const audioSrc = useMemo(() => {
-		if (!episode) {
-			console.log("AudioPlayerSheet - No episode provided");
-			return "";
-		}
-
-		let src = "";
-		if ("audio_url" in episode && episode.audio_url) {
-			src = episode.audio_url;
-			console.log("AudioPlayerSheet - Using audio_url:", src);
-		} else if ("gcs_audio_url" in episode && episode.gcs_audio_url) {
-			src = episode.gcs_audio_url;
-			console.log("AudioPlayerSheet - Using gcs_audio_url:", src);
-		} else {
-			console.warn("AudioPlayerSheet - No audio source found in episode:", episode);
-		}
-
+		if (!(open && episode)) return "";
+		const src = "audio_url" in episode && episode.audio_url ? episode.audio_url : "gcs_audio_url" in episode && episode.gcs_audio_url ? episode.gcs_audio_url : "";
 		return src;
+	}, [open, episode]);
+
+	const episodeKey = useMemo(() => {
+		if (!episode) return null;
+		// Prefer explicit ids where available, fallback to a stable title-based key
+		const maybeId = (episode as unknown as { episode_id?: string; id?: string }).episode_id || (episode as unknown as { id?: string }).id;
+		if (maybeId) return String(maybeId);
+		if ("title" in (episode as Record<string, unknown>) && (episode as Record<string, unknown>).title) return String((episode as { title: string }).title);
+		if ("episode_title" in (episode as Record<string, unknown>) && (episode as Record<string, unknown>).episode_title) return String((episode as { episode_title: string }).episode_title);
+		return null;
 	}, [episode]);
 
 	useEffect(() => {
@@ -276,14 +273,24 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		audio.addEventListener("stalled", handleStalled);
 
 		if (open && audioSrc) {
-			if (audio.src !== audioSrc) {
+			const hasEpisodeChanged = episodeKey && lastEpisodeKeyRef.current !== episodeKey;
+			if (audio.src !== audioSrc || hasEpisodeChanged) {
 				// Reset UI and timers for new source
 				stopProgressInterval();
 				setCurrentTime(0);
 				setDuration(0);
 				// Apply new source
 				audio.crossOrigin = "anonymous";
+				try {
+					// Always pause before switching source to clear previous playback state
+					audio.pause();
+				} catch { }
+				// Force reload even when src strings might match (e.g., signed urls reused)
+				if (hasEpisodeChanged) {
+					try { audio.removeAttribute("src"); } catch { }
+				}
 				audio.src = audioSrc;
+				lastEpisodeKeyRef.current = episodeKey;
 			}
 			// Ensure the element preloads metadata for snappier start
 			audio.preload = "metadata";
@@ -326,7 +333,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearCanPlayDebounce();
 			stopProgressInterval();
 		};
-	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval]);
+	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, episodeKey]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -508,47 +515,36 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center hero-bg">
 					{/* Artwork + Meta */}
 
-					{episode && (() => {
-						// For bundle episodes, use the episode's image_url
-						if ("image_url" in episode && episode.image_url) {
-							return (
-								<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
-									<Image
-										src={episode.image_url}
-										alt={episode.title}
-										width={200}
-										height={200}
-										className="object-fit"
-									/>
-								</div>
-							);
-						}
-						// For user episodes, use YouTube channel image if available
-						if ("youtube_url" in episode) {
-							if (youtubeChannelImage) {
+					{episode &&
+						(() => {
+							// For bundle episodes, use the episode's image_url
+							if ("image_url" in episode && episode.image_url) {
 								return (
 									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
-										<Image
-											src={youtubeChannelImage}
-											alt={youtubeChannelName || "YouTube Channel"}
-											width={200}
-											height={200}
-											className="w-full h-full object-cover"
-										/>
+										<Image src={episode.image_url} alt={episode.title} width={200} height={200} className="object-fit" />
 									</div>
 								);
 							}
-							// Show loading state for user episodes while fetching channel image
-							if (isChannelLoading) {
-								return (
-									<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[200px] aspect-square flex items-center justify-center">
-										<Loader2 className="h-6 w-6 text-gray-400" />
-									</div>
-								);
+							// For user episodes, use YouTube channel image if available
+							if ("youtube_url" in episode) {
+								if (youtubeChannelImage) {
+									return (
+										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+											<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
+										</div>
+									);
+								}
+								// Show loading state for user episodes while fetching channel image
+								if (isChannelLoading) {
+									return (
+										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[200px] aspect-square flex items-center justify-center">
+											<Loader2 className="h-6 w-6 text-gray-400" />
+										</div>
+									);
+								}
 							}
-						}
-						return null;
-					})()}
+							return null;
+						})()}
 
 					<SheetHeader>
 						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center px-6">

@@ -141,15 +141,15 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 
 	return (
 		<>
-			<div className="relative transition-all duration-200 text-card-foreground p-0 px-2 w-full overflow-y-scroll z-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-4 h-fit bg-primary-card">
+			<div className="relative transition-all duration-200 text-card-foreground p-0 px-2 w-full overflow-y-scroll z-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 h-fit episode-card-wrapper-dark">
 				{bundles.map(bundle => (
 					<Card
 						key={bundle.bundle_id}
-						className="flex flex-col px-5 rounded-2xl shadow-lg bg-[#1d1c24c5]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-3 bundle-card-hover"
+						className="flex flex-col sm:flex-col px-5 rounded-2xl shadow-lg bg-[#1d1c24c5]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-3 bundle-card-hover xl:max-w-[500px]"
 						onClick={() => handleBundleClick(bundle)}>
 						<CardHeader className="w-full py-4 px-2">
-							<div className="w-full flex flex-row gap-6">
-								<div className="flex items-start gap-3 text-sm font-normal tracking-wide flex-col w-full max-w-[240px]">
+							<div className="w-full flex flex-col-reverse xl:flex-col-reverse gap-6">
+								<div className="flex items-start gap-3 text-sm font-normal tracking-wide flex-col w-full md:max-w-[240px]">
 									<H3 className="text-[1rem] text-[#77B1A5]/70 font-black font-sans mt-2 text-shadow-sm tracking-tight uppercase leading-tight mb-0 truncate">{bundle.name}</H3>
 
 									<Badge variant="outline" className="font-normal tracking-wide">
@@ -173,7 +173,7 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 								</div>
 
 								<div className="flex items-start gap-2 text-sm font-normal tracking-wide w-full">
-									<div className="relative my-2 rounded-lg outline-4 overflow-hidden w-full min-w-[200px] h-28">
+									<div className="relative my-2 rounded-lg outline-4 overflow-hidden w-full min-w-[200px] h-fit lg:h-fit xl:h-fit xl:max-w-[300px] xl:justify-end">
 										{bundle.image_url && <Image className="w-full object-cover" src={bundle.image_url} alt={bundle.name} width={190} height={110} />}
 									</div>
 								</div>

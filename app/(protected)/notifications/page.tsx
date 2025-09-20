@@ -197,7 +197,7 @@ export default function NotificationsPage() {
 											My Episodes
 										</Button>
 										{!notification.is_read && (
-											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border text-sm h-9">
 												<Check size={12} />
 												Mark as read
 											</Button>

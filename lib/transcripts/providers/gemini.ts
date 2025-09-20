@@ -1,4 +1,4 @@
-import { transcribeWithGeminiFromUrl } from "../gemini-video";
+import { transcribeWithGeminiFromUrl, transcribeWithGeminiFromUrlChunked } from "../gemini-video";
 import type { TranscriptProvider, TranscriptRequest, TranscriptResponse } from "../types";
 
 /**
@@ -15,7 +15,11 @@ export const GeminiVideoProvider: TranscriptProvider = {
 
 	async getTranscript(request: TranscriptRequest): Promise<TranscriptResponse> {
 		try {
-			const transcript = await transcribeWithGeminiFromUrl(request.url);
+			// Prefer chunked transcription to avoid long video timeouts
+			const transcript = await transcribeWithGeminiFromUrlChunked(request.url, {
+				chunkSeconds: 1800,
+				overlapSeconds: 5,
+			});
 
 			if (!transcript) {
 				return {

@@ -9,8 +9,9 @@ export const PAYMENT_CONFIG = {
 
 	// Plan IDs
 	PADDLE: {
-		CASUAL_LISTENER: "pri_01k1dwyqfvnwf8w7rk1gc1y634",
-		CURATE_CONTROL: "pri_01k1w1gye963q3nea8ctpbgehz",
+		CASUAL_LISTENER: "pri_01k1dzhm5ccevk59y626z80mmf",
+		CURATE_CONTROL: "pri_01k23mdwkrr8g9cp7bdbp8xqm8",
+		FREE_SLICE: "pri_01k2q2kvxscyyn0w5wsg32pf3w",
 	},
 } as const;
 

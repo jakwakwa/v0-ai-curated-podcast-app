@@ -292,7 +292,7 @@
 	padding-top: 0rem;
 	padding-left: 0;
 	height: 44px;
-	width: 100%;
+	width: 80%;
 }
 
 .waveformBar {
@@ -635,6 +635,18 @@
 
 /* Responsive (mobile-first) */
 @media (min-width: 640px) {
+	.waveformContainer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+	align-content: flex-start;
+	gap: 2px;
+	padding-top: 0rem;
+	padding-left: 0;
+	height: 44px;
+	width: 100%;
+}
+
 	.landingHeader {
 		height: 60px;
 		padding: 0 1.25rem;

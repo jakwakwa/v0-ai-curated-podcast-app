@@ -14,11 +14,26 @@ export async function GET(request: Request) {
 		const countOnly = url.searchParams.get("count") === "true";
 
 		if (countOnly) {
-			// Return only the count of completed episodes for usage tracking
+			// Return only the count of completed episodes scoped to the current subscription period (fallback: last 30 days)
+			const sub = await prisma.subscription.findFirst({
+				where: {
+					user_id: userId,
+					OR: [{ status: "active" }, { status: "trialing" }, { status: "paused" }],
+				},
+				orderBy: { created_at: "desc" },
+				select: { current_period_start: true, current_period_end: true },
+			});
+
+			const now = new Date();
+			const defaultStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+			const periodStart = sub?.current_period_start ?? defaultStart;
+			const periodEnd = sub?.current_period_end ?? now;
+
 			const completedCount = await prisma.userEpisode.count({
 				where: {
 					user_id: userId,
 					status: "COMPLETED",
+					created_at: { gte: periodStart, lte: periodEnd },
 				},
 			});
 			return NextResponse.json({ count: completedCount });

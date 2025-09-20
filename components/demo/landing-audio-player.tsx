@@ -3,10 +3,6 @@
 import { useEffect, useRef, useState } from "react"
 import styles from "@/styles/landing-page-content.module.css"
 
-interface LandingAudioPlayerProps {
-	title: string
-	subtitle?: string
-}
 
 const NUM_BARS = 40
 
@@ -18,7 +14,7 @@ const generateSeedPattern = (length: number) => {
 	})
 }
 
-export default function LandingAudioPlayer({ title, subtitle }: LandingAudioPlayerProps) {
+export default function LandingAudioPlayer() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const audioRef = useRef<HTMLAudioElement>(null)
 	const [bars, setBars] = useState<number[]>([])
@@ -212,14 +208,6 @@ export default function LandingAudioPlayer({ title, subtitle }: LandingAudioPlay
 
 				{/** biome-ignore lint/a11y/useMediaCaption: <keep> */}
 				<audio ref={audioRef} src="/Podslice_ AI's Solution to Information Overload and Content Drowning.mp3" onEnded={() => setIsPlaying(false)} />
-				{/* <div className="w-[100%]">
-					<div className={styles.audioPlayerInfo}>
-						<h5 className={styles.audioPlayerTitle}>{title}</h5>
-						{subtitle && <p className={styles.audioPlayerTitle}>{subtitle}</p>}
-					</div>
-
-
-				</div> */}
 				<div className={styles.waveformContainer}>
 
 

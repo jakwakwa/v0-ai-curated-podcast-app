@@ -30,7 +30,7 @@ function SelectTrigger({
 			data-slot="select-trigger"
 			data-size={size}
 			className={cn(
-				" border-[#596472c5]  mt-2 focus-visible:border-accent focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#0f0d11da] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-md border-1 px-8 py-[17px] whitespace-nowrap shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-8 data-[size=sm]:h-8  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-180 mr-2 w-full max-w-[300px]",
+				" border-[#63747c73]  focus-visible:border-accent focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-[#100f14e0] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-lg border-1 px-4 py-[17px] whitespace-nowrap shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-12 data-[size=sm]:h-12  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-180 mr-2 w-full max-w-[180px]",
 				className
 			)}
 			{...props}
@@ -52,7 +52,7 @@ function SelectContent({ className, children, position = "popper", ...props }: R
 					className={cn(
 						"p-1 overflow-y-auto cursor-pointer",
 						position === "popper" &&
-						"bg-[#1D191FE0] py-4 px-5 border-1 border-[#15191DED] rounded-sm max-h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-4 text-[12px] "
+						"bg-[#1D191FE0] py-4 px-2 border-1 border-[#15191DED] rounded-md w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-1 text-[14px] "
 					)}
 				>
 					{children}

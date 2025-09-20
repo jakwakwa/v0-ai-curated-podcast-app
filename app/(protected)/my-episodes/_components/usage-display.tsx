@@ -37,8 +37,7 @@ export function UsageDisplay() {
 				<H2 className=" text-lg text-primary-foreground">Monthly Usage</H2>
 
 				<Body className="font-normal">
-					You have generated <br /> <strong>{usage.count}</strong> of your <strong>{usage.count}</strong> monthly episodes
-
+					You have generated <br /> <strong>{usage.count}</strong> of your <strong>{usage.limit}</strong> monthly episodes
 				</Body>
 				<Body className="text-amber-600">
 					{usage.count === usage.limit ? <div><span className="mr-3">⚠️</span>Limit reached for the month </div> : ""}

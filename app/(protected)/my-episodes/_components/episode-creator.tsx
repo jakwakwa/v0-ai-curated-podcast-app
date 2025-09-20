@@ -1,6 +1,6 @@
 "use client";
 
-import { PlayCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, PlayCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VOICE_OPTIONS } from "@/lib/constants/voices";
+import { useNotificationStore } from "@/lib/stores";
 
 const EPISODE_LIMIT = 10;
 
 export function EpisodeCreator() {
 	const router = useRouter();
+	const { resumeAfterSubmission } = useNotificationStore();
 
 	// Unified single form
 	const [title, setTitle] = useState("");
@@ -39,6 +41,9 @@ export function EpisodeCreator() {
 
 	// Restriction dialog state
 	const [showRestrictionDialog, setShowRestrictionDialog] = useState(false);
+
+	// Tips visibility state
+	const [showTips, setShowTips] = useState(false);
 
 	const isBusy = isCreating;
 	const isAudioPlaying = isPlaying !== null;
@@ -112,10 +117,19 @@ export function EpisodeCreator() {
 				body: JSON.stringify(payload),
 			});
 			if (!res.ok) throw new Error(await res.text());
-			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.");
+			toast.message(
+				"We're searching for the episode and transcribing it. We'll email you when it's ready.",
+				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
+			);
+			// Resume notifications polling only after a new submission is initiated
+			resumeAfterSubmission();
 			router.push("/dashboard");
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
+			toast.error(
+				(err instanceof Error ? err.message : "Failed to start metadata flow") || "",
+				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
+			);
 		} finally {
 			setIsCreating(false);
 		}
@@ -210,19 +224,73 @@ export function EpisodeCreator() {
 								<div className="space-y-2">
 									<Label size="lg">Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
-										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} size="md" className="px-4">
+										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} className="px-4">
 											Single speaker
 										</Button>
-										<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} size="md" className="px-4">
+										<Button type="button" variant={generationMode === "multi" ? "default" : "outline"} onClick={() => setGenerationMode("multi")} disabled={isBusy} className="px-4">
 											Multi speaker
 										</Button>
 									</div>
+									<button
+										type="button"
+										onClick={() => setShowTips(!showTips)}
+										className="flex mt-4 items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-3">
+										{showTips ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}💡 Helpful Tips
+									</button>
+
+									{showTips && (
+										<div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
+											<p className="text-xs text-foreground">
+												Both options can handle 90% of any youtube URL you provide! The quality of your generated episode depends on the content you choose to upload. These tips can help you decide if you're unsure:
+											</p>
+											<ul className="space-y-2 leading-relaxed text-foreground text-xs mt-1">
+												<li className="flex items-start gap-2">
+													<span className="text-orange-500 mt-1">⏱️</span>
+													<span>
+														<strong className="text-teal-500 ">For videos over 2 hours:</strong> We recommend Single Speaker for faster processing and guaranteed success
+													</span>
+												</li>
+												<li className="flex items-start gap-2">
+													<span className="text-blue-500 mt-1">⚡</span>
+													<span>
+														<strong className="text-teal-500">Single Speaker</strong> processes faster and is ideal for solo presentations, tutorials, or monologues
+													</span>
+												</li>
+												<li className="flex items-start gap-2">
+													<span className="text-green-200 mt-1">🎙️</span>
+													<span>
+														<strong className="text-teal-500">Multi Speaker</strong> results will be generated into two speaker conversational podcast syled episode. For more engaging information consumption. May not be suite for all types of content.
+													</span>
+												</li>
+
+												<li className="flex items-start gap-2">
+													<span className="text-purple-500 mt-1">🎯</span>
+													<span>
+														<strong className="text-teal-500">Best results come from:</strong> Clear audio, minimal background noise, and well-structured content
+													</span>
+												</li>
+												<li className="flex items-start gap-2">
+													<span className="text-red-500 mt-1">⚠️</span>
+													<span>
+														<strong className="text-amber-500">Avoid:</strong> Music-heavy content, very fast speech, or videos with poor audio quality
+													</span>
+												</li>
+												<li className="flex items-start gap-2">
+													<span className="text-indigo-500 mt-1">💡</span>
+													<span>
+														<strong className="text-indigo-400">Pro tip:</strong> If you're unsure, start with Single Speaker - it's our most reliable option for any content type
+													</span>
+												</li>
+											</ul>
+										</div>
+									)}
 								</div>
 
 								{generationMode === "multi" && (
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<Label>Voice A</Label>
+
+											<div className="py-2 text-foreground text-sm">Voice A</div>
 											<Select value={voiceA} onValueChange={setVoiceA}>
 												<SelectTrigger className="w/full" disabled={isBusy}>
 													<SelectValue placeholder="Select Voice A" />
@@ -256,7 +324,7 @@ export function EpisodeCreator() {
 											</div>
 										</div>
 										<div>
-											<Label>Voice B</Label>
+											<div className="py-2 text-foreground text-sm">Voice B</div>
 											<Select value={voiceB} onValueChange={setVoiceB}>
 												<SelectTrigger className="w/full" disabled={isBusy}>
 													<SelectValue placeholder="Select Voice B" />

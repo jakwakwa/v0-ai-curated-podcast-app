@@ -1,35 +1,41 @@
-import { Resend } from "resend"
-import { prisma } from "@/lib/prisma"
+import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
 export interface EmailNotification {
-	to: string
-	subject: string
-	text: string
-	html: string
+	to: string;
+	subject: string;
+	text: string;
+	html: string;
 }
 
 export interface EpisodeReadyEmailData {
-	userFirstName: string
-	episodeTitle: string
-	episodeUrl: string
-	profileName: string
+	userFirstName: string;
+	episodeTitle: string;
+	episodeUrl: string;
+	profileName: string;
+}
+
+export interface EpisodeFailedEmailData {
+	userFirstName: string;
+	episodeTitle: string;
+	helpUrl?: string;
 }
 
 export interface TrialEndingEmailData {
-	userFirstName: string
-	daysRemaining: number
-	upgradeUrl: string
+	userFirstName: string;
+	daysRemaining: number;
+	upgradeUrl: string;
 }
 
 export interface SubscriptionExpiringEmailData {
-	userFirstName: string
-	expirationDate: string
-	renewUrl: string
+	userFirstName: string;
+	expirationDate: string;
+	renewUrl: string;
 }
 
 class EmailService {
-	private client: Resend | null = null
-	private initialized = false
+	private client: Resend | null = null;
+	private initialized = false;
 
 	// Remove constructor - don't initialize on import
 	// constructor() {
@@ -38,23 +44,23 @@ class EmailService {
 
 	private initializeClient() {
 		// Skip if already initialized
-		if (this.initialized) return
-		this.initialized = true
+		if (this.initialized) return;
+		this.initialized = true;
 
 		// Check if Resend is configured
 		if (!process.env.RESEND_API_KEY) {
-			console.warn("Email service not configured. Set RESEND_API_KEY and EMAIL_FROM environment variables.")
-			return
+			console.warn("Email service not configured. Set RESEND_API_KEY and EMAIL_FROM environment variables.");
+			return;
 		}
 
 		try {
-			this.client = new Resend(process.env.RESEND_API_KEY)
+			this.client = new Resend(process.env.RESEND_API_KEY);
 			if (process.env.NODE_ENV === "development") {
-				console.log("Resend client initialized")
+				console.log("Resend client initialized");
 			}
 		} catch (error) {
-			console.error("Failed to initialize Resend client:", error)
-			this.client = null
+			console.error("Failed to initialize Resend client:", error);
+			this.client = null;
 		}
 	}
 
@@ -63,25 +69,25 @@ class EmailService {
 			const user = await prisma.user.findUnique({
 				where: { user_id: userId },
 				select: { email_notifications: true },
-			})
-			return user?.email_notifications ?? false
+			});
+			return user?.email_notifications ?? false;
 		} catch (error) {
-			console.error("Error checking email preferences:", error)
-			return false
+			console.error("Error checking email preferences:", error);
+			return false;
 		}
 	}
 
 	async sendEmail(notification: EmailNotification): Promise<boolean> {
 		// Lazy initialize on first use
-		this.initializeClient()
+		this.initializeClient();
 
 		if (!this.client) {
-			console.warn("Resend client not available - check RESEND_API_KEY")
-			return false
+			console.warn("Resend client not available - check RESEND_API_KEY");
+			return false;
 		}
 		if (!process.env.EMAIL_FROM) {
-			console.warn("EMAIL_FROM not set - cannot send email")
-			return false
+			console.warn("EMAIL_FROM not set - cannot send email");
+			return false;
 		}
 
 		try {
@@ -91,23 +97,23 @@ class EmailService {
 				subject: notification.subject,
 				text: notification.text,
 				html: notification.html,
-			})
+			});
 			if ((result as { error?: unknown }).error) {
-				console.error("Resend send error:", (result as { error: unknown }).error)
-				return false
+				console.error("Resend send error:", (result as { error: unknown }).error);
+				return false;
 			}
-			return true
+			return true;
 		} catch (error) {
-			console.error("Failed to send email via Resend:", error)
-			return false
+			console.error("Failed to send email via Resend:", error);
+			return false;
 		}
 	}
 
 	// Episode ready notification
 	async sendEpisodeReadyEmail(userId: string, userEmail: string, data: EpisodeReadyEmailData): Promise<boolean> {
 		if (!(await this.canSendEmail(userId))) {
-			console.log(`Email notifications disabled for user ${userId}`)
-			return false
+			console.log(`Email notifications disabled for user ${userId}`);
+			return false;
 		}
 
 		const notification: EmailNotification = {
@@ -115,16 +121,71 @@ class EmailService {
 			subject: `🎧 Your episode "${data.episodeTitle}" is ready!`,
 			text: this.createEpisodeReadyTextTemplate(data),
 			html: this.createEpisodeReadyHtmlTemplate(data),
+		};
+
+		return await this.sendEmail(notification);
+	}
+
+	// Episode failed notification
+	async sendEpisodeFailedEmail(userId: string, userEmail: string, data: EpisodeFailedEmailData): Promise<boolean> {
+		if (!(await this.canSendEmail(userId))) {
+			console.log(`Email notifications disabled for user ${userId}`);
+			return false;
 		}
 
-		return await this.sendEmail(notification)
+		const supportEmail = process.env.SUPPORT_EMAIL || "support@podslice.ai";
+		const helpUrl = data.helpUrl || `${process.env.NEXT_PUBLIC_APP_URL || ""}/my-episodes`;
+
+		const text = `Hi ${data.userFirstName},
+
+We couldn't generate your episode "${data.episodeTitle}".
+
+Some videos might not work reliably. You can try again and switch speaker options (single vs multi). If it still doesn't work, please reach out to ${supportEmail} and try again later.
+
+You can manage your episodes here: ${helpUrl}
+
+The PODSLICE Team`;
+
+		const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Episode Generation Failed</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <h1 style="color: #dc2626; font-size: 22px; margin: 0;">We couldn't generate your episode</h1>
+        </div>
+        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Hi ${data.userFirstName},</p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">We couldn't generate your episode "${data.episodeTitle}".</p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">Some videos might not work reliably. You can try again and switch speaker options (single vs multi). If it still doesn't work, please reach out to <a href="mailto:${supportEmail}">${supportEmail}</a> and try again later.</p>
+        <div style="text-align: center; margin: 24px 0;">
+            <a href="${helpUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Go to My Episodes</a>
+        </div>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+        <p style="color: #9ca3af; font-size: 12px; margin: 0;">The PODSLICE Team</p>
+    </div>
+</body>
+</html>`;
+
+		const notification: EmailNotification = {
+			to: userEmail,
+			subject: `We couldn't generate "${data.episodeTitle}"`,
+			text,
+			html,
+		};
+
+		return await this.sendEmail(notification);
 	}
 
 	// Trial ending notification
 	async sendTrialEndingEmail(userId: string, userEmail: string, data: TrialEndingEmailData): Promise<boolean> {
 		if (!(await this.canSendEmail(userId))) {
-			console.log(`Email notifications disabled for user ${userId}`)
-			return false
+			console.log(`Email notifications disabled for user ${userId}`);
+			return false;
 		}
 
 		const notification: EmailNotification = {
@@ -132,16 +193,16 @@ class EmailService {
 			subject: `⏰ Your PODSLICE trial ends in ${data.daysRemaining} day${data.daysRemaining !== 1 ? "s" : ""}`,
 			text: this.createTrialEndingTextTemplate(data),
 			html: this.createTrialEndingHtmlTemplate(data),
-		}
+		};
 
-		return await this.sendEmail(notification)
+		return await this.sendEmail(notification);
 	}
 
 	// Subscription expiring notification
 	async sendSubscriptionExpiringEmail(userId: string, userEmail: string, data: SubscriptionExpiringEmailData): Promise<boolean> {
 		if (!(await this.canSendEmail(userId))) {
-			console.log(`Email notifications disabled for user ${userId}`)
-			return false
+			console.log(`Email notifications disabled for user ${userId}`);
+			return false;
 		}
 
 		const notification: EmailNotification = {
@@ -149,16 +210,16 @@ class EmailService {
 			subject: `🔔 Your PODSLICE subscription expires soon`,
 			text: this.createSubscriptionExpiringTextTemplate(data),
 			html: this.createSubscriptionExpiringHtmlTemplate(data),
-		}
+		};
 
-		return await this.sendEmail(notification)
+		return await this.sendEmail(notification);
 	}
 
 	// Weekly reminder notification
 	async sendWeeklyReminderEmail(userId: string, userEmail: string, userName: string): Promise<boolean> {
 		if (!(await this.canSendEmail(userId))) {
-			console.log(`Email notifications disabled for user ${userId}`)
-			return false
+			console.log(`Email notifications disabled for user ${userId}`);
+			return false;
 		}
 
 		const notification: EmailNotification = {
@@ -166,9 +227,9 @@ class EmailService {
 			subject: `📅 Your weekly PODSLICE episode will be generated soon`,
 			text: this.createWeeklyReminderTextTemplate(userName),
 			html: this.createWeeklyReminderHtmlTemplate(userName),
-		}
+		};
 
-		return await this.sendEmail(notification)
+		return await this.sendEmail(notification);
 	}
 
 	// Email Templates
@@ -183,7 +244,7 @@ Personalized Feed: ${data.profileName}
 Listen now: ${data.episodeUrl}
 
 Happy listening!
-The PODSLICE Team`
+The PODSLICE Team`;
 	}
 
 	private createEpisodeReadyHtmlTemplate(data: EpisodeReadyEmailData): string {
@@ -224,7 +285,7 @@ The PODSLICE Team`
         </div>
     </div>
 </body>
-</html>`
+</html>`;
 	}
 
 	private createTrialEndingTextTemplate(data: TrialEndingEmailData): string {
@@ -236,7 +297,7 @@ Don't lose access to your personalized podcast feeds. Upgrade now to continue cr
 
 Upgrade your account: ${data.upgradeUrl}
 
-The PODSLICE Team`
+The PODSLICE Team`;
 	}
 
 	private createTrialEndingHtmlTemplate(data: TrialEndingEmailData): string {
@@ -289,7 +350,7 @@ The PODSLICE Team`
         </div>
     </div>
 </body>
-</html>`
+</html>`;
 	}
 
 	private createSubscriptionExpiringTextTemplate(data: SubscriptionExpiringEmailData): string {
@@ -301,7 +362,7 @@ To continue enjoying your personalized podcast feeds and weekly episodes, please
 
 Renew now: ${data.renewUrl}
 
-The PODSLICE Team`
+The PODSLICE Team`;
 	}
 
 	private createSubscriptionExpiringHtmlTemplate(data: SubscriptionExpiringEmailData): string {
@@ -344,7 +405,7 @@ The PODSLICE Team`
         </div>
     </div>
 </body>
-</html>`
+</html>`;
 	}
 
 	private createWeeklyReminderTextTemplate(userName: string): string {
@@ -356,7 +417,7 @@ Make sure your personalized feed is set up with the content you want to hear abo
 
 Visit your dashboard: ${process.env.NEXT_PUBLIC_APP_URL}/dashboard
 
-The PODSLICE Team`
+The PODSLICE Team`;
 	}
 
 	private createWeeklyReminderHtmlTemplate(userName: string): string {
@@ -399,7 +460,7 @@ The PODSLICE Team`
         </div>
     </div>
 </body>
-</html>`
+</html>`;
 	}
 
 	// Test email functionality
@@ -432,12 +493,12 @@ The PODSLICE Team`
     </div>
 </body>
 </html>`,
-		}
+		};
 
-		return await this.sendEmail(notification)
+		return await this.sendEmail(notification);
 	}
 }
 
 // Export singleton instance
-export const emailService = new EmailService()
-export default emailService
+export const emailService = new EmailService();
+export default emailService;
