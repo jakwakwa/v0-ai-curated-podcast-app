@@ -154,8 +154,8 @@ export default function LandingPageContent() {
 						</Link>
 					</motion.div>
 					{/* Demo Audio Player */}
-					<div className="mt-4 w-full max-w-3xl mx-auto px-4">
-						<LandingAudioPlayer title="Podslice Sample" subtitle="a short sample" />
+					<div className="mt-4 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
+						<LandingAudioPlayer />
 					</div>
 				</div>
 			</section>
