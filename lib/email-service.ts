@@ -154,20 +154,63 @@ The PODSLICE Team`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Episode Generation Failed</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+<body
+    style='background-color:rgb(255,255,255);font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'>
+    <table
+      border="0"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      align="center">
+      <tbody>
+			<tr style="width:100%">
+				<td>
+					<table
+						align="center"
+						width="100%"
+						border="0"
+						cellpadding="0"
+						cellspacing="0"
+						role="presentation"
+						style="padding:2rem;text-align:center">
+						<tbody>
+							<tr>
+								<td>
+
     <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 24px;">
             <h1 style="color: #dc2626; font-size: 22px; margin: 0;">We couldn't generate your episode</h1>
         </div>
+				    <p style="margin-left:0px;margin-right:0px;margin-top:1rem;margin-bottom:2rem;padding:0px;text-align:center;font-weight:400;font-size:1.5rem;line-height:2rem">
+							<span
+								style="font-weight:700;letter-spacing:-0.05em"
+								>Podslice</span
+							>
+						</p>
+
+
         <p style="color: #374151; font-size: 16px; line-height: 1.5;">Hi ${data.userFirstName},</p>
         <p style="color: #374151; font-size: 15px; line-height: 1.6;">We couldn't generate your episode "${data.episodeTitle}".</p>
         <p style="color: #374151; font-size: 15px; line-height: 1.6;">Some videos might not work reliably. You can try again and switch speaker options (single vs multi). If it still doesn't work, please reach out to <a href="mailto:${supportEmail}">${supportEmail}</a> and try again later.</p>
+
+
         <div style="text-align: center; margin: 24px 0;">
-            <a href="${helpUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Go to My Episodes</a>
+            <a href="${helpUrl}" style="display: inline-block; background-color: #D5A221; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Go to My Episodes</a>
         </div>
+
+
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
         <p style="color: #9ca3af; font-size: 12px; margin: 0;">The PODSLICE Team</p>
     </div>
+
+
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--/$-->
 </body>
 </html>`;
 
@@ -256,35 +299,135 @@ The PODSLICE Team`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Episode is Ready!</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
-        <div style="text-align: center; margin-bottom: 32px;">
-				<h1 style="color: #64748b; font-size: 14px; line-height: 1.5;">
-            Hi ${data.userFirstName}
-				</h1><br><br>
-        <p style="text-size: 14px; margin-bottom: 32px;>Great news! Your weekly podcast episode has been generated and is ready for you to enjoy.
-            Click the button above to start listening to your personalized content.
-        </p>
-            <h1 style="color: #222222; font-size: 28px; margin: 0;">🎧 Your Episode is Ready!</h1>
-        </div>
+ <body
+    style='background-color:rgb(255,255,255);font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'>
+    <table
+      border="0"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      align="center">
+      <tbody>
+        <tr>
+          <td
+            style='background-color:rgb(255,255,255);font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'>
+            <table
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="margin-left:auto;margin-right:auto;width:100%;max-width:600px;padding:0px">
+              <tbody>
+                <tr style="width:100%">
+                  <td>
+                    <table
+                      align="center"
+                      width="100%"
+                      border="0"
+                      cellpadding="0"
+                      cellspacing="0"
+                      role="presentation"
+                      style="padding:2rem;text-align:center">
+                      <tbody>
+                        <tr>
+                          <td>
 
-        <div style="background-color: #DAD0FE; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
-            <h2 style="color: #361349; font-size: 20px; margin: 0 0 12px 0;">${data.episodeTitle}</h2>
-        </div>
+														<h1
+                              style="margin:0px;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(175 229 214)">
+																 Your custom episode has been generated and is ready for you to enjoy.
+                            </h1>
+                            <p
+                              style="margin-top:1rem;margin-bottom:1rem;font-weight:700;font-size:4.5rem;line-height:1;color:rgb(46 43 69)">
+                       Woohoo!  🎧 Great news!
+                            </p>
+                            <p
+                              style="margin-bottom:1rem;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(17,24,39);margin-top:16px">
+                             	 "${data.episodeTitle}"
+                            </p>
+                            <p
+                              style="color:rgb(46 43 69);font-size:0.875rem;line-height:1.25rem;margin-top:16px;margin-bottom:16px">
+                              Your episode has been processed!
+                            </p>
 
-        <div style="text-align: center; margin-bottom: 32px;">
-            <a href="${data.episodeUrl}" style="display: inline-block; color: #573BF6; padding: 12px 24px; text-decoration: underline; border-radius: 6px; font-weight: 500;">Listen Now</a>
-        </div>
-        <hr style="border: none; border-top: 1px solid #26574E; margin: 32px 0; height: 2px; background:26574E;">
+                            <hr style="margin-top:1.5rem;width:100%;border:none;border-top:1px solid #B27CD9;border-color:#8E00FB" />
 
-        <div style="text-align: center;">
-            <p style="color: #29223E; font-size: 12px; margin: 0;">
-                Happy listening!<br>
-                The PODSLICE.ai Team
-            </p>
-        </div>
-    </div>
-</body>
+														<div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
+																<div style="text-align: center; margin-bottom: 32px;">
+																<h1 style="color: #050506; font-size: 18px; line-height: 1.5;">
+																		Hi ${data.userFirstName} 
+																</h1><br><br>
+																<p style="text-size: 14px; margin-bottom: 32px;>
+																		
+																</p>
+																		
+																</div>
+
+																<div style="background-color: #DAD0FE; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
+																		<h2 style="color: #361349; font-size: 20px; margin: 0 0 12px 0;">${data.episodeTitle}</h2>
+																</div>
+
+																<div style="text-align: center; margin-bottom: 32px;">
+																		<a href="${data.episodeUrl}" style="display: inline-block; color: #573BF6; padding: 12px 24px; text-decoration: underline; border-radius: 6px; font-weight: 500;">Listen Now</a>
+																</div>
+																<hr style="border: none; border-top: 1px solid #26574E; margin: 32px 0; height: 2px; background:26574E;">
+
+																<div style="text-align: center;">
+																		<p style="color: #29223E; font-size: 12px; margin: 0;">
+																				Happy listening!<br>
+																				The PODSLICE.ai Team
+																		</p>
+																</div>
+														</div>
+
+														<table
+															align="center"
+															width="100%"
+															border="0"
+															cellpadding="0"
+															cellspacing="0"
+															role="presentation"
+															style="padding-bottom:1.5rem;text-align:center">
+															<tbody>
+																<tr>
+																	<td>
+																		<p
+																			style="color:rgb(17,24,39);font-size:1.25rem;line-height:2rem;margin-top:16px;margin-bottom:16px">
+																			If you found this summary useful 
+																			<br />and want to share with other's
+																		</p>
+																		<a
+																			href="${data.episodeUrl}"
+																			style="margin-top:1rem;display:inline-flex;align-items:center;border-radius:9999px;background-color:#6E0993;padding-left:3rem;padding-right:3rem;padding-top:1rem;padding-bottom:1rem;text-align:center;font-weight:700;font-size:0.875rem;line-height:1.25rem;color:rgb(176 243 236);text-decoration-line:none"
+																			target="_blank"
+																			>Share your summarised audio episode</a
+																		><a
+																			href="https://www.podslice.ai/dashboard"
+																			style="margin-top:1rem;display:block;align-items:center;text-align:center;font-weight:700;color:rgb(17,24,39);font-size:0.875rem;line-height:1.25rem;text-decoration-line:none"
+																			target="_blank"
+																			>Go to your dashboard</a
+																		>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+														
+													</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--/$-->
+  </body>
 </html>`;
 	}
 

@@ -508,11 +508,11 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="bg-[#0d0f1429] p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0">
+			<SheetContent side="right" className="bg-sidebar p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0 border-l-2 border-l-[#192e2ce1]">
 				{/* Sections */}
 
 				{/* Hero Section starts */}
-				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center hero-bg">
+				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center sheet-hero-bg">
 					{/* Artwork + Meta */}
 
 					{episode &&
@@ -547,7 +547,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						})()}
 
 					<SheetHeader>
-						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center px-6">
+						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
@@ -599,7 +599,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					</AnimatePresence>
 				</div>
 
-				<div className="bg-[#0300057d] backdrop-blur-sm  w-ful h-full flex p-8 flex-col my-0 gap-8">
+				<div className="sheet-controls-bg backdrop-blur-md  w-ful h-full flex p-8 flex-col my-0 gap-2 border-t-2 border-t-[#2f2f454a]">
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button
@@ -627,7 +627,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							tabIndex={0}
 							onClick={handleProgressClick}
 							onKeyDown={handleProgressKeyDown}
-							className="group relative h-[5px] w-full rounded-[11px] bg-[#523A3A] transition-colors">
+							className="group relative h-[7px] w-full outline outline-[#ffffff1e] rounded-[11px] bg-[#080b0f] transition-colors">
 							<div
 								className="absolute inset-y-0 left-0 rounded-[11px] transition-all"
 								style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg, rgba(91,47,142,1) 0%, rgba(25,178,117,0.81) 40%, rgba(101,199,231,1) 100%)" }}

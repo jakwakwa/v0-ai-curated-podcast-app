@@ -149,7 +149,7 @@
 
 .progress {
 	height: 100%;
-	background: linear-gradient(90deg, #5900ff 0%, #d7a61e 100%);
+	background: linear-gradient(90deg, #5900ff 0%, #1ED759 100%);
 	border-radius: 3px;
 	transition: width 0.1s ease;
 	position: relative;
