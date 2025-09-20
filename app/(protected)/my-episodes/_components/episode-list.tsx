@@ -13,9 +13,10 @@ type UserEpisodeWithSignedUrl = UserEpisode & { signedAudioUrl: string | null };
 
 type EpisodeListProps = {
 	completedOnly?: boolean;
+	initialEpisodeId?: string | undefined;
 };
 
-export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
+export function EpisodeList({ completedOnly = false, initialEpisodeId }: EpisodeListProps) {
 	const [episodes, setEpisodes] = useState<UserEpisodeWithSignedUrl[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -41,6 +42,63 @@ export function EpisodeList({ completedOnly = false }: EpisodeListProps) {
 
 		fetchEpisodes();
 	}, [completedOnly]);
+
+	// If we arrived via deep link, fetch the single episode immediately to avoid showing stale progress
+	useEffect(() => {
+		if (!initialEpisodeId) return;
+		let aborted = false;
+		(async () => {
+			try {
+				const res = await fetch(`/api/user-episodes/${initialEpisodeId}`);
+				if (!res.ok) return;
+				const ep: (UserEpisode & { signedAudioUrl: string | null }) = await res.json();
+				if (aborted) return;
+				if (ep && ep.status === "COMPLETED" && ep.signedAudioUrl) {
+					const normalizedEpisode: UserEpisode = {
+						episode_id: ep.episode_id,
+						episode_title: ep.episode_title,
+						gcs_audio_url: ep.signedAudioUrl,
+						summary: ep.summary,
+						created_at: ep.created_at,
+						updated_at: ep.updated_at,
+						user_id: ep.user_id,
+						youtube_url: ep.youtube_url,
+						transcript: ep.transcript,
+						status: ep.status,
+						duration_seconds: ep.duration_seconds,
+					};
+					setEpisode(normalizedEpisode);
+				}
+			} catch { }
+		})();
+		return () => {
+			aborted = true;
+		};
+	}, [initialEpisodeId, setEpisode]);
+
+	// Auto-select and open the episode if initialEpisodeId is provided (deep link)
+	useEffect(() => {
+		if (!initialEpisodeId || episodes.length === 0) return;
+		const targetId = String(initialEpisodeId);
+		const match = episodes.find(e => e.episode_id === targetId);
+		if (!match || match.status !== "COMPLETED" || !match.signedAudioUrl) return;
+
+		const normalizedEpisode: UserEpisode = {
+			episode_id: match.episode_id,
+			episode_title: match.episode_title,
+			gcs_audio_url: match.signedAudioUrl,
+			summary: match.summary,
+			created_at: match.created_at,
+			updated_at: match.updated_at,
+			user_id: match.user_id,
+			youtube_url: match.youtube_url,
+			transcript: match.transcript,
+			status: match.status,
+			duration_seconds: match.duration_seconds,
+		};
+		// Ensure we always set fresh episode on deep link
+		setEpisode(normalizedEpisode);
+	}, [initialEpisodeId, episodes, setEpisode]);
 
 	const handleViewRunLog = async (episodeId: string): Promise<void> => {
 		try {
