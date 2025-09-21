@@ -50,79 +50,101 @@ async function getEpisodeWithSignedUrl(id: string, currentUserId: string): Promi
 	return { ...safe, signedAudioUrl };
 }
 
+// This function's goal is to extract PLAIN TEXT for a quick summary list.
+// It will intentionally strip markdown formatting from the extracted lines.
 function extractKeyTakeaways(markdown?: string | null): string[] {
 	if (!markdown) return [];
 	const lines = markdown.split(/\r?\n/);
 	const bullets: string[] = [];
 	for (const line of lines) {
-		const trimmed = line.trim();
-		if (trimmed.startsWith("-") || trimmed.startsWith("*") || /^\d+\./.test(trimmed)) {
-			const item = trimmed.replace(/^(-|\*|\d+\.)\s*/, "").trim();
-			if (item) bullets.push(item);
-			continue;
-		}
-		// Also treat lines that begin with bold label as bullets, e.g. **Topic:** detail
-		const boldMatch = trimmed.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
-		if (boldMatch) {
-			const title = boldMatch[1].trim();
-			const rest = (boldMatch[2] || "").trim();
-			const item = rest ? `${title}: ${rest}` : title;
-			bullets.push(item);
-			continue;
-		}
 		if (bullets.length >= 5) break;
+
+		const trimmed = line.trim();
+		let item: string | null = null;
+
+		if (trimmed.startsWith("-") || trimmed.startsWith("*") || /^\d+\./.test(trimmed)) {
+			item = trimmed.replace(/^(-|\*|\d+\.)\s*/, "");
+		} else {
+			const boldMatch = trimmed.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
+			if (boldMatch) {
+				const title = boldMatch[1].trim();
+				const rest = (boldMatch[2] || "").trim();
+				item = rest ? `${title}: ${rest}` : title;
+			}
+		}
+
+		if (item) {
+			// Remove all asterisks from the final item to get plain text.
+			const cleanItem = item.replace(/\*/g, "").trim();
+			if (cleanItem) {
+				bullets.push(cleanItem);
+			}
+		}
 	}
 	return bullets;
 }
 
-function normalizeSummaryMarkdown(input: string): string {
+
+/**
+ * REFACTORED FUNCTION V2
+ * Intelligently cleans and normalizes markdown from LLM output, preserving
+ * valid markdown for formatting while fixing common errors.
+ * @param {string | null | undefined} input The raw markdown string.
+ * @returns {string} The cleaned markdown string ready for rendering.
+ */
+function normalizeSummaryMarkdown(input: string | null | undefined): string {
+	if (!input) return "";
+
 	const lines = input.split(/\r?\n/).map(line => {
-		const trimmed = line.trim();
-		// Normalize noisy headings with stray asterisks
-		if (/^\*+\s*Key\s+Highlights:?\*+\s*$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
-			return "### Key Highlights";
-		}
-		if (/^\*+\s*Key\s+Takeaways:?\*+\s*$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
-			return "### Key Takeaways";
+		let trimmed = line.trim();
+
+		// Rule 1: Normalize messy headings to clean H3 markdown
+		if (/^\*+\s*Key\s+(Highlights|Takeaways):?\*+\s*$/i.test(trimmed)) {
+			return `### Key ${trimmed.match(/Highlights/i) ? "Highlights" : "Takeaways"}`;
 		}
 		if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
 			return "### Summary";
 		}
-		// Convert bold label lines to bullets, e.g. **Topic:** details
-		const boldLabel = trimmed.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
-		if (boldLabel) {
-			const title = boldLabel[1].trim();
-			const rest = (boldLabel[2] || "").trim();
-			return `- ${title}${rest ? `: ${rest}` : ""}`;
+
+		// Rule 2: Fix list items where '*' is attached to a word (e.g., "*Word")
+		// by ensuring a space, turning it into a valid list item.
+		if (trimmed.startsWith("*") && !trimmed.startsWith("* ")) {
+			trimmed = trimmed.replace(/^\*/, "* ");
 		}
-		// Convert leading "*Word" (no space) into a bullet
-		if (/^\*(\S)/.test(trimmed)) {
-			return `- ${trimmed.slice(1).trimStart()}`;
+
+		// Rule 3: Clean up decorative lines or scene directions.
+		// e.g., "(**Host 1:**)" becomes "(Host 1:)"
+		// This regex finds content inside parentheses and removes asterisks within them.
+		if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
+			return trimmed.replace(/\*/g, "");
 		}
-		// Remove unmatched trailing '**' at EOL (common LLM artifact)
-		const starPairs = (trimmed.match(/\*\*/g) || []).length;
-		if (starPairs === 1 && trimmed.endsWith("**")) {
+
+		// Rule 4: Handle lines that are entirely bolded, often used as pseudo-headings.
+		// e.g. "**A key point about Sola Scriptura**" -> "A key point about Sola Scriptura"
+		// We'll un-bold them to avoid overly large text blocks.
+		if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
+			const coreText = trimmed.substring(2, trimmed.length - 2);
+			// If there are no more asterisks inside, it's safe to un-bold.
+			if (!coreText.includes("*")) {
+				return coreText;
+			}
+		}
+
+		// Rule 5: Remove stray, unmatched trailing '**' which is a common LLM artifact.
+		if ((trimmed.match(/\*\*/g) || []).length % 2 === 1 && trimmed.endsWith("**")) {
 			return trimmed.slice(0, -2).trimEnd();
 		}
-		return line;
+
+		return trimmed; // Return the processed line
 	});
 
-	return (
-		lines
-			.join("\n")
-			// Normalize any remaining heading cue
-			.replace(/^\s*\*+\s*Key\s+Highlights:?\s*\*+\s*$/gim, "### Key Highlights")
-			.replace(/^\s*\*+\s*Key\s+Takeaways:?\s*\*+\s*$/gim, "### Key Takeaways")
-			// Remove leading/trailing stray asterisks on lines
-			.replace(/^\s*\*+(?=\S)/gm, "")
-			.replace(/\*+\s*$/gm, "")
-			// Strip any remaining emphasis markers (bold/italic) to plain text
-			.replace(/\*\*(.*?)\*\*/g, "$1")
-			.replace(/\*(.*?)\*/g, "$1")
-			// Collapse excessive blank lines
-			.replace(/\n{3,}/g, "\n\n")
-	);
+	// Join lines and perform final multi-line cleanup
+	return lines.join("\n")
+		// Collapse more than two consecutive newlines into just two.
+		.replace(/\n{3,}/g, "\n\n")
+		.trim();
 }
+
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
 	const { id } = await params;
@@ -143,7 +165,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
 	const takeaways = extractKeyTakeaways(episode.summary);
 
-	// Normalize for the audio player: set gcs_audio_url to signed URL when available
 	const playableEpisode: UserEpisode = {
 		episode_id: episode.episode_id,
 		user_id: episode.user_id,
@@ -182,7 +203,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 						<PlayAndShare episode={playableEpisode} canPlay={episode.status === "COMPLETED" && !!episode.signedAudioUrl} />
 					</div>
 
-
 					{takeaways.length > 0 ? (
 						<div className="mt-4">
 							<h3 className="text-base font-semibold mb-2 text-[#d59be5]">Key Takeaways</h3>
@@ -201,11 +221,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 					) : (
 						<p className="text-sm text-muted-foreground">No summary available.</p>
 					)}
-
-
-
 				</div>
 			</div>
 		</div>
 	);
 }
+
