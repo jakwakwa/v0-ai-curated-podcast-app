@@ -142,6 +142,7 @@ export function EpisodeList({ completedOnly = false, initialEpisodeId }: Episode
 								publishedAt={episode.created_at}
 								durationSeconds={episode.duration_seconds ?? null}
 								youtubeUrl={episode.youtube_url}
+								detailsHref={`/my-episodes/${episode.episode_id}`}
 								actions={
 									<>
 										{episode.status === "COMPLETED" && episode.signedAudioUrl && (

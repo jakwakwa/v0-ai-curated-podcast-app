@@ -427,7 +427,7 @@ export const generateUserEpisode = inngest.createFunction(
 				const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
 				const profileName = profile?.name ?? "Your personalized feed";
 				const baseUrl = process.env.EMAIL_LINK_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
-				const episodeUrl = `${baseUrl}/my-episodes?episodeId=${encodeURIComponent(userEpisodeId)}`;
+				const episodeUrl = `${baseUrl}/my-episodes/${encodeURIComponent(userEpisodeId)}`;
 
 				await emailService.sendEpisodeReadyEmail(episode.user_id, user.email, {
 					userFirstName,

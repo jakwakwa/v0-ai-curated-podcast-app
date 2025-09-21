@@ -19,7 +19,9 @@ export default async function MyEpisodesPage({
 
 	return (
 		<div className="flex episode-card-wrapper mt-4 flex-col justify-center mx-auto w-screen md:w-screen max-w-full">
-			<H3 className="pl-3">My Episodes</H3>
+			<div className="mb-8">
+				<H3 className="pl-3">My Episodes</H3>
+			</div>
 			<EpisodeList completedOnly initialEpisodeId={initialEpisodeId} />
 		</div>
 	);

@@ -18,9 +18,11 @@ type EpisodeCardProps = {
 	actions?: React.ReactNode;
 	// YouTube channel props for user episodes
 	youtubeUrl?: string | null;
+	// Optional: link to details page for this episode
+	detailsHref?: string | null;
 };
 
-export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions, youtubeUrl }: EpisodeCardProps) {
+export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions, youtubeUrl, detailsHref }: EpisodeCardProps) {
 	// biome-ignore lint/suspicious/noExplicitAny: <temp>
 	const _Root: any = as;
 	const date: Date = publishedAt ? new Date(publishedAt) : new Date();
@@ -76,6 +78,13 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 						<Badge variant="secondary">
 							<DurationIndicator seconds={durationSeconds ?? null} />
 						</Badge>
+						{detailsHref ? (
+							<a
+								href={detailsHref}
+								className="inline-flex items-center px-2 py-1 text-xs rounded-md border border-[#98CAD35C] hover:bg-[#ffffff0d] transition-colors">
+								View
+							</a>
+						) : null}
 					</div>
 				</div>
 			</div>

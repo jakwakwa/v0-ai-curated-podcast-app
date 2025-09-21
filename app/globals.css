@@ -347,7 +347,7 @@
 
 
 		.episode-card-wrapper {
-
+			padding: 30px;
 			background: #1C1C2079;
 			background-image: linear-gradient(to bottom, #17181B57, #1D1D24);
 			border: 1px solid #1e262884 !important;

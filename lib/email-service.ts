@@ -335,52 +335,35 @@ The PODSLICE Team`;
                         <tr>
                           <td>
 
+													<div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
+																<div style="text-align: center; margin-bottom: 32px;">
+																<h1 style="color: #050506; font-size: 21px; line-height: 1.5; font-weight: bold">
+																		Hi ${data.userFirstName} 
+																</h1><br>
+																</div>
+
+													
+																<hr style="border: none; border-top: 1px solid #26574E; margin: 32px 0; height: 3px; background:26574E;">
+
+															
+														</div>
+
 														<h1
                               style="margin:0px;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(175 229 214)">
 																 Your custom episode has been generated and is ready for you to enjoy.
                             </h1>
                             <p
-                              style="margin-top:1rem;margin-bottom:1rem;font-weight:700;font-size:4.5rem;line-height:1;color:rgb(46 43 69)">
-                       Woohoo!  🎧 Great news!
+                              style="margin-top:1rem;margin-bottom:1rem;font-weight:700;font-size:3rem;line-height:1;color:rgb(46 43 69)">
+                      			 		Woohoo! Great news!
                             </p>
                             <p
                               style="margin-bottom:1rem;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(17,24,39);margin-top:16px">
-                             	 "${data.episodeTitle}"
-                            </p>
-                            <p
-                              style="color:rgb(46 43 69);font-size:0.875rem;line-height:1.25rem;margin-top:16px;margin-bottom:16px">
-                              Your episode has been processed!
+                             	 "🎧 ${data.episodeTitle}"
                             </p>
 
                             <hr style="margin-top:1.5rem;width:100%;border:none;border-top:1px solid #B27CD9;border-color:#8E00FB" />
 
-														<div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
-																<div style="text-align: center; margin-bottom: 32px;">
-																<h1 style="color: #050506; font-size: 18px; line-height: 1.5;">
-																		Hi ${data.userFirstName} 
-																</h1><br><br>
-																<p style="text-size: 14px; margin-bottom: 32px;>
-																		
-																</p>
-																		
-																</div>
-
-																<div style="background-color: #DAD0FE; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
-																		<h2 style="color: #361349; font-size: 20px; margin: 0 0 12px 0;">${data.episodeTitle}</h2>
-																</div>
-
-																<div style="text-align: center; margin-bottom: 32px;">
-																		<a href="${data.episodeUrl}" style="display: inline-block; color: #573BF6; padding: 12px 24px; text-decoration: underline; border-radius: 6px; font-weight: 500;">Listen Now</a>
-																</div>
-																<hr style="border: none; border-top: 1px solid #26574E; margin: 32px 0; height: 2px; background:26574E;">
-
-																<div style="text-align: center;">
-																		<p style="color: #29223E; font-size: 12px; margin: 0;">
-																				Happy listening!<br>
-																				The PODSLICE.ai Team
-																		</p>
-																</div>
-														</div>
+														
 
 														<table
 															align="center"
@@ -400,9 +383,9 @@ The PODSLICE Team`;
 																		</p>
 																		<a
 																			href="${data.episodeUrl}"
-																			style="margin-top:1rem;display:inline-flex;align-items:center;border-radius:9999px;background-color:#6E0993;padding-left:3rem;padding-right:3rem;padding-top:1rem;padding-bottom:1rem;text-align:center;font-weight:700;font-size:0.875rem;line-height:1.25rem;color:rgb(176 243 236);text-decoration-line:none"
+																			style="margin-top:1rem;display:inline-flex;align-items:center;border-radius:9999px;background-color:#025E5F;padding-left:3rem;padding-right:3rem;padding-top:1rem;padding-bottom:1rem;text-align:center;font-weight:700;font-size:0.875rem;line-height:1.25rem;color:rgb(225 242 240);text-decoration-line:none"
 																			target="_blank"
-																			>Share your summarised audio episode</a
+																			>View your episode!</a
 																		><a
 																			href="https://www.podslice.ai/dashboard"
 																			style="margin-top:1rem;display:block;align-items:center;text-align:center;font-weight:700;color:rgb(17,24,39);font-size:0.875rem;line-height:1.25rem;text-decoration-line:none"

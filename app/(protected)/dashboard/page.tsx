@@ -255,6 +255,7 @@ export default function CurationProfileManagementPage() {
 													title={`${episode.episode_title}`}
 													description={episode.summary}
 													publishedAt={episode.updated_at}
+													detailsHref={`/my-episodes/${episode.episode_id}`}
 													youtubeUrl={episode.youtube_url}
 													actions={
 														episode.status === "COMPLETED" &&
