@@ -55,7 +55,7 @@ export default function EpisodesPage() {
 			/>
 
 			{isLoading ? (
-				<div className="px-0 md:p-8 mx-auto">
+				<div className="px-0 md:p-6 mx-auto">
 					<div className="flex items-center justify-center min-h-[500px]">
 						<AppSpinner variant={"wave"} size="lg" label="Loading Podslice Episodes..." />
 					</div>
