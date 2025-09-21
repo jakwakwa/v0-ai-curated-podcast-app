@@ -6,6 +6,8 @@ import * as motion from "motion/react-client";
 import Image from "next/image";
 import type { FC } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
@@ -36,6 +38,55 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	// Get YouTube channel name and image for user episodes
 	const youtubeUrl = episode && "youtube_url" in episode ? episode.youtube_url : null;
 	const { channelName: youtubeChannelName, channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl);
+
+	// Normalize markdown-like summaries & descriptions to avoid stray asterisks or malformed headings
+	const normalizeSummaryMarkdown = useCallback((input: string): string => {
+		const lines = input.split(/\r?\n/).map(line => {
+			const trimmed = line.trim();
+			if (/^\*+\s*Key\s+Highlights:?\*+\s*$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
+				return "### Key Highlights";
+			}
+			if (/^\*+\s*Key\s+Takeaways:?\*+\s*$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
+				return "### Key Takeaways";
+			}
+			if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
+				return "### Summary";
+			}
+			const boldLabel = trimmed.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
+			if (boldLabel) {
+				const title = boldLabel[1].trim();
+				const rest = (boldLabel[2] || "").trim();
+				return `- ${title}${rest ? `: ${rest}` : ""}`;
+			}
+			if (/^\*(\S)/.test(trimmed)) {
+				return `- ${trimmed.slice(1).trimStart()}`;
+			}
+			const starPairs = (trimmed.match(/\*\*/g) || []).length;
+			if (starPairs === 1 && trimmed.endsWith("**")) {
+				return trimmed.slice(0, -2).trimEnd();
+			}
+			return line;
+		});
+
+		return lines
+			.join("\n")
+			.replace(/^\s*\*+\s*Key\s+Highlights:?\s*\*+\s*$/gim, "### Key Highlights")
+			.replace(/^\s*\*+\s*Key\s+Takeaways:?\s*\*+\s*$/gim, "### Key Takeaways")
+			.replace(/^\s*\*+(?=\S)/gm, "")
+			.replace(/\*+\s*$/gm, "")
+			.replace(/\*\*(.*?)\*\*/g, "$1")
+			.replace(/\*(.*?)\*/g, "$1")
+			.replace(/\n{3,}/g, "\n\n");
+	}, []);
+
+	const rawSummaryOrDescription = useMemo(() => {
+		if (!episode) return null;
+		if ("summary" in episode && episode.summary) return episode.summary as string;
+		if ("description" in episode && episode.description) return episode.description as string;
+		return null;
+	}, [episode]);
+
+	const normalizedSummary = useMemo(() => (rawSummaryOrDescription ? normalizeSummaryMarkdown(rawSummaryOrDescription) : null), [rawSummaryOrDescription, normalizeSummaryMarkdown]);
 
 	const clearCanPlayDebounce = useCallback(() => {
 		if (canPlayDebounceRef.current) {
@@ -287,7 +338,9 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				} catch { }
 				// Force reload even when src strings might match (e.g., signed urls reused)
 				if (hasEpisodeChanged) {
-					try { audio.removeAttribute("src"); } catch { }
+					try {
+						audio.removeAttribute("src");
+					} catch { }
 				}
 				audio.src = audioSrc;
 				lastEpisodeKeyRef.current = episodeKey;
@@ -571,7 +624,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								type="button"
 								onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
 								className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/90 hover:text-[var(--audio-sheet-foreground)] transition-colors border border-[var(--audio-sheet-border)] rounded-md px-3 py-1 bg-[#261f23]">
-								{isTranscriptExpanded ? "Hide Transcription" : "Show Transcription"}
+								{isTranscriptExpanded ? "Hide summary" : "Show summary"}
 								{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
 							</button>
 						</div>
@@ -582,7 +635,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				<div className="bg-sidebar rounded-none">
 					{/* Transcript */}
 					<AnimatePresence initial={false}>
-						{episode && isTranscriptExpanded && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)) ? (
+						{episode && isTranscriptExpanded && (normalizedSummary || ("transcript" in episode && episode.transcript)) ? (
 							<motion.div
 								key="transcript"
 								initial={{ height: 0, opacity: 0 }}
@@ -592,7 +645,13 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								className="flex flex-col gap-[10px]">
 								<div
 									className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "px-12 max-h-[280px]" : "max-h-[150px]"}`}>
-									{("summary" in episode && episode.summary) || ("description" in episode && episode.description)}
+									{normalizedSummary ? (
+										<div className="prose prose-invert max-w-none">
+											<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizedSummary}</ReactMarkdown>
+										</div>
+									) : "transcript" in episode && episode.transcript ? (
+										<div className="whitespace-pre-wrap">{episode.transcript}</div>
+									) : null}
 								</div>
 							</motion.div>
 						) : null}
