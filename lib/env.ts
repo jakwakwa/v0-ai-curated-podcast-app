@@ -24,9 +24,9 @@ export function getAppUrl(): string {
 
 export function getClerkSignInUrl(): string {
 	if (isProduction()) {
-		return process.env.NEXT_PUBLIC_CLERK_PROD_SIGN_IN_URL || process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-in";
+		return process.env.NEXT_PUBLIC_CLERK_PROD_SIGN_UP_URL || process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/sign-up";
 	}
-	return process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-in";
+	return process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-up";
 }
 
 export function getClerkSignUpUrl(): string {
