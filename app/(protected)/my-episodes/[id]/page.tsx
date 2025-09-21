@@ -59,10 +59,48 @@ function extractKeyTakeaways(markdown?: string | null): string[] {
 		if (trimmed.startsWith("-") || trimmed.startsWith("*") || /^\d+\./.test(trimmed)) {
 			const item = trimmed.replace(/^(-|\*|\d+\.)\s*/, "").trim();
 			if (item) bullets.push(item);
+			continue;
+		}
+		// Also treat lines that begin with bold label as bullets, e.g. **Topic:** detail
+		const boldMatch = trimmed.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
+		if (boldMatch) {
+			const title = boldMatch[1].trim();
+			const rest = (boldMatch[2] || "").trim();
+			const item = rest ? `${title}: ${rest}` : title;
+			bullets.push(item);
+			continue;
 		}
 		if (bullets.length >= 5) break;
 	}
 	return bullets;
+}
+
+function normalizeSummaryMarkdown(input: string): string {
+	const lines = input.split(/\r?\n/).map(line => {
+		const trimmed = line.trim();
+		// Normalize noisy headings with stray asterisks
+		if (/^\*+?\s*Key\s+Highlights:?\*+?$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
+			return "### Key Highlights";
+		}
+		if (/^\*+?\s*Key\s+Takeaways:?\*+?$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
+			return "### Key Takeaways";
+		}
+		if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
+			return "### Summary";
+		}
+		// Convert leading "*Word" (no space) into a bullet
+		if (/^\*(\S)/.test(trimmed)) {
+			return `- ${trimmed.slice(1).trimStart()}`;
+		}
+		// Remove unmatched trailing '**' at EOL (common LLM artifact)
+		const starPairs = (trimmed.match(/\*\*/g) || []).length;
+		if (starPairs === 1 && trimmed.endsWith("**")) {
+			return trimmed.slice(0, -2).trimEnd();
+		}
+		return line;
+	});
+
+	return lines.join("\n").replace(/\n{3,}/g, "\n\n");
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -137,7 +175,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
 					{episode.summary ? (
 						<div className="prose prose-invert text-sm leading-relaxed max-w-none">
-							<ReactMarkdown remarkPlugins={[remarkGfm]}>{episode.summary}</ReactMarkdown>
+							<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeSummaryMarkdown(episode.summary)}</ReactMarkdown>
 						</div>
 					) : (
 						<p className="text-sm text-muted-foreground">No summary available.</p>
