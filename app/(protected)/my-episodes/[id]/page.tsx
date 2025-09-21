@@ -1,10 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
+import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { getStorageReader, parseGcsUri } from "@/lib/gcs";
 import { prisma } from "@/lib/prisma";
 import type { UserEpisode } from "@/lib/types";
@@ -84,7 +86,6 @@ function extractKeyTakeaways(markdown?: string | null): string[] {
 	return bullets;
 }
 
-
 /**
  * REFACTORED FUNCTION V2
  * Intelligently cleans and normalizes markdown from LLM output, preserving
@@ -139,12 +140,14 @@ function normalizeSummaryMarkdown(input: string | null | undefined): string {
 	});
 
 	// Join lines and perform final multi-line cleanup
-	return lines.join("\n")
-		// Collapse more than two consecutive newlines into just two.
-		.replace(/\n{3,}/g, "\n\n")
-		.trim();
+	return (
+		lines
+			.join("\n")
+			// Collapse more than two consecutive newlines into just two.
+			.replace(/\n{3,}/g, "\n\n")
+			.trim()
+	);
 }
-
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
 	const { id } = await params;
@@ -183,29 +186,31 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 		<div className="episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6">
 			<div>
 				<div className="flex flex-col gap-2">
-					<div className="text-xl md:text-2xl">{episode.episode_title}</div>
+					<div className="text-xl font-semibold text-shadow-lg text-shadow-slate-900 md:text-2xl">{episode.episode_title}</div>
 					<div className="text-sm text-[#8A97A5D4]/80 episode-p pr-[10%] mb-1">
-						<div className="flex flex-wrap items-center gap-2">
+						<div className="flex flex-wrap items-center gap-2 my-2">
 							<Badge variant="outline">{episode.status}</Badge>
 							{episode.duration_seconds ? <Badge variant="secondary">{Math.round(episode.duration_seconds / 60)} min</Badge> : null}
 							<Badge variant="secondary">{new Date(episode.created_at).toLocaleString()}</Badge>
+							<div className="text-xs text-muted-foreground break-words border-1 border-[#dcd4df36] rounded px-2 py-0 flex gap-2 items-center">
+								<a className="no-underline hover:underline" href={episode.youtube_url} target="_blank" rel="noreferrer">
+									Youtube Url
+								</a>
+								<span className="font-medium uppercase text-[0.6rem] text-[#9be5c9]">
+									<ExternalLink width={13} />
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div className="space-y-4">
-					<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-						<div className="text-sm text-muted-foreground break-words">
-							<span className="font-medium">Source:</span>{" "}
-							<a className="underline" href={episode.youtube_url} target="_blank" rel="noreferrer">
-								{episode.youtube_url}
-							</a>
-						</div>
+				<div className="mt-4 my-8">
+					<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-start">
 						<PlayAndShare episode={playableEpisode} canPlay={episode.status === "COMPLETED" && !!episode.signedAudioUrl} />
 					</div>
-
+					<Separator className="my-8" />
 					{takeaways.length > 0 ? (
 						<div className="mt-4">
-							<h3 className="text-base font-semibold mb-2 text-[#d59be5]">Key Takeaways</h3>
+							<h3 className="text-base font-semibold mb-2 text-[rgb(133,239,177)]">Key Takeaways</h3>
 							<ul className="list-disc pl-6 space-y-1 text-[#c0e9d1]">
 								{takeaways.map((t, i) => (
 									<li key={i}>{t}</li>
@@ -214,8 +219,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 						</div>
 					) : null}
 
+					<Separator className="my-8" />
+
 					{episode.summary ? (
-						<div className="prose prose-invert text-sm leading-relaxed max-w-none">
+						<div className="prose prose-invert text-base my-8 leading-[1.8] max-w-none">
 							<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeSummaryMarkdown(episode.summary)}</ReactMarkdown>
 						</div>
 					) : (
@@ -226,4 +233,3 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 		</div>
 	);
 }
-

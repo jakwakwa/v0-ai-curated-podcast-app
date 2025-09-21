@@ -573,7 +573,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							// For bundle episodes, use the episode's image_url
 							if ("image_url" in episode && episode.image_url) {
 								return (
-									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[120px] aspect-square overflow-hidden">
 										<Image src={episode.image_url} alt={episode.title} width={200} height={200} className="object-fit" />
 									</div>
 								);
@@ -582,7 +582,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							if ("youtube_url" in episode) {
 								if (youtubeChannelImage) {
 									return (
-										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-lg shadow-black/80  mx-auto max-w-[120px] aspect-square overflow-hidden">
 											<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
 										</div>
 									);
@@ -590,7 +590,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								// Show loading state for user episodes while fetching channel image
 								if (isChannelLoading) {
 									return (
-										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square flex items-center justify-center">
+										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[120px] aspect-square flex items-center justify-center">
 											<Loader2 className="h-6 w-6 text-gray-400" />
 										</div>
 									);
@@ -600,10 +600,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						})()}
 
 					<SheetHeader>
-						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
+						<SheetTitle className="truncate text-[21.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
-						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
+						<SheetDescription className="truncate text-[14.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#8856f3] text-center">
 							{episode
 								? "title" in episode
 									? (() => {
@@ -632,7 +632,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				</div>
 				{/* Hero Section ends */}
 
-				<div className="bg-sidebar rounded-none">
+				<div className="bg-[#00000048] backdrop-blur-xs rounded-none">
 					{/* Transcript */}
 					<AnimatePresence initial={false}>
 						{episode && isTranscriptExpanded && (normalizedSummary || ("transcript" in episode && episode.transcript)) ? (
@@ -644,7 +644,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								transition={{ type: "spring", stiffness: 260, damping: 30 }}
 								className="flex flex-col gap-[10px]">
 								<div
-									className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "px-12 max-h-[280px]" : "max-h-[150px]"}`}>
+									className={`overflow-y-auto rounded-[8px] px-8 py-6 lg:p-[12px] text-[12px] lg:text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all lg:px-10 lg:py-8 ${isTranscriptExpanded ? " max-h-[280px]" : "max-h-[120px]"}`}>
 									{normalizedSummary ? (
 										<div className="prose prose-invert max-w-none">
 											<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizedSummary}</ReactMarkdown>
@@ -658,7 +658,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					</AnimatePresence>
 				</div>
 
-				<div className="sheet-controls-bg backdrop-blur-md  w-ful h-full flex p-8 flex-col my-0 gap-2 border-t-2 border-t-[#2f2f454a]">
+				<div className="sheet-controls-bg backdrop-blur-md  w-ful h-full flex p-8 flex-col my-0 gap-4 border-t-2 border-t-[#2f2f454a]">
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button
@@ -715,7 +715,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							onClick={handleVolumeClick}
 							onKeyDown={handleVolumeKeyDown}
 							className="group relative h-[5px] w-[160px] rounded-[11px] bg-[var(--audio-sheet-border)]/40 transition-colors hover:bg-[var(--audio-sheet-border)]/30">
-							<div className="absolute inset-y-0 left-0 rounded-[11px] bg-[var(--audio-sheet-foreground)]/50 transition-all" style={{ width: `${volumePercent}%` }} />
+							<div className="absolute inset-y-0 left-0 rounded-[11px] bg-[#4f23df] transition-all" style={{ width: `${volumePercent}%` }} />
 						</div>
 					</div>
 				</div>

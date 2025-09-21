@@ -254,18 +254,17 @@
 		}
 
 		.sheet-hero-bg {
-			background: linear-gradient(100deg, oklch(0.26 0.04 194.93 / 0.23) -60%, oklch(0.1 0.03 263.36 / 0.81) 120%), url('/assets/background/grain-bg.svg'), url('/assets/background/grid-bg.svg'), url('/assets/background/small-blur.svg') no-repeat;
+			background: linear-gradient(100deg, oklch(0.52 0.09 194.79 / 0.31) -60%, oklch(0.11 0.05 313.84 / 0.38) 120%), url('/assets/background/grain-bg.svg'), url('/assets/background/grid-bg.svg'), url('/assets/background/small-blur.svg') no-repeat;
 
-			background-color: oklch(0.43 0.07 225.22 / 0.15);
-
+			background-color: oklch(0.3 0.04 224.58 / 0.15);
 			background-position: 30% 30%, 30% 30%;
 			background-size: 110%, 100%;
 			background-position: 0% 10%, 0% 0%, 110% 20%, 11% 110%;
 			background-size: 100%, 100%, 110%, 110%;
 			background-blend-mode: multiply;
-			mix-blend-mode: screen, screen, multiply, multiply;
-			/* backdrop-filter: blur(2px) !important; */
+			/* mix-blend-mode: lighten; */
 			animation: gradientShift 5s ease-in-out infinite alternate;
+			backdrop-filter: blur(3px);
 		}
 
 		.sheet-controls-bg {
@@ -462,6 +461,14 @@
 	/* FORMS (Inputs, Textareas)            */
 	/* ============================================= */
 	@layer base {
+
+		a {
+			color: #26EEAB;
+		}
+
+		a:hover {
+			color: #67BA9E;
+		}
 
 		input,
 		textarea {
