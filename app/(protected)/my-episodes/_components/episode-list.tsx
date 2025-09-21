@@ -138,7 +138,6 @@ export function EpisodeList({ completedOnly = false, initialEpisodeId }: Episode
 							<EpisodeCard
 								imageUrl={null}
 								title={episode.episode_title}
-								description={episode.summary}
 								publishedAt={episode.created_at}
 								durationSeconds={episode.duration_seconds ?? null}
 								youtubeUrl={episode.youtube_url}

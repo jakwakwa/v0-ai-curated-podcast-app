@@ -33,12 +33,12 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 	return (
 		<Card className="bg-card w-full px-2 py-5 relative mb-4">
 			<CardAction>{actions}</CardAction>
-			<div className="w-full flex flex-row gap-4">
+			<div className="w-full flex flex-row gap-4 items-center">
 				<CardHeader>
 					{(() => {
 						// For bundle episodes, use the episode's image_url
 						if (imageUrl) {
-							return <Image src={imageUrl} alt={title} className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl object-cover" width={100} height={60} />;
+							return <Image src={imageUrl} alt={title} className="h-12 w-12 md:h-18 md:w-18 border-2 m-2 max-w-18 shadow-md border-[#98CAD35C] rounded-xl object-cover" width={100} height={60} />;
 						}
 						// For user episodes, use YouTube channel image if available
 						if (youtubeUrl) {
@@ -47,7 +47,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 									<Image
 										src={youtubeChannelImage}
 										alt={`${title} - YouTube Channel`}
-										className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl object-cover"
+										className="h-12 w-12 md:h-18 md:w-18 border-2 m-2 max-w-18 shadow-md border-[#98CAD35C] rounded-xl object-cover"
 										width={100}
 										height={60}
 									/>
@@ -56,7 +56,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 							// Show loading state for user episodes while fetching channel image
 							if (isChannelLoading) {
 								return (
-									<div className="h-14 w-14 md:h-22 md:w-22 border-2 m-2 max-w-22 shadow-md border-[#98CAD35C] rounded-xl bg-gray-600 animate-pulse flex items-center justify-center">
+									<div className="h-12 w-12 md:h-18 md:w-18 border-2 m-2 max-w-18 shadow-md border-[#98CAD35C] rounded-xl bg-gray-600 animate-pulse flex items-center justify-center">
 										<div className="h-4 w-4 bg-gray-400 rounded animate-pulse" />
 									</div>
 								);
@@ -67,7 +67,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 				</CardHeader>
 
 				<div className="flex flex-col w-full">
-					<CardTitle className="w-full">{title}</CardTitle>
+					<CardTitle className="w-full mb-4">{title}</CardTitle>
 
 					<div className="flex flex-row gap-2">
 						<Badge variant="outline">

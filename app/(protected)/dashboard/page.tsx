@@ -150,7 +150,6 @@ export default function CurationProfileManagementPage() {
 						<EpisodeCard
 							imageUrl={latestBundleEpisode.image_url}
 							title={latestBundleEpisode.title}
-							description={latestBundleEpisode.description}
 							publishedAt={latestBundleEpisode.published_at || latestBundleEpisode.created_at}
 							durationSeconds={latestBundleEpisode.duration_seconds}
 							actions={
@@ -253,7 +252,6 @@ export default function CurationProfileManagementPage() {
 												<EpisodeCard
 													imageUrl={null}
 													title={`${episode.episode_title}`}
-													description={episode.summary}
 													publishedAt={episode.updated_at}
 													detailsHref={`/my-episodes/${episode.episode_id}`}
 													youtubeUrl={episode.youtube_url}
