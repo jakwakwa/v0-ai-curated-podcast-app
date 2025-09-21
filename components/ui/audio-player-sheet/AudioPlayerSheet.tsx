@@ -590,7 +590,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								// Show loading state for user episodes while fetching channel image
 								if (isChannelLoading) {
 									return (
-										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[200px] aspect-square flex items-center justify-center">
+										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square flex items-center justify-center">
 											<Loader2 className="h-6 w-6 text-gray-400" />
 										</div>
 									);
