@@ -33,7 +33,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 	return (
 		<Card className="bg-card w-full px-2 py-5 relative mb-4">
 			<CardAction>{actions}</CardAction>
-			<div className="w-full flex flex-row gap-2 items-center">
+			<div className="w-full flex flex-row gap-2 items-start md:items-center">
 				<CardHeader>
 					{(() => {
 						// For bundle episodes, use the episode's image_url
@@ -67,21 +67,27 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 				</CardHeader>
 
 				<div className="flex flex-col w-full">
-					<CardTitle className="w-full mb-4">{title}</CardTitle>
+					<CardTitle className="w-full mb-4 line-clamp-2">{title}</CardTitle>
 
-					<div className="flex flex-row gap-1">
-						<Badge variant="outline" className="max-w-[80px] px-1">
-							<DateIndicator size="sm" indicator={date} label={null} />
-						</Badge>
-						<Badge variant="secondary" className="max-w-[80px] px-2">
-							<DurationIndicator seconds={durationSeconds ?? null} />
-						</Badge>
+					<div className="w-full flex justify-between flex-row items-center gap-2">
+						<div className="flex gap-2">
+							<Badge variant="outline" className="max-w-[80px] px-2">
+								<DateIndicator size="sm" indicator={date} label={null} />
+							</Badge>
+							<Badge variant="secondary" className="max-w-[80px] px-2">
+								<DurationIndicator seconds={durationSeconds ?? null} />
+							</Badge>
+						</div>
+
+
 						{detailsHref ? (
-							<a href={detailsHref} className="inline-flex items-center px-2 py-1 text-xs rounded-md border border-[#98CAD35C] hover:bg-[#ffffff0d] transition-colors">
-								View
+							<a href={detailsHref} className="inline-flex items-center px-2 py-0.5 text-[0.6rem] rounded-md border border-[#25b9c74a] hover:bg-[#ffffff0d]  bg-[#16141449] transition-colors text-[#18b3bb] ">
+								View Details
 							</a>
 						) : null}
+
 					</div>
+
 				</div>
 			</div>
 		</Card>

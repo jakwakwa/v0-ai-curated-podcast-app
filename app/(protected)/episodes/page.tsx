@@ -89,8 +89,8 @@ export default function EpisodesPage() {
 					</div>
 				</div>
 			) : (
-				<div className="flex episode-card-wrapper mt-4 flex-col justify-center mx-auto w-screen md:w-screen max-w-full mt-0">
-					<H3 className="pl-3">Episodes ({episodes.length})</H3>
+				<div className="flex episode-card-wrapper mt-4 flex-col justify-center mx-auto w-screen md:w-screen max-w-full">
+					<H3 className="pl-3 mb-8">Episodes ( Weekly Audio Summaries )</H3>
 					<EpisodeList episodes={episodes} onPlayEpisode={handlePlayEpisode} />
 				</div>
 			)}

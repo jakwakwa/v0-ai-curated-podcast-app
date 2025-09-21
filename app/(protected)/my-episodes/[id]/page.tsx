@@ -222,7 +222,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 					<Separator className="my-8" />
 
 					{episode.summary ? (
-						<div className="prose prose-invert text-base my-8 leading-[1.8] max-w-none">
+						<div className="prose prose-invert text-base px-6 my-8 leading-[1.8] max-w-none">
 							<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeSummaryMarkdown(episode.summary)}</ReactMarkdown>
 						</div>
 					) : (
