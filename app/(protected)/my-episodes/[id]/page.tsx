@@ -79,14 +79,21 @@ function normalizeSummaryMarkdown(input: string): string {
 	const lines = input.split(/\r?\n/).map(line => {
 		const trimmed = line.trim();
 		// Normalize noisy headings with stray asterisks
-		if (/^\*+?\s*Key\s+Highlights:?\*+?$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
+		if (/^\*+\s*Key\s+Highlights:?\*+\s*$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
 			return "### Key Highlights";
 		}
-		if (/^\*+?\s*Key\s+Takeaways:?\*+?$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
+		if (/^\*+\s*Key\s+Takeaways:?\*+\s*$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
 			return "### Key Takeaways";
 		}
 		if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
 			return "### Summary";
+		}
+		// Convert bold label lines to bullets, e.g. **Topic:** details
+		const boldLabel = trimmed.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
+		if (boldLabel) {
+			const title = boldLabel[1].trim();
+			const rest = (boldLabel[2] || "").trim();
+			return `- ${title}${rest ? `: ${rest}` : ""}`;
 		}
 		// Convert leading "*Word" (no space) into a bullet
 		if (/^\*(\S)/.test(trimmed)) {
@@ -100,7 +107,14 @@ function normalizeSummaryMarkdown(input: string): string {
 		return line;
 	});
 
-	return lines.join("\n").replace(/\n{3,}/g, "\n\n");
+	return (
+		lines
+			.join("\n")
+			// Strip any remaining bold markers to avoid raw ** in UI
+			.replace(/\*\*([^*]+)\*\*/g, "$1")
+			// Collapse excessive blank lines
+			.replace(/\n{3,}/g, "\n\n")
+	);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
