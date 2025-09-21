@@ -29,7 +29,7 @@ export function NavMain({
 
 	return (
 		<SidebarGroup>
-			<SidebarMenu className="mt-24 px-2">
+			<SidebarMenu className=" mt-24 px-2">
 				{items.map((item, index) => (
 					<div key={item.title} className="my-1">
 						{item.separator && index > 0 && <SidebarSeparator className="border-none bg-[#98818128] mx-0 my-5 h-[1px]" />}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,19 +117,13 @@ export function EpisodeCreator() {
 				body: JSON.stringify(payload),
 			});
 			if (!res.ok) throw new Error(await res.text());
-			toast.message(
-				"We're searching for the episode and transcribing it. We'll email you when it's ready.",
-				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
-			);
+			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
 			// Resume notifications polling only after a new submission is initiated
 			resumeAfterSubmission();
 			router.push("/dashboard");
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
-			toast.error(
-				(err instanceof Error ? err.message : "Failed to start metadata flow") || "",
-				{ duration: Infinity, action: { label: "Dismiss", onClick: () => { } } }
-			);
+			toast.error((err instanceof Error ? err.message : "Failed to start metadata flow") || "", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
 		} finally {
 			setIsCreating(false);
 		}
@@ -168,10 +162,10 @@ export function EpisodeCreator() {
 	};
 
 	return (
-		<div className="w-full h-auto mb-0 px-16 py-12">
-			<Card className="w-full flex flex-col gap-8">
+		<div className="w-full h-auto mb-0 px-4 py-4 md:px-8 lg:px-16 lg:py-12">
+			<div className="w-full flex flex-col gap-3 md:gap-8">
 				<CardHeader>
-					<h1 className="text-xl text-foreground font-bold mb-4">Generate a custom episode</h1>
+					<h1 className="text-xl text-foreground font-bold mb-2  md:mb-4">Generate a custom episode</h1>
 					<CardDescription>Provide episode details. We'll resolve sources and transcribe in the background.</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -220,7 +214,7 @@ export function EpisodeCreator() {
 								</div>
 							</div>
 
-							<div className="space-y-6 border border-[#3a383c67] rounded-xl shadow-md p-4 bg-[#000]/40">
+							<div className="space-y-6 border border-[#3a383c67] rounded-md md:rounded-xl shadow-md p-4 bg-[#000]/40">
 								<div className="space-y-2">
 									<Label size="lg">Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
@@ -241,7 +235,8 @@ export function EpisodeCreator() {
 									{showTips && (
 										<div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
 											<p className="text-xs text-foreground">
-												Both options can handle 90% of any youtube URL you provide! The quality of your generated episode depends on the content you choose to upload. These tips can help you decide if you're unsure:
+												Both options can handle 90% of any youtube URL you provide! The quality of your generated episode depends on the content you choose to upload. These tips can help you decide if
+												you're unsure:
 											</p>
 											<ul className="space-y-2 leading-relaxed text-foreground text-xs mt-1">
 												<li className="flex items-start gap-2">
@@ -259,7 +254,8 @@ export function EpisodeCreator() {
 												<li className="flex items-start gap-2">
 													<span className="text-green-200 mt-1">🎙️</span>
 													<span>
-														<strong className="text-teal-500">Multi Speaker</strong> results will be generated into two speaker conversational podcast syled episode. For more engaging information consumption. May not be suite for all types of content.
+														<strong className="text-teal-500">Multi Speaker</strong> results will be generated into two speaker conversational podcast syled episode. For more engaging information
+														consumption. May not be suite for all types of content.
 													</span>
 												</li>
 
@@ -289,7 +285,6 @@ export function EpisodeCreator() {
 								{generationMode === "multi" && (
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-
 											<div className="py-2 text-foreground text-sm">Voice A</div>
 											<Select value={voiceA} onValueChange={setVoiceA}>
 												<SelectTrigger className="w/full" disabled={isBusy}>
@@ -368,7 +363,7 @@ export function EpisodeCreator() {
 					)}
 					{error && <p className="text-red-500 mt-4">{error}</p>}
 				</CardContent>
-			</Card>
+			</div>
 
 			{/* Restriction Dialog */}
 			<Dialog

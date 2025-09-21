@@ -45,12 +45,12 @@ function DateIndicator({ indicator, label, size = "sm" }: DateIndicatorProps): R
 	if (!label) {
 		return (
 			<div className={`flex py-0 h-auto leading-none font-normal mr-1 ${sizeClasses[size]} no-wrap text-foreground/70  text-[0.6rem]`}>
-				Created {getTimeAgoInDays(indicator)}
+				{getTimeAgoInDays(indicator)}
 			</div>
 		)
 	}
 	return (
-		<div className={`inline py-0 mr-1  h-auto leading-none ${sizeClasses[size]} no-wrap `}>
+		<div className={`w-full  inline py-0 mr-1  h-auto leading-none ${sizeClasses[size]} no-wrap `}>
 			{label}: {getTimeAgoInDays(indicator)}
 		</div>
 	)

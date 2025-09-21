@@ -33,7 +33,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 	return (
 		<Card className="bg-card w-full px-2 py-5 relative mb-4">
 			<CardAction>{actions}</CardAction>
-			<div className="w-full flex flex-row gap-4 items-center">
+			<div className="w-full flex flex-row gap-2 items-center">
 				<CardHeader>
 					{(() => {
 						// For bundle episodes, use the episode's image_url
@@ -69,11 +69,11 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 				<div className="flex flex-col w-full">
 					<CardTitle className="w-full mb-4">{title}</CardTitle>
 
-					<div className="flex flex-row gap-2">
-						<Badge variant="outline">
+					<div className="flex flex-row gap-1">
+						<Badge variant="outline" className="max-w-[80px] px-1">
 							<DateIndicator size="sm" indicator={date} label={null} />
 						</Badge>
-						<Badge variant="secondary">
+						<Badge variant="secondary" className="max-w-[80px] px-2">
 							<DurationIndicator seconds={durationSeconds ?? null} />
 						</Badge>
 						{detailsHref ? (

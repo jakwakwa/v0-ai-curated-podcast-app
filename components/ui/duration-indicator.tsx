@@ -23,8 +23,8 @@ export default function DurationIndicator({ seconds, size = "sm" }: DurationIndi
 	}
 	const duration = formatDuration(seconds)
 	return (
-		<div className={`ml-1 inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-foreground/70 font-medium text-[0.6rem]`}>
-			Duration: {duration ? `${duration}` : "0:00"}
+		<div className={` inline py-0  h-auto leading-none ${sizeClasses[size]} no-wrap text-foreground/70 font-medium text-[0.6rem]`}>
+			{duration ? `${duration}` : "0:00"}
 		</div>
 	);
 }

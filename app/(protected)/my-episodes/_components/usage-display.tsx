@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Body, H2 } from "@/components/ui/typography";
 import { PRICING_TIER } from "@/config/paddle-config";
@@ -32,7 +31,7 @@ export function UsageDisplay() {
 	}
 
 	return (
-		<Card className="bg-[#060506] border rounded-none p-8 min-w-1/3">
+		<div className="bg-[#060506] w-full px-4  mx-0 border rounded-none sm:px-5 py-2 md:p-8 lg:w-[300px]">
 			<div className="w-full flex flex-col gap-3">
 				<H2 className=" text-lg text-primary-foreground">Monthly Usage</H2>
 
@@ -40,10 +39,15 @@ export function UsageDisplay() {
 					You have generated <br /> <strong>{usage.count}</strong> of your <strong>{usage.limit}</strong> monthly episodes
 				</Body>
 				<Body className="text-amber-600">
-					{usage.count === usage.limit ? <div><span className="mr-3">⚠️</span>Limit reached for the month </div> : ""}
+					{usage.count === usage.limit ? (
+						<div>
+							<span className="mr-3">⚠️</span>Limit reached for the month{" "}
+						</div>
+					) : (
+						""
+					)}
 				</Body>
 			</div>
-
-		</Card>
+		</div>
 	);
 }

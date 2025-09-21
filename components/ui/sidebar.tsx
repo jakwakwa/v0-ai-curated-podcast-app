@@ -164,7 +164,7 @@ function Sidebar({
 					data-sidebar="sidebar"
 					data-slot="sidebar"
 					data-mobile="true"
-					className="bg-[oklch(14.67 44.94 294.66)text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
+					className="bg-black text-sidebar-foreground w-(--sidebar-width) border-none p-0 [&>button]:hidden"
 					style={
 						{
 							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
