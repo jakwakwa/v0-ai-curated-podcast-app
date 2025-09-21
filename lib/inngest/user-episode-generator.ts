@@ -264,15 +264,22 @@ export const generateUserEpisode = inngest.createFunction(
 				if (episode) {
 					const user = await prisma.user.findUnique({
 						where: { user_id: episode.user_id },
-						select: { in_app_notifications: true },
+						select: { in_app_notifications: true, email: true, name: true },
 					});
 					if (user?.in_app_notifications) {
 						await prisma.notification.create({
 							data: {
 								user_id: episode.user_id,
 								type: "episode_failed",
-								message: `We couldn't generate your episode "${episode.episode_title}". Please try again.`,
+								message: `We couldn't generate your episode "${episode.episode_title}". Some videos might not work. Try single vs multi-speaker, or contact support and try later.`,
 							},
+						});
+					}
+					if (user?.email) {
+						const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
+						await emailService.sendEpisodeFailedEmail(episode.user_id, user.email, {
+							userFirstName,
+							episodeTitle: episode.episode_title,
 						});
 					}
 				}
@@ -311,38 +318,14 @@ export const generateUserEpisode = inngest.createFunction(
 			return episode.transcript;
 		});
 
-		// Step 2: Summarize Transcript
-		const summary = await step.run("summarize-transcript", async () => {
+		// Step 2: Generate TRUE neutral summary (bullets + recap)
+		const summary = await step.run("generate-summary", async () => {
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
 			const model = googleAI(modelName);
 			try {
-				// Dynamic episode length based on config flag
-				const episodeConfig = aiConfig.useShortEpisodes
-					? {
-							words: "200 - 300 words",
-							duration: "about 3 minute of audio",
-							description: "testing version",
-						}
-					: {
-							words: "500-600 words",
-							duration: "about 3-4 minutes of audio",
-							description: "production version",
-						};
-
 				const { text } = await generateText({
-					model: model,
-					prompt: `Create an engaging podcast script of approximately ${episodeConfig.words} (${episodeConfig.duration}) based on the following transcript. Write it as a single narrator presenting the content in an engaging, conversational podcast style.
-
-The script should include:
-- An engaging introduction that hooks the listener
-- Clear narrative structure with smooth transitions
-- Key insights and takeaways from the transcript
-- Interesting examples and explanations
-- A compelling conclusion with actionable advice or thought-provoking questions
-
-Write in a warm, conversational tone as if speaking directly to the listener. Use phrases like "you might wonder," "here's what's fascinating," "let's dive into," etc. to maintain engagement.
-
-Transcript: ${transcript}`,
+					model,
+					prompt: `Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`,
 				});
 
 				await prisma.userEpisode.update({
@@ -352,13 +335,12 @@ Transcript: ${transcript}`,
 
 				return text;
 			} catch (error) {
-				// Avoid logging full error details that might contain sensitive information
 				console.error("Error during summarization");
 				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
 			}
 		});
 
-		// Step 3: Generate Script at target length (default 5 minutes)
+		// Step 3: Generate Podslice-hosted script (commentary over summary)
 		const script = await step.run("generate-script", async () => {
 			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
 			const model2 = googleAI(modelName2);
@@ -367,21 +349,7 @@ Transcript: ${transcript}`,
 			const maxWords = Math.floor(targetMinutes * 180);
 			const { text } = await generateText({
 				model: model2,
-				prompt: `Using the summary, write a single-narrator podcast script of approximately ${minWords}-${maxWords} words (about ${targetMinutes} minutes).
-
-Requirements:
-- Strong hook in the first 2-3 sentences
-- Clear structure with smooth transitions
-- Concrete examples and explanations
-- Compelling conclusion with a call-to-thought/action
-- Natural, spoken tone (no stage directions, no timestamps)
-- ONLY include spoken words that will be read aloud
-- NO sound effects, music cues, or descriptive text in brackets
-- NO stage directions or production notes
-- Write as if you are speaking directly to the listener
-
-Summary:
-${summary}`,
+				prompt: `Task: Based on the SUMMARY below, write a ${minWords}-${maxWords} word (about ${targetMinutes} minutes) single-narrator podcast segment where a Podslice host explains the highlights to listeners.\n\nIdentity & framing:\n- The speaker is a Podslice host summarizing someone else's content.\n- Do NOT reenact or impersonate the original speakers.\n- Present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken words only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nStructure:\n- Hook that frames this as a Podslice summary.\n- Smooth transitions between highlight clusters.\n- Clear, concise wrap-up.\n\nSUMMARY:\n${summary}`,
 			});
 			return text;
 		});
@@ -450,7 +418,7 @@ ${summary}`,
 					data: {
 						user_id: episode.user_id,
 						type: "episode_ready",
-						message: `Your episode "${episode.episode_title}" is ready to listen.`,
+						message: `Your generated episode "${episode.episode_title}" is ready.`,
 					},
 				});
 			}
@@ -459,7 +427,7 @@ ${summary}`,
 				const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
 				const profileName = profile?.name ?? "Your personalized feed";
 				const baseUrl = process.env.EMAIL_LINK_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "";
-				const episodeUrl = `${baseUrl}/my-episodes`;
+				const episodeUrl = `${baseUrl}/my-episodes/${encodeURIComponent(userEpisodeId)}`;
 
 				await emailService.sendEpisodeReadyEmail(episode.user_id, user.email, {
 					userFirstName,

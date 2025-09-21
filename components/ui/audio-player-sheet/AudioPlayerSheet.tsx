@@ -6,6 +6,8 @@ import * as motion from "motion/react-client";
 import Image from "next/image";
 import type { FC } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
@@ -20,6 +22,7 @@ type AudioPlayerSheetProps = {
 
 export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange, episode }) => {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const lastEpisodeKeyRef = useRef<string | null>(null);
 	const [_currentTime, setCurrentTime] = useState(0);
 	const [_duration, setDuration] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -35,6 +38,55 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	// Get YouTube channel name and image for user episodes
 	const youtubeUrl = episode && "youtube_url" in episode ? episode.youtube_url : null;
 	const { channelName: youtubeChannelName, channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl);
+
+	// Normalize markdown-like summaries & descriptions to avoid stray asterisks or malformed headings
+	const normalizeSummaryMarkdown = useCallback((input: string): string => {
+		const lines = input.split(/\r?\n/).map(line => {
+			const trimmed = line.trim();
+			if (/^\*+\s*Key\s+Highlights:?\*+\s*$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
+				return "### Key Highlights";
+			}
+			if (/^\*+\s*Key\s+Takeaways:?\*+\s*$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
+				return "### Key Takeaways";
+			}
+			if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
+				return "### Summary";
+			}
+			const boldLabel = trimmed.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
+			if (boldLabel) {
+				const title = boldLabel[1].trim();
+				const rest = (boldLabel[2] || "").trim();
+				return `- ${title}${rest ? `: ${rest}` : ""}`;
+			}
+			if (/^\*(\S)/.test(trimmed)) {
+				return `- ${trimmed.slice(1).trimStart()}`;
+			}
+			const starPairs = (trimmed.match(/\*\*/g) || []).length;
+			if (starPairs === 1 && trimmed.endsWith("**")) {
+				return trimmed.slice(0, -2).trimEnd();
+			}
+			return line;
+		});
+
+		return lines
+			.join("\n")
+			.replace(/^\s*\*+\s*Key\s+Highlights:?\s*\*+\s*$/gim, "### Key Highlights")
+			.replace(/^\s*\*+\s*Key\s+Takeaways:?\s*\*+\s*$/gim, "### Key Takeaways")
+			.replace(/^\s*\*+(?=\S)/gm, "")
+			.replace(/\*+\s*$/gm, "")
+			.replace(/\*\*(.*?)\*\*/g, "$1")
+			.replace(/\*(.*?)\*/g, "$1")
+			.replace(/\n{3,}/g, "\n\n");
+	}, []);
+
+	const rawSummaryOrDescription = useMemo(() => {
+		if (!episode) return null;
+		if ("summary" in episode && episode.summary) return episode.summary as string;
+		if ("description" in episode && episode.description) return episode.description as string;
+		return null;
+	}, [episode]);
+
+	const normalizedSummary = useMemo(() => (rawSummaryOrDescription ? normalizeSummaryMarkdown(rawSummaryOrDescription) : null), [rawSummaryOrDescription, normalizeSummaryMarkdown]);
 
 	const clearCanPlayDebounce = useCallback(() => {
 		if (canPlayDebounceRef.current) {
@@ -94,23 +146,19 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	}, [clearLoadingTimeout]);
 
 	const audioSrc = useMemo(() => {
-		if (!episode) {
-			console.log("AudioPlayerSheet - No episode provided");
-			return "";
-		}
-
-		let src = "";
-		if ("audio_url" in episode && episode.audio_url) {
-			src = episode.audio_url;
-			console.log("AudioPlayerSheet - Using audio_url:", src);
-		} else if ("gcs_audio_url" in episode && episode.gcs_audio_url) {
-			src = episode.gcs_audio_url;
-			console.log("AudioPlayerSheet - Using gcs_audio_url:", src);
-		} else {
-			console.warn("AudioPlayerSheet - No audio source found in episode:", episode);
-		}
-
+		if (!(open && episode)) return "";
+		const src = "audio_url" in episode && episode.audio_url ? episode.audio_url : "gcs_audio_url" in episode && episode.gcs_audio_url ? episode.gcs_audio_url : "";
 		return src;
+	}, [open, episode]);
+
+	const episodeKey = useMemo(() => {
+		if (!episode) return null;
+		// Prefer explicit ids where available, fallback to a stable title-based key
+		const maybeId = (episode as unknown as { episode_id?: string; id?: string }).episode_id || (episode as unknown as { id?: string }).id;
+		if (maybeId) return String(maybeId);
+		if ("title" in (episode as Record<string, unknown>) && (episode as Record<string, unknown>).title) return String((episode as { title: string }).title);
+		if ("episode_title" in (episode as Record<string, unknown>) && (episode as Record<string, unknown>).episode_title) return String((episode as { episode_title: string }).episode_title);
+		return null;
 	}, [episode]);
 
 	useEffect(() => {
@@ -276,14 +324,26 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		audio.addEventListener("stalled", handleStalled);
 
 		if (open && audioSrc) {
-			if (audio.src !== audioSrc) {
+			const hasEpisodeChanged = episodeKey && lastEpisodeKeyRef.current !== episodeKey;
+			if (audio.src !== audioSrc || hasEpisodeChanged) {
 				// Reset UI and timers for new source
 				stopProgressInterval();
 				setCurrentTime(0);
 				setDuration(0);
 				// Apply new source
 				audio.crossOrigin = "anonymous";
+				try {
+					// Always pause before switching source to clear previous playback state
+					audio.pause();
+				} catch { }
+				// Force reload even when src strings might match (e.g., signed urls reused)
+				if (hasEpisodeChanged) {
+					try {
+						audio.removeAttribute("src");
+					} catch { }
+				}
 				audio.src = audioSrc;
+				lastEpisodeKeyRef.current = episodeKey;
 			}
 			// Ensure the element preloads metadata for snappier start
 			audio.preload = "metadata";
@@ -326,7 +386,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearCanPlayDebounce();
 			stopProgressInterval();
 		};
-	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval]);
+	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, episodeKey]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -501,57 +561,46 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="bg-[#0d0f1429] p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0">
+			<SheetContent side="right" className="bg-sidebar p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0 border-l-2 border-l-[#192e2ce1]">
 				{/* Sections */}
 
 				{/* Hero Section starts */}
-				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center hero-bg">
+				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center sheet-hero-bg">
 					{/* Artwork + Meta */}
 
-					{episode && (() => {
-						// For bundle episodes, use the episode's image_url
-						if ("image_url" in episode && episode.image_url) {
-							return (
-								<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
-									<Image
-										src={episode.image_url}
-										alt={episode.title}
-										width={200}
-										height={200}
-										className="object-fit"
-									/>
-								</div>
-							);
-						}
-						// For user episodes, use YouTube channel image if available
-						if ("youtube_url" in episode) {
-							if (youtubeChannelImage) {
+					{episode &&
+						(() => {
+							// For bundle episodes, use the episode's image_url
+							if ("image_url" in episode && episode.image_url) {
 								return (
 									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
-										<Image
-											src={youtubeChannelImage}
-											alt={youtubeChannelName || "YouTube Channel"}
-											width={200}
-											height={200}
-											className="w-full h-full object-cover"
-										/>
+										<Image src={episode.image_url} alt={episode.title} width={200} height={200} className="object-fit" />
 									</div>
 								);
 							}
-							// Show loading state for user episodes while fetching channel image
-							if (isChannelLoading) {
-								return (
-									<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[200px] aspect-square flex items-center justify-center">
-										<Loader2 className="h-6 w-6 text-gray-400" />
-									</div>
-								);
+							// For user episodes, use YouTube channel image if available
+							if ("youtube_url" in episode) {
+								if (youtubeChannelImage) {
+									return (
+										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square overflow-hidden">
+											<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
+										</div>
+									);
+								}
+								// Show loading state for user episodes while fetching channel image
+								if (isChannelLoading) {
+									return (
+										<div className="h-auto w-full rounded-[19.8347px] bg-gray-600 animate-pulse shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[150px] aspect-square flex items-center justify-center">
+											<Loader2 className="h-6 w-6 text-gray-400" />
+										</div>
+									);
+								}
 							}
-						}
-						return null;
-					})()}
+							return null;
+						})()}
 
 					<SheetHeader>
-						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/70 text-center px-6">
+						<SheetTitle className="truncate text-[17.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
 						<SheetDescription className="truncate text-[14.69px] font-semibold leading-[1.72857] tracking-[0.007142em] text-[#88B0B9] text-center">
@@ -575,7 +624,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								type="button"
 								onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
 								className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/90 hover:text-[var(--audio-sheet-foreground)] transition-colors border border-[var(--audio-sheet-border)] rounded-md px-3 py-1 bg-[#261f23]">
-								{isTranscriptExpanded ? "Hide Transcription" : "Show Transcription"}
+								{isTranscriptExpanded ? "Hide summary" : "Show summary"}
 								{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
 							</button>
 						</div>
@@ -586,7 +635,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				<div className="bg-sidebar rounded-none">
 					{/* Transcript */}
 					<AnimatePresence initial={false}>
-						{episode && isTranscriptExpanded && (("transcript" in episode && episode.transcript) || ("summary" in episode && episode.summary) || ("description" in episode && episode.description)) ? (
+						{episode && isTranscriptExpanded && (normalizedSummary || ("transcript" in episode && episode.transcript)) ? (
 							<motion.div
 								key="transcript"
 								initial={{ height: 0, opacity: 0 }}
@@ -596,14 +645,20 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								className="flex flex-col gap-[10px]">
 								<div
 									className={`overflow-y-auto rounded-[8px] p-[12px] text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all ${isTranscriptExpanded ? "px-12 max-h-[280px]" : "max-h-[150px]"}`}>
-									{("summary" in episode && episode.summary) || ("description" in episode && episode.description)}
+									{normalizedSummary ? (
+										<div className="prose prose-invert max-w-none">
+											<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizedSummary}</ReactMarkdown>
+										</div>
+									) : "transcript" in episode && episode.transcript ? (
+										<div className="whitespace-pre-wrap">{episode.transcript}</div>
+									) : null}
 								</div>
 							</motion.div>
 						) : null}
 					</AnimatePresence>
 				</div>
 
-				<div className="bg-[#0300057d] backdrop-blur-sm  w-ful h-full flex p-8 flex-col my-0 gap-8">
+				<div className="sheet-controls-bg backdrop-blur-md  w-ful h-full flex p-8 flex-col my-0 gap-2 border-t-2 border-t-[#2f2f454a]">
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button
@@ -631,7 +686,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							tabIndex={0}
 							onClick={handleProgressClick}
 							onKeyDown={handleProgressKeyDown}
-							className="group relative h-[5px] w-full rounded-[11px] bg-[#523A3A] transition-colors">
+							className="group relative h-[7px] w-full outline outline-[#ffffff1e] rounded-[11px] bg-[#080b0f] transition-colors">
 							<div
 								className="absolute inset-y-0 left-0 rounded-[11px] transition-all"
 								style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg, rgba(91,47,142,1) 0%, rgba(25,178,117,0.81) 40%, rgba(101,199,231,1) 100%)" }}

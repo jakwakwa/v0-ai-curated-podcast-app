@@ -41,7 +41,8 @@ const nextConfig = {
 						'https://va.vercel-scripts.com',
 						'https://vercel.live',
 						'https://clerk.podslice.ai',
-						'https://cdn.paddle.com/paddle/v2/paddle.js'
+						'https://cdn.paddle.com/paddle/v2/paddle.js',
+						'https://cdn.paddle.com'
 				];
 
 				const csp = {
@@ -57,6 +58,8 @@ const nextConfig = {
 							"'self'",
 							"'unsafe-inline'",
 							'https://fonts.googleapis.com',
+							'https://sandbox-cdn.paddle.com',
+							'https://cdn.paddle.com',
 					],
 					'img-src': [
 							"'self'",
@@ -91,10 +94,12 @@ const nextConfig = {
 								...clerkHosts.map(h => `https://${h}`),
 								...extraHosts,
 								'https://api.paddle.com',
+								'https://sandbox-api.paddle.com', // Allow Paddle sandbox API connections
 							'https://vitals.vercel-insights.com',
 							'https://storage.googleapis.com',
 							'https://storage.cloud.google.com',
 							'*.googleusercontent.com', // Added wildcard for GCS redirects
+							'https://cdn.paddle.com', // Allow Paddle CDN connections for source maps
 					],
 					'worker-src': ["'self'", 'blob:'],
 						'frame-src': [

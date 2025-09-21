@@ -15,15 +15,17 @@ import { Typography } from "./typography"
 export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState(false)
 
-	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling } = useNotificationStore()
+	const { notifications, unreadCount, isLoading, loadNotifications, markAsRead, markAllAsRead, deleteNotification, clearAll, startPolling, stopPolling, restartPolling, pausedUntilSubmission } = useNotificationStore()
 
 	// Start polling when component mounts, stop when it unmounts
 	useEffect(() => {
-		startPolling()
+		if (!pausedUntilSubmission) {
+			startPolling()
+		}
 		return () => {
 			stopPolling()
 		}
-	}, [startPolling, stopPolling])
+	}, [startPolling, stopPolling, pausedUntilSubmission])
 
 	// Restart polling when user opens the dropdown (in case auth was restored)
 	useEffect(() => {
@@ -106,7 +108,7 @@ export function NotificationBell() {
 					{unreadCount > 0 && (
 						<Badge
 							variant="destructive"
-							className="bg-red-500/60 absolute -top-1 -right-1 md:-top-2 md:-right-2 min-w-[12px] md:min-w-[20px] h-[12px] md:h-[20px] text-[10px] md:text-xs flex items-center justify-center font-semibold ring-2 ring-red-500/90 shadow-md animate-pulse   animate-ease-linear animate-infinite animate-delay-1000 animate-duration-10 animate-count-infinite animate-ease-linear animate-normal animate-backwards border-2 border-red-500/50"
+							className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-5 h-5 p-0 rounded-full text-[0.5rem] flex items-center justify-center font-semibold border-2 border-[#8e2eee] bg-[#5f0fbd] shadow-[0px_0px_20px_#ec3be4] animate-pulse"
 						>
 							{unreadCount > 99 ? "99+" : unreadCount}
 						</Badge>
@@ -146,10 +148,10 @@ export function NotificationBell() {
 						notifications.slice(0, 10).map(notification => (
 							<Card
 								key={notification.notification_id}
-								className={cn("mb-2 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-l-4 border-l-primary bg-muted/90")}
+								className={cn("bg-card mb-1 border transition-all duration-200 hover:border-primary/20 hover:shadow-sm", !notification.is_read && "border-2")}
 							>
-								<div className="py-5">
-									<div className="flex items-start justify-between mb-2">
+								<div className="py-1">
+									<div className="flex items-start justify-between mb-1">
 
 										<div className="flex items-center gap-2 ml-auto">
 											<div className={cn("text-base mr-2", getNotificationColor(notification.type))}>{getNotificationIcon(notification.type)}</div>
@@ -158,21 +160,21 @@ export function NotificationBell() {
 										</div>
 									</div>
 
-									<p className=" text-sm font-bold text-foreground leading-[2.5]">{notification.message}</p>
+									<p className=" text-sm font-bold text-foreground leading-[2.5] my-4 text-right">{notification.message}</p>
 
 									<div className="flex gap-4 items-center justify-end">
 
 										{!notification.is_read && (
-											<Button variant="ghost" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border px-5text-sm h-6">
+											<Button variant="outline" size="xs" onClick={() => handleMarkAsRead(notification.notification_id)} disabled={isLoading} className="border text-sm h-9">
 
 												Mark as read
-												<CheckCircle2Icon className="w-40 h-40" size={"md"} width={30} height={30} />
+												<CheckCircle2Icon size={30} />
 											</Button>
 										)}
-										<Button variant="destructive" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading} className="text-xs px-2 py-1 h-auto">
+										<Button variant="outline" size="sm" onClick={() => handleDeleteNotification(notification.notification_id)} disabled={isLoading}>
 
 											clear
-											<X size={12} />
+											<X size={24} />
 										</Button>
 									</div>
 								</div>
@@ -189,6 +191,6 @@ export function NotificationBell() {
 					)}
 				</div>
 			</DropdownMenuContent>
-		</DropdownMenu>
+		</DropdownMenu >
 	)
 }
