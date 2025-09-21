@@ -4,7 +4,7 @@ import Image from "next/image";
 import type React from "react";
 import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
 import { Badge } from "./badge";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
+import { Card, CardAction, CardHeader, CardTitle } from "./card";
 import DateIndicator from "./date-indicator";
 import DurationIndicator from "./duration-indicator";
 
@@ -22,7 +22,7 @@ type EpisodeCardProps = {
 	detailsHref?: string | null;
 };
 
-export function EpisodeCard({ as = "div", imageUrl, title, description, publishedAt, durationSeconds, actions, youtubeUrl, detailsHref }: EpisodeCardProps) {
+export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, durationSeconds, actions, youtubeUrl, detailsHref }: EpisodeCardProps) {
 	// biome-ignore lint/suspicious/noExplicitAny: <temp>
 	const _Root: any = as;
 	const date: Date = publishedAt ? new Date(publishedAt) : new Date();
@@ -68,9 +68,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 
 				<div className="flex flex-col w-full">
 					<CardTitle className="w-full">{title}</CardTitle>
-					<CardContent>
-						<CardDescription>{description || "No description available."}</CardDescription>
-					</CardContent>
+
 					<div className="flex flex-row gap-2">
 						<Badge variant="outline">
 							<DateIndicator size="sm" indicator={date} label={null} />
@@ -79,9 +77,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, description, publishe
 							<DurationIndicator seconds={durationSeconds ?? null} />
 						</Badge>
 						{detailsHref ? (
-							<a
-								href={detailsHref}
-								className="inline-flex items-center px-2 py-1 text-xs rounded-md border border-[#98CAD35C] hover:bg-[#ffffff0d] transition-colors">
+							<a href={detailsHref} className="inline-flex items-center px-2 py-1 text-xs rounded-md border border-[#98CAD35C] hover:bg-[#ffffff0d] transition-colors">
 								View
 							</a>
 						) : null}
