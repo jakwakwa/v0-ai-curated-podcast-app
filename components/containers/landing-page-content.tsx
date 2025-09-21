@@ -157,19 +157,41 @@ export default function LandingPageContent() {
 					<div className="mt-4 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
 						<LandingAudioPlayer />
 					</div>
+					{/* Demo Video Player */}
+
 				</div>
 			</section>
 
 			{/* How It Works Section */}
 			<section className={styles.featuresSection}>
 				<div className={styles.howItWorksContainer}>
+
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
 						<Typography as="h1" className="text-left  sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[2rem]">
 							How Podslice Works
 						</Typography>
+
 						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
+						<div className="mt-6 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
+							<video
+								className="w-full rounded-lg"
+								src="https://storage.googleapis.com/ai-weekly-curator-app-bucket-us/video/podslice%20demo-1.mp4"
+								controls
+								preload="metadata"
+								playsInline
+								poster="/podslice-og.jpg"
+								aria-label="Podslice product demo video">
+								<track
+									kind="captions"
+									src="/captions/podslice-demo-1.en.vtt"
+									srcLang="en"
+									label="English captions"
+									default
+								/>
+							</video>
+						</div>
 					</motion.div>
 					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
