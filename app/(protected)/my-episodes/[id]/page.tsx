@@ -110,8 +110,15 @@ function normalizeSummaryMarkdown(input: string): string {
 	return (
 		lines
 			.join("\n")
-			// Strip any remaining bold markers to avoid raw ** in UI
-			.replace(/\*\*([^*]+)\*\*/g, "$1")
+			// Normalize any remaining heading cue
+			.replace(/^\s*\*+\s*Key\s+Highlights:?\s*\*+\s*$/gim, "### Key Highlights")
+			.replace(/^\s*\*+\s*Key\s+Takeaways:?\s*\*+\s*$/gim, "### Key Takeaways")
+			// Remove leading/trailing stray asterisks on lines
+			.replace(/^\s*\*+(?=\S)/gm, "")
+			.replace(/\*+\s*$/gm, "")
+			// Strip any remaining emphasis markers (bold/italic) to plain text
+			.replace(/\*\*(.*?)\*\*/g, "$1")
+			.replace(/\*(.*?)\*/g, "$1")
 			// Collapse excessive blank lines
 			.replace(/\n{3,}/g, "\n\n")
 	);
