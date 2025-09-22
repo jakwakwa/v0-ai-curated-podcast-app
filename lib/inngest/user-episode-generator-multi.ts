@@ -201,7 +201,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 							data: {
 								user_id: episode.user_id,
 								type: "episode_failed",
-								message: `We couldn't generate your episode "${episode.episode_title}". Some videos might not work. Try single vs multi-speaker, or contact support and try later.`,
+								message: `We're sorry — we hit a technical issue while generating your episode "${episode.episode_title}". Please try again later. If it keeps happening, contact support.`,
 							},
 						});
 					}

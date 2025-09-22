@@ -18,7 +18,6 @@ export interface EpisodeReadyEmailData {
 export interface EpisodeFailedEmailData {
 	userFirstName: string;
 	episodeTitle: string;
-	helpUrl?: string;
 }
 
 export interface TrialEndingEmailData {
@@ -133,16 +132,17 @@ class EmailService {
 			return false;
 		}
 
-		const supportEmail = process.env.SUPPORT_EMAIL || "support@podslice.ai";
-		const helpUrl = data.helpUrl || `${process.env.NEXT_PUBLIC_APP_URL || ""}/my-episodes`;
+		const supportEmail = "notifications@podslice.ai";
 
 		const text = `Hi ${data.userFirstName},
 
-We couldn't generate your episode "${data.episodeTitle}".
+We're sorry, but we encountered a technical difficulty while generating your episode "${data.episodeTitle}".
 
-Some videos might not work reliably. You can try again and switch speaker options (single vs multi). If it still doesn't work, please reach out to ${supportEmail} and try again later.
+Our team has been notified, and we are looking into it. Please try again later.
 
-You can manage your episodes here: ${helpUrl}
+If the problem persists, please contact our support team at ${supportEmail}.
+
+We apologize for any inconvenience.
 
 The PODSLICE Team`;
 
@@ -180,7 +180,7 @@ The PODSLICE Team`;
 
     <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px 20px;">
         <div style="text-align: center; margin-bottom: 24px;">
-            <h1 style="color: #dc2626; font-size: 22px; margin: 0;">We couldn't generate your episode</h1>
+            <h1 style="color: #dc2626; font-size: 22px; margin: 0;">Episode Generation Failed</h1>
         </div>
 				    <p style="margin-left:0px;margin-right:0px;margin-top:1rem;margin-bottom:2rem;padding:0px;text-align:center;font-weight:400;font-size:1.5rem;line-height:2rem">
 							<span
@@ -191,14 +191,9 @@ The PODSLICE Team`;
 
 
         <p style="color: #374151; font-size: 16px; line-height: 1.5;">Hi ${data.userFirstName},</p>
-        <p style="color: #374151; font-size: 15px; line-height: 1.6;">We couldn't generate your episode "${data.episodeTitle}".</p>
-        <p style="color: #374151; font-size: 15px; line-height: 1.6;">Some videos might not work reliably. You can try again and switch speaker options (single vs multi). If it still doesn't work, please reach out to <a href="mailto:${supportEmail}">${supportEmail}</a> and try again later.</p>
-
-
-        <div style="text-align: center; margin: 24px 0;">
-            <a href="${helpUrl}" style="display: inline-block; background-color: #D5A221; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Go to My Episodes</a>
-        </div>
-
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">We're sorry, but we encountered a technical difficulty while generating your episode "${data.episodeTitle}".</p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">Our team has been notified and is looking into the issue. Please try generating the episode again later. If the problem persists, feel free to reach out to our support team at <a href="mailto:${supportEmail}">${supportEmail}</a>.</p>
+        <p style="color: #374151; font-size: 15px; line-height: 1.6;">We apologize for any inconvenience this may have caused.</p>
 
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
         <p style="color: #9ca3af; font-size: 12px; margin: 0;">The PODSLICE Team</p>
@@ -216,7 +211,7 @@ The PODSLICE Team`;
 
 		const notification: EmailNotification = {
 			to: userEmail,
-			subject: `We couldn't generate "${data.episodeTitle}"`,
+			subject: `Action Required: Issue with your episode "${data.episodeTitle}"`,
 			text,
 			html,
 		};
