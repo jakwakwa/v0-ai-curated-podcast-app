@@ -3,23 +3,11 @@ import { PlanGate } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-interface RouteParams {
-	params: {
-		episodeId: string;
-	};
-}
-
 // Plan gate validation function - same as in other routes
 function resolveAllowedGates(plan: string | null | undefined): PlanGate[] {
 	const normalized = (plan || "").toString().trim().toLowerCase();
 
-	// Implement hierarchical access model:
-	// NONE = only NONE access
-	// FREE_SLICE = NONE + FREE_SLICE access
-	// CASUAL = NONE + FREE_SLICE + CASUAL access
-	// CURATE_CONTROL = ALL access (NONE + FREE_SLICE + CASUAL + CURATE_CONTROL)
-
-	// Handle various plan type formats that might be stored in the database
+	// Implement hierarchical access model
 	if (normalized === "curate_control" || normalized === "curate control") {
 		return [PlanGate.NONE, PlanGate.FREE_SLICE, PlanGate.CASUAL_LISTENER, PlanGate.CURATE_CONTROL];
 	}
@@ -33,7 +21,7 @@ function resolveAllowedGates(plan: string | null | undefined): PlanGate[] {
 	return [PlanGate.NONE];
 }
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, { params }: { params: { id: string } }) {
 	try {
 		const { userId } = await auth();
 
@@ -41,7 +29,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		const { episodeId } = params;
+		const episodeId = params.id;
 
 		// Get user's subscription to check plan tier
 		const subscription = await prisma.subscription.findFirst({

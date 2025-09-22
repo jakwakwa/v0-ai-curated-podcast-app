@@ -147,9 +147,47 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	const audioSrc = useMemo(() => {
 		if (!(open && episode)) return "";
-		const src = "audio_url" in episode && episode.audio_url ? episode.audio_url : "gcs_audio_url" in episode && episode.gcs_audio_url ? episode.gcs_audio_url : "";
-		return src;
+		const raw = "audio_url" in episode && episode.audio_url ? episode.audio_url : "gcs_audio_url" in episode && episode.gcs_audio_url ? episode.gcs_audio_url : "";
+		return raw;
 	}, [open, episode]);
+
+	// Resolve signed URL for catalog episodes when needed
+	const [resolvedSrc, setResolvedSrc] = useState<string>("");
+	useEffect(() => {
+		let aborted = false;
+		async function resolve() {
+			if (!(open && episode)) {
+				setResolvedSrc("");
+				return;
+			}
+			// User episodes carry a signed URL in gcs_audio_url already
+			if ("gcs_audio_url" in (episode as Record<string, unknown>) && (episode as { gcs_audio_url?: string | null }).gcs_audio_url) {
+				setResolvedSrc((episode as { gcs_audio_url: string }).gcs_audio_url);
+				return;
+			}
+			// Catalog episode: fetch signed URL via API
+			const id = (episode as unknown as { episode_id?: string }).episode_id;
+			if (!id) {
+				setResolvedSrc(audioSrc);
+				return;
+			}
+			try {
+				const res = await fetch(`/api/episodes/${id}/play`, { cache: "no-store" });
+				if (!res.ok) {
+					setResolvedSrc(audioSrc);
+					return;
+				}
+				const data = (await res.json()) as { signedUrl?: string };
+				if (!aborted) setResolvedSrc(data.signedUrl || audioSrc);
+			} catch {
+				if (!aborted) setResolvedSrc(audioSrc);
+			}
+		}
+		void resolve();
+		return () => {
+			aborted = true;
+		};
+	}, [open, episode, audioSrc]);
 
 	const episodeKey = useMemo(() => {
 		if (!episode) return null;
@@ -323,9 +361,9 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		audio.addEventListener("emptied", handleEmptied);
 		audio.addEventListener("stalled", handleStalled);
 
-		if (open && audioSrc) {
+		if (open && resolvedSrc) {
 			const hasEpisodeChanged = episodeKey && lastEpisodeKeyRef.current !== episodeKey;
-			if (audio.src !== audioSrc || hasEpisodeChanged) {
+			if (audio.src !== resolvedSrc || hasEpisodeChanged) {
 				// Reset UI and timers for new source
 				stopProgressInterval();
 				setCurrentTime(0);
@@ -342,7 +380,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						audio.removeAttribute("src");
 					} catch { }
 				}
-				audio.src = audioSrc;
+				audio.src = resolvedSrc;
 				lastEpisodeKeyRef.current = episodeKey;
 			}
 			// Ensure the element preloads metadata for snappier start
