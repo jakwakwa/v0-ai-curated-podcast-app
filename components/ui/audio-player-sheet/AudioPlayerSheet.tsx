@@ -424,7 +424,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearCanPlayDebounce();
 			stopProgressInterval();
 		};
-	}, [open, audioSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, episodeKey]);
+	}, [open, resolvedSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, episodeKey]);
 
 	useEffect(() => {
 		if (audioRef.current) {
@@ -434,12 +434,12 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	const togglePlayPause = async () => {
 		const audio = audioRef.current;
-		if (!(audio && audioSrc)) {
-			console.warn("AudioPlayerSheet - togglePlayPause: Missing audio element or audioSrc", { audio: !!audio, audioSrc });
+		if (!(audio && resolvedSrc)) {
+			console.warn("AudioPlayerSheet - togglePlayPause: Missing audio element or resolvedSrc", { audio: !!audio, resolvedSrc });
 			return;
 		}
 
-		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, audioSrc, readyState: audio.readyState, paused: audio.paused });
+		console.log("AudioPlayerSheet - togglePlayPause:", { isPlaying, resolvedSrc, readyState: audio.readyState, paused: audio.paused });
 
 		try {
 			const isActuallyPaused = audio.paused;
@@ -452,9 +452,9 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				setIsLoading(false);
 			} else {
 				// Ensure source is applied immediately on first interaction
-				if (audio.src !== audioSrc) {
-					console.log("AudioPlayerSheet - Applying src before play:", audioSrc);
-					audio.src = audioSrc;
+				if (audio.src !== resolvedSrc) {
+					console.log("AudioPlayerSheet - Applying src before play:", resolvedSrc);
+					audio.src = resolvedSrc;
 				}
 				// If media is not ready, show loading and mark a pending play intent
 				if (audio.readyState < 2) {
@@ -704,7 +704,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							aria-label={isLoading ? "Loading..." : isPlaying ? "Pause" : "Play"}
 							aria-pressed={isPlaying}
 							onClick={togglePlayPause}
-							disabled={!audioSrc || isLoading}
+							disabled={!resolvedSrc || isLoading}
 							className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[14px] border border-[var(--audio-sheet-border)] bg-[radial-gradient(circle_at_30%_18%,rgba(82,167,151,0.99)_0%,rgba(80,84,205,0.42)_100%)] text-sm font-semibold shadow-[0px_1px_3px_rgba(0,0,0,0.3),0px_4px_8px_3px_rgba(0,0,0,0.15)] transition-all hover:brightness-110 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--audio-sheet-accent)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--audio-sheet-bg)] disabled:opacity-50 disabled:cursor-not-allowed">
 							{isLoading ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : isPlaying ? <Pause className="h-[18px] w-[18px]" /> : <Play className="h-[18px] w-[18px]" />}
 						</button>
