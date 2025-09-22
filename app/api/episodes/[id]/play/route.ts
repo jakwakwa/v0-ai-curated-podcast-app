@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 function extractGcsFromHttp(url: string): { bucket: string; object: string } | null {
 	try {
 		const u = new URL(url);
-		if (u.hostname === "storage.googleapis.com") {
+		if (u.hostname === "storage.googleapis.com" || u.hostname === "storage.cloud.google.com") {
 			// Path style: /bucket/object
 			const path = u.pathname.replace(/^\//, "");
 			const slash = path.indexOf("/");
