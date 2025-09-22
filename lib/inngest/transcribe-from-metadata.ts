@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
+import emailService from "@/lib/email-service";
 import { prisma } from "@/lib/prisma";
 // URL-only mandate: removed external audio discovery
 import { inngest } from "./client";
@@ -58,6 +59,29 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 			await step.run("mark-failed-no-url", async () => {
 				await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } });
 				await writeEpisodeDebugLog(userEpisodeId, { step: "resolve-src", status: "fail", message: "Missing or invalid YouTube URL" });
+			});
+			await step.run("email-invalid-url", async () => {
+				try {
+					const episode = await prisma.userEpisode.findUnique({
+						where: { episode_id: userEpisodeId },
+						select: { episode_title: true, user_id: true },
+					});
+					if (episode) {
+						const user = await prisma.user.findUnique({
+							where: { user_id: episode.user_id },
+							select: { email: true, name: true },
+						});
+						if (user?.email) {
+							const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
+							await emailService.sendEpisodeFailedEmail(episode.user_id, user.email, {
+								userFirstName,
+								episodeTitle: episode.episode_title,
+							});
+						}
+					}
+				} catch (err) {
+					console.error("[INVALID_URL_EMAIL]", err);
+				}
 			});
 			return { message: "Missing or invalid YouTube URL", userEpisodeId };
 		}

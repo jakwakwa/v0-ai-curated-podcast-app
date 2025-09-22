@@ -1,4 +1,5 @@
 import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger";
+import emailService from "@/lib/email-service";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/prisma";
 import { preflightProbe } from "./utils/preflight";
@@ -68,6 +69,30 @@ export const transcriptionCoordinator = inngest.createFunction(
 						status: "fail",
 						message: "Gemini transcription failed or timed out; fallback also failed",
 					});
+				});
+
+				await step.run("email-user-failed", async () => {
+					try {
+						const episode = await prisma.userEpisode.findUnique({
+							where: { episode_id: userEpisodeId },
+							select: { episode_title: true, user_id: true },
+						});
+						if (episode) {
+							const user = await prisma.user.findUnique({
+								where: { user_id: episode.user_id },
+								select: { email: true, name: true },
+							});
+							if (user?.email) {
+								const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
+								await emailService.sendEpisodeFailedEmail(episode.user_id, user.email, {
+									userFirstName,
+									episodeTitle: episode.episode_title,
+								});
+							}
+						}
+					} catch (err) {
+						console.error("[EMAIL_FAIL_NOTIFY]", err);
+					}
 				});
 				await step.sendEvent("finalize-failed", {
 					name: Events.Finalized,
