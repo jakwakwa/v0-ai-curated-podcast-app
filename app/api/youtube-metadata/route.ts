@@ -1,35 +1,39 @@
-import { auth } from "@clerk/nextjs/server"
-import { NextResponse } from "next/server"
-import { z } from "zod"
-import { getYouTubeVideoTitle } from "@/lib/youtube-safe"
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 
 const schema = z.object({
 	url: z.string().url(),
-})
+});
 
 export async function GET(request: Request) {
 	try {
-		const { userId } = await auth()
+		const { userId } = await auth();
 		if (!userId) {
-			return new NextResponse("Unauthorized", { status: 401 })
+			return new NextResponse("Unauthorized", { status: 401 });
 		}
 
-		const { searchParams } = new URL(request.url)
-		const url = searchParams.get("url")
+		const { searchParams } = new URL(request.url);
+		const url = searchParams.get("url");
 
-		const parsed = schema.safeParse({ url })
+		const parsed = schema.safeParse({ url });
 		if (!parsed.success) {
-			return new NextResponse(parsed.error.message, { status: 400 })
+			return new NextResponse(parsed.error.message, { status: 400 });
 		}
 
-		const title = await getYouTubeVideoTitle(parsed.data.url)
+		const details = await getYouTubeVideoDetails(parsed.data.url);
 
-		return NextResponse.json({ title })
+		if (!details) {
+			return new NextResponse("Could not retrieve video details. Please check the URL and ensure the API key is valid.", { status: 404 });
+		}
+
+		return NextResponse.json(details);
 	} catch (error) {
-		console.error("[YOUTUBE_METADATA_GET]", error)
+		console.error("[YOUTUBE_METADATA_GET]", error);
 		if (error instanceof Error) {
-			return new NextResponse(error.message, { status: 500 })
+			return new NextResponse(error.message, { status: 500 });
 		}
-		return new NextResponse("Internal Error", { status: 500 })
+		return new NextResponse("Internal Error", { status: 500 });
 	}
 }

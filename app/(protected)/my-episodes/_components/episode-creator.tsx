@@ -1,9 +1,10 @@
 "use client";
 
-import { ChevronDown, ChevronRight, PlayCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, PlayCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,17 +15,21 @@ import { VOICE_OPTIONS } from "@/lib/constants/voices";
 import { useNotificationStore } from "@/lib/stores";
 
 const EPISODE_LIMIT = 10;
+const MAX_DURATION_SECONDS = 60 * 60; // 60 minutes
 
 export function EpisodeCreator() {
 	const router = useRouter();
 	const { resumeAfterSubmission } = useNotificationStore();
 
-	// Unified single form
-	const [title, setTitle] = useState("");
-	// Removed: publishedDate, lang per simplified mandate
-	const [podcastName, setPodcastName] = useState("");
 	const [youtubeUrl, setYouTubeUrl] = useState("");
+	const [debouncedYoutubeUrl] = useDebounce(youtubeUrl, 500);
+
 	const [youtubeUrlError, setYouTubeUrlError] = useState<string | null>(null);
+	const [videoTitle, setVideoTitle] = useState<string | null>(null);
+	const [videoDuration, setVideoDuration] = useState<number | null>(null);
+	const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
+
+	const [podcastName, setPodcastName] = useState("");
 
 	// Generation options
 	const [generationMode, setGenerationMode] = useState<"single" | "multi">("single");
@@ -45,7 +50,7 @@ export function EpisodeCreator() {
 	// Tips visibility state
 	const [showTips, setShowTips] = useState(false);
 
-	const isBusy = isCreating;
+	const isBusy = isCreating || isFetchingMetadata;
 	const isAudioPlaying = isPlaying !== null;
 	function isYouTubeUrl(url: string): boolean {
 		try {
@@ -57,26 +62,27 @@ export function EpisodeCreator() {
 		}
 	}
 
-	const isYouTubeValid = youtubeUrl.length === 0 ? false : isYouTubeUrl(youtubeUrl);
-	const canSubmit = Boolean(title) && isYouTubeValid && !isBusy;
+	const isDurationValid = videoDuration !== null && videoDuration <= MAX_DURATION_SECONDS;
+	const canSubmit = Boolean(videoTitle) && isYouTubeUrl(youtubeUrl) && !isBusy && isDurationValid;
+
+	const fetchUsage = useCallback(async () => {
+		try {
+			setIsLoadingUsage(true);
+			const res = await fetch("/api/user-episodes?count=true");
+			if (res.ok) {
+				const { count } = await res.json();
+				setUsage({ count, limit: EPISODE_LIMIT });
+			}
+		} catch (error) {
+			console.error("Failed to fetch user episodes data:", error);
+		} finally {
+			setIsLoadingUsage(false);
+		}
+	}, []);
 
 	useEffect(() => {
-		const fetchUsage = async () => {
-			try {
-				setIsLoadingUsage(true);
-				const res = await fetch("/api/user-episodes?count=true");
-				if (res.ok) {
-					const { count } = await res.json();
-					setUsage({ count, limit: EPISODE_LIMIT });
-				}
-			} catch (error) {
-				console.error("Failed to fetch user episodes data:", error);
-			} finally {
-				setIsLoadingUsage(false);
-			}
-		};
 		fetchUsage();
-	}, []);
+	}, [fetchUsage]);
 
 	// Timer effect for restriction dialog
 	useEffect(() => {
@@ -93,19 +99,49 @@ export function EpisodeCreator() {
 		};
 	}, [isLoadingUsage, usage.count, usage.limit]);
 
+	useEffect(() => {
+		async function fetchMetadata() {
+			setYouTubeUrlError(null);
+			if (isYouTubeUrl(debouncedYoutubeUrl)) {
+				setIsFetchingMetadata(true);
+				setVideoTitle(null);
+				setVideoDuration(null);
+				try {
+					const res = await fetch(`/api/youtube-metadata?url=${encodeURIComponent(debouncedYoutubeUrl)}`);
+					if (!res.ok) {
+						throw new Error("Could not fetch video details. Please check the URL.");
+					}
+					const { title, duration } = await res.json();
+					setVideoTitle(title);
+					setVideoDuration(duration);
+					if (duration > MAX_DURATION_SECONDS) {
+						setYouTubeUrlError(`Video is too long. Please select a video that is 60 minutes or less. This video is ${Math.round(duration / 60)} minutes long.`);
+					}
+				} catch (err) {
+					setYouTubeUrlError(err instanceof Error ? err.message : "An unknown error occurred.");
+				} finally {
+					setIsFetchingMetadata(false);
+				}
+			} else {
+				setVideoTitle(null);
+				setVideoDuration(null);
+				if (debouncedYoutubeUrl) {
+					setYouTubeUrlError("Please enter a valid YouTube URL.");
+				}
+			}
+		}
+		fetchMetadata();
+	}, [debouncedYoutubeUrl]);
+
 	async function handleCreate() {
+		if (!canSubmit) return;
+
 		setIsCreating(true);
 		setError(null);
 		try {
-			// Client-side validation to avoid wasting backend/ingest time
-			if (!isYouTubeValid) {
-				setYouTubeUrlError("Please enter a valid YouTube URL");
-				setIsCreating(false);
-				return;
-			}
 			const payload = {
-				title,
-				youtubeUrl: youtubeUrl || undefined,
+				title: videoTitle,
+				youtubeUrl: youtubeUrl,
 				podcastName: podcastName || undefined,
 				generationMode,
 				voiceA,
@@ -117,13 +153,12 @@ export function EpisodeCreator() {
 				body: JSON.stringify(payload),
 			});
 			if (!res.ok) throw new Error(await res.text());
-			toast.message("We're searching for the episode and transcribing it. We'll email you when it's ready.", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
-			// Resume notifications polling only after a new submission is initiated
+			toast.message("We're processing your episode and will email you when it's ready.", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
 			resumeAfterSubmission();
 			router.push("/dashboard");
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to start metadata flow");
-			toast.error((err instanceof Error ? err.message : "Failed to start metadata flow") || "", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
+			setError(err instanceof Error ? err.message : "Failed to start episode generation.");
+			toast.error((err instanceof Error ? err.message : "Failed to start episode generation.") || "", { duration: Infinity, action: { label: "Dismiss", onClick: () => { } } });
 		} finally {
 			setIsCreating(false);
 		}
@@ -152,21 +187,15 @@ export function EpisodeCreator() {
 	}
 
 	const hasReachedLimit = usage.count >= usage.limit;
-
-	const handleUpgradeMembership = () => {
-		router.push("/manage-membership");
-	};
-
-	const handleGoBack = () => {
-		router.back();
-	};
+	const handleUpgradeMembership = () => router.push("/manage-membership");
+	const handleGoBack = () => router.back();
 
 	return (
 		<div className="w-full h-auto mb-0 px-4 py-4 md:px-8 lg:px-10 lg:py-12">
 			<div className="w-full flex flex-col gap-3 md:gap-8">
 				<CardHeader>
 					<h1 className="text-xl text-foreground font-bold mb-2  md:mb-4">Generate a custom episode</h1>
-					<CardDescription>Provide episode details. We'll resolve sources and transcribe in the background.</CardDescription>
+					<CardDescription>Provide a YouTube link. We'll handle the rest in the background.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					{isLoadingUsage ? (
@@ -183,28 +212,28 @@ export function EpisodeCreator() {
 								void handleCreate();
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<Label htmlFor="title">Episode Title</Label>
-									<Input id="title" placeholder="Any title you like" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
+								<div className="space-y-2 md:col-span-2">
+									<Label htmlFor="youtubeUrl">YouTube URL (Max 60 minutes)</Label>
+									<Input id="youtubeUrl" placeholder="https://www.youtube.com/..." value={youtubeUrl} onChange={e => setYouTubeUrl(e.target.value)} disabled={isBusy} required />
+									{isFetchingMetadata && (
+										<p className="text-sm text-muted-foreground flex items-center mt-2">
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Fetching video details...
+										</p>
+									)}
+									{youtubeUrlError && <p className="text-red-500 text-sm mt-2">{youtubeUrlError}</p>}
 								</div>
-								<div className="space-y-2">
-									<Label htmlFor="youtubeUrl">YouTube URL (required)</Label>
-									<Input
-										id="youtubeUrl"
-										placeholder="https://www.youtube.com/..."
-										value={youtubeUrl}
-										onChange={e => {
-											setYouTubeUrl(e.target.value);
-											setYouTubeUrlError(null);
-										}}
-										onBlur={() => {
-											if (youtubeUrl && !isYouTubeValid) setYouTubeUrlError("Please enter a valid YouTube URL");
-										}}
-										disabled={isBusy}
-										required
-									/>
-									{youtubeUrlError && <p className="text-red-500 text-sm">{youtubeUrlError}</p>}
-								</div>
+
+								{videoTitle && (
+									<div className="space-y-2 md:col-span-2 bg-muted/50 p-4 rounded-lg border">
+										<Label>Episode Title</Label>
+										<p className="text-foreground font-semibold">{videoTitle}</p>
+										{videoDuration !== null && (
+											<p className="text-sm text-muted-foreground">
+												Duration: {Math.floor(videoDuration / 60)}m {videoDuration % 60}s
+											</p>
+										)}
+									</div>
+								)}
 							</div>
 
 							<div className="hidden not-only:grid-cols-1 gap-4">
@@ -365,22 +394,13 @@ export function EpisodeCreator() {
 				</CardContent>
 			</div>
 
-			{/* Restriction Dialog */}
-			<Dialog
-				open={showRestrictionDialog}
-				onOpenChange={() => { }} // Prevent closing
-				modal={true}>
-				<DialogContent
-					className="sm:max-w-md"
-					onInteractOutside={e => e.preventDefault()} // Prevent closing on outside click
-					onEscapeKeyDown={e => e.preventDefault()} // Prevent closing on escape
-				>
+			<Dialog open={showRestrictionDialog} onOpenChange={() => { }} modal={true}>
+				<DialogContent className="sm:max-w-md" onInteractOutside={e => e.preventDefault()} onEscapeKeyDown={e => e.preventDefault()}>
 					<DialogHeader>
 						<DialogTitle className="text-center text-xl">Episode Creation Limit Reached</DialogTitle>
 						<DialogDescription className="text-center space-y-4">
 							<p>You've reached your monthly limit of {usage.limit} episodes for your current membership plan.</p>
 							<p className="font-medium">To create more episodes, you'll need to upgrade your membership to unlock higher limits and premium features.</p>
-							<p className="text-sm text-muted-foreground">Choose an option below to continue:</p>
 						</DialogDescription>
 					</DialogHeader>
 					<div className="flex flex-col gap-3 mt-6">
