@@ -8,20 +8,20 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "btn-default shadow-[inset_0_-1px_2px_rgba(0,0,0,0.9)] text-primary-foreground shadow hover:bg-[#045A69] md:min-w-[100px] min-h-9 h-auto text-lg",
+				default: "btn-default text-primary-foreground shadow hover:bg-[#045A69] md:min-w-[100px] h-auto text-lg px-3 leading-0",
 				destructive: "bg-destructive text-destructive-foreground shadow-[0 -2px 2px 1px #000000BA] hover:bg-destructive/90",
-				outline: "border border-[#9FB3D031] bg-[#0B1010C7] rounded-full shadow-sm hover:bg-sidebar hover:text-accent-foreground text-[0.9rem] font-bold",
-				secondary: "bg-[#5F0573] disabled:bg-[#5E5C6F] rounded-lg border-1 border-[#AA31C5] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)] w-full md:max-w-fit px-4 min-h-10 h-auto text-[1rem]",
+				outline: "border border-[#DEECEE1A] bg-[#0B101011] px-6 rounded-2xl shadow-sm hover:bg-sidebar hover:text-accent-foreground text-[0.9rem] font-bold",
+				secondary: "bg-[#5F0573] disabled:bg-[#5E5C6F] rounded-lg border-1 border-[#AA31C5] text-secondary-foreground hover:bg-secondary/80 shadow-[0px_4px_rgba(0,0,0,0.9)] w-full md:max-w-fit px-4 min-h-10 h-auto text-[1rem] shadow-lg shadow-black",
 				ghost: "hover:bg-secondary/80 hover:text-accent-foreground",
 				link: "text-primary-forefround underline-offset-4 hover:underline",
 				play: "p-0 m-0 btn-playicon hover:btn-playicon",
 				icon: "",
 			},
 			size: {
-				default: "text-[0.9rem] font-medium",
-				sm: "h-9 rounded-md px-4 pt-2 pb-3 text-xs",
-				lg: "h-9 px-8 py-2 text-sm font-medium",
-				md: "h-9 rounded-md text-[0.9rem] pb-1 font-medium",
+				default: "text-[0.9rem] pt-2 pb-2.5  font-medium",
+				sm: "h-9 rounded-lg px-4 pt-2.5 pb-3 text-xs",
+				lg: "h-9 px-8 pt-2.5 pb-3  text-sm font-medium",
+				md: "h-9 rounded-md text-[0.9rem] pt-2.5 pb-3  font-medium",
 				xs: "p-2 text-xs",
 				icon: "h-32 w-32",
 				play: "",

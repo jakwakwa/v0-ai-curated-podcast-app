@@ -75,7 +75,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 					<div className="space-y-2">
 						<Label htmlFor="status">Status</Label>
 						<Select value={status ? status : "Active"} onValueChange={setStatus}>
-							<SelectTrigger className="bg-input text-foreground/80">
+							<SelectTrigger className=" text-foreground/80">
 								<SelectValue placeholder="Select status" />
 							</SelectTrigger>
 							<SelectContent className="bg-[#000] border border-border h-auto min-h-[100px] ">
@@ -91,7 +91,7 @@ export default function EditUserFeedModal({ isOpen, onClose, collection, onSave 
 						<div className="space-y-2">
 							<Label htmlFor="bundle">Change Bundle</Label>
 							<Select value={selectedBundleId} onValueChange={setSelectedBundleId} disabled={isLoadingBundles || availableBundles.length === 0}>
-								<SelectTrigger className="bg-input text-foreground/80">
+								<SelectTrigger className=" text-foreground/80">
 									<SelectValue placeholder={isLoadingBundles ? "Loading bundles..." : "Select a new bundle"} />
 								</SelectTrigger>
 								<SelectContent className="bg-[#000] border border-border h-auto max-h-60 overflow-y-auto">

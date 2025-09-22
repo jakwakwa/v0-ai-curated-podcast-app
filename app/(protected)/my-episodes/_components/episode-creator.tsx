@@ -162,7 +162,7 @@ export function EpisodeCreator() {
 	};
 
 	return (
-		<div className="w-full h-auto mb-0 px-4 py-4 md:px-8 lg:px-16 lg:py-12">
+		<div className="w-full h-auto mb-0 px-4 py-4 md:px-8 lg:px-10 lg:py-12">
 			<div className="w-full flex flex-col gap-3 md:gap-8">
 				<CardHeader>
 					<h1 className="text-xl text-foreground font-bold mb-2  md:mb-4">Generate a custom episode</h1>
@@ -185,13 +185,13 @@ export function EpisodeCreator() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-2">
 									<Label htmlFor="title">Episode Title</Label>
-									<Input id="title" placeholder="Exact episode title" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
+									<Input id="title" placeholder="Any title you like" value={title} onChange={e => setTitle(e.target.value)} disabled={isBusy} required />
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="youtubeUrl">YouTube URL (required)</Label>
 									<Input
 										id="youtubeUrl"
-										placeholder="https://www.youtube.com/watch?v=..."
+										placeholder="https://www.youtube.com/..."
 										value={youtubeUrl}
 										onChange={e => {
 											setYouTubeUrl(e.target.value);
@@ -214,7 +214,7 @@ export function EpisodeCreator() {
 								</div>
 							</div>
 
-							<div className="space-y-6 border border-[#3a383c67] rounded-md md:rounded-xl shadow-md p-4 bg-[#000]/40">
+							<div className="space-y-6 border border-[#0c525b6f] rounded-md md:rounded-xl shadow-md px-6 py-4 bg-[#000]/20">
 								<div className="space-y-2">
 									<Label size="lg">Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
@@ -285,7 +285,7 @@ export function EpisodeCreator() {
 								{generationMode === "multi" && (
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<div className="py-2 text-foreground text-sm">Voice A</div>
+											<div className="py-0 text-[#b4edf1] text-sm">Voice A</div>
 											<Select value={voiceA} onValueChange={setVoiceA}>
 												<SelectTrigger className="w/full" disabled={isBusy}>
 													<SelectValue placeholder="Select Voice A" />
@@ -319,7 +319,7 @@ export function EpisodeCreator() {
 											</div>
 										</div>
 										<div>
-											<div className="py-2 text-foreground text-sm">Voice B</div>
+											<div className="py-0 text-[#d1b2f2] text-sm">Voice B</div>
 											<Select value={voiceB} onValueChange={setVoiceB}>
 												<SelectTrigger className="w/full" disabled={isBusy}>
 													<SelectValue placeholder="Select Voice B" />

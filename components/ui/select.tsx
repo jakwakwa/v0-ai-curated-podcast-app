@@ -30,7 +30,7 @@ function SelectTrigger({
 			data-slot="select-trigger"
 			data-size={size}
 			className={cn(
-				" border-[#63747c73]  focus-visible:border-accent focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-[#100f14e0] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-lg border-1 px-4 py-[17px] whitespace-nowrap shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-12 data-[size=sm]:h-12  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-180 mr-2 w-full max-w-[180px]",
+				" border-[#63747c73] outline-0 mt-2  focus-visible:bg-[#141123] focus-visible:outline-transparent focus-visible:text-[#baa4e0] focus-visible:font-light focus-visible:outline-1 focus-visible:border-1 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus:bg-[#07050a3b] focus:border-ring focus:border-2 focus:text-[#67ece3] bg-[#11131497] dark:hover:bg-[#000] flex items-center justify-between gap-2 rounded-lg border-1 px-4 py-[17px] whitespace-nowrap shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[0.5px] focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-12 data-[size=sm]:h-12  *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-180 mr-2 w-full max-w-[180px]",
 				className
 			)}
 			{...props}
@@ -46,13 +46,13 @@ function SelectTrigger({
 function SelectContent({ className, children, position = "popper", ...props }: React.ComponentProps<typeof SelectPrimitive.Content>) {
 	return (
 		<SelectPrimitive.Portal>
-			<SelectPrimitive.Content data-slot="select-content" position={position} {...props} className={cn("bg-transparent z-1000", className)} sideOffset={4}>
+			<SelectPrimitive.Content data-slot="select-content" position={position} {...props} className={cn("rounded-2xl bg-transparent mt-0 top-0 z-1000", className)} sideOffset={4}>
 				<SelectScrollUpButton />
 				<SelectPrimitive.Viewport
 					className={cn(
 						"p-1 overflow-y-auto cursor-pointer",
 						position === "popper" &&
-						"bg-[#1D191FE0] py-4 px-2 border-1 border-[#15191DED] rounded-md w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[14px] scroll-my-1 flex flex-col gap-1 text-[14px] "
+						"bg-[#0D0D11AF] py-4 px-4 border-1 border-[#ffffff78] w-full min-w-[var(--radix-select-trigger-width)] backdrop-blur-[20px] scroll-my-1 flex flex-col gap-1 text-[14px] rounded-2xl"
 					)}
 				>
 					{children}
@@ -72,14 +72,14 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
 		<SelectPrimitive.Item
 			data-slot="select-item"
 			className={cn(
-				"font-medium hover:bg-[#19515D] hover:rounded-sm hover:text-accent-foreground cursor-pointer rounded-sm px-2 py-1.5 transition-colors",
+				"font-medium hover:bg-[#4c427a40] hover:rounded-sm hover:text-foreground cursor-pointer px-2 py-1.5 transition-colors flex flex-row items-center rounded-md",
 				className
 			)}
 			{...props}
 		>
 			<div className="absolute right-2 flex size-8 items-center justify-center display-none   text-[1px] ">
 				<SelectPrimitive.ItemIndicator>
-					<CheckIcon className="size-4 font-medium text-[0.1rem] " />
+					<CheckIcon className="size-4 font-medium text-[#4eb494] text-[0.1rem] " />
 				</SelectPrimitive.ItemIndicator>
 			</div>
 			<SelectPrimitive.ItemText className="font-semibold text-[0.1rem]  ">{children}</SelectPrimitive.ItemText>
@@ -88,7 +88,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
 }
 
 function SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>) {
-	return <SelectPrimitive.Separator data-slot="select-separator" className={cn("bg-bord-dark pointer-events-none -mx-1 my-2", className)} {...props} />
+	return <SelectPrimitive.Separator data-slot="select-separator" className={cn(" pointer-events-none my-0", className)} {...props} />
 }
 
 function SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {

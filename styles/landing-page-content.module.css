@@ -86,7 +86,7 @@
 	inset: 0;
 	pointer-events: none;
 		background-image: url('/assets/background/grid-bg.svg') no-repeat 0% 0%;
-	background: linear-gradient(80deg, oklch(0.13 0.06 305.02 / 0.6) -30%, oklch(0.28 0.14 303.9 / 0.35) 20%, oklch(0.13 0.06 305.02 / 0.6) 50%, rgba(8 164 175 / 0.32) 120%);
+	background: linear-gradient(80deg, oklch(0.15 0.07 300.98 / 0.38) -20%, oklch(0.57 0.21 307.95 / 0.18) 60%,  rgba(2 57 66 / 0.91) 120%);
 		background-position: 0% 10%, 0% 0%, 110% 20%, 11% 110%;
 	background-blend-mode: screen;
 	/* Layered subtle gradients */
@@ -223,9 +223,9 @@
 	margin: 2rem auto 0;
 	padding: 1.25rem 1.2rem;
 	border-radius: 3rem;
-	border: 1px solid rgba(107 241 248 / 0.08);
-	background: rgba(112 141 192 / 0.13);
-	backdrop-filter: blur(3px);
+	border: 1px solid rgba(104 219 250 / 0.13);
+	background: rgba(9 1 19 / 0.16);
+	backdrop-filter: blur(10px);
 }
 
 .audioPlayerHeader {
@@ -290,6 +290,9 @@
 	justify-content: flex-start;
 	align-content: flex-start;
 	gap: 2px;
+
+
+	border-radius: 20px;
 	padding-top: 0rem;
 	padding-left: 0;
 	height: 44px;
@@ -300,7 +303,7 @@
 	width: 5px;
 	height: 100%;
 	border-radius: 2px;
-	background: linear-gradient(180deg, rgba(168, 85, 247, 0.9) 20%, rgba(26 125 84 / 0.9) 30%, rgba(16 112 185 / 0.9) 70%);
+	background: linear-gradient(180deg, rgba(86 213 219 / 0.97) 10%,  rgba(69 166 171 / 0.97) 20%, rgba(202 127 231 / 0.9) 40%, rgba(101 55 209 / 0.97) 90%, rgba(19 85 177 / 0.97) 110%);
 	opacity: 0.95;
 	transform-origin: bottom center;
 	will-change: transform;

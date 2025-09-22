@@ -24,6 +24,33 @@
 			height: auto;
 			background: #09090A;
 		}
+/* For WebKit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #251B4816; /* Color of the scroll track */
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #03A59D77; /* Color of the scroll thumb */
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #05C3D0;
+}
+
+/* For Firefox */
+ .custom-scrollbar {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #05C3D0 #251B4816; /* scroll thumb and track color */
+}
 
 		::selection {
 			color: rgba(231 252 250 / 0.46) !important;
@@ -199,7 +226,7 @@
 		--chart-3: oklch(0.769 0.188 70.08);
 		--chart-4: oklch(0.627 0.265 303.9);
 		--chart-5: oklch(0.645 0.246 16.439);
-		--sidebar: oklch(0.18 0.01 304.43 / 0.8);
+		--sidebar: oklch(0.2 0.02 293.66 / 0.8);
 		--sidebar-foreground: oklch(0.81 0.02 282.87);
 		--sidebar-primary: oklch(0.488 0.243 264.376);
 		--sidebar-primary-foreground: oklch(0.63 0.03 321.99);
@@ -327,34 +354,34 @@
 			overflow: hidden;
 			inset: 0;
 			pointer-events: none;
-			background: linear-gradient(90deg, hsla(201.9 63.64% 19.41% / 0.63) 0%, oklch(0.45 0.14 296.39 / 0.48) 70%, rgba(29 35 35 / 0.1));
-			background-image: url('/assets/background/grid-bg.svg') no-repeat 50%,
-				url('/assets/background/grain-bg.svg');
 
-			background-blend-mode: multiply;
+			background: linear-gradient(210deg,  oklch(0.69 0.12 203.48) -130%, oklch(0.25 0.07 266.04 / 0.62) 0%, oklch(0.35 0.09 246.04 / 0.62) 30%,rgb(74 28 104) 100% );
+			background-blend-mode: saturation;
 			/* Layered subtle gradients */
 
-			background-size: 110% 110%, 110% 110%, 250% 250%;
-			animation: gradientShift 5s ease-in-out infinite alternate;
+			background-size: 110% 110%, 120% 120%, 210% 210%,210% 210%;
+			/* animation: gradientShift 5s ease-in-out infinite alternate; */
 			/* filter: blur(0.4px); */
-			mix-blend-mode: multiply, multiply;
+			background-position: top;
+			mix-blend-mode: multiply, screen;
 		}
 
 		.page-header-bg {
-			background-image: linear-gradient(to bottom right, #153E4457 20%, #000000E5 150%);
+			background-image: linear-gradient(to bottom right, #153E4457 40%, #000000BE 180%);
 			border: 2px solid hsla(0 6.67% 2.94% / 0.87) 130% !important;
 			border-radius: 20px !important;
 			box-shadow: 1px 5px 12px 0px #00000073 !important;
 		}
 
 
+
 		.episode-card-wrapper {
 			padding: 30px;
-			background: #0F0F1279;
-			background-image: linear-gradient(to bottom, #2A2D42A8, #1D2130D3);
-			border: 2px solid #14181A84 !important;
+			background: #13191F22;
+			background-image: linear-gradient(to bottom, oklch(0.4 0.03 297.43 / 0.21) 40%, oklch(0.21 0.01 264.37 / 0.87) 160%);
+			border: 1px solid #0606064F !important;
 			border-radius: 20px !important;
-	box-shadow: 2px 6px 10px 0px #0000009A !important;
+			box-shadow: inset 0.5px 1px 0px 0px #6168686A,1px 3px 5px 0px #0000009A !important;
 			background-blend-mode: multiply;
 		}
 
@@ -369,12 +396,14 @@
 
 		.episode-card-wrapper-dark {
 			position: relative;
-			padding: 10px 0px;
-			/* border-radius: 40px !important; */
+			padding: 15px 0px !important;
 			margin: 0 !important;
-			background: #0F0D0D;
-			background-image: linear-gradient(to top, #0B1115A4, #1B1B23CE);
-			/* box-shadow: inset 0px 4px 2px oklch(0 0 0 / 0.19) !important; */
+			border-radius: 30px !important;
+			margin: 0 !important;
+			background: #0C0D0D;
+			border: 1px solid #13131567;
+			background-image: linear-gradient(to top, #19181B60, #2830448F);
+			box-shadow: inset 0px 6px 10px oklch(0 0 0 / 0.27) !important;
 			transition: all 0.2s ease-in-out;
 		}
 	}
@@ -384,7 +413,7 @@
 	/* ============================================= */
 	@layer utilities {
 		.bg-sidebar {
-			background: var(--sidebar);
+			background: #12121AC1;
 			border-right: 1px solid #434A4F5A !important;
 		}
 	}
@@ -395,18 +424,18 @@
 
 	@layer utilities {
 		.btn-default {
-			background: linear-gradient(to top, #082439, #1C5754);
-			text-shadow: 0px 2px 0px 1px #26223480;
+			background: linear-gradient(to top, #0A394A, #124845);
+			text-shadow: 0px 2px 1px 1px #26223480;
 			font-size: 0.8rem !important;
 			font-weight: 500 !important;
-			border-radius: 0.8rem !important;
+			border-radius: 0.75rem !important;
 			box-shadow:
-				inset 0px 1px 1px 0px #2ef09637,
-				inset 0px -2px 3px #1f1c279d,
-				0px 0px 0px 0px #1b1b1b1c,
-				0px 3px 3px 0px #0b0b0ba9,
-				0px 1px 0px 0px #050505d7,
-				inset 0px -3px 1px 0px #00000052;
+				inset 0px 1px 0px 0px #2EF0D924,
+				inset 0px -1px 1px #1f1c279d,
+				0px 1px 0px 0px #1b1b1b1c,
+				0px 3px 3px 0px #0B0B0B4F,
+				0px 1px 0px 0px #050505A8,
+				inset 0px -2px 1px 0px #00000052;
 			transition: 300ms all ease-in;
 		}
 
@@ -421,11 +450,11 @@
 	/* ============================================= */
 	@layer utilities {
 		.bg-card {
-			background-color: #212435;
+			background-color: #242834;
 			box-shadow:
 				inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.37),
-				2px 3px 3px 1px oklch(0.31 0.03 301.24 / 0.81),
-				2px 2px 8px 2px #000000B5;
+				2px 3px 3px 1px oklch(0.22 0.02 300.18 / 0.56),
+				1px 4px 7px 2px #00000057;
 			padding: 20px;
 			/* border: 1px solid #24242A;	 */
 			outline-offset: 1px;
@@ -487,7 +516,7 @@
 
 			letter-spacing: 0.0015em;
 			color: oklch(0.92 0.04 173.12 / 0.8) !important;
-			background-color: #131416 !important;
+			background-color: #181C22E9 !important;
 			outline: 1px solid #2C3434F4 !important;
 			border-radius: 10px !important;
 			box-shadow: inset 1px 2px 3px 1px #000000 !important;

@@ -24,7 +24,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 
 			<SidebarInset>
 				<header
-					className={`fixed bg-sidebar flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-screen justify-between px-2 md:px-4 py-0 overflow-y-scroll z-50 ${state === "expanded" ? "" : ""}`}>
+					className={`fixed bg-sidebar flex h-16 backdrop-blur-[10px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 mt-0 w-screen justify-between px-2 md:px-4 py-0 overflow-y-scrol shadow-lg shadow-black/50 duration-300  z-50 ${state === "expanded" ? "" : ""}`}>
 					<div className={`flex items-center h-16 justify-between gap-2 px-2  ${state === "expanded" ? "md:px-4" : "md:px-0"}`}>
 						<Image className={`w-full max-w-[100px] ${state === "expanded" ? "inline " : "hidden"}`} src="/logo.png" width={300} height={100} alt="logo" />
 
@@ -46,13 +46,13 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 				</header>
 
 				<div
-					className={`flex flex-col flex-grow transition-all duration-300 ease-in-out px-0 md:px-0 mt-8 md:mt-0 mb-2 m-0 p-0 h-screen ${state === "expanded" ? "ml-0 w-full md:ml-6 md:max-w-[80vw] " : "ml-0 md:ml-12 w-full md:max-w-[95vw]"}`}>
+					className={`flex flex-col flex-grow transition-all duration-300 ease-in-out px-0 md:px-0 mt-8 md:mt-0 mb-2 m-0 p-0 h-screen ${state === "expanded" ? "ml-0 w-full md:ml-3 md:pr-2 " : "ml-0 md:ml-12 w-full md:max-w-[95vw]"}`}>
 					{/* <div className={'grain-blur background-base'} /> */}
 					<div className={'grain-background background-base'} />
 					<div className={'grid-bg-one background-base'} />
 					<div className={'large-blur background-base'} />
 					<div className={'small-blur background-base  layout-inset-background'} />
-					<div className="w-full p-0 flex flex-col md:flex-row pt-10 pb-12 md:pt-24 px-2 min-w-full md:px-0 my-0 md:pr-4">{children}</div>
+					<div className="w-full p-0 flex flex-col my-0 md:flex-row pt-8 md:pb-2 md:pt-20 px-2 min-w-full md:px-0 md:pr-4">{children}</div>
 				</div>
 			</SidebarInset>
 		</>
