@@ -157,7 +157,7 @@ export default function LandingPageContent() {
 					<div className="mt-4 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
 						<LandingAudioPlayer />
 					</div>
-					{/* Demo Video Player */}
+
 
 				</div>
 			</section>
@@ -174,23 +174,17 @@ export default function LandingPageContent() {
 						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
-						<div className="mt-6 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
-							<video
-								className="w-full rounded-lg"
-								src="https://res.cloudinary.com/jakwakwa/video/upload/v1758465383/podslice_demo-1_ptmi24.mp4"
-								controls
-								preload="metadata"
-								playsInline
-								poster="/podslice-og.jpg"
-								aria-label="Podslice product demo video">
-								<track
-									kind="captions"
-									src="/captions/podslice-demo-1.en.vtt"
-									srcLang="en"
-									label="English captions"
-									default
-								/>
-							</video>
+						<div className="mt-6 w-full max-w-sc	reen md:max-w-3xl mx-auto md:px-4">
+							<iframe
+								title="Podslice demo video"
+								src="https://player.cloudinary.com/embed/?cloud_name=jakwakwa&public_id=podslice_demo-1_ptmi24&profile=cld-default"
+								width="640"
+								height="360"
+								style={{ height: "auto", width: "100%", aspectRatio: "640 / 360" }}
+								allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+								allowFullScreen
+								frameBorder="0"
+							></iframe>
 						</div>
 					</motion.div>
 					<div className={styles.howItWorksGrid}>

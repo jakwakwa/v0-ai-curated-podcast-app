@@ -107,6 +107,7 @@ const nextConfig = {
 								'https://sandbox-buy.paddle.com',
 								'https://checkout.paddle.com',
 								'https://vendors.paddle.com',
+							'https://player.cloudinary.com',
 								...clerkHosts.map(h => `https://${h}`),
 								...extraHosts,
 					],
