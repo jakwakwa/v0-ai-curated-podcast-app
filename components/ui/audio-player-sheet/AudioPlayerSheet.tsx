@@ -369,7 +369,6 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				setCurrentTime(0);
 				setDuration(0);
 				// Apply new source
-				audio.crossOrigin = "anonymous";
 				try {
 					// Always pause before switching source to clear previous playback state
 					audio.pause();
