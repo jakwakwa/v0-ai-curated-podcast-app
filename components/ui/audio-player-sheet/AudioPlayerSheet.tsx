@@ -423,7 +423,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 			clearCanPlayDebounce();
 			stopProgressInterval();
 		};
-	}, [open, resolvedSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, episodeKey]);
+	}, [open, resolvedSrc, clearLoadingTimeout, setLoadingWithTimeout, clearCanPlayDebounce, startProgressInterval, stopProgressInterval, audioSrc, episodeKey]);
 
 	useEffect(() => {
 		if (audioRef.current) {
