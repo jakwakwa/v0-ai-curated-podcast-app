@@ -177,7 +177,7 @@ export default function LandingPageContent() {
 						<div className="mt-6 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
 							<video
 								className="w-full rounded-lg"
-								src="https://storage.googleapis.com/ai-weekly-curator-app-bucket-us/video/podslice%20demo-1.mp4"
+								src="https://res.cloudinary.com/jakwakwa/video/upload/v1758465383/podslice_demo-1_ptmi24.mp4"
 								controls
 								preload="metadata"
 								playsInline
