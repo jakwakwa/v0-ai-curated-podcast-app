@@ -5,7 +5,7 @@ import { getSubscriptionsByCustomer } from "@/lib/paddle-server/paddle";
 import { prisma } from "@/lib/prisma";
 import { priceIdToPlanType } from "@/utils/paddle/plan-utils";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const checkoutCompletedSchema = z.object({
 	transaction_id: z.string(),
