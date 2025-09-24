@@ -12,10 +12,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VOICE_OPTIONS } from "@/lib/constants/voices";
+import { getMaxDurationSeconds } from "@/lib/env";
 import { useNotificationStore } from "@/lib/stores";
 
-const EPISODE_LIMIT = 10;
-const MAX_DURATION_SECONDS = 60 * 60; // 60 minutes
+const EPISODE_LIMIT = 16;
+const YT_MAXMAX_DURATION_SECONDS = getMaxDurationSeconds();
+
+function isYouTubeUrl(url: string): boolean {
+	try {
+		const { hostname } = new URL(url);
+		const host = hostname.toLowerCase();
+		return host === "youtu.be" || host.endsWith(".youtu.be") || host === "youtube.com" || host.endsWith(".youtube.com");
+	} catch {
+		return false;
+	}
+}
 
 export function EpisodeCreator() {
 	const router = useRouter();
@@ -52,17 +63,8 @@ export function EpisodeCreator() {
 
 	const isBusy = isCreating || isFetchingMetadata;
 	const isAudioPlaying = isPlaying !== null;
-	function isYouTubeUrl(url: string): boolean {
-		try {
-			const { hostname } = new URL(url);
-			const host = hostname.toLowerCase();
-			return host === "youtu.be" || host.endsWith(".youtu.be") || host === "youtube.com" || host.endsWith(".youtube.com");
-		} catch {
-			return false;
-		}
-	}
 
-	const isDurationValid = videoDuration !== null && videoDuration <= MAX_DURATION_SECONDS;
+	const isDurationValid = videoDuration !== null && videoDuration <= YT_MAXMAX_DURATION_SECONDS;
 	const canSubmit = Boolean(videoTitle) && isYouTubeUrl(youtubeUrl) && !isBusy && isDurationValid;
 
 	const fetchUsage = useCallback(async () => {
@@ -114,8 +116,8 @@ export function EpisodeCreator() {
 					const { title, duration } = await res.json();
 					setVideoTitle(title);
 					setVideoDuration(duration);
-					if (duration > MAX_DURATION_SECONDS) {
-						setYouTubeUrlError(`Video is too long. Please select a video that is 60 minutes or less. This video is ${Math.round(duration / 60)} minutes long.`);
+					if (duration > YT_MAXMAX_DURATION_SECONDS) {
+						setYouTubeUrlError(`Video is too long. Please select a video that is 90 minutes or less. This video is ${Math.round(duration / 60)} minutes long.`);
 					}
 				} catch (err) {
 					setYouTubeUrlError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -213,7 +215,7 @@ export function EpisodeCreator() {
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-2 md:col-span-2">
-									<Label htmlFor="youtubeUrl">YouTube URL (Max 60 minutes)</Label>
+									<Label htmlFor="youtubeUrl">YouTube URL (Max 90 minutes)</Label>
 									<Input id="youtubeUrl" placeholder="https://www.youtube.com/..." value={youtubeUrl} onChange={e => setYouTubeUrl(e.target.value)} disabled={isBusy} required />
 									{isFetchingMetadata && (
 										<p className="text-sm text-muted-foreground flex items-center mt-2">
