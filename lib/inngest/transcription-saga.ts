@@ -40,19 +40,21 @@ export const transcriptionCoordinator = inngest.createFunction(
 			data: { jobId, userEpisodeId, srcUrl, provider: "gemini" },
 		});
 
-		// Wait for Gemini to complete or timeout (either success or failure)
-		const successEvent = await step.waitForEvent("wait-gemini-success", {
-			event: Events.Succeeded,
-			timeout: "600s",
-			if: `event.data.jobId == "${jobId}"`,
-		});
-		if (!successEvent) {
-			await step.waitForEvent("wait-gemini-failed", {
-				event: Events.Failed,
-				timeout: "1s",
+		// Wait for either Gemini to succeed or fail, whichever happens first
+		const result = await Promise.race([
+			step.waitForEvent("wait-gemini-success", {
+				event: Events.Succeeded,
+				timeout: "600s",
 				if: `event.data.jobId == "${jobId}"`,
-			});
-		}
+			}),
+			step.waitForEvent("wait-gemini-failure", {
+				event: Events.Failed,
+				timeout: "600s",
+				if: `event.data.jobId == "${jobId}"`,
+			}),
+		]);
+
+		const successEvent = result && (result as { name?: string }).name === Events.Succeeded ? result : null;
 
 		if (!successEvent) {
 			// Gemini did not succeed within the window or explicitly failed; try orchestrator fallback
