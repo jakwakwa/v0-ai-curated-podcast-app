@@ -5,6 +5,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma"; // Use the global client
 import { withDatabaseTimeout } from "../../../lib/utils";
 
+// Force this API route to always execute on each request (no ISR / caching)
+export const dynamic = "force-dynamic";
+
 // export const dynamic = "force-dynamic"
 export const maxDuration = 60; // 1 minute for complex database queries
 
@@ -29,9 +32,7 @@ export async function GET(_request: Request) {
 				where: {
 					OR: [
 						{ userProfile: { user_id: userId } },
-						// Show episodes whose podcast belongs to the user's selected bundle
 						...(podcastIdsInSelectedBundle.length > 0 ? [{ podcast_id: { in: podcastIdsInSelectedBundle } }] : []),
-						// Show episodes directly linked to the user's selected bundle
 						...(profile?.selectedBundle?.bundle_id ? [{ bundle_id: profile.selectedBundle.bundle_id }] : []),
 					],
 				},
@@ -40,14 +41,18 @@ export async function GET(_request: Request) {
 					userProfile: true,
 				},
 				orderBy: { created_at: "desc" },
-				cacheStrategy: {
-					swr: 60,
-					ttl: 900,
-				},
 			})
 		);
 
-		return NextResponse.json(episodes, { headers: { "Cache-Control": "no-store" } });
+		// Explicitly disable any downstream caching; add timestamp header to bust CDN layers if any
+		return NextResponse.json(episodes, {
+			headers: {
+				"Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+				Pragma: "no-cache",
+				Expires: "0",
+				"X-Data-Timestamp": Date.now().toString(),
+			},
+		});
 	} catch (error) {
 		console.error("Episodes API: Error fetching episodes:", error);
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 });

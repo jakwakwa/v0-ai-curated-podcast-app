@@ -32,7 +32,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 	useEffect(() => {
 		const fetchSubscription = async () => {
 			try {
-				const response = await fetch("/api/account/subscription", {
+				const response = await fetch(`/api/account/subscription?ts=${Date.now()}`, {
 					next: {
 						tags: ["user_subscription"],
 					},

@@ -22,7 +22,7 @@ export default function EpisodesPage() {
 			setIsLoading(true);
 			setError(null);
 
-			const response = await fetch("/api/episodes");
+			const response = await fetch(`/api/episodes?ts=${Date.now()}`, { cache: "no-store" });
 
 			if (!response.ok) {
 				throw new Error(`Failed to load episodes. Server responded with status ${response.status}.`);
