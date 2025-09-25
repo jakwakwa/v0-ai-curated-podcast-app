@@ -1,7 +1,5 @@
-/**
- * Client-side YouTube transcript extraction
- * This runs in the browser to avoid server-side blocking
- */
+import type { youtube_v3 } from "googleapis";
+import { extractYouTubeVideoId, youtubeClient } from "@/lib/youtube";
 
 export interface TranscriptSegment {
 	text: string;
@@ -17,265 +15,117 @@ export interface TranscriptResult {
 }
 
 /**
- * Extract YouTube video ID from various URL formats
+ * Fetches available caption tracks for a YouTube video.
+ * @param videoId The ID of the YouTube video.
+ * @returns A list of caption tracks.
  */
-export function extractVideoId(url: string): string | null {
-	const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/, /^([a-zA-Z0-9_-]{11})$/];
-
-	for (const pattern of patterns) {
-		const match = url.match(pattern);
-		if (match) return match[1];
-	}
-
-	return null;
+async function getCaptionTracks(videoId: string) {
+	const response = await youtubeClient.captions.list({
+		part: ["snippet"],
+		videoId: videoId,
+	});
+	return response.data.items || [];
 }
 
 /**
- * Parse XML transcript data
+ * Downloads the content of a specific caption track.
+ * @param captionId The ID of the caption track.
+ * @returns The caption content as a string.
  */
-function parseTranscriptXML(xmlText: string): TranscriptSegment[] {
-	try {
-		const parser = new DOMParser();
-		const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+async function downloadCaptionTrack(captionId: string): Promise<string> {
+	const response = await youtubeClient.captions.download({
+		id: captionId,
+		tfmt: "srt", // Request SubRip format, can also be 'vtt'
+	});
+	return response.data as string;
+}
 
-		// Check for parse errors
-		const parserError = xmlDoc.querySelector("parsererror");
-		if (parserError) {
-			throw new Error("XML parsing failed");
+/**
+ * Parses SRT content into structured transcript segments.
+ * @param srtContent The SRT-formatted string.
+ * @returns An array of transcript segments.
+ */
+function parseSrt(srtContent: string): TranscriptSegment[] {
+	const segments: TranscriptSegment[] = [];
+	const lines = srtContent.trim().split(/\r?\n/);
+
+	let i = 0;
+	while (i < lines.length) {
+		// Skip sequence number
+		i++;
+
+		// Timecodes line
+		const timeLine = lines[i++];
+		if (!timeLine) continue;
+
+		const [startTime, endTime] = timeLine.split(" --> ");
+		const start = timeToSeconds(startTime);
+		const end = timeToSeconds(endTime);
+
+		// Text lines
+		let text = "";
+		while (i < lines.length && lines[i].trim() !== "") {
+			text += `${lines[i++]} `;
 		}
 
-		const textElements = xmlDoc.querySelectorAll("text");
-		const segments: TranscriptSegment[] = [];
-
-		textElements.forEach(element => {
-			const text = element.textContent || "";
-			const start = parseFloat(element.getAttribute("start") || "0");
-			const duration = parseFloat(element.getAttribute("dur") || "1");
-
-			if (text.trim()) {
-				segments.push({ text: text.trim(), start, duration });
-			}
+		segments.push({
+			text: text.trim(),
+			start,
+			duration: end - start,
 		});
 
-		return segments;
-	} catch (error) {
-		console.error("Error parsing transcript XML:", error);
-		return [];
+		// Skip empty line between segments
+		i++;
 	}
+
+	return segments;
+}
+
+function timeToSeconds(timeStr: string): number {
+	const parts = timeStr.split(":");
+	const secondsAndMs = parts[2].split(",");
+	const hours = parseInt(parts[0], 10);
+	const minutes = parseInt(parts[1], 10);
+	const seconds = parseInt(secondsAndMs[0], 10);
+	const milliseconds = parseInt(secondsAndMs[1], 10);
+	return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
 }
 
 /**
- * Fetch transcript from YouTube using browser context
+ * Main function to get a transcript for a YouTube video.
+ * @param url The URL of the YouTube video.
+ * @returns A result object with the transcript and segments.
  */
-async function fetchTranscriptData(videoId: string): Promise<string> {
-	try {
-		// First, get video info via same-origin proxy to avoid CORS
-		const playerUrl = `/api/youtube-player-proxy`;
-		const playerData = {
-			context: {
-				client: {
-					clientName: "WEB",
-					clientVersion: "2.20240101.00.00",
-				},
-			},
-			videoId: videoId,
-		};
-
-		const playerResponse = await fetch(playerUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(playerData),
-		});
-
-		if (!playerResponse.ok) {
-			throw new Error(`Player API failed: ${playerResponse.status}`);
-		}
-
-		const playerJson = await playerResponse.json();
-		const captionTracks = playerJson?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-
-		// If player doesn't advertise captions, try timedtext endpoints directly via proxy
-		if (!captionTracks || captionTracks.length === 0) {
-			const forcedXml = await tryTimedTextFallbacks(videoId);
-			if (forcedXml) return forcedXml;
-			throw new Error("No captions found for this video");
-		}
-
-		// Find the best caption track (prefer English auto-generated)
-		const selectedTrack =
-			captionTracks.find((track: { languageCode?: string; kind?: string }) => track.languageCode === "en" && track.kind === "asr") ||
-			captionTracks.find((track: { languageCode?: string }) => track.languageCode === "en") ||
-			captionTracks[0];
-
-		if (!selectedTrack?.baseUrl) {
-			throw new Error("No suitable caption track found");
-		}
-
-		// Fetch the transcript XML via same-origin proxy
-		const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: selectedTrack.baseUrl }).toString()}`;
-		const transcriptResponse = await fetch(proxyUrl, { cache: "no-store" });
-
-		if (!transcriptResponse.ok) {
-			throw new Error(`Transcript fetch failed: ${transcriptResponse.status}`);
-		}
-
-		const xmlText = await transcriptResponse.text();
-
-		if (!xmlText || xmlText.trim().length === 0) {
-			throw new Error("Empty transcript received");
-		}
-
-		return xmlText;
-	} catch (error) {
-		console.error("Error fetching transcript data:", error);
-		throw error;
+export async function getYouTubeTranscript(url: string): Promise<TranscriptResult> {
+	const videoId = extractYouTubeVideoId(url);
+	if (!videoId) {
+		return { success: false, error: "Invalid YouTube URL" };
 	}
-}
 
-async function fetchTimedText(videoId: string, opts: { lang?: string; asr?: boolean }): Promise<string | null> {
-	const lang = (opts.lang || "en").toLowerCase();
-	const base = new URL("https://www.youtube.com/api/timedtext");
-	base.searchParams.set("v", videoId);
-	base.searchParams.set("lang", lang);
-	base.searchParams.set("fmt", "xml");
-	if (opts.asr) base.searchParams.set("kind", "asr");
-	const proxyUrl = `/api/youtube-captions-proxy?${new URLSearchParams({ url: base.toString() }).toString()}`;
-	const res = await fetch(proxyUrl, { cache: "no-store" });
-	if (!res.ok) return null;
-	const xml = await res.text();
-	return xml && xml.trim().length > 0 ? xml : null;
-}
-
-async function tryTimedTextFallbacks(videoId: string): Promise<string | null> {
-	const browserLang = (typeof navigator !== "undefined" && navigator.language ? navigator.language : "en").slice(0, 2).toLowerCase();
-	const attempts: Array<{ lang: string; asr: boolean }> = [
-		{ lang: "en", asr: true },
-		{ lang: "en", asr: false },
-		{ lang: browserLang, asr: true },
-		{ lang: browserLang, asr: false },
-	];
-	for (const attempt of attempts) {
-		try {
-			const xml = await fetchTimedText(videoId, attempt);
-			if (xml) return xml;
-		} catch {}
-	}
-	return null;
-}
-
-/**
- * Main function to extract transcript from YouTube URL
- */
-export async function extractYouTubeTranscript(url: string): Promise<TranscriptResult> {
 	try {
-		const videoId = extractVideoId(url);
-		if (!videoId) {
-			return {
-				success: false,
-				error: "Invalid YouTube URL",
-			};
+		const tracks = await getCaptionTracks(videoId);
+		if (tracks.length === 0) {
+			return { success: false, error: "No captions available for this video." };
 		}
 
-		console.log(`Extracting transcript for video ID: ${videoId}`);
-
-		const xmlText = await fetchTranscriptData(videoId);
-		const segments = parseTranscriptXML(xmlText);
-
-		if (segments.length === 0) {
-			return {
-				success: false,
-				error: "No transcript content found",
-			};
+		// Prefer English, but take any available track
+		const track = tracks.find((t: youtube_v3.Schema$Caption) => t.snippet?.language === "en") || tracks[0];
+		const captionId = track.id;
+		if (!captionId) {
+			return { success: false, error: "Could not find a valid caption track ID." };
 		}
 
-		const transcript = segments.map(seg => seg.text).join(" ");
+		const srtContent = await downloadCaptionTrack(captionId);
+		const segments = parseSrt(srtContent);
+		const fullTranscript = segments.map(s => s.text).join(" ");
 
 		return {
 			success: true,
-			transcript,
-			segments,
+			transcript: fullTranscript,
+			segments: segments,
 		};
 	} catch (error) {
-		console.error("Client-side transcript extraction failed:", error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : "Unknown error occurred",
-		};
+		console.error("Error fetching YouTube transcript:", error);
+		return { success: false, error: "Failed to fetch or process transcript." };
 	}
-}
-
-/**
- * Alternative approach using iframe and postMessage
- * This creates a hidden iframe that loads the YouTube page
- */
-export async function extractTranscriptViaIframe(url: string): Promise<TranscriptResult> {
-	return new Promise(resolve => {
-		try {
-			const videoId = extractVideoId(url);
-			if (!videoId) {
-				resolve({
-					success: false,
-					error: "Invalid YouTube URL",
-				});
-				return;
-			}
-
-			// Create hidden iframe
-			const iframe = document.createElement("iframe");
-			iframe.style.display = "none";
-			iframe.src = `https://www.youtube.com/watch?v=${videoId}`;
-
-			const cleanup = () => {
-				if (iframe.parentNode) {
-					iframe.parentNode.removeChild(iframe);
-				}
-				clearTimeout(timeoutId);
-			};
-
-			// Set timeout
-			const timeoutId = setTimeout(() => {
-				cleanup();
-				resolve({
-					success: false,
-					error: "Transcript extraction timed out",
-				});
-			}, 15000);
-
-			// Add load listener
-			iframe.onload = () => {
-				try {
-					// Try to access the iframe content (will fail due to CORS)
-					// This approach is limited by same-origin policy
-					cleanup();
-					resolve({
-						success: false,
-						error: "Cannot access YouTube content due to CORS restrictions",
-					});
-				} catch (_error) {
-					cleanup();
-					resolve({
-						success: false,
-						error: "CORS restriction prevents iframe access",
-					});
-				}
-			};
-
-			iframe.onerror = () => {
-				cleanup();
-				resolve({
-					success: false,
-					error: "Failed to load YouTube page",
-				});
-			};
-
-			document.body.appendChild(iframe);
-		} catch (err) {
-			resolve({
-				success: false,
-				error: err instanceof Error ? err.message : "Unknown error",
-			});
-		}
-	});
 }

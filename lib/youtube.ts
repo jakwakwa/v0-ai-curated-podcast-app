@@ -1,4 +1,37 @@
-// YouTube Data API only – all scraping (ytdl/innertube/html) removed per policy.
+import type { youtube_v3 } from "googleapis";
+import { google } from "googleapis";
+
+let youtube: youtube_v3.Youtube | undefined;
+
+/**
+ * Lazily initializes and returns a singleton YouTube Data API v3 client.
+ * @throws {Error} If the YOUTUBE_API_KEY environment variable is not set.
+ */
+function getYouTubeClient(): youtube_v3.Youtube {
+	const apiKey = process.env.YOUTUBE_API_KEY;
+	if (!apiKey) {
+		console.error("YOUTUBE_API_KEY environment variable is not set.");
+		throw new Error("YouTube API key is missing.");
+	}
+
+	if (!youtube) {
+		youtube = google.youtube({
+			version: "v3",
+			auth: apiKey,
+		});
+	}
+	return youtube;
+}
+
+export const youtubeClient = getYouTubeClient();
+
+export interface VideoDetails {
+	title: string;
+	description: string;
+	duration: number; // Duration in seconds
+	channelName: string;
+	thumbnailUrl: string;
+}
 
 /**
  * Parses an ISO 8601 duration string (e.g., "PT2M34S") into seconds.
@@ -22,52 +55,42 @@ function parseISO8601Duration(duration: string): number {
 }
 
 /**
- * Fetches video title and duration using the YouTube Data API v3.
- * This function is designed to be called from the server-side to protect the API key.
- * @param videoUrl The URL of the YouTube video.
- * @returns An object with title and duration, or null if not found.
+ * Fetches basic video details from the YouTube Data API.
+ * @param url The YouTube video URL.
+ * @returns The video details or null if not found.
  */
-export async function getYouTubeVideoDetails(videoUrl: string): Promise<{ title: string; duration: number } | null> {
-	const apiKey = process.env.YOUTUBE_API_KEY;
-	if (!apiKey) {
-		console.error("YouTube API key is not configured. Please set the YOUTUBE_API_KEY environment variable.");
-		throw new Error("YouTube API key is not configured.");
-	}
-
-	const videoId = extractYouTubeVideoId(videoUrl);
+export async function getYouTubeVideoDetails(url: string): Promise<VideoDetails | null> {
+	const videoId = extractYouTubeVideoId(url);
 	if (!videoId) {
 		return null;
 	}
 
-	const endpoint = new URL("https://www.googleapis.com/youtube/v3/videos");
-	endpoint.searchParams.set("id", videoId);
-	endpoint.searchParams.set("key", apiKey);
-	// Requesting 'snippet' for title and 'contentDetails' for duration.
-	endpoint.searchParams.set("part", "snippet,contentDetails");
-
 	try {
-		const res = await fetch(endpoint.toString(), { next: { revalidate: 3600 } }); // Cache for 1 hour
-		if (!res.ok) {
-			const errorData = await res.json();
-			console.error("YouTube API Error:", errorData.error.message);
-			throw new Error("Failed to fetch data from YouTube API. Check if the API key is valid and has quota.");
-		}
+		const response = await youtubeClient.videos.list({
+			part: ["snippet", "contentDetails"],
+			id: [videoId],
+		});
 
-		const data = await res.json();
-		const item = data.items?.[0];
-
-		if (!item) {
+		const item = response.data.items?.[0];
+		if (!(item?.snippet && item.contentDetails)) {
+			console.warn(`Incomplete video details for ID: ${videoId}`);
 			return null;
 		}
+		const { snippet, contentDetails } = item;
 
-		const title = item.snippet?.title || "Untitled Video";
-		const durationString = item.contentDetails?.duration || "PT0S";
-		const duration = parseISO8601Duration(durationString);
+		const isoDuration = contentDetails.duration || "PT0S";
+		const durationInSeconds = parseISO8601Duration(isoDuration);
 
-		return { title, duration };
+		return {
+			title: snippet.title || "Untitled",
+			description: snippet.description || "",
+			duration: durationInSeconds,
+			channelName: snippet.channelTitle || "Unknown Channel",
+			thumbnailUrl: snippet.thumbnails?.high?.url || "",
+		};
 	} catch (error) {
-		console.error("[YOUTUBE_API_FETCH_ERROR]", error);
-		return null; // Return null to handle errors gracefully on the client
+		console.error(`[YOUTUBE_API_ERROR] Failed to fetch details for video ${videoId}:`, error);
+		return null;
 	}
 }
 
@@ -94,26 +117,4 @@ export async function getYouTubeTranscriptText(): Promise<string> {
 
 export async function getYouTubeTranscriptSegments(): Promise<YouTubeTranscriptItem[]> {
 	throw new Error("TRANSCRIPTS_DISABLED");
-}
-
-// Convenience helper: duration only (seconds) via Data API
-export async function getYouTubeVideoDurationSeconds(videoUrlOrId: string): Promise<number | null> {
-	const apiKey = process.env.YOUTUBE_API_KEY;
-	if (!apiKey) return null;
-	const videoId = extractYouTubeVideoId(videoUrlOrId);
-	if (!videoId) return null;
-	const endpoint = new URL("https://www.googleapis.com/youtube/v3/videos");
-	endpoint.searchParams.set("id", videoId);
-	endpoint.searchParams.set("key", apiKey);
-	endpoint.searchParams.set("part", "contentDetails");
-	try {
-		const res = await fetch(endpoint.toString(), { next: { revalidate: 3600 } });
-		if (!res.ok) return null;
-		const data = await res.json();
-		const iso = data.items?.[0]?.contentDetails?.duration as string | undefined;
-		if (!iso) return null;
-		return parseISO8601Duration(iso);
-	} catch {
-		return null;
-	}
 }
