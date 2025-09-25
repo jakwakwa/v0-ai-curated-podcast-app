@@ -1,4 +1,4 @@
-import { getYouTubeVideoDurationSeconds } from "@/lib/youtube-safe";
+import { getYouTubeVideoDurationSeconds } from "@/lib/youtube";
 import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 
 // Point fluent-ffmpeg to the installed binary

@@ -3,7 +3,6 @@ import emailService from "@/lib/email-service";
 import { prisma } from "@/lib/prisma";
 import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { z } from "zod";
-// URL-only mandate: removed external audio discovery
 import { inngest } from "./client";
 
 type MetadataPayload = {

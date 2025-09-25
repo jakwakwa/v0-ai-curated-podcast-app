@@ -1,6 +1,4 @@
-import { XMLParser } from "fast-xml-parser";
-
-// ytdl-core is no longer used for metadata, only for transcripts
+// YouTube Data API only – all scraping (ytdl/innertube/html) removed per policy.
 
 /**
  * Parses an ISO 8601 duration string (e.g., "PT2M34S") into seconds.
@@ -87,89 +85,35 @@ export function extractYouTubeVideoId(urlOrId: string): string | null {
 	return urlMatch ? urlMatch[1] : null;
 }
 
-// --- Transcript functions using ytdl-core remain as they serve a different purpose ---
+// Transcripts removed: Use Gemini-based transcription pipeline instead.
+export type YouTubeTranscriptItem = never;
 
-export type YouTubeTranscriptItem = { text: string; duration: number; offset: number };
-
-export async function getYouTubeTranscriptSegments(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
-	const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
-	const enableServerYtdl = process.env.ENABLE_SERVER_YTDL === "true";
-	if (isVercel && !enableServerYtdl) {
-		throw new Error("Server-side YouTube caption fetching disabled in this environment");
-	}
-	return await getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId, lang);
+export async function getYouTubeTranscriptText(): Promise<string> {
+	throw new Error("TRANSCRIPTS_DISABLED: Server-side caption scraping removed. Use Gemini transcription pipeline.");
 }
 
-export async function getYouTubeTranscriptText(videoUrlOrId: string, lang?: string): Promise<string> {
-	const segments = await getYouTubeTranscriptSegments(videoUrlOrId, lang);
-	return segments.map(s => s.text).join(" ");
+export async function getYouTubeTranscriptSegments(): Promise<YouTubeTranscriptItem[]> {
+	throw new Error("TRANSCRIPTS_DISABLED");
 }
 
-async function parseTranscriptXML(xmlData: string): Promise<YouTubeTranscriptItem[]> {
-	if (!xmlData || xmlData.trim().length === 0) {
-		throw new Error("Empty caption data received");
-	}
-
-	if (!(xmlData.includes("<transcript>") || xmlData.includes("<text"))) {
-		throw new Error("Invalid caption format - not XML");
-	}
-
-	const parser = new XMLParser({
-		ignoreAttributes: false,
-		attributeNamePrefix: "",
-	});
-
-	const parsed = parser.parse(xmlData);
-	const texts = parsed.transcript?.text || [];
-
-	if (!Array.isArray(texts)) {
-		throw new Error("Invalid caption format");
-	}
-
-	return texts.map((item: { "#text"?: string; dur?: string; start?: string } | string, index: number) => {
-		const xmlItem = item as { "#text"?: string; dur?: string; start?: string } | string;
-		return {
-			text: typeof xmlItem === "string" ? xmlItem : xmlItem["#text"] || "",
-			duration: typeof xmlItem === "object" && xmlItem.dur ? parseFloat(xmlItem.dur) : 1,
-			offset: typeof xmlItem === "object" && xmlItem.start ? parseFloat(xmlItem.start) : index,
-		};
-	}) as YouTubeTranscriptItem[];
-}
-
-async function getYouTubeTranscriptSegmentsViaYtdl(videoUrlOrId: string, lang?: string): Promise<YouTubeTranscriptItem[]> {
+// Convenience helper: duration only (seconds) via Data API
+export async function getYouTubeVideoDurationSeconds(videoUrlOrId: string): Promise<number | null> {
+	const apiKey = process.env.YOUTUBE_API_KEY;
+	if (!apiKey) return null;
+	const videoId = extractYouTubeVideoId(videoUrlOrId);
+	if (!videoId) return null;
+	const endpoint = new URL("https://www.googleapis.com/youtube/v3/videos");
+	endpoint.searchParams.set("id", videoId);
+	endpoint.searchParams.set("key", apiKey);
+	endpoint.searchParams.set("part", "contentDetails");
 	try {
-		let ytdlModule: unknown;
-		try {
-			ytdlModule = (await import("@distube/ytdl-core")).default ?? (await import("@distube/ytdl-core"));
-		} catch {
-			throw new Error("Server-side ytdl-core is not available in this environment");
-		}
-
-		const videoUrl = videoUrlOrId.startsWith("http") ? videoUrlOrId : `https://www.youtube.com/watch?v=${videoUrlOrId}`;
-		const ytdlClient = ytdlModule as { getInfo: (url: string) => Promise<unknown> };
-		const info = await ytdlClient.getInfo(videoUrl);
-
-		const playerResponse: unknown = (info as unknown as { player_response?: unknown }).player_response;
-		const captions: Array<{ languageCode?: string; kind?: string; baseUrl?: string; name?: { simpleText?: string } }> | undefined = (
-			playerResponse as { captions?: { playerCaptionsTracklistRenderer?: { captionTracks?: Array<{ languageCode?: string; kind?: string; baseUrl?: string; name?: { simpleText?: string } }> } } }
-		)?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-		if (!captions || captions.length === 0) {
-			throw new Error("No captions available for this video");
-		}
-
-		let selectedCaption = captions.find(c => c.languageCode === (lang || "en") && c.kind === "asr");
-		if (!selectedCaption) selectedCaption = captions.find(c => c.languageCode === (lang || "en"));
-		if (!selectedCaption) selectedCaption = captions.find(c => c.kind === "asr");
-		if (!selectedCaption) selectedCaption = captions[0];
-		if (!selectedCaption?.baseUrl) throw new Error("No suitable caption track found");
-
-		const res = await fetch(selectedCaption.baseUrl);
-		if (!res.ok) throw new Error(`Failed to fetch captions: ${res.statusText}`);
-
-		const xmlData = await res.text();
-		return await parseTranscriptXML(xmlData);
-	} catch (error) {
-		console.error(`ytdl-core transcript extraction failed:`, error);
-		throw new Error(error instanceof Error ? error.message : "An unknown error occurred during transcript extraction.");
+		const res = await fetch(endpoint.toString(), { next: { revalidate: 3600 } });
+		if (!res.ok) return null;
+		const data = await res.json();
+		const iso = data.items?.[0]?.contentDetails?.duration as string | undefined;
+		if (!iso) return null;
+		return parseISO8601Duration(iso);
+	} catch {
+		return null;
 	}
 }
