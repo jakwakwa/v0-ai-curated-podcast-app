@@ -2,6 +2,7 @@ import { z } from "zod";
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
 import emailService from "@/lib/email-service";
 import { prisma } from "@/lib/prisma";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 // URL-only mandate: removed external audio discovery
 import { inngest } from "./client";
 
@@ -87,6 +88,32 @@ export const enqueueTranscriptionJob = inngest.createFunction(
 		}
 
 		const srcUrl: string = youtubeUrl;
+
+		// 2b) Primary YouTube metadata enrichment (title + duration) BEFORE saga dispatch
+		await step.run("enrich-youtube-metadata", async () => {
+			try {
+				const details = await getYouTubeVideoDetails(srcUrl);
+				if (!details) return; // silent fallback
+
+				// Only overwrite title if it's obviously a placeholder (short or generic)
+				const existing = await prisma.userEpisode.findUnique({ where: { episode_id: userEpisodeId }, select: { episode_title: true } });
+				const currentTitle = existing?.episode_title?.trim() || "";
+				const shouldReplace = currentTitle.length < 4 || /^(untitled|video)$/i.test(currentTitle);
+
+				await prisma.userEpisode.update({
+					where: { episode_id: userEpisodeId },
+					data: {
+						episode_title: shouldReplace ? details.title : currentTitle || details.title,
+						duration_seconds: details.duration > 0 ? details.duration : undefined,
+					},
+				});
+				await writeEpisodeDebugLog(userEpisodeId, { step: "youtube-metadata", status: "success", meta: { fetched: true, replacedTitle: shouldReplace } });
+			} catch (_err) {
+				// Non-fatal – log and continue (avoid leaking full error details)
+				console.warn("[YOUTUBE_METADATA_ENRICH_FAIL]");
+				await writeEpisodeDebugLog(userEpisodeId, { step: "youtube-metadata", status: "fail", message: "metadata fetch error" });
+			}
+		});
 
 		// Store the resolved url (direct audio or YouTube) for traceability
 		await step.run("store-src-url", async () => {

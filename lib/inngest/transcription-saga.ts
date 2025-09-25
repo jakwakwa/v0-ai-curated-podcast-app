@@ -3,6 +3,7 @@ import emailService from "@/lib/email-service";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/prisma";
 import { preflightProbe } from "./utils/preflight";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results";
 
 const Events = {
@@ -32,6 +33,37 @@ export const transcriptionCoordinator = inngest.createFunction(
 			step: "preflight",
 			status: probe.ok ? "success" : "fail",
 			meta: probe.ok ? probe.value : probe,
+		});
+
+		// Attempt metadata enrichment if missing
+		await step.run("ensure-video-metadata", async () => {
+			try {
+				if (!/youtu\.be|youtube\.com/i.test(srcUrl)) return;
+				const episode = await prisma.userEpisode.findUnique({
+					where: { episode_id: userEpisodeId },
+					select: { episode_title: true, duration_seconds: true },
+				});
+				const needsDuration = !episode?.duration_seconds;
+				const title = episode?.episode_title?.trim() || "";
+				const needsTitle = title.length < 4 || /^(untitled|video)$/i.test(title);
+				if (!(needsDuration || needsTitle)) return;
+				const details = await getYouTubeVideoDetails(srcUrl);
+				if (!details) return;
+				await prisma.userEpisode.update({
+					where: { episode_id: userEpisodeId },
+					data: {
+						episode_title: needsTitle ? details.title : title || details.title,
+						duration_seconds: needsDuration && details.duration > 0 ? details.duration : episode?.duration_seconds,
+					},
+				});
+				await writeEpisodeDebugLog(userEpisodeId, {
+					step: "youtube-metadata",
+					status: "success",
+					meta: { enriched: true, replacedTitle: needsTitle, addedDuration: needsDuration && details.duration > 0 },
+				});
+			} catch (_err) {
+				await writeEpisodeDebugLog(userEpisodeId, { step: "youtube-metadata", status: "fail", message: "metadata enrichment error" });
+			}
 		});
 
 		// Direct Gemini transcription - no fallbacks, no orchestrator complexity
