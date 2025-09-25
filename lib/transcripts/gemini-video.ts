@@ -1,5 +1,5 @@
-import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 
 // Point fluent-ffmpeg to the installed binary
 
