@@ -1,15 +1,15 @@
 "use client"
 
-import { formatDistanceToNow } from "date-fns"
-import { Bell, Calendar, Check, CheckCircle2Icon, Podcast, Trash2, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useNotificationStore } from "@/lib/stores"
 import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
+import { Bell, Calendar, Check, CheckCircle2Icon, Podcast, Trash2, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import { Typography } from "./typography"
 
 export function NotificationBell() {
@@ -160,7 +160,7 @@ export function NotificationBell() {
 										</div>
 									</div>
 
-									<p className=" text-sm font-bold text-foreground leading-[2.5] my-4 text-right">{notification.message}</p>
+									<p className=" text-sm font-bold text-foreground leading-[1.5] my-4 text-right">{notification.message}</p>
 
 									<div className="flex gap-4 items-center justify-end">
 
