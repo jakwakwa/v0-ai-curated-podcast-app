@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getStorageReader, parseGcsUri } from "@/lib/gcs";
+import { extractKeyTakeaways, normalizeSummaryMarkdown } from "@/lib/markdown/episode-text";
 import { prisma } from "@/lib/prisma";
 import type { Episode } from "@/lib/types";
 import PlayAndShare from "./_components/play-and-share.client";
@@ -92,64 +93,7 @@ async function getEpisodeWithAccess(id: string, currentUserId: string): Promise<
   return { ...safe, signedAudioUrl };
 }
 
-// Extract up to 5 bullet points of plain text like user episodes (uses description field)
-function extractKeyTakeaways(markdown?: string | null): string[] {
-  if (!markdown) return [];
-  const lines = markdown.split(/\r?\n/);
-  const bullets: string[] = [];
-  for (const line of lines) {
-    if (bullets.length >= 5) break;
-    const trimmed = line.trim();
-    let item: string | null = null;
-    if (trimmed.startsWith("-") || trimmed.startsWith("*") || /^\d+\./.test(trimmed)) {
-      item = trimmed.replace(/^(-|\*|\d+\.)\s*/, "");
-    } else {
-      const boldMatch = trimmed.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
-      if (boldMatch) {
-        const title = boldMatch[1].trim();
-        const rest = (boldMatch[2] || "").trim();
-        item = rest ? `${title}: ${rest}` : title;
-      }
-    }
-    if (item) {
-      const cleanItem = item.replace(/\*/g, "").trim();
-      if (cleanItem) bullets.push(cleanItem);
-    }
-  }
-  return bullets;
-}
-
-// Normalizes raw LLM markdown (description) similar to user episode summary normalization
-function normalizeSummaryMarkdown(input: string | null | undefined): string {
-  if (!input) return "";
-  const lines = input.split(/\r?\n/).map(line => {
-    let trimmed = line.trim();
-    if (/^\*+\s*Key\s+(Highlights|Takeaways):?\*+\s*$/i.test(trimmed)) {
-      return `### Key ${trimmed.match(/Highlights/i) ? "Highlights" : "Takeaways"}`;
-    }
-    if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
-      return "### Summary";
-    }
-    if (trimmed.startsWith("*") && !trimmed.startsWith("* ")) {
-      trimmed = trimmed.replace(/^\*/, "* ");
-    }
-    if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
-      return trimmed.replace(/\*/g, "");
-    }
-    if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
-      const coreText = trimmed.substring(2, trimmed.length - 2);
-      if (!coreText.includes("*")) return coreText;
-    }
-    if ((trimmed.match(/\*\*/g) || []).length % 2 === 1 && trimmed.endsWith("**")) {
-      return trimmed.slice(0, -2).trimEnd();
-    }
-    return trimmed;
-  });
-  return lines
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
+// (Local markdown utilities removed in favor of shared helpers)
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

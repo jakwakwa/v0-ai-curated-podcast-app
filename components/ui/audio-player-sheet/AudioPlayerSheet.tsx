@@ -11,6 +11,7 @@ import remarkGfm from "remark-gfm";
 import { formatTime } from "@/components/ui/audio-player.disabled";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useYouTubeChannel } from "@/hooks/useYouTubeChannel";
+import { normalizeSummaryMarkdown } from "@/lib/markdown/episode-text";
 import type { Episode, UserEpisode } from "@/lib/types";
 
 type AudioPlayerSheetProps = {
@@ -39,46 +40,6 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 	const youtubeUrl = episode && "youtube_url" in episode ? episode.youtube_url : null;
 	const { channelName: youtubeChannelName, channelImage: youtubeChannelImage, isLoading: isChannelLoading } = useYouTubeChannel(youtubeUrl);
 
-	// Normalize markdown-like summaries & descriptions to avoid stray asterisks or malformed headings
-	const normalizeSummaryMarkdown = useCallback((input: string): string => {
-		const lines = input.split(/\r?\n/).map(line => {
-			const trimmed = line.trim();
-			if (/^\*+\s*Key\s+Highlights:?\*+\s*$/i.test(trimmed) || /^Key\s+Highlights:?\s*$/i.test(trimmed)) {
-				return "### Key Highlights";
-			}
-			if (/^\*+\s*Key\s+Takeaways:?\*+\s*$/i.test(trimmed) || /^Key\s+Takeaways:?\s*$/i.test(trimmed)) {
-				return "### Key Takeaways";
-			}
-			if (/^Here'?s a summary of the content:?\s*$/i.test(trimmed)) {
-				return "### Summary";
-			}
-			const boldLabel = trimmed.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
-			if (boldLabel) {
-				const title = boldLabel[1].trim();
-				const rest = (boldLabel[2] || "").trim();
-				return `- ${title}${rest ? `: ${rest}` : ""}`;
-			}
-			if (/^\*(\S)/.test(trimmed)) {
-				return `- ${trimmed.slice(1).trimStart()}`;
-			}
-			const starPairs = (trimmed.match(/\*\*/g) || []).length;
-			if (starPairs === 1 && trimmed.endsWith("**")) {
-				return trimmed.slice(0, -2).trimEnd();
-			}
-			return line;
-		});
-
-		return lines
-			.join("\n")
-			.replace(/^\s*\*+\s*Key\s+Highlights:?\s*\*+\s*$/gim, "### Key Highlights")
-			.replace(/^\s*\*+\s*Key\s+Takeaways:?\s*\*+\s*$/gim, "### Key Takeaways")
-			.replace(/^\s*\*+(?=\S)/gm, "")
-			.replace(/\*+\s*$/gm, "")
-			.replace(/\*\*(.*?)\*\*/g, "$1")
-			.replace(/\*(.*?)\*/g, "$1")
-			.replace(/\n{3,}/g, "\n\n");
-	}, []);
-
 	const rawSummaryOrDescription = useMemo(() => {
 		if (!episode) return null;
 		if ("summary" in episode && episode.summary) return episode.summary as string;
@@ -86,7 +47,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 		return null;
 	}, [episode]);
 
-	const normalizedSummary = useMemo(() => (rawSummaryOrDescription ? normalizeSummaryMarkdown(rawSummaryOrDescription) : null), [rawSummaryOrDescription, normalizeSummaryMarkdown]);
+	const normalizedSummary = useMemo(() => (rawSummaryOrDescription ? normalizeSummaryMarkdown(rawSummaryOrDescription) : null), [rawSummaryOrDescription]);
 
 	const clearCanPlayDebounce = useCallback(() => {
 		if (canPlayDebounceRef.current) {
