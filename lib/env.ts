@@ -60,7 +60,7 @@ export function getAccountPortalUrlWithRedirect(): string | null {
 /**
  * Returns the maximum allowed duration for user-supplied YouTube videos in seconds.
  * Reads from the `MAX_DURATION_SECONDS` environment variable (number of seconds).
- * Falls back to 90 minutes (5400 seconds) when not set or invalid.
+ * Falls back to 120 minutes (5400 seconds) when not set or invalid.
  */
 export function getMaxDurationSeconds(): number {
 	const raw = process.env.MAX_DURATION_SECONDS;
