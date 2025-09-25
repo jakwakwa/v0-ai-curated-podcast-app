@@ -4,184 +4,23 @@ import { generateObjectiveSummary } from "@/lib/summary";
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
-import { aiConfig } from "@/config/ai";
-import { extractAudioDuration } from "@/lib/audio-metadata";
 import emailService from "@/lib/email-service";
-import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
+// aiConfig consumed indirectly via shared helpers
+// Shared helpers
+import { combineAndUploadWavChunks, generateSingleSpeakerTts, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
+// (No direct GCS import; handled in shared helpers)
 import { prisma } from "@/lib/prisma";
 import { inngest } from "./client";
 
 // All uploads use the primary bucket defined by GOOGLE_CLOUD_STORAGE_BUCKET_NAME
 
-async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
-	try {
-		const uploader = getStorageUploader();
-		const bucketName = ensureBucketName();
-
-		const [exists] = await uploader.bucket(bucketName).exists();
-
-		if (!exists) {
-			console.error("ERROR: Bucket does not exist:", bucketName);
-			throw new Error(`Bucket ${bucketName} does not exist`);
-		}
-
-		await uploader.bucket(bucketName).file(destinationFileName).save(data);
-		// Return the GCS URI
-		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (_error) {
-		// Avoid leaking internal error details in logs
-		console.error("Failed to upload content");
-		// Avoid leaking internal error details
-		throw new Error("Failed to upload content");
-	}
-}
+// Removed local upload helper (now provided by shared helpers)
 
 // Removed local Gemini client in favor of shared helper
 
-// Gemini TTS configuration - Single speaker for faster processing
-const _geminiTTSConfig = {
-	temperature: 1,
-	responseModalities: ["audio"],
-	speechConfig: {
-		voiceConfig: {
-			prebuiltVoiceConfig: {
-				voiceName: "Enceladus",
-			},
-		},
-	},
-};
+// Deprecated local config (moved to shared helpers)
 
-interface WavConversionOptions {
-	numChannels: number;
-	sampleRate: number;
-	bitsPerSample: number;
-}
-
-function _convertToWav(rawData: string, mimeType: string) {
-	const options = parseMimeType(mimeType);
-	const wavHeader = createWavHeader(rawData.length, options);
-	const buffer = Buffer.from(rawData, "base64");
-
-	return Buffer.concat([wavHeader, buffer]);
-}
-
-function parseMimeType(mimeType: string) {
-	const [fileType, ...params] = mimeType.split(";").map(s => s.trim());
-	const [_, format] = fileType.split("/");
-
-	const options: Partial<WavConversionOptions> = {
-		numChannels: 1,
-	};
-
-	if (format?.startsWith("L")) {
-		const bits = parseInt(format.slice(1), 10);
-		if (!Number.isNaN(bits)) {
-			options.bitsPerSample = bits;
-		}
-	}
-
-	for (const param of params) {
-		const [key, value] = param.split("=").map(s => s.trim());
-		if (key === "rate") {
-			options.sampleRate = parseInt(value, 10);
-		}
-	}
-
-	return options as WavConversionOptions;
-}
-
-function createWavHeader(dataLength: number, options: WavConversionOptions) {
-	const { numChannels, sampleRate, bitsPerSample } = options;
-
-	// http://soundfile.sapp.org/doc/WaveFormat
-
-	const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
-	const blockAlign = (numChannels * bitsPerSample) / 8;
-	const buffer = Buffer.alloc(44);
-
-	buffer.write("RIFF", 0); // ChunkID
-	buffer.writeUInt32LE(36 + dataLength, 4); // ChunkSize
-	buffer.write("WAVE", 8); // Format
-	buffer.write("fmt ", 12); // Subchunk1ID
-	buffer.writeUInt32LE(16, 16); // Subchunk1Size (PCM)
-	buffer.writeUInt16LE(1, 20); // AudioFormat (1 = PCM)
-	buffer.writeUInt16LE(numChannels, 22); // NumChannels
-	buffer.writeUInt32LE(sampleRate, 24); // SampleRate
-	buffer.writeUInt32LE(byteRate, 28); // ByteRate
-	buffer.writeUInt16LE(blockAlign, 32); // BlockAlign
-	buffer.writeUInt16LE(bitsPerSample, 34); // BitsPerSample
-	buffer.write("data", 36); // Subchunk2ID
-	buffer.writeUInt32LE(dataLength, 40); // Subchunk2Size
-
-	return buffer;
-}
-
-function isWav(buffer: Buffer): boolean {
-	return buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WAVE";
-}
-
-function extractWavOptions(buffer: Buffer): WavConversionOptions {
-	const numChannels = buffer.readUInt16LE(22);
-	const sampleRate = buffer.readUInt32LE(24);
-	const bitsPerSample = buffer.readUInt16LE(34);
-	return { numChannels, sampleRate, bitsPerSample };
-}
-
-function getPcmData(buffer: Buffer): Buffer {
-	return buffer.subarray(44);
-}
-
-function _concatenateWavs(buffers: Buffer[]): Buffer {
-	if (buffers.length === 0) throw new Error("No buffers to concatenate");
-	const first = buffers[0];
-	if (!isWav(first)) throw new Error("First buffer is not a WAV file");
-	const options = extractWavOptions(first);
-	const pcmParts = buffers.map(buf => (isWav(buf) ? getPcmData(buf) : buf));
-	const totalPcmLength = pcmParts.reduce((acc, b) => acc + b.length, 0);
-	const header = createWavHeader(totalPcmLength, options);
-	return Buffer.concat([header, ...pcmParts]);
-}
-
-function _splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string[] {
-	const words = text.split(/\s+/).filter(Boolean);
-	const chunks: string[] = [];
-	let current: string[] = [];
-	for (const w of words) {
-		current.push(w);
-		if (current.length >= approxWordsPerChunk) {
-			chunks.push(current.join(" "));
-			current = [];
-		}
-	}
-	if (current.length) chunks.push(current.join(" "));
-	return chunks;
-}
-
-import { generateTtsAudio } from "@/lib/genai";
-
-async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
-	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
-	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute";
-	if (script.length > maxLength) {
-		console.log(`⚠️ Script too long for ${episodeType} episode (${script.length} chars), truncating to ${maxLength} chars`);
-		script = `${script.substring(0, maxLength)}...`;
-	}
-	return generateTtsAudio(
-		`Please read the following podcast script aloud in a clear, engaging style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements:\n\n${script}`
-	);
-}
-
-type JsonBuffer = { type: "Buffer"; data: number[] };
-
-function isJsonBuffer(value: unknown): value is JsonBuffer {
-	return typeof value === "object" && value !== null && (value as { type?: unknown }).type === "Buffer" && Array.isArray((value as { data?: unknown }).data);
-}
-
-function _ensureNodeBuffer(value: unknown): Buffer {
-	if (Buffer.isBuffer(value)) return value;
-	if (isJsonBuffer(value)) return Buffer.from(value.data);
-	throw new Error("Invalid audio buffer returned from TTS step");
-}
+// Removed large in-file helpers in favor of shared module
 
 export const generateUserEpisode = inngest.createFunction(
 	{
@@ -282,24 +121,22 @@ export const generateUserEpisode = inngest.createFunction(
 		});
 
 		// Step 4: Convert to Audio with per-chunk steps then Upload to GCS
-		const scriptParts = _splitScriptIntoChunks(script, Number(process.env.TTS_CHUNK_WORDS || 120));
+		const scriptParts = splitScriptIntoChunks(script, Number(process.env.TTS_CHUNK_WORDS || 120));
 		const audioChunkBase64: string[] = [];
 		for (let i = 0; i < scriptParts.length; i++) {
 			// Each chunk gets its own step to avoid long single-step runtime
 			const base64 = await step.run(`tts-chunk-${i + 1}`, async () => {
-				const buf = await generateAudioWithGeminiTTS(scriptParts[i]);
+				const buf = await generateSingleSpeakerTts(scriptParts[i]);
 				return buf.toString("base64");
 			});
 			audioChunkBase64.push(base64 as string);
 		}
 
 		const { gcsAudioUrl, durationSeconds } = await step.run("combine-upload-audio", async () => {
-			const wavBuffers = audioChunkBase64.map(b64 => Buffer.from(b64, "base64"));
-			const finalWav = _concatenateWavs(wavBuffers);
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
-			const duration = extractAudioDuration(finalWav, "audio/wav");
-			const gcsUrl = await uploadContentToBucket(finalWav, fileName);
-			return { gcsAudioUrl: gcsUrl, durationSeconds: duration };
+			const { finalBuffer, durationSeconds } = combineAndUploadWavChunks(audioChunkBase64, fileName);
+			const gcsUrl = await uploadBufferToPrimaryBucket(finalBuffer, fileName);
+			return { gcsAudioUrl: gcsUrl, durationSeconds };
 		});
 
 		// Step 4: Finalize Episode

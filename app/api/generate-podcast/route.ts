@@ -1,40 +1,17 @@
-import { revalidatePath } from "next/cache"
-import { NextResponse } from "next/server"
-import { inngest } from "@/inngest/client"
+import { NextResponse } from "next/server";
 
-// export const dynamic = "force-dynamic"
-export const maxDuration = 60 // 1 minute for Inngest job dispatch
+// Deprecated: This endpoint previously emitted `podcast/generate-gemini-tts.requested`.
+// The Gemini TTS workflow has been replaced by the new admin episode generator.
+// Returning 410 so clients know to migrate.
 
-export async function POST(request: Request) {
-	try {
-		const body = await request.json()
-		const { collectionId } = body
+export const maxDuration = 5;
 
-		if (!collectionId) {
-			return NextResponse.json({ message: "Collection ID is required." }, { status: 400 })
-		}
-
-		await inngest.send({
-			name: "podcast/generate-gemini-tts.requested",
-			data: {
-				collectionId,
-			},
-		})
-
-		revalidatePath("/")
-
-		return NextResponse.json({
-			message: "Podcast generation process started successfully.",
-			collectionId,
-		})
-	} catch (error) {
-		console.error("Error in POST /api/generate-podcast:", error)
-		return NextResponse.json(
-			{
-				message: "Failed to start podcast generation.",
-				error: (error as Error).message,
-			},
-			{ status: 500 }
-		)
-	}
+export async function POST() {
+	return NextResponse.json(
+		{
+			error: "Deprecated endpoint. Use /api/admin/generate-episode instead (requires admin).",
+			status: 410,
+		},
+		{ status: 410 }
+	);
 }
