@@ -3,6 +3,7 @@ import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
 import { generateTtsAudio, generateText as genText } from "@/lib/genai";
+import { generateObjectiveSummary } from "@/lib/summary";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { inngest } from "./client";
@@ -206,10 +207,7 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		const summary = await step.run("generate-summary", async () => {
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
-			const text = await genText(
-				modelName,
-				`Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`
-			);
+			const text = await generateObjectiveSummary(transcript, { modelName });
 			await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
 				data: { summary: text },
