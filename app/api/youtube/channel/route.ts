@@ -1,24 +1,9 @@
+import { extractYouTubeVideoId } from "@/lib/youtube";
 import { NextResponse } from "next/server";
 
 // Cache for YouTube channel data (in-memory cache)
 const channelCache = new Map<string, { channelName: string; channelImage: string; timestamp: number }>();
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-
-// Function to extract video ID from various YouTube URL formats
-function extractVideoId(url: string): string | null {
-	try {
-		const parsedUrl = new URL(url);
-		if (parsedUrl.hostname.includes("youtube.com")) {
-			return parsedUrl.searchParams.get("v");
-		}
-		if (parsedUrl.hostname.includes("youtu.be")) {
-			return parsedUrl.pathname.substring(1);
-		}
-	} catch (e) {
-		console.error("Invalid URL:", e);
-	}
-	return null;
-}
 
 // Function to clean YouTube URL for fallback display
 function cleanYouTubeUrl(url: string): string {
@@ -69,7 +54,7 @@ export async function GET(request: Request) {
 			});
 		}
 
-		const videoId = extractVideoId(youtubeUrl);
+		const videoId = extractYouTubeVideoId(youtubeUrl);
 		if (!videoId) {
 			return NextResponse.json(
 				{

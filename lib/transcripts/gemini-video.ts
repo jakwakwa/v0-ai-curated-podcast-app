@@ -1,4 +1,4 @@
-import { getYouTubeVideoDurationSeconds } from "@/lib/youtube";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 
 // Point fluent-ffmpeg to the installed binary
@@ -41,7 +41,7 @@ export async function transcribeWithGeminiFromUrl(url: string, seg?: SegmentOpti
 	}
 
 	try {
-		const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-2.5-flash";
+		const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-1.5-flash";
 
 		const genAI = new GoogleGenerativeAI(apiKey);
 		const model = genAI.getGenerativeModel({ model: modelName });
@@ -81,7 +81,7 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
-	const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-2.5-flash";
+	const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-1.5-flash";
 	let targetChunkSeconds = Math.max(60, options?.chunkSeconds ?? 600);
 	const overlapSeconds = Math.max(0, options?.overlapSeconds ?? 0);
 	const maxTokensPerChunk = options?.maxTokensPerChunk ?? 180_000; // very conservative
@@ -90,7 +90,9 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 	const genAI = new GoogleGenerativeAI(apiKey);
 	const model = genAI.getGenerativeModel({ model: modelName });
 
-	const durationSeconds = await getYouTubeVideoDurationSeconds(url);
+	const videoDetails = await getYouTubeVideoDetails(url);
+	const durationSeconds = videoDetails?.duration;
+
 	if (!durationSeconds || durationSeconds <= 0) {
 		return await transcribeWithGeminiFromUrl(url);
 	}
@@ -122,11 +124,12 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 		const endOffset = `${Math.floor(seg.end)}s`;
 		const part = buildYouTubeVideoPart(url, { startOffset, endOffset });
 		const instruction = `Transcribe ONLY between ${startOffset} and ${endOffset}. Plain text.`;
-		const res = await model.generateContent([part, instruction]);
-		const text = res.response.text()?.trim();
-		if (text) transcripts.push(text);
+		const result = await model.generateContent([part, instruction]);
+		const transcript = result.response.text();
+		if (transcript) {
+			transcripts.push(transcript);
+		}
 	}
 
-	if (transcripts.length === 0) return null;
 	return transcripts.join("\n\n");
 }
