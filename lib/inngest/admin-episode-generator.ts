@@ -86,6 +86,7 @@ ${summary}`
 
 		// 5. Combine + upload (podcasts path)
 		const { gcsAudioUrl, durationSeconds } = await step.run("combine-upload", async () => {
+			// Auto converts raw PCM (Gemini) to a single WAV before upload.
 			const fileName = `podcasts/${podcastId}/admin-${Date.now()}.wav`;
 			const { finalBuffer, durationSeconds } = combineAndUploadWavChunks(audioChunkBase64, fileName);
 			const gcsUrl = await uploadBufferToPrimaryBucket(finalBuffer, fileName);

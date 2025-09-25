@@ -2,111 +2,14 @@ import { z } from "zod";
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
-import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
 import { generateTtsAudio, generateText as genText } from "@/lib/genai";
+import { combineAndUploadWavChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
 import { prisma } from "@/lib/prisma";
 import { generateObjectiveSummary } from "@/lib/summary";
 import { inngest } from "./client";
 
-// Utilities and helpers copied/adapted from single-speaker workflow
-async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
-	try {
-		const uploader = getStorageUploader();
-		const bucketName = ensureBucketName();
-		const [exists] = await uploader.bucket(bucketName).exists();
-		if (!exists) {
-			throw new Error(`Bucket ${bucketName} does not exist`);
-		}
-		await uploader.bucket(bucketName).file(destinationFileName).save(data);
-		return `gs://${bucketName}/${destinationFileName}`;
-	} catch (_error) {
-		// Avoid leaking internal error details in logs
-		console.error("Failed to upload content");
-		throw new Error("Failed to upload content");
-	}
-}
-
-// Removed @ai-sdk/google in favor of shared genai helpers
-
-const _DEFAULT_TTS_MODEL = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts";
-
-interface WavConversionOptions {
-	numChannels: number;
-	sampleRate: number;
-	bitsPerSample: number;
-}
-
-function parseMimeType(mimeType: string) {
-	const [fileType, ...params] = mimeType.split(";").map(s => s.trim());
-	const [_, format] = fileType.split("/");
-	const options: Partial<WavConversionOptions> = { numChannels: 1 };
-	if (format?.startsWith("L")) {
-		const bits = parseInt(format.slice(1), 10);
-		if (!Number.isNaN(bits)) options.bitsPerSample = bits;
-	}
-	for (const param of params) {
-		const [key, value] = param.split("=").map(s => s.trim());
-		if (key === "rate") options.sampleRate = parseInt(value, 10);
-	}
-	return options as WavConversionOptions;
-}
-
-function createWavHeader(dataLength: number, options: WavConversionOptions) {
-	const { numChannels, sampleRate, bitsPerSample } = options;
-	const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
-	const blockAlign = (numChannels * bitsPerSample) / 8;
-	const buffer = Buffer.alloc(44);
-	buffer.write("RIFF", 0);
-	buffer.writeUInt32LE(36 + dataLength, 4);
-	buffer.write("WAVE", 8);
-	buffer.write("fmt ", 12);
-	buffer.writeUInt32LE(16, 16);
-	buffer.writeUInt16LE(1, 20);
-	buffer.writeUInt16LE(numChannels, 22);
-	buffer.writeUInt32LE(sampleRate, 24);
-	buffer.writeUInt32LE(byteRate, 28);
-	buffer.writeUInt16LE(blockAlign, 32);
-	buffer.writeUInt16LE(bitsPerSample, 34);
-	buffer.write("data", 36);
-	buffer.writeUInt32LE(dataLength, 40);
-	return buffer;
-}
-
-function _convertToWav(rawBase64: string, mimeType: string) {
-	const options = parseMimeType(mimeType);
-	const wavHeader = createWavHeader(Buffer.from(rawBase64, "base64").length, options);
-	const buffer = Buffer.from(rawBase64, "base64");
-	return Buffer.concat([wavHeader, buffer]);
-}
-
-function isWav(buffer: Buffer): boolean {
-	return buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WAVE";
-}
-
-function extractWavOptions(buffer: Buffer): WavConversionOptions {
-	const numChannels = buffer.readUInt16LE(22);
-	const sampleRate = buffer.readUInt32LE(24);
-	const bitsPerSample = buffer.readUInt16LE(34);
-	return { numChannels, sampleRate, bitsPerSample };
-}
-
-function getPcmData(buffer: Buffer): Buffer {
-	return buffer.subarray(44);
-}
-
-function concatenateWavs(buffers: Buffer[]): Buffer {
-	if (buffers.length === 0) throw new Error("No buffers to concatenate");
-	const first = buffers[0];
-	if (!isWav(first)) throw new Error("First buffer is not a WAV file");
-	const options = extractWavOptions(first);
-	const pcmParts = buffers.map(buf => (isWav(buf) ? getPcmData(buf) : buf));
-	const totalPcmLength = pcmParts.reduce((acc, b) => acc + b.length, 0);
-	const header = createWavHeader(totalPcmLength, options);
-	return Buffer.concat([header, ...pcmParts]);
-}
-
+// Use shared generateTtsAudio directly for multi-speaker; voice selection via param
 async function ttsWithVoice(text: string, voiceName: string): Promise<Buffer> {
-	// Leverage shared helper; voiceName selection via content prompt for now
 	return generateTtsAudio(
 		`Read the following lines as ${voiceName}, in an engaging podcast style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements.\n\n${text}`,
 		{ voiceName }
@@ -236,17 +139,17 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			lineAudioBase64.push(base64 as string);
 		}
 
-		const gcsAudioUrl = await step.run("combine-upload-multi-voice", async () => {
-			const buffers = lineAudioBase64.map(b64 => Buffer.from(b64, "base64"));
-			const finalWav = concatenateWavs(buffers);
+		const { gcsAudioUrl, durationSeconds } = await step.run("combine-upload-multi-voice", async () => {
 			const fileName = `user-episodes/${userEpisodeId}-duet-${Date.now()}.wav`;
-			return await uploadContentToBucket(finalWav, fileName);
+			const { finalBuffer, durationSeconds } = combineAndUploadWavChunks(lineAudioBase64, fileName);
+			const gcsUrl = await uploadBufferToPrimaryBucket(finalBuffer, fileName);
+			return { gcsAudioUrl: gcsUrl, durationSeconds };
 		});
 
 		await step.run("finalize-episode", async () => {
 			return await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
-				data: { gcs_audio_url: gcsAudioUrl, status: "COMPLETED" },
+				data: { gcs_audio_url: gcsAudioUrl, status: "COMPLETED", duration_seconds: durationSeconds },
 			});
 		});
 

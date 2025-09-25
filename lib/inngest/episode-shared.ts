@@ -84,10 +84,52 @@ export function splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): 
 }
 
 export function combineAndUploadWavChunks(base64Chunks: string[], destinationFileName: string): { finalBuffer: Buffer; durationSeconds: number; destinationFileName: string } {
-	const wavBuffers = base64Chunks.map(b64 => Buffer.from(b64, "base64"));
-	const finalWav = concatenateWavs(wavBuffers);
-	const durationSecondsRaw = extractAudioDuration(finalWav, "audio/wav");
-	const durationSeconds = typeof durationSecondsRaw === "number" && !Number.isNaN(durationSecondsRaw) ? durationSecondsRaw : 0;
+	// If first chunk already looks like a WAV (after decoding), assume all are WAV fragments.
+	// Otherwise treat them as raw Linear PCM (Gemini TTS returns raw audio bytes w/out RIFF header).
+	if (base64Chunks.length === 0) throw new Error("No audio chunks provided");
+	const buffers = base64Chunks.map(b64 => Buffer.from(b64, "base64"));
+
+	let finalWav: Buffer;
+	let durationSeconds = 0;
+	const first = buffers[0];
+	if (isWav(first)) {
+		finalWav = concatenateWavs(buffers);
+		const durationSecondsRaw = extractAudioDuration(finalWav, "audio/wav");
+		durationSeconds = typeof durationSecondsRaw === "number" && !Number.isNaN(durationSecondsRaw) ? durationSecondsRaw : 0;
+		return { finalBuffer: finalWav, durationSeconds, destinationFileName };
+	}
+
+	// Raw PCM path
+	const rawMime = process.env.TTS_RAW_MIME_TYPE || "audio/L16; rate=24000"; // default guess (24kHz linear16)
+	const { sampleRate, bitsPerSample } = (() => {
+		try {
+			const [type, ...params] = rawMime.split(";").map(s => s.trim());
+			const [, fmt] = type.split("/");
+			let sr: number | undefined;
+			let bps: number | undefined;
+			if (fmt?.startsWith("L")) {
+				const bits = parseInt(fmt.slice(1), 10);
+				if (!Number.isNaN(bits)) bps = bits;
+			}
+			for (const p of params) {
+				const [k, v] = p.split("=").map(s => s.trim());
+				if (k === "rate") {
+					const parsed = parseInt(v, 10);
+					if (!Number.isNaN(parsed)) sr = parsed;
+				}
+			}
+			return { sampleRate: sr || 24000, bitsPerSample: bps || 16 };
+		} catch {
+			return { sampleRate: 24000, bitsPerSample: 16 };
+		}
+	})();
+	const numChannels = 1;
+	const totalPcmLength = buffers.reduce((acc, b) => acc + b.length, 0);
+	const header = createWavHeader(totalPcmLength, { numChannels, sampleRate, bitsPerSample });
+	finalWav = Buffer.concat([header, ...buffers]);
+	const bytesPerSample = bitsPerSample / 8;
+	const totalSamples = totalPcmLength / (bytesPerSample * numChannels);
+	durationSeconds = totalSamples / sampleRate;
 	return { finalBuffer: finalWav, durationSeconds, destinationFileName };
 }
 

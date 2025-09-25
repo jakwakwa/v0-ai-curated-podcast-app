@@ -133,6 +133,8 @@ export const generateUserEpisode = inngest.createFunction(
 		}
 
 		const { gcsAudioUrl, durationSeconds } = await step.run("combine-upload-audio", async () => {
+			// combineAndUploadWavChunks now auto-detects if chunks are already WAV or raw PCM.
+			// If raw, it wraps them using mime from TTS_RAW_MIME_TYPE (default audio/L16; rate=24000).
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
 			const { finalBuffer, durationSeconds } = combineAndUploadWavChunks(audioChunkBase64, fileName);
 			const gcsUrl = await uploadBufferToPrimaryBucket(finalBuffer, fileName);
