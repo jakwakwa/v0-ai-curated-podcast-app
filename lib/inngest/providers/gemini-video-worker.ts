@@ -1,10 +1,9 @@
-// lib/inngest/providers/gemini-video-worker.ts
-
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
 import { inngest } from "@/lib/inngest/client";
 import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video";
 import { extractVideoId } from "@/lib/transcripts/utils/youtube-audio";
 import ytdl from "@distube/ytdl-core";
+
 import { classifyError, ProviderStartedSchema } from "../utils/results";
 
 /**

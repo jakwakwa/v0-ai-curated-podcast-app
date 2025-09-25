@@ -1,10 +1,5 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Loader2, PlayCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,10 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { VOICE_OPTIONS } from "@/lib/constants/voices";
 import { getMaxDurationSeconds } from "@/lib/env";
 import { useNotificationStore } from "@/lib/stores";
+import { ChevronDown, ChevronRight, Loader2, PlayCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 
 const EPISODE_LIMIT = 16;
 const YT_MAXMAX_DURATION_SECONDS = getMaxDurationSeconds();
+// Define a base schema
 
+// const baseFormSchema = z.object({
+// 	youtubeUrl: z.string().url({ message: "Please enter a valid YouTube URL." }),
+// 	episodeTitle: z.string().min(2, "Title must be at least 2 characters."),
+// 	// We'll add the duration check dynamically
+// });
 function isYouTubeUrl(url: string): boolean {
 	try {
 		const { hostname } = new URL(url);
@@ -48,8 +54,7 @@ export function EpisodeCreator() {
 	const [voiceB, setVoiceB] = useState<string>("Kore");
 	const [isPlaying, setIsPlaying] = useState<string | null>(null);
 	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({});
-
-	// UX
+	const [maxDuration, setMaxDuration] = useState<number | null>(null);
 	const [isCreating, setIsCreating] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT });
@@ -85,6 +90,25 @@ export function EpisodeCreator() {
 	useEffect(() => {
 		fetchUsage();
 	}, [fetchUsage]);
+
+	useEffect(() => {
+		// Fetch the dynamic configuration from our new API endpoint
+		const fetchConfig = async () => {
+			try {
+				const response = await fetch("/api/config/processing");
+				const config = await response.json();
+				if (config.maxVideoDurationMinutes) {
+					setMaxDuration(config.maxVideoDurationMinutes);
+					// Dynamically update the form schema with the fetched duration limit
+				}
+			} catch (error) {
+				console.error("Failed to fetch processing config:", error);
+				toast.error("Could not load creation limits. Please refresh.");
+			}
+		};
+
+		fetchConfig();
+	}, []);
 
 	// Timer effect for restriction dialog
 	useEffect(() => {
@@ -215,7 +239,7 @@ export function EpisodeCreator() {
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="space-y-2 md:col-span-2">
-									<Label htmlFor="youtubeUrl">YouTube URL (Max 90 minutes)</Label>
+									<Label htmlFor="youtubeUrl">YouTube URL (Max {maxDuration} minutes)</Label>
 									<Input id="youtubeUrl" placeholder="https://www.youtube.com/..." value={youtubeUrl} onChange={e => setYouTubeUrl(e.target.value)} disabled={isBusy} required />
 									{isFetchingMetadata && (
 										<p className="text-sm text-muted-foreground flex items-center mt-2">
@@ -247,7 +271,7 @@ export function EpisodeCreator() {
 
 							<div className="space-y-6 border border-[#0c525b6f] rounded-md md:rounded-xl shadow-md px-6 py-4 bg-[#000]/20">
 								<div className="space-y-2">
-									<Label size="lg">Voice Settings</Label>
+									<Label>Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
 										<Button type="button" variant={generationMode === "single" ? "default" : "outline"} onClick={() => setGenerationMode("single")} disabled={isBusy} className="px-4">
 											Single speaker
@@ -327,7 +351,6 @@ export function EpisodeCreator() {
 															<div className="flex items-center justify-between w/full gap-3 ">
 																<div className="flex flex-col">
 																	<span>{v.label}</span>
-																	{/* <span className="text-xs opacity-75">{v.sample}</span> */}
 																</div>
 																<button
 																	type="button"
