@@ -1,7 +1,4 @@
 import { GeminiVideoProvider } from "./providers/gemini";
-import { GrokSearchProvider } from "./providers/grok-search";
-import { YouTubeCaptionsProvider } from "./providers/youtube";
-import { YouTubeStreamResolverProvider } from "./providers/youtube-audio-extractor";
 import { YouTubeClientProvider } from "./providers/youtube-client";
 import type { OrchestratorResult, TranscriptProvider, TranscriptRequest, TranscriptResponse, TranscriptSourceKind } from "./types";
 
@@ -13,28 +10,8 @@ export function detectKindFromUrl(url: string): TranscriptSourceKind {
 
 function getProviderChain(kind: TranscriptSourceKind): TranscriptProvider[] {
 	if (kind === "youtube") {
-		// Order (Gemini-first for direct transcription):
-		// 1. Gemini Video (direct transcription from URL)
-		// 2. YouTube client captions
-		// 3. Server-side captions
-		// 4. Stream resolver
-		// 5. OpenAI text fallback (extract visible text from HTML pages as last resort)
-		const providers: TranscriptProvider[] = [GeminiVideoProvider, YouTubeClientProvider, YouTubeCaptionsProvider, YouTubeStreamResolverProvider];
-
-		// Append Grok discovery before OpenAI fallback if explicitly enabled
-		if (process.env.ENABLE_GROK === "true") {
-			providers.push(GrokSearchProvider);
-		}
-
-		// Try to append OpenAI fallback provider if present
-		try {
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			const oa = require("./providers/openai");
-			if (oa?.OpenAITextFallbackProvider) providers.push(oa.OpenAITextFallbackProvider as TranscriptProvider);
-		} catch {
-			// ignore
-		}
-
+		// Only keep providers currently in use
+		const providers: TranscriptProvider[] = [GeminiVideoProvider, YouTubeClientProvider];
 		return providers;
 	}
 	if (kind === "podcast") {

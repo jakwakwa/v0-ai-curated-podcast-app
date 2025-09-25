@@ -116,9 +116,11 @@ graph TB
 - **Benefits**: Vendor independence, performance, compliance
 
 #### 2. Content Pipeline
-- **Stage 1**: YouTube/RSS → Transcript extraction
-- **Stage 2**: Gemini summarization → Script generation → TTS
+- **Stage 1**: YouTube/RSS → Gemini Video Understanding (direct transcription – server-side caption scraping removed)
+- **Stage 2**: Gemini summarization → Script generation → TTS (Gemini TTS)
 - **Stage 3**: GCS storage → CDN → Audio player
+
+> Note: All legacy YouTube caption scraping (ytdl / innertube / HTML) has been removed. Transcripts are produced exclusively via Gemini video models. The YouTube Data API is used only for safe metadata (title + duration). No other retrieval methods are active.
 
 #### 3. Billing System
 - **Event-driven**: Paddle webhooks for subscription management
