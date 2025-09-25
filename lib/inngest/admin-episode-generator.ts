@@ -9,30 +9,48 @@ import { inngest } from "./client";
 // Admin-triggered generation for curated catalog episodes (Episode + Podcast tables)
 // This mirrors the user workflow but targets unified Episode storage. Audio saved under /podcasts
 
-interface AdminEpisodeEventData {
-	sourceEpisodeId: string; // existing Episode or UserEpisode reference for transcript
-	podcastId: string; // target podcast to attach the generated episode to
-	adminUserId: string; // admin initiating (for auditing / optional notifications)
-	title?: string; // optional override title
+interface AdminEpisodeEventDataSimplified {
+	youtubeUrl: string; // authoritative source
+	podcastId: string;
+	adminUserId: string;
+}
+
+interface LegacyAdminEpisodeEventData {
+	sourceEpisodeId: string;
+	podcastId: string;
+	adminUserId: string;
 }
 
 export const generateAdminEpisode = inngest.createFunction(
 	{ id: "generate-admin-episode-workflow", name: "Generate Admin Episode Workflow", retries: 2 },
 	{ event: "admin.episode.generate.requested" },
 	async ({ event, step }) => {
-		const { sourceEpisodeId, podcastId, title } = event.data as AdminEpisodeEventData;
+		// Backward compatibility: legacy events may include sourceEpisodeId; ignore them gracefully
+		const dataUnknown = event.data as unknown;
+		const isLegacy = (d: unknown): d is LegacyAdminEpisodeEventData => typeof d === "object" && d !== null && "sourceEpisodeId" in d && !("youtubeUrl" in (d as Record<string, unknown>));
+		if (isLegacy(dataUnknown)) {
+			console.warn("[ADMIN_EP_GEN] Received legacy event without youtubeUrl. Skipping.");
+			return { message: "Skipped legacy admin generation event lacking youtubeUrl" };
+		}
+		const { youtubeUrl, podcastId } = event.data as AdminEpisodeEventDataSimplified;
 
-		// 1. Resolve source transcript (can be from Episode or UserEpisode)
+		// 1. Fetch YouTube metadata (title, description, thumbnail)
+		const videoDetails = await step.run("fetch-video-details", async () => {
+			const { getYouTubeVideoDetails } = await import("@/lib/youtube");
+			return await getYouTubeVideoDetails(youtubeUrl);
+		});
+
+		// 2. Fetch transcript (best-effort) – if not available we still continue using the description
 		const transcript = await step.run("fetch-transcript", async () => {
-			// Try unified Episode first
-			const ep = await prisma.episode.findUnique({ where: { episode_id: sourceEpisodeId } });
-			if (ep?.description) {
-				return ep.description; // treat description as fallback textual source if transcript not stored separately
+			try {
+				const { getYouTubeTranscript } = await import("@/lib/client-youtube-transcript");
+				const result = await getYouTubeTranscript(youtubeUrl);
+				if (result.success && result.transcript) return result.transcript;
+				return videoDetails?.description || ""; // fallback to description
+			} catch (err) {
+				console.warn("[ADMIN_EP_GEN] Transcript fallback to description", err);
+				return videoDetails?.description || "";
 			}
-			// Fallback: user episode transcript
-			const userEp = await prisma.userEpisode.findUnique({ where: { episode_id: sourceEpisodeId } });
-			if (userEp?.transcript) return userEp.transcript;
-			throw new Error(`No transcript/description found for sourceEpisodeId=${sourceEpisodeId}`);
 		});
 
 		// 2. Neutral summary
@@ -98,9 +116,10 @@ ${summary}`
 			return prisma.episode.create({
 				data: {
 					podcast_id: podcastId,
-					title: title || `Curated Recap ${new Date().toISOString().slice(0, 10)}`,
+					title: videoDetails?.title || `Curated Recap ${new Date().toISOString().slice(0, 10)}`,
 					description: summary,
 					audio_url: gcsAudioUrl,
+					image_url: videoDetails?.thumbnailUrl || undefined,
 					duration_seconds: durationSeconds,
 					published_at: new Date(),
 				},

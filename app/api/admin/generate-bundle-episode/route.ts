@@ -8,20 +8,11 @@ import { prisma } from "@/lib/prisma";
 // export const dynamic = "force-dynamic"
 export const maxDuration = 60; // 1 minute should be enough for Inngest job dispatch
 
-interface EpisodeSource {
-	id: string; // references existing Episode or UserEpisode id used as transcription source
-	name: string;
+// Legacy shape helpers (only type used for narrowing)
+interface LegacyEpisodeSource {
+	id?: string;
+	name?: string;
 	url: string;
-	showId?: string;
-}
-
-interface AdminGenerationRequest {
-	bundleId: string;
-	podcastId: string;
-	title: string; // will be applied to first (or only) generated episode unless overridden later
-	description?: string;
-	image_url?: string; // currently unused here but preserved for future enrichment
-	sources: EpisodeSource[]; // at least one source required
 }
 
 export async function POST(request: Request) {
@@ -39,11 +30,24 @@ export async function POST(request: Request) {
 			return new NextResponse("Unauthorized", { status: 401 });
 		}
 
-		const body: AdminGenerationRequest = await request.json();
-		const { bundleId, podcastId, title, sources } = body;
+		const raw = await request.json();
+		// Try new shape first
+		const bundleId: string | undefined = raw.bundleId;
+		const podcastId: string | undefined = raw.podcastId;
+		let youtubeUrl: string | undefined = raw.youtubeUrl;
+		let legacyUsed = false;
 
-		if (!(bundleId && podcastId && title && sources) || sources.length === 0) {
-			return NextResponse.json({ error: "Missing required fields: bundleId, podcastId, title, and sources" }, { status: 400 });
+		if (!youtubeUrl) {
+			// Attempt legacy extraction: take first source URL
+			if (Array.isArray(raw.sources) && raw.sources.length > 0) {
+				const first = raw.sources[0] as LegacyEpisodeSource;
+				youtubeUrl = first?.url;
+				legacyUsed = true;
+			}
+		}
+
+		if (!(bundleId && podcastId && youtubeUrl)) {
+			return NextResponse.json({ error: "Missing required fields: bundleId, podcastId, youtubeUrl (or legacy sources)" }, { status: 400 });
 		}
 
 		// Validate that the bundle exists (and fetch podcasts)
@@ -62,20 +66,23 @@ export async function POST(request: Request) {
 			return NextResponse.json({ error: "Selected podcast is not in the chosen bundle" }, { status: 400 });
 		}
 
-		// Emit one generation request per source (could be batched later if needed)
-		for (const [index, source] of sources.entries()) {
-			await inngest.send({
-				name: "admin.episode.generate.requested",
-				data: {
-					sourceEpisodeId: source.id,
-					podcastId,
-					adminUserId: userId,
-					title: sources.length === 1 ? title : `${title} (Part ${index + 1})`,
-				},
-			});
-		}
+		// Single ingestion event (one video -> one curated episode)
+		await inngest.send({
+			name: "admin.episode.generate.requested",
+			data: {
+				podcastId,
+				adminUserId: userId,
+				youtubeUrl,
+			},
+		});
 
-		return NextResponse.json({ success: true, message: "Admin episode generation dispatched", count: sources.length });
+		const res = NextResponse.json({ success: true, message: "Admin episode generation dispatched", legacy: legacyUsed ? true : undefined });
+		if (legacyUsed) {
+			res.headers.set("Deprecation", "true");
+			res.headers.set("Sunset", new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toUTCString()); // 14 days window
+			res.headers.set("Link", '<https://github.com/jakwakwa/podslice-ai-curated>; rel="documentation"; title="Update payload to { youtubeUrl }"');
+		}
+		return res;
 	} catch (error) {
 		console.error("Admin generate bundle episode error:", error);
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 });

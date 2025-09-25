@@ -1,8 +1,8 @@
 "use client"
 
-import { Lock, Sparkles, Trash2 } from "lucide-react"
+import { Lock, Sparkles } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { AppSpinner } from "@/components/ui/app-spinner"
 import { Badge } from "@/components/ui/badge"
@@ -11,34 +11,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import type { Bundle, Podcast } from "@/lib/types"
 import PanelHeader from "./PanelHeader"
 import Stepper from "./stepper"
 
 type BundleWithPodcasts = (Bundle & { podcasts: Podcast[] }) & { canInteract?: boolean; lockReason?: string | null }
 
-interface EpisodeSource {
-	id: string
-	name: string
-	url: string
-}
-
 export default function EpisodeGenerationPanelClient({ bundles }: { bundles: BundleWithPodcasts[] }) {
 	const [selectedBundleId, setSelectedBundleId] = useState<string>("")
 	const [selectedPodcastId, setSelectedPodcastId] = useState<string>("")
-	const [episodeTitle, setEpisodeTitle] = useState("")
-	const [episodeDescription, setEpisodeDescription] = useState("")
-	const [episodeImageUrl, setEpisodeImageUrl] = useState("")
-	const [sources, setSources] = useState<EpisodeSource[]>([])
-	const [newSourceName, setNewSourceName] = useState("")
-	const [newSourceUrl, setNewSourceUrl] = useState("")
+	const [youtubeUrl, setYoutubeUrl] = useState("")
 	const [isLoading, setIsLoading] = useState(false)
-	type UploadMethod = "generate" | "upload" | "direct"
-	const [uploadMethod, setUploadMethod] = useState<UploadMethod>("generate")
-	const [mp3File, setMp3File] = useState<File | null>(null)
-	const [audioUrl, setAudioUrl] = useState("")
-	const fileInputRef = useRef<HTMLInputElement | null>(null)
 
 	const selectedBundle = bundles.find(b => b.bundle_id === selectedBundleId)
 	const selectedPodcast = selectedBundle?.podcasts.find(p => p.podcast_id === selectedPodcastId)
@@ -73,29 +56,13 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 		)
 	}
 
-	const addSource = () => {
-		if (!(newSourceName.trim() && newSourceUrl.trim())) {
-			toast.error("Source name and URL are required")
-			return
-		}
-		if (!isYouTubeUrl(newSourceUrl)) {
-			toast.error("Source URL must be a YouTube link")
-			return
-		}
-		setSources(prev => [...prev, { id: Date.now().toString(), name: newSourceName.trim(), url: newSourceUrl.trim() }])
-		setNewSourceName("")
-		setNewSourceUrl("")
-	}
-	const removeSource = (id: string) => setSources(prev => prev.filter(s => s.id !== id))
-
 	const generateEpisode = async () => {
-		if (!(selectedBundleId && selectedPodcastId && episodeTitle && sources.length > 0)) {
-			toast.error("Bundle, podcast, title, and at least one valid source are required")
+		if (!(selectedBundleId && selectedPodcastId && youtubeUrl.trim())) {
+			toast.error("Bundle, podcast and YouTube URL are required")
 			return
 		}
-		// Validate all sources
-		if (sources.some(s => !isYouTubeUrl(s.url))) {
-			toast.error("All sources must be YouTube links")
+		if (!isYouTubeUrl(youtubeUrl)) {
+			toast.error("Enter a valid YouTube URL")
 			return
 		}
 		setIsLoading(true)
@@ -103,90 +70,19 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			const resp = await fetch("/api/admin/generate-bundle-episode", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					bundleId: selectedBundleId,
-					podcastId: selectedPodcastId,
-					title: episodeTitle,
-					description: episodeDescription || undefined,
-					image_url: episodeImageUrl || undefined,
-					sources,
-				}),
+				body: JSON.stringify({ bundleId: selectedBundleId, podcastId: selectedPodcastId, youtubeUrl: youtubeUrl.trim() }),
 			})
-
 			if (!resp.ok) {
 				const errorText = await resp.text()
 				throw new Error(errorText || "Failed to start generation")
 			}
-
 			toast.success("Episode generation started")
 			setSelectedBundleId("")
 			setSelectedPodcastId("")
-			setEpisodeTitle("")
-			setEpisodeDescription("")
-			setEpisodeImageUrl("")
-			setSources([])
+			setYoutubeUrl("")
 		} catch (error) {
 			console.error("Failed to generate episode:", error)
 			toast.error(error instanceof Error ? error.message : "Failed to start generation")
-		} finally {
-			setIsLoading(false)
-		}
-	}
-
-	const uploadEpisode = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!(selectedBundleId && selectedPodcastId && episodeTitle)) {
-			toast.error("Bundle, podcast, and title are required")
-			return
-		}
-		// Source fields are required for both upload and direct
-		if (!(newSourceName.trim() && newSourceUrl.trim())) {
-			toast.error("Source name and YouTube URL are required")
-			return
-		}
-		if (!isYouTubeUrl(newSourceUrl)) {
-			toast.error("Source URL must be a YouTube link")
-			return
-		}
-		if (uploadMethod === "upload" && !mp3File) {
-			toast.error("Please select an MP3 file to upload")
-			return
-		}
-		if (uploadMethod === "direct" && !audioUrl.trim()) {
-			toast.error("Please provide an audio URL")
-			return
-		}
-		const formData = new FormData()
-		formData.append("bundleId", selectedBundleId)
-		formData.append("podcastId", selectedPodcastId)
-		formData.append("title", episodeTitle)
-		formData.append("description", episodeDescription)
-		if (episodeImageUrl) formData.append("image_url", episodeImageUrl)
-		if (uploadMethod === "upload" && mp3File) formData.append("file", mp3File)
-		if (uploadMethod === "direct" && audioUrl) formData.append("audioUrl", audioUrl)
-		setIsLoading(true)
-		try {
-			const resp = await fetch("/api/admin/upload-episode", { method: "POST", body: formData })
-
-			if (!resp.ok) {
-				const errorText = await resp.text()
-				throw new Error(errorText || "Failed to upload episode")
-			}
-
-			toast.success("Episode uploaded")
-			setSelectedBundleId("")
-			setSelectedPodcastId("")
-			setEpisodeTitle("")
-			setEpisodeDescription("")
-			setEpisodeImageUrl("")
-			setMp3File(null)
-			setAudioUrl("")
-			setNewSourceName("")
-			setNewSourceUrl("")
-			if (fileInputRef.current) fileInputRef.current.value = ""
-		} catch (error) {
-			console.error("Failed to upload episode:", error)
-			toast.error(error instanceof Error ? error.message : "Failed to upload episode")
 		} finally {
 			setIsLoading(false)
 		}
@@ -275,32 +171,7 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 			)}
 
 			{/* Step 2: Episode details (only when a bundle is selected) */}
-			{selectedBundleId && (
-				<Card>
-					<PanelHeader
-						title={
-							<div className="flex items-center gap-2">
-								<Stepper step={3} /> Episode Details
-							</div>
-						}
-						description="Provide basic information for the episode"
-					/>
-					<CardContent className="space-y-4 p-4">
-						<div>
-							<Label htmlFor="title">Episode Title *</Label>
-							<Input id="title" value={episodeTitle} onChange={e => setEpisodeTitle(e.target.value)} />
-						</div>
-						<div>
-							<Label htmlFor="description">Episode Description (Optional)</Label>
-							<Textarea id="description" rows={3} value={episodeDescription} onChange={e => setEpisodeDescription(e.target.value)} />
-						</div>
-						<div>
-							<Label htmlFor="episodeImageUrl">Episode Image URL (Optional)</Label>
-							<Input id="episodeImageUrl" value={episodeImageUrl} onChange={e => setEpisodeImageUrl(e.target.value)} />
-						</div>
-					</CardContent>
-				</Card>
-			)}
+			{/* Step 3 removed: Title/Description/Image now auto-fetched from YouTube */}
 
 			{/* Step 3: Method + contextual fields (only when a bundle is selected) */}
 			{selectedBundleId && (
@@ -308,142 +179,44 @@ export default function EpisodeGenerationPanelClient({ bundles }: { bundles: Bun
 					<PanelHeader
 						title={
 							<div className="flex items-center gap-2">
-								<Stepper step={4} />
-								{uploadMethod === "upload" ? "Upload Audio" : uploadMethod === "direct" ? "Provide Audio URL" : "Add Episode Sources"}
+								<Stepper step={3} /> Provide YouTube URL
 							</div>
 						}
-						description={
-							uploadMethod === "upload"
-								? "Choose how to provide the episode audio"
-								: uploadMethod === "direct"
-									? "Provide a direct MP3 URL"
-									: "Add YouTube videos or other sources for each show in the bundle"
-						}
+						description="Paste the YouTube video to generate a curated episode. Title, image & description auto-populate."
 					/>
 					<CardContent className="p-4 space-y-4">
 						<div>
-							<Label>Creation Method</Label>
-							<div className="flex gap-2 mt-2">
-								<Button type="button" variant={uploadMethod === "upload" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("upload")}>
-									Upload MP3
-								</Button>
-								<Button type="button" variant={uploadMethod === "direct" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("direct")}>
-									Direct Link
-								</Button>
-								<Button type="button" variant={uploadMethod === "generate" ? "default" : "outline"} size="sm" onClick={() => setUploadMethod("generate")}>
-									Generate Episode
-								</Button>
-							</div>
+							<Label htmlFor="youtubeUrl">YouTube URL *</Label>
+							<Input id="youtubeUrl" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
 						</div>
-
-						{uploadMethod === "upload" ? (
-							<form onSubmit={uploadEpisode} className="space-y-4">
-								<div>
-									<Label htmlFor="mp3File">Audio File (MP3)</Label>
-									<Input id="mp3File" type="file" accept="audio/mp3,audio/mpeg" ref={fileInputRef} onChange={e => setMp3File(e.target.files?.[0] || null)} />
-									{mp3File && <div className="mt-2 text-sm text-muted-foreground">Selected file: {mp3File.name}</div>}
-								</div>
-								<div>
-									<Label htmlFor="sourceName3">Source Name *</Label>
-									<Input id="sourceName3" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} />
-								</div>
-								<div>
-									<Label htmlFor="sourceUrl3">Source URL (YouTube) *</Label>
-									<Input id="sourceUrl3" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
-								</div>
-								<CardContent className="pt-2 p-0">
-									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
-										{isLoading ? (
-											<>
-												<AppSpinner size="sm" color="default" className="mr-2" />
-												Uploading...
-											</>
-										) : (
-											"Upload Episode"
-										)}
-									</Button>
-								</CardContent>
-							</form>
-						) : uploadMethod === "direct" ? (
-							<form onSubmit={uploadEpisode} className="space-y-4">
-								<div>
-									<Label htmlFor="audioUrl">Audio URL (MP3) *</Label>
-									<Input id="audioUrl" type="url" value={audioUrl} onChange={e => setAudioUrl(e.target.value)} placeholder="https://example.com/audio.mp3" />
-								</div>
-								<div>
-									<Label htmlFor="sourceName4">Source Name *</Label>
-									<Input id="sourceName4" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} />
-								</div>
-								<div>
-									<Label htmlFor="sourceUrl4">Source URL (YouTube) *</Label>
-									<Input id="sourceUrl4" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
-								</div>
-								<CardContent className="pt-2 p-0">
-									<Button type="submit" disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle} className="w-full" size="lg" variant="default">
-										{isLoading ? (
-											<>
-												<AppSpinner size="sm" color="default" className="mr-2" />
-												Uploading...
-											</>
-										) : (
-											"Upload Episode"
-										)}
-									</Button>
-								</CardContent>
-							</form>
-						) : (
-							<div className="space-y-4">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div>
-										<Label htmlFor="sourceName">Source Name</Label>
-										<Input id="sourceName" value={newSourceName} onChange={e => setNewSourceName(e.target.value)} />
-									</div>
-									<div>
-										<Label htmlFor="sourceUrl">Source URL (YouTube)</Label>
-										<Input id="sourceUrl" value={newSourceUrl} onChange={e => setNewSourceUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." />
-									</div>
-								</div>
-								<Button onClick={addSource} variant="outline" className="w-full">
-									Add Source
-								</Button>
-								{sources.length > 0 && (
-									<div className="space-y-2">
-										<h4 className="font-semibold">Added Sources ({sources.length})</h4>
-										{sources.map(s => (
-											<div key={s.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-												<div>
-													<p className="font-medium">{s.name}</p>
-													<p className="text-sm text-muted-foreground truncate">{s.url}</p>
-												</div>
-												<Button onClick={() => removeSource(s.id)} variant="ghost" size="sm">
-													<Trash2 className="w-4 h-4" />
-												</Button>
-											</div>
-										))}
-									</div>
+						<div className="flex gap-2">
+							<Button type="button" variant="outline" size="sm" disabled className="cursor-not-allowed opacity-50">
+								Upload MP3 (disabled)
+							</Button>
+							<Button type="button" variant="outline" size="sm" disabled className="cursor-not-allowed opacity-50">
+								Direct Link (disabled)
+							</Button>
+						</div>
+						<CardContent className="pt-2 p-0">
+							<Button
+								onClick={generateEpisode}
+								disabled={isLoading || !selectedBundleId || !selectedPodcastId || !youtubeUrl.trim()}
+								className="w-full"
+								size="lg"
+								variant="default">
+								{isLoading ? (
+									<>
+										<AppSpinner size="sm" color="default" className="mr-2" />
+										Generating...
+									</>
+								) : (
+									<>
+										<Sparkles className="w-4 h-4 mr-2" />
+										Generate Episode
+									</>
 								)}
-								<CardContent className="pt-2 p-0">
-									<Button
-										onClick={generateEpisode}
-										disabled={isLoading || !selectedBundleId || !selectedPodcastId || !episodeTitle || sources.length === 0}
-										className="w-full"
-										size="lg"
-										variant="default">
-										{isLoading ? (
-											<>
-												<AppSpinner size="sm" color="default" className="mr-2" />
-												Generating Episode...
-											</>
-										) : (
-											<>
-												<Sparkles className="w-4 h-4 mr-2" />
-												Generate Episode
-											</>
-										)}
-									</Button>
-								</CardContent>
-							</div>
-						)}
+							</Button>
+						</CardContent>
 					</CardContent>
 				</Card>
 			)}
