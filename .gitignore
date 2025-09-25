@@ -47,3 +47,4 @@ next-env.d.ts
 *gcs*.json
 *uploader*.json
 *reader*.json
+*-player-script.js
