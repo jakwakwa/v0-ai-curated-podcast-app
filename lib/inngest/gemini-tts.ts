@@ -1,6 +1,5 @@
-import { ensureBucketName, getStorageUploader, uploadToGCS } from "@/lib/gcs";
 import { randomUUID } from "node:crypto";
-// Migrated to new Gemini SDK
+import { ensureBucketName, getStorageUploader, uploadToGCS } from "@/lib/gcs";
 import { generateTtsAudio, generateText as genText } from "@/lib/genai";
 import { prisma } from "@/lib/prisma";
 import { getTranscriptOrchestrated } from "@/lib/transcripts";

@@ -1,19 +1,8 @@
-// Migrated to new Gemini SDK
-
-import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { GoogleGenAI, type Part } from "@google/genai";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 
-// Point fluent-ffmpeg to the installed binary
-
-// NOTE: When using a raw YouTube URL with Gemini video understanding models, the ENTIRE
-// video is ingested unless you specify segment bounds via videoMetadata.startOffset
-// and videoMetadata.endOffset on the Part. Simply adding an instruction with timestamps
-// does NOT reduce input tokens (the model still tokenizes the whole video). This file
-// implements true chunking by attaching videoMetadata to each request.
 
 const PROMPT = `Transcribe this video (or segment) accurately. Output only raw transcript text without any extra commentary.`;
-
-// Approximate token rates from Google docs (used for safe dynamic sizing decisions)
 // Video: ~263 tokens/sec; Audio-only would be ~32 tokens/sec (not applicable here since we only pass URL)
 const TOKENS_PER_VIDEO_SECOND = 263;
 
