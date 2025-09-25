@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import PlayAndShare from "./_components/play-and-share.client";
 import { getStorageReader, parseGcsUri } from "@/lib/gcs";
 import { prisma } from "@/lib/prisma";
 import type { Episode } from "@/lib/types";
@@ -179,6 +180,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </div>
             </div>
           </div>
+        </div>
+        <div className="mt-4 mb-4">
+          <PlayAndShare episode={episode} signedAudioUrl={episode.signedAudioUrl} />
         </div>
         <div className="mt-4 my-8">
           <Separator className="my-8" />

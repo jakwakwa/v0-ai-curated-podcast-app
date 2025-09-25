@@ -637,10 +637,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						})()}
 
 					<SheetHeader>
-						<SheetTitle className="truncate text-[21.64px] font-bold leading-[1.9] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
+						<SheetTitle className="line-clamp-2 text-[16.64px] font-bold leading-[1.5] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
-						<SheetDescription className="truncate text-[14.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#8856f3] text-center">
+						<SheetDescription className=" text-[14.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#8856f3] text-center">
 							{episode
 								? "title" in episode
 									? (() => {
