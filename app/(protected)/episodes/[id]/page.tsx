@@ -6,10 +6,10 @@ import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import PlayAndShare from "./_components/play-and-share.client";
 import { getStorageReader, parseGcsUri } from "@/lib/gcs";
 import { prisma } from "@/lib/prisma";
 import type { Episode } from "@/lib/types";
+import PlayAndShare from "./_components/play-and-share.client";
 
 export const dynamic = "force-dynamic";
 
@@ -145,7 +145,10 @@ function normalizeSummaryMarkdown(input: string | null | undefined): string {
     }
     return trimmed;
   });
-  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return lines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -176,7 +179,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               {episode.duration_seconds ? <Badge variant="secondary">{Math.round((episode.duration_seconds || 0) / 60)} min</Badge> : null}
               <Badge variant="secondary">{new Date(episode.created_at).toLocaleString()}</Badge>
               <div className="text-xs text-muted-foreground break-words border-1 border-[#dcd4df36] rounded px-2 py-0 flex gap-2 items-center">
-                <a className="no-underline hover:underline" href="/episodes" rel="noreferrer">Back to Episodes</a>
+                <a className="no-underline hover:underline" href="/episodes" rel="noreferrer">
+                  Back to Episodes
+                </a>
               </div>
             </div>
           </div>
