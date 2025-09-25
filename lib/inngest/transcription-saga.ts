@@ -2,8 +2,8 @@ import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logge
 import emailService from "@/lib/email-service";
 import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/lib/prisma";
-import { preflightProbe } from "./utils/preflight";
 import { getYouTubeVideoDetails } from "@/lib/youtube";
+import { preflightProbe } from "./utils/preflight";
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results";
 
 const Events = {
