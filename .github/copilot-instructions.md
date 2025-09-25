@@ -37,30 +37,14 @@ PODSLICE is an AI-powered podcast curation platform built on Next.js 15 App Rout
 - **Never log credentials or absolute paths**
 
 ### AI Services Integration
-- **Gemini API**: Used for summarization in content pipeline via `@google/generative-ai`
-- **TTS**: Google Cloud TTS for audio synthesis
-- **Config**: AI settings in `config/ai.ts`
+- **Gemini API**: Used for summarization in content pipeline via `@google/genai`
+- **TTS**: Google Cloud TTS for audio synthesis (https://ai.google.dev/gemini-api/docs/speech-generation?hl=en)[gemini-api/docs/speech-generation?hl=en]
+
 
 ## Development Workflows
 
-### Essential Commands
-```bash
-# Development
-pnpm dev:turbo          # Start with Turbopack
-pnpm inngest            # Start background job processing
 
-# Database
-pnpm prisma:push        # Apply schema changes
-pnpm prisma:generate    # Generate Prisma client
 
-# Testing  
-pnpm test              # Run Vitest tests
-pnpm test:watch        # Watch mode testing
-
-# Maintenance
-pnpm seed              # Populate database with test data
-pnpm durations:update  # Update episode durations
-```
 
 ### Component Patterns
 - **UI Components**: Use shadcn/ui components from `@/components/ui/`
@@ -92,11 +76,16 @@ pnpm durations:update  # Update episode durations
 - `app/(protected)/layout.tsx` - Main app shell with sidebar/header
 - `lib/types.ts` - Centralized type definitions  
 - `lib/gcs.ts` - Google Cloud Storage integration
-- `config/ai.ts` - AI service configuration
-- `.cursor/rules/` - Additional project-specific conventions
 
 ## Common Pitfalls to Avoid
 - Don't create custom interfaces in pages/components - use `@/lib/types.ts`
 - Don't modify middleware - it's protected and working
-- Don't use `any` types - leverage Prisma's generated types
 - Don't batch multiple Inngest jobs - use proper job orchestration patterns
+
+## CRITICAL: Coding Standards
+- Always use `import type` for types
+- Always define explicit return types for functions
+- Always validate external data with Zod schemas
+- Always handle errors gracefully - never let unhandled exceptions crash the app
+- Never log sensitive information (API keys, credentials)
+- Don't use `any` types - leverage Prisma's generated types

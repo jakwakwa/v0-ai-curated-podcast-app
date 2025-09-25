@@ -1,7 +1,4 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { GoogleGenAI } from "@google/genai";
-import { generateText } from "ai";
-import mime from "mime";
+import { generateText as genText } from "@/lib/genai";
 
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 
@@ -38,13 +35,10 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	}
 }
 
-// TODO: Define types for event payload
-const googleAI = createGoogleGenerativeAI({
-	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
+// Removed local Gemini client in favor of shared helper
 
 // Gemini TTS configuration - Single speaker for faster processing
-const geminiTTSConfig = {
+const _geminiTTSConfig = {
 	temperature: 1,
 	responseModalities: ["audio"],
 	speechConfig: {
@@ -62,7 +56,7 @@ interface WavConversionOptions {
 	bitsPerSample: number;
 }
 
-function convertToWav(rawData: string, mimeType: string) {
+function _convertToWav(rawData: string, mimeType: string) {
 	const options = parseMimeType(mimeType);
 	const wavHeader = createWavHeader(rawData.length, options);
 	const buffer = Buffer.from(rawData, "base64");
@@ -161,74 +155,19 @@ function _splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string
 	if (current.length) chunks.push(current.join(" "));
 	return chunks;
 }
+
+import { generateTtsAudio } from "@/lib/genai";
+
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
-	// Try both env variable names for compatibility
-	const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-
-	if (!geminiApiKey) {
-		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
-	}
-
-	// Dynamic script length limits based on episode type
 	const maxLength = aiConfig.useShortEpisodes ? 1000 : 4000;
 	const episodeType = aiConfig.useShortEpisodes ? "1-minute" : "3-minute";
-
 	if (script.length > maxLength) {
 		console.log(`⚠️ Script too long for ${episodeType} episode (${script.length} chars), truncating to ${maxLength} chars`);
 		script = `${script.substring(0, maxLength)}...`;
 	}
-
-	const ai = new GoogleGenAI({
-		apiKey: geminiApiKey,
-	});
-
-	const model = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts"; // Using TTS model for speech synthesis
-	const contents = [
-		{
-			role: "user",
-			parts: [
-				{
-					text: `Please read the following podcast script aloud in a clear, engaging style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements:\n\n${script}`,
-				},
-			],
-		},
-	];
-
-	const response = await ai.models.generateContentStream({
-		model,
-		config: geminiTTSConfig,
-		contents,
-	});
-	let audioBuffer: Buffer | null = null;
-	let _chunkCount = 0;
-
-	for await (const chunk of response) {
-		_chunkCount++;
-
-		if (!chunk.candidates?.[0]?.content?.parts) {
-			console.log("⚠️ Chunk missing expected structure");
-			continue;
-		}
-		if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-			const inlineData = chunk.candidates[0].content.parts[0].inlineData;
-			let fileExtension = mime.getExtension(inlineData.mimeType || "");
-			let buffer = Buffer.from(inlineData.data || "", "base64");
-
-			if (!fileExtension) {
-				fileExtension = "wav";
-				buffer = convertToWav(inlineData.data || "", inlineData.mimeType || "");
-			}
-
-			audioBuffer = buffer;
-			break; // Take the first audio chunk
-		}
-	}
-
-	if (!audioBuffer) {
-		throw new Error("Failed to generate audio with Gemini TTS");
-	}
-
-	return audioBuffer;
+	return generateTtsAudio(
+		`Please read the following podcast script aloud in a clear, engaging style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements:\n\n${script}`
+	);
 }
 
 type JsonBuffer = { type: "Buffer"; data: number[] };
@@ -321,37 +260,27 @@ export const generateUserEpisode = inngest.createFunction(
 		// Step 2: Generate TRUE neutral summary (bullets + recap)
 		const summary = await step.run("generate-summary", async () => {
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
-			const model = googleAI(modelName);
-			try {
-				const { text } = await generateText({
-					model,
-					prompt: `Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`,
-				});
-
-				await prisma.userEpisode.update({
-					where: { episode_id: userEpisodeId },
-					data: { summary: text },
-				});
-
-				return text;
-			} catch (error) {
-				console.error("Error during summarization");
-				throw new Error(`Failed to summarize content: ${(error as Error).message}`);
-			}
+			const text = await genText(
+				modelName,
+				`Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`
+			);
+			await prisma.userEpisode.update({
+				where: { episode_id: userEpisodeId },
+				data: { summary: text },
+			});
+			return text;
 		});
 
 		// Step 3: Generate Podslice-hosted script (commentary over summary)
 		const script = await step.run("generate-script", async () => {
 			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
-			const model2 = googleAI(modelName2);
 			const targetMinutes = Math.max(3, Number(process.env.EPISODE_TARGET_MINUTES || 1));
 			const minWords = Math.floor(targetMinutes * 140);
 			const maxWords = Math.floor(targetMinutes * 180);
-			const { text } = await generateText({
-				model: model2,
-				prompt: `Task: Based on the SUMMARY below, write a ${minWords}-${maxWords} word (about ${targetMinutes} minutes) single-narrator podcast segment where a Podslice host explains the highlights to listeners.\n\nIdentity & framing:\n- The speaker is a Podslice host summarizing someone else's content.\n- Do NOT reenact or impersonate the original speakers.\n- Present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken words only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nStructure:\n- Hook that frames this as a Podslice summary.\n- Smooth transitions between highlight clusters.\n- Clear, concise wrap-up.\n\nSUMMARY:\n${summary}`,
-			});
-			return text;
+			return genText(
+				modelName2,
+				`Task: Based on the SUMMARY below, write a ${minWords}-${maxWords} word (about ${targetMinutes} minutes) single-narrator podcast segment where a Podslice host explains the highlights to listeners.\n\nIdentity & framing:\n- The speaker is a Podslice host summarizing someone else's content.\n- Do NOT reenact or impersonate the original speakers.\n- Present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken words only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nStructure:\n- Hook that frames this as a Podslice summary.\n- Smooth transitions between highlight clusters.\n- Clear, concise wrap-up.\n\nSUMMARY:\n${summary}`
+			);
 		});
 
 		// Step 4: Convert to Audio (chunked) and Upload to GCS

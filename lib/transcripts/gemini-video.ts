@@ -1,5 +1,7 @@
-import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
+// Migrated to new Gemini SDK
+
 import { getYouTubeVideoDetails } from "@/lib/youtube";
+import { GoogleGenAI, type Part } from "@google/genai";
 
 // Point fluent-ffmpeg to the installed binary
 
@@ -43,13 +45,19 @@ export async function transcribeWithGeminiFromUrl(url: string, seg?: SegmentOpti
 	try {
 		const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-1.5-flash";
 
-		const genAI = new GoogleGenerativeAI(apiKey);
-		const model = genAI.getGenerativeModel({ model: modelName });
-
+		const genAI = new GoogleGenAI({ apiKey });
 		const mediaPart = buildYouTubeVideoPart(url, seg);
-		const result = await model.generateContent([mediaPart, PROMPT]);
-
-		return result.response.text();
+		const result = await genAI.models.generateContent({
+			model: modelName,
+			contents: [{ role: "user", parts: [mediaPart, { text: PROMPT }] }],
+		});
+		return (
+			result.candidates?.[0]?.content?.parts
+				?.map(p => ("text" in p ? p.text : ""))
+				.filter(Boolean)
+				.join(" ")
+				?.trim() || ""
+		);
 	} catch (error) {
 		console.error("[GEMINI][youtube-url] Error:", error);
 		throw error;
@@ -87,8 +95,7 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 	const maxTokensPerChunk = options?.maxTokensPerChunk ?? 180_000; // very conservative
 	const minChunkSeconds = Math.max(30, options?.minChunkSeconds ?? 60);
 
-	const genAI = new GoogleGenerativeAI(apiKey);
-	const model = genAI.getGenerativeModel({ model: modelName });
+	const genAI = new GoogleGenAI({ apiKey });
 
 	const videoDetails = await getYouTubeVideoDetails(url);
 	const durationSeconds = videoDetails?.duration;
@@ -124,8 +131,16 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 		const endOffset = `${Math.floor(seg.end)}s`;
 		const part = buildYouTubeVideoPart(url, { startOffset, endOffset });
 		const instruction = `Transcribe ONLY between ${startOffset} and ${endOffset}. Plain text.`;
-		const result = await model.generateContent([part, instruction]);
-		const transcript = result.response.text();
+		const result = await genAI.models.generateContent({
+			model: modelName,
+			contents: [{ role: "user", parts: [part, { text: instruction }] }],
+		});
+		const transcript =
+			result.candidates?.[0]?.content?.parts
+				?.map(p => ("text" in p ? p.text : ""))
+				.filter(Boolean)
+				.join(" ")
+				?.trim() || "";
 		if (transcript) {
 			transcripts.push(transcript);
 		}

@@ -1,40 +1,15 @@
 import { ensureBucketName, getStorageUploader, uploadToGCS } from "@/lib/gcs";
+import { randomUUID } from "node:crypto";
+// Migrated to new Gemini SDK
+import { generateTtsAudio, generateText as genText } from "@/lib/genai";
 import { prisma } from "@/lib/prisma";
 import { getTranscriptOrchestrated } from "@/lib/transcripts";
-import { type GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
-import { randomUUID } from "node:crypto";
 import { inngest } from "./client";
 
-let genAI: GoogleGenerativeAI;
-
-function getGenAIClient(): GoogleGenerativeAI {
-	if (!genAI) {
-		const geminiApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-		if (!geminiApiKey) {
-			throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
-		}
-		genAI = new GoogleGenerativeAI(geminiApiKey);
-	}
-	return genAI;
-}
-
-function getGenerativeModel(modelName: string): GenerativeModel {
-	const client = getGenAIClient();
-	return client.getGenerativeModel({ model: modelName });
-}
+// Removed local client/text helpers in favor of shared genai module
 
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {
-	const model = getGenerativeModel(process.env.GEMINI_TTS_MODEL || "gemini-1.5-flash-latest");
-
-	const result = await model.generateContent(`Please read aloud the following in a podcast interview style:\n\n${script}`);
-
-	const audioPart = result.response.candidates?.[0]?.content.parts.find((part): part is { inlineData: { data: string; mimeType: string } } => "inlineData" in part);
-
-	if (!audioPart) {
-		throw new Error("No audio content found");
-	}
-
-	return Buffer.from(audioPart.inlineData.data, "base64");
+	return generateTtsAudio(`Please read aloud the following in a podcast interview style:\n\n${script}`);
 }
 
 export const generatePodcastWithGeminiTTS = inngest.createFunction({ id: "generate-podcast-with-gemini-tts" }, { event: "podcast.generate.with.gemini" }, async ({ event, step }) => {
@@ -67,19 +42,17 @@ export const generatePodcastWithGeminiTTS = inngest.createFunction({ id: "genera
 	const aggregatedContent = transcriptResult.transcript;
 
 	const summary = await step.run("summarize-content", async () => {
-		const model = getGenerativeModel(process.env.GEMINI_GENAI_MODEL || "gemini-1.5-flash-latest");
-		const result = await model.generateContent(
+		return genText(
+			process.env.GEMINI_GENAI_MODEL || "gemini-1.5-flash-latest",
 			`Summarize the following content for a podcast episode, focusing on all key themes and interesting points. Provide a comprehensive overview, suitable for developing into a 2-minute podcast script. Ensure sufficient detail for expansion.\n\n${aggregatedContent}`
 		);
-		return result.response.text();
 	});
 
 	const script = await step.run("generate-script", async () => {
-		const model = getGenerativeModel(process.env.GEMINI_GENAI_MODEL || "gemini-1.5-flash-latest");
-		const result = await model.generateContent(
+		return genText(
+			process.env.GEMINI_GENAI_MODEL || "gemini-1.5-flash-latest",
 			`Based on the following summary, write a podcast style script of approximately 300 words (enough for about a 2-minute podcast). Include a witty introduction, smooth transitions between topics, and a concise conclusion. Make it engaging, easy to listen to, and maintain a friendly and informative tone. **The script should only contain the spoken words without: (e.g., "Host:"), sound effects, specific audio cues, structural markers (e.g., "section 1", "ad breaks"), or timing instructions (e.g., "2 minutes").** Cover most interesting themes from the summary.\n\nSummary: ${summary}`
 		);
-		return result.response.text();
 	});
 
 	const audioBufferResult = await step.run("generate-audio", async () => {

@@ -1,7 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
-import mime from "mime";
-import { NextResponse } from "next/server";
 import { VOICE_NAMES, VOICE_OPTIONS } from "@/lib/constants/voices";
+import { generateTtsAudio } from "@/lib/genai";
+import { NextResponse } from "next/server";
 
 interface WavConversionOptions {
 	numChannels: number;
@@ -45,7 +44,7 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 	return buffer;
 }
 
-function convertToWav(rawBase64: string, mimeType: string) {
+function _convertToWav(rawBase64: string, mimeType: string) {
 	const options = parseMimeType(mimeType);
 	const pcm = Buffer.from(rawBase64, "base64");
 	const header = createWavHeader(pcm.length, options);
@@ -65,30 +64,13 @@ export async function GET(request: Request) {
 
 		const sampleText = VOICE_OPTIONS.find(v => v.name === voice)?.sample || "This is a quick voice sample for your episode.";
 
-		const ai = new GoogleGenAI({ apiKey });
-		const response = await ai.models.generateContentStream({
-			model: process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts",
-			config: { responseModalities: ["audio"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } },
-			contents: [{ role: "user", parts: [{ text: sampleText }] }],
+		const buf = await generateTtsAudio(sampleText, { voiceName: voice });
+		return new NextResponse(new Uint8Array(buf), {
+			headers: {
+				"Content-Type": "audio/wav",
+				"Cache-Control": "public, max-age=86400",
+			},
 		});
-
-		for await (const chunk of response) {
-			const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData as { data?: string; mimeType?: string } | undefined;
-			if (!inlineData) continue;
-			const ext = mime.getExtension(inlineData.mimeType || "");
-			let buf = Buffer.from(inlineData.data || "", "base64");
-			if (!ext || ext !== "wav") {
-				buf = convertToWav(inlineData.data || "", inlineData.mimeType || "audio/L16;rate=24000");
-			}
-			return new NextResponse(buf, {
-				headers: {
-					"Content-Type": "audio/wav",
-					"Cache-Control": "public, max-age=86400",
-				},
-			});
-		}
-
-		return new NextResponse("No audio data", { status: 502 });
 	} catch (error) {
 		console.error("[VOICE_SAMPLE_API]", error);
 		return new NextResponse("Internal Error", { status: 500 });

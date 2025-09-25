@@ -41,7 +41,7 @@
 		"@clerk/themes": "^2.4.13",
 		"@clerk/types": "^4.81.0",
 		"@google-cloud/storage": "^7.17.0",
-		"@google/generative-ai": "^0.21.0",
+		"@google/genai": "^1.20.0",
 		"@hookform/resolvers": "^5.2.2",
 		"@iconscout/react-unicons": "2.2.3-rc.6ef815a5",
 		"@paddle/paddle-js": "^1.4.2",

@@ -1,4 +1,5 @@
-import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
+// Migrated from @google/generative-ai to @google/genai per Google Gemini API migration guide
+import { GoogleGenAI, type Part } from "@google/genai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -20,13 +21,26 @@ export async function POST(request: Request) {
 		}
 
 		const modelName = process.env.GEMINI_SUMMARY_MODEL || process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-2.5-pro";
-		const genAI = new GoogleGenerativeAI(apiKey);
-		const model = genAI.getGenerativeModel({ model: modelName });
-
+		const genAI = new GoogleGenAI({ apiKey });
 		const instruction = `Please summarize the video in ${sentences ?? 3} sentences.`;
 		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } };
-		const result = await model.generateContent([mediaPart, instruction]);
-		const text = result.response.text();
+		// New SDK uses models.generateContent
+		const result = await genAI.models.generateContent({
+			model: modelName,
+			contents: [{ role: "user", parts: [mediaPart, { text: instruction }] }],
+		});
+		// Aggregate text segments safely
+		const text =
+			result.candidates
+				?.map(c =>
+					c.content?.parts
+						?.map(p => ("text" in p ? p.text : ""))
+						.filter(Boolean)
+						.join(" ")
+				)
+				.filter(Boolean)
+				.join("\n")
+				.trim() || "";
 
 		return NextResponse.json({ summary: text });
 	} catch (error) {

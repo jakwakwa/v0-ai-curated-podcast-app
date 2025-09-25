@@ -2,11 +2,8 @@ import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-durati
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
+import { generateTtsAudio, generateText as genText } from "@/lib/genai";
 import { prisma } from "@/lib/prisma";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { GoogleGenAI } from "@google/genai";
-import { generateText } from "ai";
-import mime from "mime";
 import { z } from "zod";
 import { inngest } from "./client";
 
@@ -28,11 +25,9 @@ async function uploadContentToBucket(data: Buffer, destinationFileName: string) 
 	}
 }
 
-const googleAI = createGoogleGenerativeAI({
-	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
+// Removed @ai-sdk/google in favor of shared genai helpers
 
-const DEFAULT_TTS_MODEL = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts";
+const _DEFAULT_TTS_MODEL = process.env.GEMINI_TTS_MODEL || "gemini-2.5-flash-preview-tts";
 
 interface WavConversionOptions {
 	numChannels: number;
@@ -76,7 +71,7 @@ function createWavHeader(dataLength: number, options: WavConversionOptions) {
 	return buffer;
 }
 
-function convertToWav(rawBase64: string, mimeType: string) {
+function _convertToWav(rawBase64: string, mimeType: string) {
 	const options = parseMimeType(mimeType);
 	const wavHeader = createWavHeader(Buffer.from(rawBase64, "base64").length, options);
 	const buffer = Buffer.from(rawBase64, "base64");
@@ -109,48 +104,12 @@ function concatenateWavs(buffers: Buffer[]): Buffer {
 	return Buffer.concat([header, ...pcmParts]);
 }
 
-async function ttsWithVoice(text: string, voiceName: string, retries = 2): Promise<Buffer> {
-	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-	if (!apiKey) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
-	let lastError: unknown;
-	for (let attempt = 0; attempt <= retries; attempt++) {
-		try {
-			const ai = new GoogleGenAI({ apiKey });
-			const contents = [
-				{
-					role: "user",
-					parts: [
-						{
-							text: `Read the following lines as ${voiceName}, in an engaging podcast style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements.\n\n${text}`,
-						},
-					],
-				},
-			];
-			const response = await ai.models.generateContentStream({
-				model: DEFAULT_TTS_MODEL,
-				config: {
-					temperature: 1,
-					responseModalities: ["audio"],
-					speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } },
-				},
-				contents,
-			});
-			for await (const chunk of response) {
-				const inlineData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData as { data?: string; mimeType?: string } | undefined;
-				if (!inlineData) continue;
-				const ext = mime.getExtension(inlineData.mimeType || "");
-				const buf = Buffer.from(inlineData.data || "", "base64");
-				if (ext === "wav" && isWav(buf)) return buf;
-				return convertToWav(inlineData.data || "", inlineData.mimeType || "audio/L16;rate=24000");
-			}
-			throw new Error("TTS response had no audio data");
-		} catch (err) {
-			lastError = err;
-			if (attempt === retries) break;
-			await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
-		}
-	}
-	throw lastError instanceof Error ? lastError : new Error("Unknown TTS error");
+async function ttsWithVoice(text: string, voiceName: string): Promise<Buffer> {
+	// Leverage shared helper; voiceName selection via content prompt for now
+	return generateTtsAudio(
+		`Read the following lines as ${voiceName}, in an engaging podcast style. Read only the spoken words - ignore any sound effects, stage directions, or non-spoken elements.\n\n${text}`,
+		{ voiceName }
+	);
 }
 
 type DialogueLine = { speaker: "A" | "B"; text: string };
@@ -247,11 +206,10 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		const summary = await step.run("generate-summary", async () => {
 			const modelName = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
-			const model = googleAI(modelName);
-			const { text } = await generateText({
-				model,
-				prompt: `Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`,
-			});
+			const text = await genText(
+				modelName,
+				`Task: Produce a faithful, objective summary of this content's key ideas.\n\nConstraints:\n- Do NOT imitate the original speakers or style.\n- Do NOT write a script or dialogue.\n- No stage directions, no timestamps.\n- Focus on core concepts, arguments, evidence, and takeaways.\n\nFormat:\n1) 5–10 bullet points of key highlights (short, punchy).\n2) A 2–3 sentence narrative recap synthesizing the big picture.\n\nTranscript:\n${transcript}`
+			);
 			await prisma.userEpisode.update({
 				where: { episode_id: userEpisodeId },
 				data: { summary: text },
@@ -261,11 +219,10 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 
 		const duetLines = await step.run("generate-duet-script", async () => {
 			const modelName2 = process.env.GEMINI_GENAI_MODEL || "gemini-2.0-flash-lite";
-			const model = googleAI(modelName2);
-			const { text } = await generateText({
-				model,
-				prompt: `Task: Based on the SUMMARY below, write a two-host podcast conversation where Podslice hosts A and B explain the highlights to listeners. Alternate speakers naturally. Keep it ${isShort ? "short (~1 minute)" : "around 3-5 minutes)"}.\n\nIdentity & framing:\n- Hosts are from Podslice and are commenting on someone else's content.\n- They do NOT reenact or impersonate the original speakers.\n- They present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly, spoken by A):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken dialogue only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nOutput ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.\n\nSUMMARY:\n${summary}`,
-			});
+			const text = await genText(
+				modelName2,
+				`Task: Based on the SUMMARY below, write a two-host podcast conversation where Podslice hosts A and B explain the highlights to listeners. Alternate speakers naturally. Keep it ${isShort ? "short (~1 minute)" : "around 3-5 minutes)"}.\n\nIdentity & framing:\n- Hosts are from Podslice and are commenting on someone else's content.\n- They do NOT reenact or impersonate the original speakers.\n- They present key takeaways, context, and insights.\n\nBrand opener (must be the first line, exactly, spoken by A):\n"Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."\n\nConstraints:\n- No stage directions, no timestamps, no sound effects.\n- Spoken dialogue only.\n- Natural, engaging tone.\n- Avoid claiming ownership of original content; refer to it as “the video” or “the episode.”\n\nOutput ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown.\n\nSUMMARY:\n${summary}`
+			);
 			return coerceJsonArray(text);
 		});
 
