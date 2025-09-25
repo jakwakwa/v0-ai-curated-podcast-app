@@ -1,8 +1,7 @@
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
 import { inngest } from "@/lib/inngest/client";
 import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video";
-import { extractVideoId } from "@/lib/transcripts/utils/youtube-audio";
-import ytdl from "@distube/ytdl-core";
+import { getYouTubeVideoDetails } from "@/lib/youtube";
 
 import { classifyError, ProviderStartedSchema } from "../utils/results";
 
@@ -42,13 +41,12 @@ export const geminiVideoWorker = inngest.createFunction(
 			 * The duration is essential for calculating the number of chunks required for transcription.
 			 */
 			const videoInfo = await step.run("get-video-info", async () => {
-				const id = extractVideoId(srcUrl);
-				if (!id) {
-					throw new Error("Could not extract video ID from URL.");
+				const details = await getYouTubeVideoDetails(srcUrl);
+				if (!details?.duration) {
+					throw new Error("Could not retrieve video duration from YouTube API.");
 				}
-				const info = await ytdl.getInfo(`https://www.youtube.com/watch?v=${id}`);
 				return {
-					duration: Number(info.videoDetails.lengthSeconds),
+					duration: details.duration,
 				};
 			});
 

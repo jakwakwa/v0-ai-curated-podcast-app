@@ -90,6 +90,22 @@ export function getStorageReader(): Storage {
 	return initStorageClients().storageReader
 }
 
+export async function uploadToGCS(
+	storage: Storage,
+	bucketName: string,
+	fileName: string,
+	data: Buffer,
+	options?: { contentType?: string }
+): Promise<void> {
+	const bucket = storage.bucket(bucketName);
+	const file = bucket.file(fileName);
+	await file.save(data, {
+		metadata: {
+			contentType: options?.contentType,
+		},
+	});
+}
+
 export function parseGcsUri(uri: string): { bucket: string; object: string } | null {
 	if (!uri.startsWith("gs://")) return null
 	const withoutScheme = uri.slice(5)
