@@ -1,5 +1,5 @@
-import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { Resend } from "resend";
 
 export interface EmailNotification {
 	to: string;
@@ -344,15 +344,15 @@ The PODSLICE Team`;
 														</div>
 
 														<h1
-                              style="margin:0px;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(175 229 214)">
+                              style="margin:0px;font-weight:500;font-size:1.575rem;line-height:2rem;color:rgb(175 229 214)">
 																 Your custom episode has been generated and is ready for you to enjoy.
                             </h1>
                             <p
-                              style="margin-top:1rem;margin-bottom:1rem;font-weight:700;font-size:3rem;line-height:1;color:rgb(46 43 69)">
+                              style="margin-top:1rem;margin-bottom:1rem;font-weight:700;font-size:1.75rem;line-height:1.5;color:rgb(46 43 69)">
                       			 		Woohoo! Great news!
                             </p>
                             <p
-                              style="margin-bottom:1rem;font-weight:500;font-size:1.875rem;line-height:2.25rem;color:rgb(17,24,39);margin-top:16px">
+                              style="margin-bottom:1rem;font-weight:500;font-size:1.275rem;line-height:2.25rem;color:rgb(17,24,39);margin-top:16px">
                              	 "🎧 ${data.episodeTitle}"
                             </p>
 

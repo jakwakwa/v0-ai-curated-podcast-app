@@ -3,22 +3,38 @@ import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 
 // Point fluent-ffmpeg to the installed binary
 
-const PROMPT = `Please transcribe the following video accurately. Provide only the transcribed text. Do not include any additional commentary, introductory phrases like "Here is the transcription:", or summaries.`;
+// NOTE: When using a raw YouTube URL with Gemini video understanding models, the ENTIRE
+// video is ingested unless you specify segment bounds via videoMetadata.startOffset
+// and videoMetadata.endOffset on the Part. Simply adding an instruction with timestamps
+// does NOT reduce input tokens (the model still tokenizes the whole video). This file
+// implements true chunking by attaching videoMetadata to each request.
 
-const PROMPT_SEGMENT_PREFIX = `You will be given a YouTube video. Transcribe ONLY the segment between the following timestamps. Return plain transcript text without any extra words or headings.`;
+const PROMPT = `Transcribe this video (or segment) accurately. Output only raw transcript text without any extra commentary.`;
 
-const _SUPER_PROMPT = `Based on the url provided, Summarise the key moments and highlights of the podcast into a podcast style write a two-host podcast conversation. Alternate speakers naturally. Keep it around 3-5 minutes.
+// Approximate token rates from Google docs (used for safe dynamic sizing decisions)
+// Video: ~263 tokens/sec; Audio-only would be ~32 tokens/sec (not applicable here since we only pass URL)
+const TOKENS_PER_VIDEO_SECOND = 263;
 
-Requirements:
-- Do not include stage directions or timestamps
-- NO sound effects, music cues, or descriptive text in brackets
-- NO stage directions or production notes
-- ONLY include spoken dialogue that will be read aloud
-- Write as if the hosts are speaking directly to each other and the audience
+interface SegmentOptions {
+	startOffset?: string; // e.g. "0s"
+	endOffset?: string; // e.g. "300s"
+}
 
-Output ONLY valid JSON array of objects with fields: speaker ("A" or "B") and text (string). No markdown. script of approximately 350 words (enough for about a 4-minute podcast). Include a witty introduction, smooth transitions between topics, and a concise conclusion. Make it engaging, easy to listen to, and maintain a friendly and informative tone. **The script should only contain the spoken words without: (e.g., "Host:"), sound effects, specific audio cues, structural markers (e.g., "section 1", "ad breaks"), or timing instructions (e.g., "2 minutes").** Cover most interesting themes from the summary. Always start the script as follows: "Feeling lost in the noise? This summary is brought to you by Podslice. We filter out the fluff, the filler, and the drawn-out discussions, leaving you with pure, actionable knowledge. In a world full of chatter, we help you find the insight."`;
+// Helper constructing a Part with optional videoMetadata (not yet typed in SDK).
+function buildYouTubeVideoPart(url: string, seg?: SegmentOptions): Part {
+	const base = { fileData: { fileUri: url, mimeType: "video/*" } } as Part & {
+		// Accept extra field for segmentation
+		videoMetadata?: { startOffset?: string; endOffset?: string };
+	};
+	if (seg?.startOffset || seg?.endOffset) {
+		base.videoMetadata = {};
+		if (seg.startOffset) base.videoMetadata.startOffset = seg.startOffset;
+		if (seg.endOffset) base.videoMetadata.endOffset = seg.endOffset;
+	}
+	return base as Part;
+}
 
-export async function transcribeWithGeminiFromUrl(url: string): Promise<string | null> {
+export async function transcribeWithGeminiFromUrl(url: string, seg?: SegmentOptions): Promise<string | null> {
 	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 	if (!apiKey) {
 		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
@@ -30,10 +46,7 @@ export async function transcribeWithGeminiFromUrl(url: string): Promise<string |
 		const genAI = new GoogleGenerativeAI(apiKey);
 		const model = genAI.getGenerativeModel({ model: modelName });
 
-		const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } };
-
-		// Let the caller control timeout; this call may legitimately take >2 minutes.
-		// Place the text instruction after the media input as per best practices
+		const mediaPart = buildYouTubeVideoPart(url, seg);
 		const result = await model.generateContent([mediaPart, PROMPT]);
 
 		return result.response.text();
@@ -43,69 +56,75 @@ export async function transcribeWithGeminiFromUrl(url: string): Promise<string |
 	}
 }
 
-function pad2(n: number): string {
-	return String(Math.floor(n)).padStart(2, "0");
-}
-
-function formatTimestamp(seconds: number): string {
-	const s = Math.max(0, Math.floor(seconds));
-	const hrs = Math.floor(s / 3600);
-	const mins = Math.floor((s % 3600) / 60);
-	const secs = s % 60;
-	return hrs > 0 ? `${pad2(hrs)}:${pad2(mins)}:${pad2(secs)}` : `${pad2(mins)}:${pad2(secs)}`;
-}
-
-async function transcribeSegment(model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>, url: string, startSec: number, endSec: number): Promise<string> {
-	const startTs = formatTimestamp(startSec);
-	const endTs = formatTimestamp(endSec);
-	const mediaPart: Part = { fileData: { fileUri: url, mimeType: "video/*" } };
-	const segmentInstruction = `${PROMPT_SEGMENT_PREFIX}\nStart: ${startTs}\nEnd: ${endTs}`;
-	const result = await model.generateContent([mediaPart, segmentInstruction]);
-	return result.response.text();
-}
+// Legacy formatting helpers removed; we rely on second-based offsets only.
 
 export interface ChunkOptions {
-	chunkSeconds?: number; // default 1800 (30 min)
+	chunkSeconds?: number; // target size (default 600 = 10 min)
 	overlapSeconds?: number; // default 0
+	maxTokensPerChunk?: number; // safety soft cap (default 180_000 < 1,048,576 limit)
+	minChunkSeconds?: number; // floor when shrinking (default 60)
 }
 
 export async function transcribeWithGeminiFromUrlChunked(url: string, options?: ChunkOptions): Promise<string | null> {
+	// Strategy overview:
+	// - We rely on Gemini videoMetadata segmentation (startOffset/endOffset) so only the specified
+	//   temporal window is ingested each request (unlike pure instruction-based timestamp prompts).
+	// - We adapt chunk size downward if estimated tokens (seconds * 263) exceed a conservative soft cap.
+	// - Requests are executed sequentially to respect RPM/TPM limits for typical tiers; caller can
+	//   parallelize externally if quotas allow.
+	// - No overlap by default; enable overlapSeconds>0 if you need to mitigate possible boundary truncation.
+	// - If the video duration is shorter than target chunk length we fall back to a single call.
+	// - Returns a concatenated transcript string or null if no text produced.
+	// - NOTE: If you hit rate limits, consider introducing an artificial delay between iterations.
 	const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 	if (!apiKey) {
 		throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is not set.");
 	}
 
 	const modelName = process.env.GEMINI_TRANSCRIBE_MODEL || "gemini-2.5-flash";
-	const chunkSeconds = Math.max(60, options?.chunkSeconds ?? 1800);
+	let targetChunkSeconds = Math.max(60, options?.chunkSeconds ?? 600);
 	const overlapSeconds = Math.max(0, options?.overlapSeconds ?? 0);
+	const maxTokensPerChunk = options?.maxTokensPerChunk ?? 180_000; // very conservative
+	const minChunkSeconds = Math.max(30, options?.minChunkSeconds ?? 60);
 
 	const genAI = new GoogleGenerativeAI(apiKey);
 	const model = genAI.getGenerativeModel({ model: modelName });
 
 	const durationSeconds = await getYouTubeVideoDurationSeconds(url);
 	if (!durationSeconds || durationSeconds <= 0) {
-		// Fallback to single-call transcription if duration cannot be determined
 		return await transcribeWithGeminiFromUrl(url);
 	}
 
-	if (durationSeconds <= chunkSeconds) {
+	if (durationSeconds <= targetChunkSeconds) {
 		return await transcribeWithGeminiFromUrl(url);
 	}
 
-	const chunks: Array<{ start: number; end: number }> = [];
+	// Adapt chunk size downward if estimated tokens are too high.
+	// We keep a safety buffer well below the 1,048,576 hard cap.
+	function estTokens(sec: number): number {
+		return Math.round(sec * TOKENS_PER_VIDEO_SECOND);
+	}
+	while (estTokens(targetChunkSeconds) > maxTokensPerChunk && targetChunkSeconds > minChunkSeconds) {
+		targetChunkSeconds = Math.max(minChunkSeconds, Math.floor(targetChunkSeconds / 2));
+	}
+
+	const segments: Array<{ start: number; end: number }> = [];
 	let start = 0;
 	while (start < durationSeconds) {
-		const end = Math.min(durationSeconds, start + chunkSeconds);
-		chunks.push({ start: Math.max(0, start - (chunks.length > 0 ? overlapSeconds : 0)), end });
+		const end = Math.min(durationSeconds, start + targetChunkSeconds);
+		segments.push({ start: Math.max(0, start - (segments.length > 0 ? overlapSeconds : 0)), end });
 		start = end;
 	}
 
 	const transcripts: string[] = [];
-	for (const c of chunks) {
-		// Execute sequentially to avoid heavy concurrent video fetches
-		const t = await transcribeSegment(model, url, c.start, c.end);
-		const clean = t?.trim();
-		if (clean) transcripts.push(clean);
+	for (const seg of segments) {
+		const startOffset = `${Math.floor(seg.start)}s`;
+		const endOffset = `${Math.floor(seg.end)}s`;
+		const part = buildYouTubeVideoPart(url, { startOffset, endOffset });
+		const instruction = `Transcribe ONLY between ${startOffset} and ${endOffset}. Plain text.`;
+		const res = await model.generateContent([part, instruction]);
+		const text = res.response.text()?.trim();
+		if (text) transcripts.push(text);
 	}
 
 	if (transcripts.length === 0) return null;

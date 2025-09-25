@@ -1,6 +1,6 @@
+import { requireAdminMiddleware } from "@/lib/admin-middleware";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { requireAdminMiddleware } from "@/lib/admin-middleware";
 import { ensureBucketName, getStorageUploader } from "../../../../lib/gcs";
 import { prisma } from "../../../../lib/prisma";
 import { withUploadTimeout } from "../../../../lib/utils";
@@ -11,21 +11,24 @@ export const runtime = "nodejs"; // Required for file system access
 export const maxDuration = 300; // 5 minutes for file uploads
 
 async function uploadContentToBucket(data: Buffer, destinationFileName: string) {
+	const start = Date.now();
 	try {
+		if (!Buffer.isBuffer(data)) throw new Error("Invalid data: not a Buffer");
+		if (data.length === 0) throw new Error("Empty buffer: nothing to upload");
 		const storage = getStorageUploader();
 		const bucketName = ensureBucketName();
 		const [exists] = await storage.bucket(bucketName).exists();
-
 		if (!exists) {
-			console.error("ERROR: Bucket does not exist:", bucketName);
+			console.error("[ADMIN_GCS_UPLOAD] Bucket missing", { bucketName });
 			throw new Error(`Bucket ${bucketName} does not exist`);
 		}
-
-		await withUploadTimeout(storage.bucket(bucketName).file(destinationFileName).save(data));
+		await withUploadTimeout(storage.bucket(bucketName).file(destinationFileName).save(data, { resumable: false }));
+		console.log("[ADMIN_GCS_UPLOAD] success", { file: destinationFileName, bytes: data.length, ms: Date.now() - start });
 		return { success: true, fileName: destinationFileName };
-	} catch (_error) {
-		console.error("Upload error");
-		// Avoid leaking sensitive path/JSON in error messages
+	} catch (error) {
+		const err = error as Error & { code?: string };
+		const possibleCode = typeof (err as { code?: unknown }).code === "string" ? (err as { code?: string }).code : undefined;
+		console.error("[ADMIN_GCS_UPLOAD] fail", { file: destinationFileName, bytes: Buffer.isBuffer(data) ? data.length : undefined, err: err.message, code: possibleCode });
 		throw new Error("Failed to upload content");
 	}
 }

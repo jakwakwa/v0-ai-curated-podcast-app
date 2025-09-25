@@ -1,13 +1,13 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { GoogleGenAI } from "@google/genai";
-import { generateText } from "ai";
-import mime from "mime";
-import { z } from "zod";
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
 import { prisma } from "@/lib/prisma";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { GoogleGenAI } from "@google/genai";
+import { generateText } from "ai";
+import mime from "mime";
+import { z } from "zod";
 import { inngest } from "./client";
 
 // Utilities and helpers copied/adapted from single-speaker workflow
