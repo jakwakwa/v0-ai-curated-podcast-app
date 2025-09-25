@@ -82,7 +82,7 @@ export function EpisodeCard({ as = "div", imageUrl, title, publishedAt, duration
 
 						{detailsHref ? (
 							<a href={detailsHref} className="inline-flex items-center px-2 py-0.5 text-[0.6rem] rounded-md border border-[#25b9c74a] hover:bg-[#ffffff0d]  bg-[#16141449] transition-colors text-[#18b3bb] ">
-								View Details
+								View
 							</a>
 						) : null}
 

@@ -107,34 +107,39 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({ episodes, onPlayEpisod
 				<CardContent>
 					{episodes.length > 0 ? (
 						<ul className="w-full inline-flex flex-col gap-1">
-							{episodes.map(episode => (
-								<EpisodeCard
-									key={episode.episode_id}
-									as="li"
-									imageUrl={episode.image_url || null}
-									title={episode.title}
-									publishedAt={episode.published_at || new Date()}
-									durationSeconds={episode.duration_seconds ?? null}
-									actions={
-										<>
-											{episode.audio_url && onPlayEpisode && (
-												<Button onClick={() => onPlayEpisode(episode)} variant="play" icon={<PlayIcon size={32} />} size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1 w-32 btn-playicon" : ""} />
-											)}
-											{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
-												<Button
-													onClick={() => handleDownloadEpisode(episode.episode_id, episode.title)}
-													variant="outline"
-													size="sm"
-													disabled={downloadingEpisodes.has(episode.episode_id)}
-													className="h-8">
-													<Download className="w-4 h-4" />
-													{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
-												</Button>
-											)}
-										</>
-									}
-								/>
-							))}
+							{episodes.map(episode => {
+								// Determine details link depending on whether it's user-generated or bundle episode
+								const detailsHref = isUserGeneratedEpisode(episode) ? `/my-episodes/${episode.episode_id}` : `/episodes/${episode.episode_id}`
+								return (
+									<EpisodeCard
+										key={episode.episode_id}
+										as="li"
+										imageUrl={episode.image_url || null}
+										title={episode.title}
+										publishedAt={episode.published_at || new Date()}
+										durationSeconds={episode.duration_seconds ?? null}
+										detailsHref={detailsHref}
+										actions={
+											<>
+												{episode.audio_url && onPlayEpisode && (
+													<Button onClick={() => onPlayEpisode(episode)} variant="play" icon={<PlayIcon size={32} />} size="md" className={playingEpisodeId === episode.episode_id ? "outline-accent outline-1 w-32 btn-playicon" : ""} />
+												)}
+												{hasTier3Access() && isUserGeneratedEpisode(episode) && episode.audio_url && (
+													<Button
+														onClick={() => handleDownloadEpisode(episode.episode_id, episode.title)}
+														variant="outline"
+														size="sm"
+														disabled={downloadingEpisodes.has(episode.episode_id)}
+														className="h-8">
+														<Download className="w-4 h-4" />
+														{downloadingEpisodes.has(episode.episode_id) ? "Downloading..." : "Download"}
+													</Button>
+												)}
+											</>
+										}
+									/>
+								)
+							})}
 						</ul>
 					) : (
 						<div className="text-center py-8 text-muted-foreground">

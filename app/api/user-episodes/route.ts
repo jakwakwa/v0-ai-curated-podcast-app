@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 			orderBy: { created_at: "desc" },
 			cacheStrategy: {
 				swr: 60,
-				ttl: 200,
+				ttl: 6000,
 			},
 		});
 
