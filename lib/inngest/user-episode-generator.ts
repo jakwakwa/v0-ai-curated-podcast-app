@@ -281,15 +281,21 @@ export const generateUserEpisode = inngest.createFunction(
 			);
 		});
 
-		// Step 4: Convert to Audio (chunked) and Upload to GCS
-		const { gcsAudioUrl, durationSeconds } = await step.run("convert-to-audio-and-upload", async () => {
-			const parts = _splitScriptIntoChunks(script, 130);
-			const wavChunks: Buffer[] = [];
-			for (const part of parts) {
-				const buf = await generateAudioWithGeminiTTS(part);
-				wavChunks.push(buf);
-			}
-			const finalWav = _concatenateWavs(wavChunks);
+		// Step 4: Convert to Audio with per-chunk steps then Upload to GCS
+		const scriptParts = _splitScriptIntoChunks(script, Number(process.env.TTS_CHUNK_WORDS || 120));
+		const audioChunkBase64: string[] = [];
+		for (let i = 0; i < scriptParts.length; i++) {
+			// Each chunk gets its own step to avoid long single-step runtime
+			const base64 = await step.run(`tts-chunk-${i + 1}`, async () => {
+				const buf = await generateAudioWithGeminiTTS(scriptParts[i]);
+				return buf.toString("base64");
+			});
+			audioChunkBase64.push(base64 as string);
+		}
+
+		const { gcsAudioUrl, durationSeconds } = await step.run("combine-upload-audio", async () => {
+			const wavBuffers = audioChunkBase64.map(b64 => Buffer.from(b64, "base64"));
+			const finalWav = _concatenateWavs(wavBuffers);
 			const fileName = `user-episodes/${userEpisodeId}-${Date.now()}.wav`;
 			const duration = extractAudioDuration(finalWav, "audio/wav");
 			const gcsUrl = await uploadContentToBucket(finalWav, fileName);

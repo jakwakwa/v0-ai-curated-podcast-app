@@ -1,11 +1,11 @@
+import { z } from "zod";
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
 import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
 import { generateTtsAudio, generateText as genText } from "@/lib/genai";
-import { generateObjectiveSummary } from "@/lib/summary";
 import { prisma } from "@/lib/prisma";
-import { z } from "zod";
+import { generateObjectiveSummary } from "@/lib/summary";
 import { inngest } from "./client";
 
 // Utilities and helpers copied/adapted from single-speaker workflow
@@ -224,14 +224,21 @@ export const generateUserEpisodeMulti = inngest.createFunction(
 			return coerceJsonArray(text);
 		});
 
-		const gcsAudioUrl = await step.run("synthesize-multi-voice-and-upload", async () => {
-			const chunks: Buffer[] = [];
-			for (const line of duetLines) {
+		// TTS per line as separate steps to avoid timeouts
+		const lineAudioBase64: string[] = [];
+		for (let i = 0; i < duetLines.length; i++) {
+			const line = duetLines[i];
+			const base64 = await step.run(`tts-line-${i + 1}`, async () => {
 				const voice = line.speaker === "A" ? voiceA : voiceB;
 				const audio = await ttsWithVoice(line.text, voice);
-				chunks.push(audio);
-			}
-			const finalWav = concatenateWavs(chunks);
+				return audio.toString("base64");
+			});
+			lineAudioBase64.push(base64 as string);
+		}
+
+		const gcsAudioUrl = await step.run("combine-upload-multi-voice", async () => {
+			const buffers = lineAudioBase64.map(b64 => Buffer.from(b64, "base64"));
+			const finalWav = concatenateWavs(buffers);
 			const fileName = `user-episodes/${userEpisodeId}-duet-${Date.now()}.wav`;
 			return await uploadContentToBucket(finalWav, fileName);
 		});
