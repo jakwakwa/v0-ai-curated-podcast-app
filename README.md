@@ -4,7 +4,7 @@ PODSLICE is an AI-powered content curation platform that transforms long-form au
 
 ## Overview
 
-The platform addresses information overload through a multi-tier SaaS subscription model (Free Slice, Casual Listener, Curate Control) with hierarchical feature access. Built on a modern server-first architecture using Next.js App Router, Inngest for background jobs, Prisma with PostgreSQL, Google Cloud Storage, and Clerk for authentication.
+The PODSLICE platform addresses information overload through a multi-tier SaaS subscription model (Free Slice, Casual Listener, Curate Control) with hierarchical feature access. Built on a modern server-first architecture using Next.js App Router, Inngest for background jobs, Prisma with PostgreSQL, Google Cloud Storage, and Clerk for authentication.
 
 ## Tech Stack
 
