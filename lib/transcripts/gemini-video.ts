@@ -1,8 +1,7 @@
 import { GoogleGenAI, type Part } from "@google/genai";
 import { getYouTubeVideoDetails } from "@/lib/youtube";
 
-
-const PROMPT = `Transcribe this video (or segment) accurately. Output only raw transcript text without any extra commentary.`;
+const PROMPT = `Transcribe this video (or segment) accurately. Return clean sentences only: no timestamps, speaker labels, stage directions, or filler repetitions. Keep wording natural and concise.`;
 // Video: ~263 tokens/sec; Audio-only would be ~32 tokens/sec (not applicable here since we only pass URL)
 const TOKENS_PER_VIDEO_SECOND = 263;
 
@@ -119,7 +118,7 @@ export async function transcribeWithGeminiFromUrlChunked(url: string, options?: 
 		const startOffset = `${Math.floor(seg.start)}s`;
 		const endOffset = `${Math.floor(seg.end)}s`;
 		const part = buildYouTubeVideoPart(url, { startOffset, endOffset });
-		const instruction = `Transcribe ONLY between ${startOffset} and ${endOffset}. Plain text.`;
+		const instruction = `Transcribe ONLY between ${startOffset} and ${endOffset}. Provide plain sentences without timestamps, speaker labels, or repeated filler words.`;
 		const result = await genAI.models.generateContent({
 			model: modelName,
 			contents: [{ role: "user", parts: [part, { text: instruction }] }],
