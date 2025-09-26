@@ -5,6 +5,19 @@ import { extractAudioDuration } from "@/lib/inngest/utils/audio-metadata";
 import { ensureBucketName, getStorageUploader } from "@/lib/inngest/utils/gcs";
 import { generateTtsAudio } from "@/lib/inngest/utils/genai";
 
+const DEFAULT_TTS_CHUNK_WORDS = 120;
+
+export function getTtsChunkWordLimit(): number {
+	const raw = process.env.TTS_CHUNK_WORDS;
+	if (!raw) return DEFAULT_TTS_CHUNK_WORDS;
+	const cleaned = raw.trim().replace(/^['"]+|['"]+$/g, "");
+	const parsed = Number.parseInt(cleaned, 10);
+	if (Number.isFinite(parsed) && parsed > 0) {
+		return parsed;
+	}
+	return DEFAULT_TTS_CHUNK_WORDS;
+}
+
 export interface WavConversionOptions {
 	numChannels: number;
 	sampleRate: number;
@@ -69,12 +82,13 @@ export function concatenateWavs(buffers: Buffer[]): Buffer {
 }
 
 export function splitScriptIntoChunks(text: string, approxWordsPerChunk = 130): string[] {
+	const safeChunkSize = Number.isFinite(approxWordsPerChunk) && approxWordsPerChunk > 0 ? Math.floor(approxWordsPerChunk) : DEFAULT_TTS_CHUNK_WORDS;
 	const words = text.split(/\s+/).filter(Boolean);
 	const chunks: string[] = [];
 	let current: string[] = [];
 	for (const w of words) {
 		current.push(w);
-		if (current.length >= approxWordsPerChunk) {
+		if (current.length >= safeChunkSize) {
 			chunks.push(current.join(" "));
 			current = [];
 		}

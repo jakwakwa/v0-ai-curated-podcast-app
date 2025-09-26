@@ -1,4 +1,4 @@
-import { combineAndUploadWavChunks, generateSingleSpeakerTts, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
+import { combineAndUploadWavChunks, generateSingleSpeakerTts, getTtsChunkWordLimit, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
 import { generateText as genText } from "@/lib/inngest/utils/genai";
 import { generateObjectiveSummary } from "@/lib/inngest/utils/summary";
 import { prisma } from "@/lib/prisma";
@@ -92,7 +92,8 @@ ${summary}`
 		});
 
 		// 4. TTS in chunks
-		const scriptParts = splitScriptIntoChunks(script, Number(process.env.TTS_CHUNK_WORDS || 120));
+		const chunkWordLimit = getTtsChunkWordLimit();
+		const scriptParts = splitScriptIntoChunks(script, chunkWordLimit);
 		const audioChunkBase64: string[] = [];
 		for (let i = 0; i < scriptParts.length; i++) {
 			const base64 = await step.run(`tts-chunk-${i + 1}`, async () => {

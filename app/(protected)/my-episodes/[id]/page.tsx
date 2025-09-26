@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getStorageReader, parseGcsUri } from "@/lib/inngest/utils/gcs";
-import { extractKeyTakeaways, normalizeSummaryMarkdown } from "@/lib/markdown/episode-text";
+import { extractKeyTakeaways, extractNarrativeRecap } from "@/lib/markdown/episode-text";
 import { prisma } from "@/lib/prisma";
 import type { UserEpisode } from "@/lib/types";
 import PlayAndShare from "./_components/play-and-share.client";
@@ -73,6 +73,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 	if (!episode) notFound();
 
 	const takeaways = extractKeyTakeaways(episode.summary);
+	const narrativeRecap = extractNarrativeRecap(episode.summary);
+	const hasSummary = Boolean(episode.summary);
 
 	const playableEpisode: UserEpisode = {
 		episode_id: episode.episode_id,
@@ -125,14 +127,28 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 						</div>
 					) : null}
 
-					<Separator className="my-8" />
-
-					{episode.summary ? (
-						<div className="prose prose-invert text-base px-6 my-8 leading-[1.8] max-w-none">
-							<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeSummaryMarkdown(episode.summary)}</ReactMarkdown>
-						</div>
+					{hasSummary ? (
+						narrativeRecap ? (
+							<>
+								<Separator className="my-8" />
+								<div className="mt-4">
+									<h3 className="text-base font-semibold mb-2 text-[rgb(133,239,177)]">Narrative Recap</h3>
+									<div className="prose prose-invert text-base px-6 my-8 leading-[1.8] max-w-none">
+										<ReactMarkdown remarkPlugins={[remarkGfm]}>{narrativeRecap}</ReactMarkdown>
+									</div>
+								</div>
+							</>
+						) : (
+							<>
+								<Separator className="my-8" />
+								<p className="text-sm text-muted-foreground">Narrative recap will appear once it’s generated.</p>
+							</>
+						)
 					) : (
-						<p className="text-sm text-muted-foreground">No summary available.</p>
+						<>
+							<Separator className="my-8" />
+							<p className="text-sm text-muted-foreground">No summary available.</p>
+						</>
 					)}
 				</div>
 			</div>

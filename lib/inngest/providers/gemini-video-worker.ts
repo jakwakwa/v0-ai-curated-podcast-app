@@ -12,7 +12,7 @@ import { classifyError, ProviderStartedSchema } from "../utils/results";
  * to avoid hitting token limits of the transcription API for most videos.
  * @type {number}
  */
-const CHUNK_DURATION_SECONDS = 300;
+const CHUNK_DURATION_SECONDS = 500;
 export const MIN_WORD_THRESHOLD = 5;
 export const MIN_CHARACTER_THRESHOLD = 20;
 

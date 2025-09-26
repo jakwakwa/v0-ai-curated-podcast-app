@@ -7,7 +7,7 @@ import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-durati
 import emailService from "@/lib/email-service";
 // aiConfig consumed indirectly via shared helpers
 // Shared helpers
-import { combineAndUploadWavChunks, generateSingleSpeakerTts, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
+import { combineAndUploadWavChunks, generateSingleSpeakerTts, getTtsChunkWordLimit, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
 // (No direct GCS import; handled in shared helpers)
 import { prisma } from "@/lib/prisma";
 import { inngest } from "./client";
@@ -121,7 +121,8 @@ export const generateUserEpisode = inngest.createFunction(
 		});
 
 		// Step 4: Convert to Audio with per-chunk steps then Upload to GCS
-		const scriptParts = splitScriptIntoChunks(script, Number(process.env.TTS_CHUNK_WORDS || 120));
+		const chunkWordLimit = getTtsChunkWordLimit();
+		const scriptParts = splitScriptIntoChunks(script, chunkWordLimit);
 		const audioChunkBase64: string[] = [];
 		for (let i = 0; i < scriptParts.length; i++) {
 			// Each chunk gets its own step to avoid long single-step runtime
