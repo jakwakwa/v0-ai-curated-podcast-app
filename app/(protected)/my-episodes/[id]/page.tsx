@@ -2,8 +2,6 @@ import { auth } from "@clerk/nextjs/server";
 import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -73,8 +71,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 	if (!episode) notFound();
 
 	const takeaways = extractKeyTakeaways(episode.summary);
-	const narrativeRecap = extractNarrativeRecap(episode.summary);
-	const hasSummary = Boolean(episode.summary);
+	const _narrativeRecap = extractNarrativeRecap(episode.summary);
+	const _hasSummary = Boolean(episode.summary);
 
 	const playableEpisode: UserEpisode = {
 		episode_id: episode.episode_id,
@@ -91,10 +89,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 	};
 
 	return (
-		<div className="episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6">
+		<div className="mt-12 episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6 pr-0 md:max-w-[80%]">
 			<div>
 				<div className="flex flex-col gap-2">
-					<div className="text-xl font-semibold text-shadow-lg text-shadow-slate-900 md:text-2xl">{episode.episode_title}</div>
+					<div className="text-[#e7e4e8d2] text-xl font-semibold text-shadow-sm text-shadow-slate-900 md:text-2xl">{episode.episode_title}</div>
 					<div className="text-sm text-[#8A97A5D4]/80 episode-p pr-[10%] mb-1">
 						<div className="flex flex-wrap items-center gap-2 my-2">
 							<Badge variant="outline">{episode.status}</Badge>
@@ -117,17 +115,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 					</div>
 					<Separator className="my-8" />
 					{takeaways.length > 0 ? (
-						<div className="mt-4">
-							<h3 className="text-base font-semibold mb-2 text-[rgb(133,239,177)]">Key Takeaways</h3>
-							<ul className="list-disc pl-6 space-y-1 text-[#c0e9d1]">
-								{takeaways.map((t, i) => (
-									<li key={i}>{t}</li>
+						<div className="mt-4 episode-card-wrapper-dark px-4 py-4 rounded-lg">
+							<h3 className="text-xl font-semibold  mx-8 my-4 text-[#b984f1] pb-2">Key Episode Takeaways</h3>
+							<ul className=" list-disc mx-8 px-4 space-y-1 text-[#b2e8c8] pr-0 md:px-6">
+								{takeaways.slice(1).map((t, i) => (
+									<li className="my-4 font-medium text-base" key={i}>{t}</li>
 								))}
 							</ul>
 						</div>
 					) : null}
 
-					{hasSummary ? (
+					{/* {!hasSummary ? (
 						narrativeRecap ? (
 							<>
 								<Separator className="my-8" />
@@ -149,7 +147,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 							<Separator className="my-8" />
 							<p className="text-sm text-muted-foreground">No summary available.</p>
 						</>
-					)}
+					)} */}
 				</div>
 			</div>
 		</div>

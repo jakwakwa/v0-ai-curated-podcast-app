@@ -16,6 +16,7 @@
 			@apply bg-background backdrop-blur-sm text-foreground;
 			width: 100%;
 			max-width: 100%;
+			background: linear-gradient(135deg, #8082aa 0%, #eeeef1a9 100%) !important;
 			margin: 0;
 			/* color: var(--text-foreground); */
 			padding: 0;
@@ -24,33 +25,39 @@
 			height: auto;
 			background: #09090A;
 		}
-/* For WebKit-based browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
-}
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: #251B4816; /* Color of the scroll track */
-  border-radius: 5px;
-}
+		/* For WebKit-based browsers (Chrome, Safari, Edge) */
+		::-webkit-scrollbar {
+			width: 8px;
+			/* Width of the scrollbar */
+		}
 
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #03A59D77; /* Color of the scroll thumb */
-  border-radius: 5px;
-}
+		/* Track */
+		::-webkit-scrollbar-track {
+			background: #251B4816;
+			/* Color of the scroll track */
+			border-radius: 5px;
+		}
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #05C3D0;
-}
+		/* Handle */
+		::-webkit-scrollbar-thumb {
+			background: #03A59D77;
+			/* Color of the scroll thumb */
+			border-radius: 5px;
+		}
 
-/* For Firefox */
- .custom-scrollbar {
-  scrollbar-width: thin; /* "auto" or "thin" */
-  scrollbar-color: #05C3D0 #251B4816; /* scroll thumb and track color */
-}
+		/* Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+			background: #05C3D0;
+		}
+
+		/* For Firefox */
+		.custom-scrollbar {
+			scrollbar-width: thin;
+			/* "auto" or "thin" */
+			scrollbar-color: #05C3D0 #251B4816;
+			/* scroll thumb and track color */
+		}
 
 		::selection {
 			color: rgba(231 252 250 / 0.46) !important;
@@ -80,8 +87,11 @@
 
 		label {
 			opacity: 0.95;
-			font-weight: 600;
-			color: hsla(28.47 71.08% 83.73% / 0.73);
+			font-size: 0.8rem !important;
+			font-weight: 700 !important;
+			color: hsla(20, 13%, 95%, 0.73);
+			padding-bottom: 3.5px;
+			padding-top: 16.5px;
 		}
 
 		.main-layouts {
@@ -270,7 +280,7 @@
 			/* padding: 10px 20px; */
 			font-size: 1rem !important;
 
-			background-image: linear-gradient(to bottom, oklch(0.37 0.04 218.49 / 0.72), oklch(0.13 0.02 222.67 / 0.61)) !important;
+			background-image: linear-gradient(to bottom, oklch(60.735% 0.06652 219.966 / 0.081), oklch(0.13 0.02 222.67 / 0.61)) !important;
 			border-radius: 30px;
 			outline: 1px solid #000000 !important;
 			outline-offset: 1px !important;
@@ -355,11 +365,11 @@
 			inset: 0;
 			pointer-events: none;
 
-			background: linear-gradient(210deg,  oklch(0.69 0.12 203.48) -130%, oklch(0.25 0.07 266.04 / 0.62) 0%, oklch(0.35 0.09 246.04 / 0.62) 30%,rgb(74 28 104) 100% );
+			background: linear-gradient(210deg, oklch(0.69 0.12 203.48) -130%, oklch(0.25 0.07 266.04 / 0.62) 0%, oklch(0.35 0.09 246.04 / 0.62) 30%, rgb(74 28 104) 100%);
 			background-blend-mode: saturation;
 			/* Layered subtle gradients */
 
-			background-size: 110% 110%, 120% 120%, 210% 210%,210% 210%;
+			background-size: 110% 110%, 120% 120%, 210% 210%, 210% 210%;
 			/* animation: gradientShift 5s ease-in-out infinite alternate; */
 			/* filter: blur(0.4px); */
 			background-position: top;
@@ -377,11 +387,11 @@
 
 		.episode-card-wrapper {
 			padding: 30px;
-			background: #13191F22;
+			background: #bbc0c512;
 			background-image: linear-gradient(to bottom, oklch(0.4 0.03 297.43 / 0.21) 40%, oklch(0.21 0.01 264.37 / 0.87) 160%);
-			border: 1px solid #0606064F !important;
+			border: 1px solid #caf3f624 !important;
 			border-radius: 20px !important;
-			box-shadow: inset 0.5px 1px 0px 0px #6168686A,1px 3px 5px 0px #0000009A !important;
+			box-shadow: inset 0.5px 1px 0px 0px #6168686A, 1px 3px 5px 0px #0000009A !important;
 			background-blend-mode: multiply;
 		}
 
@@ -413,8 +423,14 @@
 	/* ============================================= */
 	@layer utilities {
 		.bg-sidebar {
-			background: #12121AC1;
-			border-right: 1px solid #434A4F5A !important;
+			background: #d7d7ee0a;
+			border-right: 1px solid #ada3cff0 !important;
+			outline-offset: 1px !important;
+			outline: 1px solid #898addb1 !important;
+			box-shadow: inset -5px -4px 59px 2px #c7c1c81e,
+				inset 0.5px 1px 0px 0px #4ce3db72,
+				3px 2px 3px 1px #00000012,
+				0px 4px 10px 0px hsla(0, 1%, 35%, 0.384) !important;
 		}
 	}
 
@@ -424,13 +440,14 @@
 
 	@layer utilities {
 		.btn-default {
-			background: linear-gradient(to top, #0A394A, #124845);
-			text-shadow: 0px 2px 1px 1px #26223480;
+			background: linear-gradient(to top, #8249d3, #92c4c1);
+			text-shadow: 0px 1px 1px 1px #23222788 !important;
 			font-size: 0.8rem !important;
-			font-weight: 500 !important;
+			font-weight: 800 !important;
+			color: #453a5a !important;
 			border-radius: 0.75rem !important;
 			box-shadow:
-				inset 0px 1px 0px 0px #2EF0D924,
+				inset 0px 1px 0px 0px #f02eac24,
 				inset 0px -1px 1px #1f1c279d,
 				0px 1px 0px 0px #1b1b1b1c,
 				0px 3px 3px 0px #0B0B0B4F,
@@ -440,8 +457,9 @@
 		}
 
 		.btn-default:hover {
-			background: linear-gradient(to top, #061E31, #184846);
+			background: linear-gradient(to top, #5d2ca8, hsl(208, 73%, 77%));
 			transform: translateY(1px);
+			color: #1c1824 !important;
 		}
 	}
 
@@ -495,7 +513,7 @@
 	@layer base {
 
 		a {
-			color: #88B8A8;
+			color: #9fc8e3;
 		}
 
 		a:hover {
@@ -552,17 +570,29 @@
 			min-height: 190px !important;
 		}
 
-
+		button.btn-playicon-lg>svg,
 		button.btn-playicon>svg {
 			position: relative !important;
 			width: 32px !important;
 			height: 32px !important;
 			padding: 0.5rem !important;
 			justify-self: center !important;
-			background: oklch(0.32 0.06 211.61) !important;
+			background: oklch(18.65% 0.00438 264.502 / 0.685) !important;
 			align-self: center !important;
 			border-radius: 1rem !important;
 			box-shadow: 0px 3px 4px #000 !important;
+
+		}
+
+		button.btn-playicon-lg>svg {
+			color: #0ffe977c !important;
+			width: 48px !important;
+			height: 48px !important;
+			padding: 0.8rem !important;
+			border-radius: 1rem !important;
+			border: 1px solid #555b596f !important;
+			outline: 1px solid transparent !important;
+			box-shadow: 0px 7px 4px #00000027 !important;
 
 		}
 
@@ -646,10 +676,10 @@
 			text-align: left;
 			height: auto;
 			background: url('/assets/background/grain-bg.svg') repeat;
-			/* background: linear-gradient(135deg,
-					rgba(3 105 123 / 0.67) -100%,
-						rgba(50 48 97 / 0.15) 55%,
-					rgba(4 5 5 / 0.91) 130% ) !important ; */
+			background: linear-gradient(135deg,
+					rgb(198, 190, 230) -100%,
+					rgba(180, 121, 225, 0.787) 55%,
+					rgb(184, 182, 197) 130%) !important;
 			background-blend-mode: multiply;
 			backdrop-filter: blur(2px);
 			mix-blend-mode: screen, soft-light;
@@ -776,11 +806,12 @@
 			padding: 24px 15px 25px 15px;
 			margin: 0 !important;
 		}
+
 		.bg-card {
-					
+
 
 			padding: 10px;
-		
+
 		}
 
 		@media screen and (min-width: 460) {

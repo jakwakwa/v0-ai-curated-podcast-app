@@ -64,8 +64,8 @@ export function getAccountPortalUrlWithRedirect(): string | null {
  */
 export function getMaxDurationSeconds(): number {
 	const raw = process.env.MAX_DURATION_SECONDS;
-	if (!raw) return 120 * 60;
-	const parsed = Number(raw);
+	if (!raw) return 10000800; // 10000800 = ~2789 hours for local testing
+	const parsed = Number(raw) * 60;
 	if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
-	return 120 * 60;
+	return Number(raw);
 }

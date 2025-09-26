@@ -36,10 +36,10 @@ export default function PlayAndShare({ episode, canPlay }: { episode: UserEpisod
 
 	return (
 		<div className="flex items-center gap-4">
-			<Button type="button" variant="play" size="sm" onClick={onPlay} disabled={!canPlay} icon={<Play />}>
+			<Button type="button" variant="play" size="playLarge" onClick={onPlay} disabled={!canPlay} icon={<Play />}>
 				Play
 			</Button>
-			<Button type="button" variant="play" size="sm" onClick={onShare} icon={<Share2 />}>
+			<Button type="button" variant="play" size="playLarge" onClick={onShare} icon={<Share2 />}>
 				Share
 			</Button>
 		</div>

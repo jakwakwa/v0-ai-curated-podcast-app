@@ -1,22 +1,23 @@
 "use client";
 
+import { ChevronDown, ChevronRight, Loader2, PlayCircle, YoutubeIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PRICING_TIER } from "@/config/paddle-config";
 import { VOICE_OPTIONS } from "@/lib/constants/voices";
 import { getMaxDurationSeconds } from "@/lib/env";
 import { useNotificationStore } from "@/lib/stores";
-import { ChevronDown, ChevronRight, Loader2, PlayCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useDebounce } from "use-debounce";
 
-const EPISODE_LIMIT = 16;
-const YT_MAXMAX_DURATION_SECONDS = getMaxDurationSeconds();
+const EPISODE_LIMIT = PRICING_TIER[2].episodeLimit;
+const YT_MAX_DURATION_SECONDS = getMaxDurationSeconds();
 // Define a base schema
 
 // const baseFormSchema = z.object({
@@ -69,7 +70,7 @@ export function EpisodeCreator() {
 	const isBusy = isCreating || isFetchingMetadata;
 	const isAudioPlaying = isPlaying !== null;
 
-	const isDurationValid = videoDuration !== null && videoDuration <= YT_MAXMAX_DURATION_SECONDS;
+	const isDurationValid = videoDuration !== null && videoDuration <= YT_MAX_DURATION_SECONDS;
 	const canSubmit = Boolean(videoTitle) && isYouTubeUrl(youtubeUrl) && !isBusy && isDurationValid;
 
 	const fetchUsage = useCallback(async () => {
@@ -140,7 +141,7 @@ export function EpisodeCreator() {
 					const { title, duration } = await res.json();
 					setVideoTitle(title);
 					setVideoDuration(duration);
-					if (duration > YT_MAXMAX_DURATION_SECONDS) {
+					if (duration > YT_MAX_DURATION_SECONDS) {
 						setYouTubeUrlError(`Video is too long. Please select a video that is 90 minutes or less. This video is ${Math.round(duration / 60)} minutes long.`);
 					}
 				} catch (err) {
@@ -250,11 +251,11 @@ export function EpisodeCreator() {
 								</div>
 
 								{videoTitle && (
-									<div className="space-y-2 md:col-span-2 bg-muted/50 p-4 rounded-lg border">
-										<Label>Episode Title</Label>
-										<p className="text-foreground font-semibold">{videoTitle}</p>
+									<div className="bg-black/30 space-y-2 md:col-span-2 py-4 px-8 rounded-xl outline-3 outline-[#94939351] shadow-lg">
+										<p className=" font-bold text-[#f54065c9] flex text-xs items-center gap-2"><YoutubeIcon width={18} height={18} color="#ff1645b5" />Youtube Video</p>
+										<p className="text-[#efd6deb5] font-semibold text-sm">{videoTitle}</p>
 										{videoDuration !== null && (
-											<p className="text-sm text-muted-foreground">
+											<p className="text-xs text-[#85eeb478]">
 												Duration: {Math.floor(videoDuration / 60)}m {videoDuration % 60}s
 											</p>
 										)}
@@ -269,7 +270,7 @@ export function EpisodeCreator() {
 								</div>
 							</div>
 
-							<div className="space-y-6 border border-[#0c525b6f] rounded-md md:rounded-xl shadow-md px-6 py-4 bg-[#000]/20">
+							<div className="space-y-6 border border-[#80919337] rounded-md md:rounded-xl shadow-md px-6 py-4 bg-[#000]/20">
 								<div className="space-y-2">
 									<Label>Voice Settings</Label>
 									<div className="flex flex-row gap-3 mt-4">
