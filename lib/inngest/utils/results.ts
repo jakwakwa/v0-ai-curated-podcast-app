@@ -50,8 +50,10 @@ export type ProviderStarted = z.infer<typeof ProviderStartedSchema>;
 export const ProviderSucceededSchema = z.object({
 	jobId: z.string().min(1),
 	userEpisodeId: z.string().min(1),
-	transcript: z.string().min(1),
 	provider: z.enum(["gemini"]),
+	transcript: z.string().min(1).optional(),
+	transcriptLength: z.number().int().nonnegative().optional(),
+	transcriptStorage: z.enum(["db"]).optional(),
 	meta: z.record(z.any()).optional(),
 });
 

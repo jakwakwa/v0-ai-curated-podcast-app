@@ -1,8 +1,8 @@
 import { writeEpisodeDebugLog, writeEpisodeDebugReport } from "@/lib/debug-logger";
 import emailService from "@/lib/email-service";
 import { inngest } from "@/lib/inngest/client";
+import { getYouTubeVideoDetails } from "@/lib/inngest/utils/youtube";
 import { prisma } from "@/lib/prisma";
-import { getYouTubeVideoDetails } from "@/lib/youtube";
 import { preflightProbe } from "./utils/preflight";
 import { ProviderSucceededSchema, TranscriptionRequestedSchema } from "./utils/results";
 
@@ -88,9 +88,13 @@ export const transcriptionCoordinator = inngest.createFunction(
 
 		const successEvent = result && (result as { name?: string }).name === Events.Succeeded ? result : null;
 
-		if (!successEvent) {
-			// Gemini did not succeed within the window or explicitly failed; try orchestrator fallback
-			const { getTranscriptOrchestrated } = await import("@/lib/transcripts");
+		const runFallback = async (reason: string) => {
+			await writeEpisodeDebugLog(userEpisodeId, {
+				step: "transcription",
+				status: "info",
+				message: `Falling back to orchestrator: ${reason}`,
+			});
+			const { getTranscriptOrchestrated } = await import("@/lib/inngest/transcripts");
 			const fallback = await step.run("fallback-orchestrator", async () => {
 				return await getTranscriptOrchestrated({ url: srcUrl, kind: "youtube" });
 			});
@@ -153,14 +157,40 @@ export const transcriptionCoordinator = inngest.createFunction(
 				data: { jobId, userEpisodeId, status: "succeeded", provider },
 			});
 			return { ok: true, jobId };
+		};
+
+		if (!successEvent) {
+			return await runFallback("provider-failure-or-timeout");
 		}
 
 		// Gemini succeeded - process the result
 		const successPayload = ProviderSucceededSchema.parse((successEvent as { data: unknown }).data);
-		const transcriptText = successPayload.transcript;
+		let transcriptText: string | null = successPayload.transcript ?? null;
+
+		if (!transcriptText) {
+			transcriptText = await step.run("load-transcript", async () => {
+				const record = await prisma.userEpisode.findUnique({
+					where: { episode_id: userEpisodeId },
+					select: { transcript: true },
+				});
+				return record?.transcript ?? null;
+			});
+
+			if (!transcriptText) {
+				await writeEpisodeDebugLog(userEpisodeId, {
+					step: "transcription",
+					status: "info",
+					message: "Gemini success event missing transcript; invoking orchestrator fallback.",
+					meta: successPayload.meta,
+				});
+				return await runFallback("missing-transcript");
+			}
+		}
+
+		const ensuredTranscript = transcriptText;
 
 		await step.run("store-transcript", async () => {
-			await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { transcript: transcriptText } });
+			await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { transcript: ensuredTranscript } });
 		});
 
 		await step.sendEvent("forward-generation", {
@@ -169,7 +199,7 @@ export const transcriptionCoordinator = inngest.createFunction(
 		});
 
 		await step.run("write-final-report", async () => {
-			const report = `# Transcription Saga Report\n- job: ${jobId}\n- provider: ${successPayload.provider}\n- transcriptChars: ${transcriptText.length}\n`;
+			const report = `# Transcription Saga Report\n- job: ${jobId}\n- provider: ${successPayload.provider}\n- transcriptChars: ${ensuredTranscript.length}\n`;
 			await writeEpisodeDebugReport(userEpisodeId, report);
 		});
 

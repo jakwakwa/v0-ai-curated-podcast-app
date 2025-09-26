@@ -1,8 +1,8 @@
+import { z } from "zod";
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
 import emailService from "@/lib/email-service";
+import { getYouTubeVideoDetails } from "@/lib/inngest/utils/youtube";
 import { prisma } from "@/lib/prisma";
-import { getYouTubeVideoDetails } from "@/lib/youtube";
-import { z } from "zod";
 import { inngest } from "./client";
 
 type MetadataPayload = {

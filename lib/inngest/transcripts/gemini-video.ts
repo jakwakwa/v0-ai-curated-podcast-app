@@ -1,5 +1,5 @@
 import { GoogleGenAI, type Part } from "@google/genai";
-import { getYouTubeVideoDetails } from "@/lib/youtube";
+import { getYouTubeVideoDetails } from "@/lib/inngest/utils/youtube";
 
 const PROMPT = `Transcribe this video (or segment) accurately. Return clean sentences only: no timestamps, speaker labels, stage directions, or filler repetitions. Keep wording natural and concise.`;
 // Video: ~263 tokens/sec; Audio-only would be ~32 tokens/sec (not applicable here since we only pass URL)

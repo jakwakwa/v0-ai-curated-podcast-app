@@ -1,5 +1,5 @@
 import type { youtube_v3 } from "googleapis";
-import { extractYouTubeVideoId, youtubeClient } from "@/lib/youtube";
+import { extractYouTubeVideoId, youtubeClient } from "@/lib/inngest/utils/youtube";
 
 export interface TranscriptSegment {
 	text: string;

@@ -1,7 +1,7 @@
-import { generateText as genText } from "@/lib/genai";
 import { combineAndUploadWavChunks, generateSingleSpeakerTts, splitScriptIntoChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
+import { generateText as genText } from "@/lib/inngest/utils/genai";
+import { generateObjectiveSummary } from "@/lib/inngest/utils/summary";
 import { prisma } from "@/lib/prisma";
-import { generateObjectiveSummary } from "@/lib/summary";
 import { inngest } from "./client";
 
 // (Notification/email logic intentionally omitted for now)
@@ -36,7 +36,7 @@ export const generateAdminEpisode = inngest.createFunction(
 
 		// 1. Fetch YouTube metadata (title, description, thumbnail)
 		const videoDetails = await step.run("fetch-video-details", async () => {
-			const { getYouTubeVideoDetails } = await import("@/lib/youtube");
+			const { getYouTubeVideoDetails } = await import("@/lib/inngest/utils/youtube");
 			return await getYouTubeVideoDetails(youtubeUrl);
 		});
 

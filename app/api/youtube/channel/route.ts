@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { extractYouTubeVideoId } from "@/lib/youtube";
+import { extractYouTubeVideoId } from "@/lib/inngest/utils/youtube";
 
 // Cache for YouTube channel data (in-memory cache)
 const channelCache = new Map<string, { channelName: string; channelImage: string; timestamp: number }>();

@@ -1,7 +1,7 @@
-import { requireAdminMiddleware } from "@/lib/admin-middleware";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { ensureBucketName, getStorageUploader } from "../../../../lib/gcs";
+import { requireAdminMiddleware } from "@/lib/admin-middleware";
+import { ensureBucketName, getStorageUploader } from "../../../../lib/inngest/utils/gcs";
 import { prisma } from "../../../../lib/prisma";
 import { withUploadTimeout } from "../../../../lib/utils";
 

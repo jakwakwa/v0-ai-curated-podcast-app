@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { getStorageReader, parseGcsUri } from "@/lib/gcs";
+import { getStorageReader, parseGcsUri } from "@/lib/inngest/utils/gcs";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(_request: Request) {

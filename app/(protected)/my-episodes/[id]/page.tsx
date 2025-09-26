@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getStorageReader, parseGcsUri } from "@/lib/gcs";
+import { getStorageReader, parseGcsUri } from "@/lib/inngest/utils/gcs";
 import { extractKeyTakeaways, normalizeSummaryMarkdown } from "@/lib/markdown/episode-text";
 import { prisma } from "@/lib/prisma";
 import type { UserEpisode } from "@/lib/types";

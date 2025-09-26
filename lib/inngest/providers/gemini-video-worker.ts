@@ -1,7 +1,8 @@
 import { writeEpisodeDebugLog } from "@/lib/debug-logger";
 import { inngest } from "@/lib/inngest/client";
-import { transcribeWithGeminiFromUrl } from "@/lib/transcripts/gemini-video";
-import { getYouTubeVideoDetails } from "@/lib/youtube";
+import { transcribeWithGeminiFromUrl } from "@/lib/inngest/transcripts/gemini-video";
+import { getYouTubeVideoDetails } from "@/lib/inngest/utils/youtube";
+import { prisma } from "@/lib/prisma";
 
 import { classifyError, ProviderStartedSchema } from "../utils/results";
 
@@ -12,8 +13,8 @@ import { classifyError, ProviderStartedSchema } from "../utils/results";
  * @type {number}
  */
 const CHUNK_DURATION_SECONDS = 300;
-const MIN_WORD_THRESHOLD = 5;
-const MIN_CHARACTER_THRESHOLD = 20;
+export const MIN_WORD_THRESHOLD = 5;
+export const MIN_CHARACTER_THRESHOLD = 20;
 
 const STOP_WORDS = new Set([
 	"a",
@@ -59,7 +60,7 @@ const STOP_WORDS = new Set([
 	"no",
 ]);
 
-type TranscribedSegment = {
+export type TranscribedSegment = {
 	index: number;
 	text: string;
 	startOffset: string;
@@ -73,7 +74,7 @@ type DiscardedSegmentMeta = {
 	reason: string;
 };
 
-function sanitizeSegmentText(input: string): string {
+export function sanitizeSegmentText(input: string): string {
 	const withoutBracketedTimestamps = input.replace(/\[(?:\d{1,2}:){1,2}\d{2}(?:\.\d+)?\]/g, " ").replace(/\((?:\d{1,2}:){1,2}\d{2}(?:\.\d+)?\)/g, " ");
 	const withoutInlineTimestamps = withoutBracketedTimestamps.replace(/\b(?:\d{1,2}:){1,2}\d{2}(?:\.\d+)?\b/g, " ");
 	const withoutSpeakerLabels = withoutInlineTimestamps.replace(/^[A-Z][A-Z0-9_-]{0,20}:\s+/gm, "");
@@ -139,7 +140,7 @@ function analyzeSegmentText(text: string): {
 	};
 }
 
-function evaluateSegmentQuality(segment: TranscribedSegment): { valid: boolean; reason?: string } {
+export function evaluateSegmentQuality(segment: TranscribedSegment): { valid: boolean; reason?: string } {
 	const trimmed = segment.text.trim();
 	const durationSeconds = Math.max(0, parseOffsetSeconds(segment.endOffset) - parseOffsetSeconds(segment.startOffset));
 
@@ -353,18 +354,33 @@ export const geminiVideoWorker = inngest.createFunction(
 				.trim();
 
 			if (finalTranscript) {
+				await step.run("store-transcript", async () => {
+					await prisma.userEpisode.update({
+						where: { episode_id: userEpisodeId },
+						data: { transcript: finalTranscript },
+					});
+				});
+
+				await writeEpisodeDebugLog(userEpisodeId, {
+					step: "gemini",
+					status: "success",
+					message: `Gemini transcript stored (${finalTranscript.length} chars).`,
+				});
+
 				await step.sendEvent("succeeded", {
 					name: "transcription.succeeded",
 					data: {
 						jobId,
 						userEpisodeId,
 						provider: "gemini",
-						transcript: finalTranscript,
+						transcriptLength: finalTranscript.length,
+						transcriptStorage: "db",
 						meta: {
 							chunkCount: filteredSegments.length,
 							discardedChunkCount: discarded.length,
 							originalChunkCount: chunks.length,
 							failedChunkCount: errors.length,
+							transcriptLength: finalTranscript.length,
 						},
 					},
 				});

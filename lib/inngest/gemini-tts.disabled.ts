@@ -1,10 +1,10 @@
 // DISABLED: Legacy Gemini TTS generation functions.
 // Retained temporarily for reference. New implementation lives in `admin-episode-generator.ts`.
 import { randomUUID } from "node:crypto";
-import { ensureBucketName, getStorageUploader, uploadToGCS } from "@/lib/gcs";
-import { generateTtsAudio, generateText as genText } from "@/lib/genai";
+import { getTranscriptOrchestrated } from "@/lib/inngest/transcripts";
+import { ensureBucketName, getStorageUploader, uploadToGCS } from "@/lib/inngest/utils/gcs";
+import { generateTtsAudio, generateText as genText } from "@/lib/inngest/utils/genai";
 import { prisma } from "@/lib/prisma";
-import { getTranscriptOrchestrated } from "@/lib/transcripts";
 import { inngest } from "./client";
 
 async function generateAudioWithGeminiTTS(script: string): Promise<Buffer> {

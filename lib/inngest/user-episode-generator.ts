@@ -1,5 +1,5 @@
-import { generateText as genText } from "@/lib/genai";
-import { generateObjectiveSummary } from "@/lib/summary";
+import { generateText as genText } from "@/lib/inngest/utils/genai";
+import { generateObjectiveSummary } from "@/lib/inngest/utils/summary";
 
 // TODO: Consider switching to Google Cloud Text-to-Speech API for stable TTS
 

@@ -2,10 +2,10 @@ import { z } from "zod";
 import { extractUserEpisodeDuration } from "@/app/(protected)/admin/audio-duration/duration-extractor";
 import { aiConfig } from "@/config/ai";
 import emailService from "@/lib/email-service";
-import { generateTtsAudio, generateText as genText } from "@/lib/genai";
 import { combineAndUploadWavChunks, uploadBufferToPrimaryBucket } from "@/lib/inngest/episode-shared";
+import { generateTtsAudio, generateText as genText } from "@/lib/inngest/utils/genai";
+import { generateObjectiveSummary } from "@/lib/inngest/utils/summary";
 import { prisma } from "@/lib/prisma";
-import { generateObjectiveSummary } from "@/lib/summary";
 import { inngest } from "./client";
 
 // Use shared generateTtsAudio directly for multi-speaker; voice selection via param

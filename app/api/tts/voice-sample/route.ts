@@ -1,6 +1,6 @@
-import { VOICE_NAMES, VOICE_OPTIONS } from "@/lib/constants/voices";
-import { generateTtsAudio } from "@/lib/genai";
 import { NextResponse } from "next/server";
+import { VOICE_NAMES, VOICE_OPTIONS } from "@/lib/constants/voices";
+import { generateTtsAudio } from "@/lib/inngest/utils/genai";
 
 interface WavConversionOptions {
 	numChannels: number;

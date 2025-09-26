@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { transcribeViaOrchestrator, validateForTranscription } from "@/lib/transcripts/orchestrator-service";
+import { transcribeViaOrchestrator, validateForTranscription } from "@/lib/inngest/transcripts/orchestrator-service";
 
 const transcribeSchema = z.object({
 	url: z.string().url(),

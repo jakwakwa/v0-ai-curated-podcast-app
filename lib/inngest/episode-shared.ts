@@ -1,9 +1,9 @@
 // Shared helper utilities for both user and admin episode generation workflows.
 // Keep this file minimal and pure (no DB access) to allow reuse across Inngest functions.
 import { aiConfig } from "@/config/ai";
-import { extractAudioDuration } from "@/lib/audio-metadata";
-import { ensureBucketName, getStorageUploader } from "@/lib/gcs";
-import { generateTtsAudio } from "@/lib/genai";
+import { extractAudioDuration } from "@/lib/inngest/utils/audio-metadata";
+import { ensureBucketName, getStorageUploader } from "@/lib/inngest/utils/gcs";
+import { generateTtsAudio } from "@/lib/inngest/utils/genai";
 
 export interface WavConversionOptions {
 	numChannels: number;

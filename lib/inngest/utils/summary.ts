@@ -1,4 +1,4 @@
-import { generateText } from "@/lib/genai";
+import { generateText } from "@/lib/inngest/utils/genai";
 
 /**
  * Generate an objective summary (bullets + narrative recap) for a potentially large transcript.
