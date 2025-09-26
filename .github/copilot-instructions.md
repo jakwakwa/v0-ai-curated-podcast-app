@@ -25,37 +25,41 @@ PODSLICE is an AI-powered podcast curation platform built on Next.js 15 App Rout
 ## Critical Integration Patterns
 
 ### Background Job Processing (Inngest)
-- **Client**: Import from `@/lib/inngest/client.ts` 
+- **Client**: Import from `@/lib/inngest/client.ts`
 - **Content pipeline**: YouTube → Transcript → AI Summary → TTS → GCS Storage
 - **Job types**: Transcription, AI generation, audio synthesis in `lib/inngest/`
 - **Webhooks**: Paddle subscription events trigger plan updates via `app/api/paddle-webhook/`
 
 ### Google Cloud Storage
-- **Lazy initialization**: Use `@/lib/gcs.ts` for safe GCS client setup
-- **Credential handling**: Accepts `GCS_UPLOADER_KEY_JSON` | `GCS_UPLOADER_KEY` | `GCS_UPLOADER_KEY_PATH`
+- **Lazy initialization**: Use `@/lib/inngest/utils/gcs.ts` for safe GCS client setup
+- **Credential handling**: Accepts `GCS_UPLOADER_KEY_PATH` (dev) or JSON env vars
 - **Buckets**: Single bucket via `GOOGLE_CLOUD_STORAGE_BUCKET_NAME` environment variable
 - **Never log credentials or absolute paths**
 
 ### AI Services Integration
-- **Gemini API**: Used for summarization in content pipeline via `@google/genai`
-- **TTS**: Google Cloud TTS for audio synthesis (https://ai.google.dev/gemini-api/docs/speech-generation?hl=en)[gemini-api/docs/speech-generation?hl=en]
-
+- **Gemini API**: Used for summarization and TTS in content pipeline via `@google/genai`
+- **Transcription**: Direct from YouTube via Gemini video models (no legacy scraping)
 
 ## Development Workflows
 
+### Package Management & Scripts
+- **pnpm**: Primary package manager - use `pnpm install`, `pnpm dev`, `pnpm build`
+- **Database**: `pnpm prisma:push` (dev), `pnpm prisma:migrate` (prod), `pnpm prisma:generate`
+- **Testing**: `pnpm test` (Vitest), `pnpm test:watch`, `pnpm test:ci`
+- **Linting**: `biome lint .`, `biome lint --write .`
+- **Background jobs**: `pnpm inngest` for local development
 
+### Testing Conventions
+- **Import paths**: Use relative imports in tests (e.g., `../lib/prisma`), not `@/` aliases
+- **Global mocks**: Clerk auth mocks provided in `tests/setup.ts`
+- **Database**: Separate test DB via `TEST_DATABASE_URL`
 
-
-### Component Patterns
+## Component Patterns
 - **UI Components**: Use shadcn/ui components from `@/components/ui/`
 - **Data Components**: Server Components in `components/data-components/`
 - **Feature Components**: Organized by domain in `components/features/`
 - **Client Components**: Mark with `"use client"` only when needed for interactivity
-
-### Testing Approach
-- **Vitest configuration**: Single-threaded pool in `vitest.config.ts`
-- **Database testing**: Separate test database via `TEST_DATABASE_URL`
-- **Path aliases**: `@/` resolves to project root
+- **Styling**: Prefer CSS Modules over Tailwind classes
 
 ## Business Logic Patterns
 
@@ -67,20 +71,22 @@ PODSLICE is an AI-powered podcast curation platform built on Next.js 15 App Rout
 
 ### Content Processing
 - **User episodes**: Custom content via `UserEpisode` model with processing states
-- **Curated content**: Admin-managed `Podcast`/`Episode` via `Bundle` collections  
+- **Curated content**: Admin-managed `Podcast`/`Episode` via `Bundle` collections
 - **Transcription**: YouTube captions extraction + fallback transcription services
 - **AI pipeline**: Transcript → Summary → Script → Audio via Inngest jobs
 
 ## Key Files to Understand
 - `prisma/schema.prisma` - Data models and relationships
 - `app/(protected)/layout.tsx` - Main app shell with sidebar/header
-- `lib/types.ts` - Centralized type definitions  
-- `lib/gcs.ts` - Google Cloud Storage integration
+- `lib/types.ts` - Centralized type definitions
+- `lib/inngest/utils/gcs.ts` - Google Cloud Storage integration
 
 ## Common Pitfalls to Avoid
 - Don't create custom interfaces in pages/components - use `@/lib/types.ts`
 - Don't modify middleware - it's protected and working
 - Don't batch multiple Inngest jobs - use proper job orchestration patterns
+- Don't use `@/` imports in test files - use relative paths
+- Don't log GCS credentials or file paths
 
 ## CRITICAL: Coding Standards
 - Always use `import type` for types
