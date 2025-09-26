@@ -2,7 +2,7 @@
 
 import { UilCheckCircle, UilClock, UilFile, UilPlay, UilSetting, UilStar } from "@iconscout/react-unicons";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { BadgePlusIcon, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import LandingAudioPlayer from "@/components/demo/landing-audio-player";
@@ -127,11 +127,11 @@ export default function LandingPageContent() {
 					}}
 				/>
 				<div className={styles.heroContainer}>
-					<div className={"grain-blur background-base left-50 top-70"} />
-					<div className={"grain-background background-base"} />
-					<div className={"grid-bg background-base"} />
-					<div className={"large-blur background-base"} />
-					<div className={"small-blur background-base top-50"} />
+					{/* <div className={"grain-blur background-base left-50 top-70"} /> */}
+					{/* <div className={"grain-background background-base"} /> */}
+					{/* <div className={"grid-bg background-base"} /> */}
+					{/* <div className={"large-blur background-base"} /> */}
+					{/* <div className={"small-blur background-base top-50"} /> */}
 					<div className={styles.heroContent}>
 						<motion.h1 className={styles.heroHeading} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
 							Cut the chatter.
@@ -167,25 +167,15 @@ export default function LandingPageContent() {
 				<div className={styles.howItWorksContainer}>
 
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-left  sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[2rem]">
-							How Podslice Works
+						<Typography as="h1" className="text-left  sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[3rem]">
+							How it Works
 						</Typography>
 
 						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
-						<div className="mt-6 w-full max-w-sc	reen md:max-w-3xl mx-auto md:px-4">
-							<iframe
-								title="Podslice demo video"
-								src="https://player.cloudinary.com/embed/?cloud_name=jakwakwa&public_id=podslice_demo-1_ptmi24&profile=cld-default"
-								width="640"
-								height="360"
-								style={{ height: "auto", width: "100%", aspectRatio: "640 / 360" }}
-								allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-								allowFullScreen
-								frameBorder="0"
-							></iframe>
-						</div>
+
+
 					</motion.div>
 					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
@@ -218,27 +208,25 @@ export default function LandingPageContent() {
 			<section className={styles.pricingSection}>
 				<div className={styles.pricingContainer}>
 					<div className={styles.pricingHeader}>
-						<Typography as="h1" className="text-left sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[2rem]">
+						<Typography as="h1" className="text-left sm:text-center  font-bold px-4  md:px-0 md:mt-18 text-[3rem]">
 							Choose Your Plan
 						</Typography>
-						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
+						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-12 leading-[1.4]">
 							From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
 						</Typography>
 					</div>
-					<div className={styles.pricingGrid}>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-2 w-full mx-auto px-4 md:px-0  ">
 						{SUBSCRIPTION_TIERS.map(tier => (
 							<Card
 								key={tier.name}
-								className={` content transition-all duration-200 ease-in-out relative h-full flex  border-slate-500 flex-col px-5 py-4 hover:-translate-y-1 hover:shadow-lg shadow-4xl ${tier.popular ? " border-[#50EAF8]/50 border-2 md:min-w-[450px] bg-primary-card " : "bg-card  border-1 border-slate-900/50 "}`}>
+								className={`  transition-all duration-200 ease-in-out relative h-full flex  border-[#29264d] border-1  flex-col px-8 py-4 rounded-3xl overflow-hidden max-w-screen md:max-w-5xl hover:-translate-y-1 hover:shadow-lg shadow-4x  ${tier.popular ? "bg-[#000] border-[#6750f8]/50 border-2 " : "bg-[#0d0d0f]"} `}>
 								<CardHeader>
 									<div className="flex flex-col mt-4">
-										<h5 className="text-4xl leading-7 font-semibold tracking-tight  text-[#d2eaf0] mb-8">{tier.name}</h5>
+										<h5 className="text-3	xl font-bold tracking-normal  text-[#8f99f0] mb-2">{tier.name}</h5>
 										<div className="flex items-baseline gap-1 mb-4">
 											<p className="text-teal-100/40 font-bold">
-
-
-												<span className="text-green-300 text-[3rem] leading-9  tracking-tight "><span className="text-green-300 text-4xl">$</span>{tier.price}</span></p>
-											{tier.price !== 0 && <span className="text-sm text-foreground">/month</span>}
+												<span className="text-indigo-500 text-[3rem] leading-9  tracking-tight font-black "><span className=" text-indigo-400 text-xl pr-1 font-medium">$</span>{tier.price}</span></p>
+											{tier.price !== 0 && <span className="text-sm text-foreground font-semibold text-indigo-300">/ month</span>}
 										</div>
 										<p className="text-md text-foreground my-2 font-semibold leading-normal">{tier.description}</p>
 									</div>
@@ -247,18 +235,17 @@ export default function LandingPageContent() {
 
 										<Badge
 											variant="secondary"
-											className=" bg-[#043e4e] p-0 border-light text-secondary-foreground py-8 px-4 text-left font-semibold border-primary/10 gap-1 rounded-2xl shadow-xl w-full text-[0.9rem]">
-											{/* <CheckCircle size={16} className="text-teal-300/80 flex-shrink-0" /> */}
-											<span className="text-[2.1rem]">✨ </span>Create your own Ai Generated Audio Summaries from any podcast show
+											className=" bg-[rgba(59, 57, 61, 0.173)] p-0 border-light text-[#9bb5d4] h-16  px-4  text-left font-semibold border-primary/10 gap-3 rounded-none  shadow-xl w-full text-[0.8rem]"><BadgePlusIcon color="#7081e6" width={48} height={48} />
+											Create your own Ai Generated Audio Summaries from any podcast show
 										</Badge>
 
 									)}
 								</CardHeader>
 								<CardContent className="flex flex-col flex-1 justify-between">
-									<ul className="list-none p-0 m-0 mb-8">
+									<ul className="list-none p-0 m-0 mt-2">
 										{tier.features.map((feature, index) => (
-											<li key={index} className="flex items-start gap-3 py-3 text-foreground/80 text-sm font-light ">
-												<CheckCircle size={16} className="text-amber flex-shrink-0 mt-1" color={"#B550F8"} />
+											<li key={index} className="flex items-start gap-3 py-3 text-foreground/60 text-xs font-light ">
+												<CheckCircle size={16} className="text-amber flex-shrink-0 mt-1" color={"#abf3f5"} />
 												{feature}
 											</li>
 										))}
@@ -266,7 +253,7 @@ export default function LandingPageContent() {
 									<Link href="/sign-up">
 										<Button
 											className={`w-full flex items-center justify-center gap-2 mt-auto ${tier.popular ? " text-accent-foreground hover:bg-radial-gradient-secondary/80 transition-all duration-200 ease-in-out h-10" : "h-10"}`}
-											variant={tier.popular ? "secondary" : "default"}
+											variant={tier.popular ? "default" : "default"}
 											size="lg">
 											{tier.name === "FreeSlice" ? "Start Free Trial" : "Subscribe Today"}
 										</Button>

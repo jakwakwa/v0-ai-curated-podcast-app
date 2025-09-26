@@ -6,7 +6,7 @@ import styles from "@/styles/landing-page-content.module.css";
 
 export function LandingPageHeader() {
 	return (
-		<header className="w-full bg-card sticky h-16">
+		<header className="w-full fixed h-16">
 			<div className={styles.landingHeaderContainer}>
 				<Link href="/">
 					<Image src="/logo.png" width={100} height={60} alt="PODSLICE Logo" className={styles.landingLogo} />

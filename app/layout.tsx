@@ -60,7 +60,7 @@ export default function RootLayout({
 					}}>
 					<ClientProviders>
 						{children}
-						<Toaster closeButton richColors />
+						<Toaster closeButton />
 						<GlobalAudioPlayerSheet />
 					</ClientProviders>
 				</ClerkProvider>

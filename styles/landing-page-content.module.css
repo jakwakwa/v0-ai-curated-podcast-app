@@ -4,52 +4,54 @@
   - Pure CSS/CSS Modules (no mixins, no nesting)
   - Only classes referenced by components are defined
 */
-	/* ============================================= */
-	/* IMPORTS                     */
-	/* ============================================= */
+/* ============================================= */
+/* IMPORTS                     */
+/* ============================================= */
 
 
 
-		
+
 
 /* Layout */
 .container {
-	position: scroll;
+	/* position: fixed; */
+	/* position: sticky; */
 	width: 100%;
 	max-width: 100%;
-	height: 200vh;
+	top: 0%;
+	height: 100% !important;
 	margin: 0;
 	padding: 0;
-	text-align: left;
+	/* text-align: left; */
 	overflow-y: hidden;
-	height: auto;
-	/* background: oklch(0.16 0.01 325.82 / 0.27); */
-	background-image: url('/assets/background/grid-bg.svg');
-	/* backdrop-filter: blur(0px); */
-		/* animation: gradientShift 5s ease-in-out infinite alternate; */
-	mix-blend-mode: multiply;
+	/* background: oklab(8.932% 0.00576 -0.00387 / 0.944) 120%; */
+	background-position: 100% 190%, 100% 190%, 100% 190%, 100% 180%, 100% 150% !important;
+	background-attachment: fixed;
+	background-repeat: repeat;
+	/* background-size: 400% 400%, 400% 400%, 400% 400%, 400% 400%, 400% 400% !important; */
+	/* mix-blend-mode: normal !important; */
+	background-image: linear-gradient(to bottom, oklch(0% 0 0 / 0.959), oklch(19.01% 0.01413 284.965 / 0.972)) !important;
+	/* background-blend-mode: screen !important; */
+	/* background-size: 110% 110%, 100% 100%, 150% 150% !important; */
+	/* z-index: -2 !important; */
 }
 
 
-/* Header */
-.landingHeader {
-	position: sticky;
-	top: 0;
-	z-index: 99999 !important;
-	width: 100%;
-	height: 56px;
-	padding: 0 1rem;
-	background: rgba(0, 0, 0, 0.25);
-	backdrop-filter: blur(8px);
-}
+
 
 .landingHeaderContainer {
-	max-width: 80rem;
-	height: 100%;
+	max-width: 80rem !important;
+	position: sticky !important;
+	height: 60px;
 	margin: 0 auto;
+	top: 0;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	padding: 0px 3rem !important;
+	backdrop-filter: blur(10px);
+	box-shadow: inset 0 10px 30px rgba(171, 216, 215, 0.1 5);
+	margin-bottom: 2rem !important;
 }
 
 .landingLogo {
@@ -71,34 +73,57 @@
 /* Hero */
 .heroSection {
 	position: relative;
+	/* position: relative; */
+	padding-top: 8rem !important;
+	padding-bottom: 2.5rem;
+	margin-bottom: 4rem;
+	height: 100%;
 	width: 100%;
-	height: 85vh;
+	/* max-width: 100%; */
+	height: 100vh;
 	padding: 5rem 1.5rem;
+
+	background-image: url('/assets/background/grain-bg.svg'), radial-gradient(120% 120% at 0% 0%,
+			oklch(49.345% 0.25041 276.543 / 0.52) -20%,
+			oklch(0% 0 0 / 0.66) 40%,
+			oklab(18.021% 0.01995 -0.09993 / 0.749) 120%),
+		radial-gradient(120% 120% at 100% 100%,
+			oklch(62.733% 0.30691 316.377) -20%,
+			oklch(31.896% 0.10342 300.629 / 0.879) 40%,
+			oklab(24.265% -0.0297 -0.02585 / 0.46) 120%),
+		radial-gradient(120% 120% at 100% 0%,
+			oklch(77.037% 0.14245 223.096 / 0.26) 1110%,
+			oklch(0% 0 0 / 0.663) 40%,
+			oklab(18.021% 0.01995 -0.09993 / 0.749) 120%),
+		radial-gradient(120% 120% at 0% 100%,
+			oklch(66.8% 0.1126 199.37 / 0.932) -20%,
+			oklch(0% 0 0 / 0.938) 40%,
+			oklab(59.263999999999996% -0.04909 -0.16604 / 0.56) 120%) !important;
 	text-align: center;
-	overflow: hidden;
+	/* overflow: hidden; */
+	/* position: absolute; */
+	z-index: 44 !important;
+
 }
 
 .heroBackground {
 	position: absolute;
-	height: 150%;
-	max-height: 100vh;
-	overflow: hidden;
-	inset: 0;
-	pointer-events: none;
-		background-image: url('/assets/background/grid-bg.svg') no-repeat 0% 0%;
-	background: linear-gradient(80deg, oklch(0.15 0.07 300.98 / 0.38) -20%, oklch(0.57 0.21 307.95 / 0.18) 60%,  rgba(2 57 66 / 0.91) 120%);
-		background-position: 0% 10%, 0% 0%, 110% 20%, 11% 110%;
-	background-blend-mode: screen;
-	/* Layered subtle gradients */
-	background-size: 110% 110%, 100% 100%, 150% 150%;
-	animation: gradientShift 5s ease-in-out infinite alternate;
-	/* filter: blur(0.4px); */
-	mix-blend-mode: screen;
+	/* overflow-y: hidden; */
+	height: auto;
+	background: oklch(44.971% 0.0836 277.387 / 0.757) no-repeat;
+	background-position: center;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	background-blend-mode: normal !important;
+	background-size: 110% 110%, 100% 100%, 150% 150% !important;
+
 }
 
 @keyframes gradientShift {
 	0% {
-		background-position:20% 0%, 50% 50%, 50% 150%;
+		background-position: 20% 0%, 50% 50%, 50% 150%;
 	}
 
 	50% {
@@ -152,7 +177,11 @@
 	display: inline-block;
 	font-size: inherit;
 	line-height: inherit;
-	background-image: linear-gradient(90deg, rgb(192, 132, 252), rgb(52, 211, 153));
+	background-image: linear-gradient(90deg, rgb(132, 54, 209), rgb(52, 211, 153));
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	font-weight: 900;
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
@@ -179,7 +208,7 @@
 .heroSubtitleSlogan {
 	margin-left: 0.25rem;
 	font-weight: 700;
-	background-image: linear-gradient(90deg, oklch(0.78 0.15 270), oklch(0.72 0.12 210));
+	background-image: linear-gradient(90deg, oklch(79.928% 0.17961 323.336), oklch(0.72 0.12 210));
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
@@ -257,7 +286,7 @@
 }
 
 .playPauseButton {
-	display:flex;
+	display: flex;
 	flex-direction: column;
 	align-content: center;
 	justify-content: center;
@@ -303,7 +332,7 @@
 	width: 5px;
 	height: 100%;
 	border-radius: 2px;
-	background: linear-gradient(180deg, rgba(86 213 219 / 0.97) 10%,  rgba(69 166 171 / 0.97) 20%, rgba(202 127 231 / 0.9) 40%, rgba(101 55 209 / 0.97) 90%, rgba(19 85 177 / 0.97) 110%);
+	background: linear-gradient(180deg, rgba(86 213 219 / 0.97) 10%, rgba(69 166 171 / 0.97) 20%, rgba(202 127 231 / 0.9) 40%, rgba(101 55 209 / 0.97) 90%, rgba(19 85 177 / 0.97) 110%);
 	opacity: 0.95;
 	transform-origin: bottom center;
 	will-change: transform;
@@ -586,70 +615,70 @@
 }
 
 
-		.main-layouts {
-			inset: 0;
-		}
+.main-layouts {
+	inset: 0;
+}
 
 
-	/* ============================================= */
-	/* CARDS & CONTAINERS               */
-	/* ============================================= */
-	@layer utilities {
-		.bg-card {
-			background-color: #1E202B;
-			box-shadow:
-				inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.77),
-				2px 3px 3px 1px oklch(0.47 0.05 300.72 / 0.81),
-				2px 2px 8px 2px #000000B5;
-			padding: 20px !important;
-			/* border: 1px solid #24242A;	 */
-			outline-offset: 1px;
-			outline: 1px solid #121414C4 !important;
-		}
-
-		.hero-bg {
-			background: transparent;
-			background-image: linear-gradient(180deg, oklch(0.88 0.13 201.88 / 0.27) -20%,
-					oklch(0.85 0.04 17.87 / 0.19) 40%, oklab(0.18 0.02 -0.1 / 0.56) 120%);
-			background-blend-mode: multiply, multiply;
-			box-shadow:
-				inset 0px 0px 9px 0px #0A0A0A41, 
-				inset 0px -9px 19px 0px #0A0A0ABC,
-				inset 0px 20px 89px 10px #0A0A0A66 !important;
-					backdrop-filter: blur(8px) !important;
-		}
-
-		.bg-bundle-card,
-		.bg-bundle {
-			padding-bottom: 16px !important;
-			border-radius: 18px;
-			background-color: var(--sidebar);
-			box-shadow:
-				inset -5px -4px 59px 2px #0e0e10ea,
-				inset 0.5px 1px 0px 0px #4ce3db72,
-				3px 2px 3px 1px #000000cd,
-				0px 4px 10px 0px #00000062 !important;
-			/* outline-offset: 1px !important; */
-			backdrop-filter: blur(10px) !important;
-			transition: all 0.2s ease-in-out;
-		}
+/* ============================================= */
+/* CARDS & CONTAINERS               */
+/* ============================================= */
+@layer utilities {
+	.bg-card {
+		background-color: #1E202B;
+		box-shadow:
+			inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.77),
+			2px 3px 3px 1px oklch(0.47 0.05 300.72 / 0.81),
+			2px 2px 8px 2px #000000B5;
+		padding: 20px !important;
+		/* border: 1px solid #24242A;	 */
+		outline-offset: 1px;
+		outline: 1px solid #121414C4 !important;
 	}
 
-	
+	.hero-bg {
+		background: transparent;
+		background-image: linear-gradient(180deg, oklch(0.88 0.13 201.88 / 0.27) -20%,
+				oklch(0.85 0.04 17.87 / 0.19) 40%, oklab(0.18 0.02 -0.1 / 0.56) 120%);
+		background-blend-mode: multiply, multiply;
+		box-shadow:
+			inset 0px 0px 9px 0px #0A0A0A41,
+			inset 0px -9px 19px 0px #0A0A0ABC,
+			inset 0px 20px 89px 10px #0A0A0A66 !important;
+		backdrop-filter: blur(8px) !important;
+	}
+
+	.bg-bundle-card,
+	.bg-bundle {
+		padding-bottom: 16px !important;
+		border-radius: 18px;
+		background-color: var(--sidebar);
+		box-shadow:
+			inset -5px -4px 59px 2px #0e0e10ea,
+			inset 0.5px 1px 0px 0px #4ce3db72,
+			3px 2px 3px 1px #000000cd,
+			0px 4px 10px 0px #00000062 !important;
+		/* outline-offset: 1px !important; */
+		backdrop-filter: blur(10px) !important;
+		transition: all 0.2s ease-in-out;
+	}
+}
+
+
 
 /* Responsive (mobile-first) */
 @media (min-width: 640px) {
 	.waveformContainer {
-	display: flex;
-	align-items: flex-start;
-	justify-content: flex-start;
-	align-content: flex-start;
-	gap: 2px;
-	padding-top: 0rem;
-	padding-left: 0;
-	height: 44px;
-	width: 100%;
-}
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-start;
+		align-content: flex-start;
+		gap: 2px;
+		padding-top: 0rem;
+		padding-left: 0;
+		height: 44px;
+		width: 100%;
+	}
 
 	.landingHeader {
 		height: 60px;

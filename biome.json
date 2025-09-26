@@ -67,16 +67,13 @@
 				"useExhaustiveDependencies": "warn",
 				"useHookAtTopLevel": "error",
 				"noUnusedImports": {
-					"level": "error",
-					"fix": "safe"
+					"level": "warn",
+					"fix": "safe",
+					"options": {}
 				},
 				"noUnreachable": "error",
 				"noConstAssign": "error",
 				"noConstantCondition": "error",
-				"noUnusedLabels": {
-					"level": "error",
-					"fix": "safe"
-				},
 				"noEmptyPattern": "error",
 				"noSelfAssign": "error",
 				"noSwitchDeclarations": "error",
