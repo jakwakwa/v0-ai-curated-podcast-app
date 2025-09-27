@@ -1,6 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
 import "@/styles/login.css";
-import { LandingPageHeader } from "@/components/layout/LandingPageHeader";
 
 export default function SignInPage() {
 	return (
@@ -10,7 +9,6 @@ export default function SignInPage() {
 			{/* <div className="large-blur background-base" /> */}
 			{/* <div className="background-overlay" /> */}
 			<div className=" flex max-h-screen flex-col  heroSectio items-center justify-center  min-h-[104vh]">
-				<LandingPageHeader />
 				<SignUp />
 			</div>
 		</>
