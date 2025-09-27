@@ -1,5 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/themes";
+import { dark, neobrutalism, shadcn } from "@clerk/themes";
 
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
@@ -33,7 +33,6 @@ export const metadata: Metadata = {
 	twitter: {
 		card: "summary_large_image",
 	},
-	icons: [{ rel: "icon", url: "/favicon.svg" }],
 };
 
 export default function RootLayout({
@@ -54,7 +53,7 @@ export default function RootLayout({
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
-						baseTheme: [shadcn],
+						baseTheme: [dark, neobrutalism, shadcn],
 						variables: { colorPrimary: "#0AB38E", colorBackground: "#3932593d", colorPrimaryForeground: "#000", colorForeground: "#9cc69b", colorInputForeground: "#000000" },
 						signIn: { variables: { colorPrimaryForeground: "#3f347d", colorForeground: "#9eb1c2", colorInputForeground: "#000000", borderRadius: "2rem" } },
 					}}>
