@@ -474,24 +474,24 @@
 
 	@layer utilities {
 		.btn-default {
-			background: linear-gradient(to top, #9f85f4, #92c4c1);
+			background: linear-gradient(to top, #9f85f4, #82dbd5);
 			text-shadow: 0px 1px 1px 1px #23222788 !important;
 			font-size: 0.8rem !important;
 			font-weight: 800 !important;
 			color: #453a5a !important;
 			border-radius: 0.75rem !important;
 			box-shadow:
-				inset 0px 1px 0px 0px #f02eac24,
-				inset 0px -1px 1px #1f1c279d,
+				inset 0px 1px 0px 0px #1812162c,
+				inset 0px -1px 1px #2f254b2c,
 				0px 1px 0px 0px #1b1b1b1c,
-				0px 3px 3px 0px #0B0B0B4F,
-				0px 1px 0px 0px #050505A8,
-				inset 0px -2px 1px 0px #00000052;
+				0px 3px 7px 0px #0b0b0b52,
+				0px 1px 4px 0px #05050524,
+				inset 0px -2px 1px 0px #20202016;
 			transition: 300ms all ease-in;
 		}
 
 		.btn-default:hover {
-			background: linear-gradient(to top, #5d2ca8, hsl(208, 73%, 77%));
+			background: linear-gradient(to top, #a979f5, hsl(208, 60%, 67%));
 			transform: translateY(1px);
 			color: #1c1824 !important;
 		}

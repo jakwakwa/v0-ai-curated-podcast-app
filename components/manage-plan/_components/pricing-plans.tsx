@@ -54,13 +54,15 @@ export function FeatureList({ tier, loading }: IFeatureListProps) {
 }
 
 export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
+	// Format helper: drop trailing .00 or ,00 to display whole-unit prices (e.g., $5.00 -> $5, €5,00 -> €5)
+	const formattedValue = value ? value.replace(/([,.]00)(?=(\s|$))/, "") : value
 	return (
 		<div className="mt-2 flex flex-col px-8">
 			{loading ? (
 				<Skeleton className="h-[96px] w-full bg-border" />
 			) : (
 				<>
-					<div className={cn("text-[40px] leading-[46px] tracking-[-1.6px] font-medium")}>{Math.floor(Number(value)) ? value : "n/a"}</div>
+					<div className={cn("text-[40px] leading-[46px] tracking-[-1.6px] font-medium")}>{formattedValue ? formattedValue : "n/a"}</div>
 					<div className={cn("font-medium leading-[12px] text-[12px]")}>{priceSuffix}</div>
 				</>
 			)}
@@ -75,9 +77,32 @@ export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckou
 	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per month" })
 	const [paddle, setPaddle] = useState<Paddle>()
 
-	// Call the custom hook to get prices and loading state.
-	// We've changed the country code from "USD" to "US" to fix the API error.
-	const { prices, loading } = usePaddlePrices(paddle, "US")
+	// Detect buyer country from browser locale to localize prices and enable Paddle's auto currency conversion
+	const [countryCode, setCountryCode] = useState<string>("OTHERS")
+	useEffect(() => {
+		function detectCountryFromLocale(): string {
+			try {
+				const primaryLang = (typeof navigator !== "undefined" && (navigator.languages?.[0] || navigator.language)) || ""
+				const resolved = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().locale : ""
+				const candidates = [primaryLang, resolved]
+				const regionRegex = /[-_]([A-Za-z]{2})(?:$|[-_])/
+				for (const loc of candidates) {
+					const match = loc ? regionRegex.exec(loc) : null
+					const region = match?.[1]
+					if (region) return region.toUpperCase()
+				}
+			} catch (_e) {
+				// noop: fall through to default
+			}
+			return "OTHERS"
+		}
+
+		setCountryCode(detectCountryFromLocale())
+	}, [])
+
+	// Call the custom hook to get localized prices using detected country code.
+	// When countryCode is "OTHERS", the hook will omit address so Paddle returns default pricing.
+	const { prices, loading } = usePaddlePrices(paddle, countryCode)
 
 	// Defensive UI: hide/disable when an active-like subscription exists
 	const subscription = useSubscriptionStore(state => state.subscription)

@@ -31,7 +31,7 @@ export function UsageDisplay() {
 	}
 
 	return (
-		<div className="bg-[#0b0a0d58] w-full px-4  mx-0  border-b border-b-[#f4e5f725] lg:border-l lg:border-l-[#f4e5f725] lg:border-b-none rounded-none sm:px-5 py-2 md:p-8 lg:w-[300px]">
+		<div className="bg-[#0b0a0d58] w-full px-4  mx-0   outline-0 border-l-0  lg:border-b-[#f4e5f725] lg:border-l lg:border-l-[#f4e5f725] lg:border-b-none rounded-none sm:px-5 py-2 md:p-8 lg:w-[300px]">
 			<div className="w-full flex flex-col gap-3">
 				<H2 className=" text-lg text-primary-foreground">Monthly Usage</H2>
 

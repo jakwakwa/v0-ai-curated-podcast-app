@@ -1,20 +1,19 @@
 import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { z } from "zod";
-import { Badge } from "@/components/ui/badge";
+import EpisodeHeader from "@/components/features/episodes/episode-header";
+import EpisodeShell from "@/components/features/episodes/episode-shell";
+import KeyTakeaways from "@/components/features/episodes/key-takeaways";
+import PlayAndShare from "@/components/features/episodes/play-and-share";
 import { Separator } from "@/components/ui/separator";
 import { getStorageReader, parseGcsUri } from "@/lib/inngest/utils/gcs";
-import { extractKeyTakeaways, normalizeSummaryMarkdown } from "@/lib/markdown/episode-text";
+import { extractKeyTakeaways } from "@/lib/markdown/episode-text";
 import { prisma } from "@/lib/prisma";
 import type { Episode } from "@/lib/types";
-import PlayAndShare from "./_components/play-and-share.client";
 
 export const dynamic = "force-dynamic";
 
-// Schema for validating the Episode we expose (subset of fields we need)
 const EpisodeSchema = z.object({
   episode_id: z.string(),
   podcast_id: z.string(),
@@ -51,14 +50,13 @@ function extractGcsFromHttp(url: string): { bucket: string; object: string } | n
 }
 
 async function getEpisodeWithAccess(id: string, currentUserId: string): Promise<EpisodeWithSigned | null> {
-  // Load episode + minimal relations
   const episode = await prisma.episode.findUnique({
     where: { episode_id: id },
     include: { userProfile: { select: { user_id: true } }, podcast: true },
   });
   if (!episode) return null;
 
-  // Authorization logic mirrors /api/episodes/[id]/play route
+  // Authorization: owned by user or included in user's active bundle
   const profile = await prisma.userCurationProfile.findFirst({
     where: { user_id: currentUserId, is_active: true },
     include: { selectedBundle: { include: { bundle_podcast: true } } },
@@ -66,7 +64,7 @@ async function getEpisodeWithAccess(id: string, currentUserId: string): Promise<
   const podcastIdsInSelectedBundle = profile?.selectedBundle?.bundle_podcast.map(bp => bp.podcast_id) ?? [];
   const selectedBundleId = profile?.selectedBundle?.bundle_id ?? null;
 
-  const isOwnedByUser = episode.userProfile?.user_id === currentUserId; // user-generated personalized episode
+  const isOwnedByUser = episode.userProfile?.user_id === currentUserId;
   const isInSelectedBundleByPodcast = podcastIdsInSelectedBundle.includes(episode.podcast_id);
   const isDirectlyLinkedToSelectedBundle = !!selectedBundleId && episode.bundle_id === selectedBundleId;
   const authorized = isOwnedByUser || isInSelectedBundleByPodcast || isDirectlyLinkedToSelectedBundle;
@@ -84,16 +82,14 @@ async function getEpisodeWithAccess(id: string, currentUserId: string): Promise<
         .file(object)
         .getSignedUrl({ action: "read", expires: Date.now() + 15 * 60 * 1000 });
       signedAudioUrl = url;
-    } catch (e) {
-      console.error("Failed to sign episode audio URL", e);
+    } catch {
+      // avoid logging sensitive info
     }
   }
 
-  const safe = EpisodeSchema.parse(episode) as Episode; // runtime validation
+  const safe = EpisodeSchema.parse(episode) as Episode;
   return { ...safe, signedAudioUrl };
 }
-
-// (Local markdown utilities removed in favor of shared helpers)
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -114,47 +110,23 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const takeaways = extractKeyTakeaways(episode.description);
 
   return (
-    <div className="episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6">
+    <EpisodeShell>
       <div>
-        <div className="flex flex-col gap-2">
-          <div className="text-xl font-semibold text-shadow-lg text-shadow-slate-900 md:text-2xl">{episode.title}</div>
-          <div className="text-sm text-[#8A97A5D4]/80 episode-p pr-[10%] mb-1">
-            <div className="flex flex-wrap items-center gap-2 my-2">
-              {episode.duration_seconds ? <Badge variant="secondary">{Math.round((episode.duration_seconds || 0) / 60)} min</Badge> : null}
-              <Badge variant="secondary">{new Date(episode.created_at).toLocaleString()}</Badge>
-              <div className="text-xs text-muted-foreground break-words border-1 border-[#dcd4df36] rounded px-2 py-0 flex gap-2 items-center">
-                <a className="no-underline hover:underline" href="/episodes" rel="noreferrer">
-                  Back to Episodes
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <EpisodeHeader
+          title={episode.title}
+          createdAt={episode.created_at}
+          durationSeconds={episode.duration_seconds ?? null}
+          metaBadges={null}
+          rightLink={{ href: "/episodes", label: "Back to Episodes", external: false }}
+        />
         <div className="mt-4 mb-4">
-          <PlayAndShare episode={episode} signedAudioUrl={episode.signedAudioUrl} />
+          <PlayAndShare kind="curated" episode={episode} signedAudioUrl={episode.signedAudioUrl} />
         </div>
         <div className="mt-4 my-8">
           <Separator className="my-8" />
-          {takeaways.length > 0 ? (
-            <div className="mt-4">
-              <h3 className="text-base font-semibold mb-2 text-[rgb(133,239,177)]">Key Takeaways</h3>
-              <ul className="list-disc pl-6 space-y-1 text-[#c0e9d1]">
-                {takeaways.map((t, i) => (
-                  <li key={i}>{t}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          <Separator className="my-8" />
-          {episode.description ? (
-            <div className="prose prose-invert text-base px-6 my-8 leading-[1.8] max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizeSummaryMarkdown(episode.description)}</ReactMarkdown>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No description available.</p>
-          )}
+          <KeyTakeaways items={takeaways} />
         </div>
       </div>
-    </div>
+    </EpisodeShell>
   );
 }

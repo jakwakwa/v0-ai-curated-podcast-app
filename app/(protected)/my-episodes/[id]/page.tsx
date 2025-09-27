@@ -1,15 +1,16 @@
 import { auth } from "@clerk/nextjs/server";
-import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { Badge } from "@/components/ui/badge";
+import EpisodeHeader from "@/components/features/episodes/episode-header";
+import EpisodeShell from "@/components/features/episodes/episode-shell";
+import KeyTakeaways from "@/components/features/episodes/key-takeaways";
+import PlayAndShare from "@/components/features/episodes/play-and-share";
 import { Separator } from "@/components/ui/separator";
 import { getStorageReader, parseGcsUri } from "@/lib/inngest/utils/gcs";
 import { extractKeyTakeaways, extractNarrativeRecap } from "@/lib/markdown/episode-text";
 import { prisma } from "@/lib/prisma";
 import type { UserEpisode } from "@/lib/types";
-import PlayAndShare from "./_components/play-and-share.client";
 
 export const dynamic = "force-dynamic";
 
@@ -74,82 +75,28 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 	const _narrativeRecap = extractNarrativeRecap(episode.summary);
 	const _hasSummary = Boolean(episode.summary);
 
-	const playableEpisode: UserEpisode = {
-		episode_id: episode.episode_id,
-		user_id: episode.user_id,
-		episode_title: episode.episode_title,
-		youtube_url: episode.youtube_url,
-		transcript: episode.transcript ?? null,
-		summary: episode.summary ?? null,
-		gcs_audio_url: episode.signedAudioUrl ?? episode.gcs_audio_url ?? null,
-		duration_seconds: episode.duration_seconds ?? null,
-		status: episode.status,
-		created_at: episode.created_at,
-		updated_at: episode.updated_at,
-	};
-
 	return (
-		<div className="mt-12 episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6 pr-0 md:max-w-[80%]">
+		<EpisodeShell>
 			<div>
-				<div className="flex flex-col gap-2">
-					<div className="text-[#e7e4e8d2] text-xl font-semibold text-shadow-sm text-shadow-slate-900/30 md:text-2xl">{episode.episode_title}</div>
-					<div className="text-sm text-[#8A97A5D4]/80 episode-p pr-[10%] mb-1">
-						<div className="flex flex-wrap items-center gap-2 my-2">
-							<Badge variant="outline">{episode.status}</Badge>
-							{episode.duration_seconds ? <Badge variant="secondary">{Math.round(episode.duration_seconds / 60)} min</Badge> : null}
-							<Badge variant="secondary">{new Date(episode.created_at).toLocaleString()}</Badge>
-							<div className="text-xs text-muted-foreground break-words border-1 border-[#dcd4df36] rounded px-2 py-0 flex gap-2 items-center">
-								<a className="no-underline hover:underline" href={episode.youtube_url} target="_blank" rel="noreferrer">
-									Youtube Url
-								</a>
-								<span className="font-medium uppercase text-[0.6rem] text-[#9be5c9]">
-									<ExternalLink width={13} />
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
+				<EpisodeHeader
+					title={episode.episode_title}
+					createdAt={episode.created_at}
+					durationSeconds={episode.duration_seconds ?? null}
+					metaBadges={
+						<span className="inline-flex">
+							<span className="sr-only">status</span>
+						</span>
+					}
+					rightLink={{ href: episode.youtube_url, label: "Youtube Url", external: true }}
+				/>
 				<div className="mt-4 my-8">
 					<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-start">
-						<PlayAndShare episode={playableEpisode} canPlay={episode.status === "COMPLETED" && !!episode.signedAudioUrl} />
+						<PlayAndShare kind="user" episode={episode} signedAudioUrl={episode.signedAudioUrl} />
 					</div>
 					<Separator className="my-8" />
-					{takeaways.length > 0 ? (
-						<div className="mt-4 episode-card-wrapper-dark px-4 py-4 rounded-lg">
-							<h3 className="text-lg font-semibold  mx-8 my-4 text-[#a79efa] pb-2">Key Episode Takeaways</h3>
-							<ul className=" list-disc mx-8 px-4 space-y-1 text-[#dcecf6e0] pr-0 md:px-6">
-								{takeaways.slice(1).map((t, i) => (
-									<li className="my-4 font-medium text-base" key={i}>{t}</li>
-								))}
-							</ul>
-						</div>
-					) : null}
-
-					{/* {!hasSummary ? (
-						narrativeRecap ? (
-							<>
-								<Separator className="my-8" />
-								<div className="mt-4">
-									<h3 className="text-base font-semibold mb-2 text-[rgb(133,239,177)]">Narrative Recap</h3>
-									<div className="prose prose-invert text-base px-6 my-8 leading-[1.8] max-w-none">
-										<ReactMarkdown remarkPlugins={[remarkGfm]}>{narrativeRecap}</ReactMarkdown>
-									</div>
-								</div>
-							</>
-						) : (
-							<>
-								<Separator className="my-8" />
-								<p className="text-sm text-muted-foreground">Narrative recap will appear once it’s generated.</p>
-							</>
-						)
-					) : (
-						<>
-							<Separator className="my-8" />
-							<p className="text-sm text-muted-foreground">No summary available.</p>
-						</>
-					)} */}
+					<KeyTakeaways items={takeaways} />
 				</div>
 			</div>
-		</div>
+		</EpisodeShell>
 	);
 }

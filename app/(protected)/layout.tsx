@@ -32,11 +32,11 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 							{""}
 						</Separator>
 
-						<SidebarTrigger className="w-[52px] h-[24px]" size={"xs"} variant="outline" />
+						<SidebarTrigger className="w-[52px] h-[24px] border border-[#50647a0] border-none shadow-none" size={"xs"} variant="outline" />
 
 						<Separator
 							orientation="vertical"
-							className={`data-[orientation=vertical]:min-h-[8px] border-[0px] border-r-[#342D3D] bg-[#303537] w-[1px] ${state === "expanded" ? "mr-12 ml-4" : "mx-2 ml-0	"}`}>
+							className={`data-[orientation=vertical]:min-h-[8px] border-[0px] border-r-[#342d3d0] bg-[#a5adb03e] w-[1px] ${state === "expanded" ? "mr-12 ml-5.5" : "mx-2 ml-0	"}`}>
 							{""}
 						</Separator>
 
@@ -52,7 +52,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 					<div className={'grid-bg-one background-base'} />
 					<div className={'large-blur background-base'} />
 					<div className={'small-blur background-base  layout-inset-background'} />
-					<div className="w-full p-0 flex flex-col my-0 md:flex-row pt-8 md:pb-2 md:pt-20 px-2 min-w-full md:my-2 md:px-4 md:pr-8">{children}</div>
+					<div className="w-[99%] p-0 flex flex-col my-0 md:flex-row pt-6 md:pb-2 md:pt-20 mx-0 pl-1 pr-3 md:px-2 min-w-full md:my-2 sm:ml-6 md:pl-0 md:pr-12">{children}</div>
 				</div>
 			</SidebarInset>
 		</>
