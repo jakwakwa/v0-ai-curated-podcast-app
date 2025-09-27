@@ -145,7 +145,7 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 				{bundles.map(bundle => (
 					<Card
 						key={bundle.bundle_id}
-						className="flex flex-col sm:flex-col px-5 rounded-2xl shadow-lg bg-[#0f0d1c20]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#c1bdef17]/50 transition-shadow duration-200 gap-3 bundle-card-hover xl:max-w-[500px] ease-in-out text-shadow-sm transition-all"
+						className="flex flex-col sm:flex-col px-5 rounded-4xl shadow-lg bg-[#0f0d1c20]  border-6 border-[#1e27455f] w-full cursor-pointer hover:bg-[#c1bdef17]/50 transition-shadow duration-200 gap-3 bundle-card-hover xl:max-w-[500px] ease-in-out text-shadow-sm transition-all shadow-[0_4px_4px_1px_#0506062c] "
 						onClick={() => handleBundleClick(bundle)}>
 						<CardHeader className="w-full py-4 px-2">
 							<div className="w-full flex flex-col-reverse xl:flex-col-reverse gap-6">
@@ -154,15 +154,16 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 
 									<Badge variant="outline" className="font-normal tracking-wide">
 										<Lock size={8} className="mr-2" />
-										<Typography className="text-xxs">Fixed Podcast Shows</Typography>
+										<Typography className="text-xxs">Fixed Selection</Typography>
 									</Badge>
+									<Typography className="text-[0.7rem] text-[#f1e9e9b3] font-normal leading-tight mt-0 mb-0 line-clamp-3">Included in bundle:</Typography>
+									<CardContent className="bg-[#06080a45] mx-auto shadow-sm rounded-md w-full m-0 outline-1 outline-[#96a6ba63]">
 
-									<CardContent className="bg-[#06080a45] mx-auto shadow-sm rounded-md w-full p-1 m-0 pb-1 mt-0 outline-1 outline-[#2d3845b7]">
-										<ul className="list-none p-0 m-0 flex flex-col gap-1">
+										<ul className="list-none px-2 m-0 flex flex-col gap-2 py-1">
 											{bundle.podcasts?.map((podcast: Podcast) => (
-												<li key={podcast.podcast_id} className="flex w-full justify-end gap-0 pt-1">
-													<div className="w-full flex flex-col gap-0 justify-center items-center">
-														<p className="text-[0.6rem] font-semibold leading-normal my-0 px-1 mx-0 text-center text-[#f1e9e9b3] tracking-wide line-clamp-2">
+												<li key={podcast.podcast_id} className=" leading-none flex w-full justify-end gap-0 p-0">
+													<div className="w-full flex flex-col gap-0 ">
+														<p className="w-full text-[0.7rem] font-semibold leading-normal my-0 px-1 mx-0 text-left text-[#f1e9e9b3] tracking-wide line-clamp-2">
 															{podcast.name}
 														</p>
 													</div>
