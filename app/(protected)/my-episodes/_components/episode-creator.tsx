@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Loader2, PlayCircle, YoutubeIcon } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, MessageSquareWarning, PlayCircle, YoutubeIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +18,8 @@ import { useNotificationStore } from "@/lib/stores";
 
 const EPISODE_LIMIT = PRICING_TIER[2].episodeLimit;
 const YT_MAX_DURATION_SECONDS = getMaxDurationSeconds();
+
+console.log("[DEBUG] Component initialized with YT_MAX_DURATION_SECONDS:", YT_MAX_DURATION_SECONDS);
 // Define a base schema
 
 // const baseFormSchema = z.object({
@@ -55,7 +57,7 @@ export function EpisodeCreator() {
 	const [voiceB, setVoiceB] = useState<string>("Kore");
 	const [isPlaying, setIsPlaying] = useState<string | null>(null);
 	const [audioUrlCache, setAudioUrlCache] = useState<Record<string, string>>({});
-	const [maxDuration, setMaxDuration] = useState<number | null>(null);
+	const [maxDuration, setMaxDuration] = useState<number | null>(120); // Default to 120 minutes
 	const [isCreating, setIsCreating] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [usage, setUsage] = useState({ count: 0, limit: EPISODE_LIMIT });
@@ -70,8 +72,14 @@ export function EpisodeCreator() {
 	const isBusy = isCreating || isFetchingMetadata;
 	const isAudioPlaying = isPlaying !== null;
 
-	const isDurationValid = videoDuration !== null && videoDuration <= YT_MAX_DURATION_SECONDS;
-	const canSubmit = Boolean(videoTitle) && isYouTubeUrl(youtubeUrl) && !isBusy && isDurationValid;
+	const isDurationValid = videoDuration !== null && (maxDuration ? videoDuration <= maxDuration * 60 : videoDuration <= YT_MAX_DURATION_SECONDS);
+	const canSubmit =
+		Boolean(videoTitle) &&
+		isYouTubeUrl(youtubeUrl) &&
+		!isBusy &&
+		isDurationValid &&
+		videoDuration !== null &&
+		(maxDuration ? videoDuration <= maxDuration * 60 : videoDuration <= YT_MAX_DURATION_SECONDS);
 
 	const fetchUsage = useCallback(async () => {
 		try {
@@ -93,6 +101,46 @@ export function EpisodeCreator() {
 	}, [fetchUsage]);
 
 	useEffect(() => {
+		// Clear any previous errors when URL changes
+		if (youtubeUrl !== debouncedYoutubeUrl) {
+			setYouTubeUrlError(null);
+		}
+	}, [youtubeUrl, debouncedYoutubeUrl]);
+
+	useEffect(() => {
+		// Show duration error immediately when videoDuration is set and invalid
+		console.log("[DEBUG] Duration validation useEffect triggered, videoDuration:", videoDuration, "maxDuration:", maxDuration);
+		const maxSeconds = maxDuration ? maxDuration * 60 : YT_MAX_DURATION_SECONDS;
+		if (videoDuration !== null && videoDuration > maxSeconds) {
+			const maxMinutes = Math.floor(maxSeconds / 60);
+			const errorMsg = `Video is too long. Please select a video that is ${maxMinutes} minutes or less. This video is ${Math.round(videoDuration / 60)} minutes long.`;
+			console.log("[DEBUG] Setting duration error:", errorMsg);
+			setYouTubeUrlError(errorMsg);
+		} else if (videoDuration !== null && videoDuration <= maxSeconds) {
+			// Clear duration error if video is now valid
+			console.log("[DEBUG] Clearing duration error - video is valid");
+			setYouTubeUrlError(null);
+		} else {
+			console.log("[DEBUG] No duration validation action needed");
+		}
+	}, [videoDuration, maxDuration]);
+
+	// Timer effect for restriction dialog
+	useEffect(() => {
+		let timer: NodeJS.Timeout;
+
+		if (!isLoadingUsage && usage.count >= usage.limit) {
+			timer = setTimeout(() => {
+				setShowRestrictionDialog(true);
+			}, 3000); // 3 second delay
+		}
+
+		return () => {
+			if (timer) clearTimeout(timer);
+		};
+	}, [isLoadingUsage, usage.count, usage.limit]);
+
+	useEffect(() => {
 		// Fetch the dynamic configuration from our new API endpoint
 		const fetchConfig = async () => {
 			try {
@@ -111,45 +159,37 @@ export function EpisodeCreator() {
 		fetchConfig();
 	}, []);
 
-	// Timer effect for restriction dialog
-	useEffect(() => {
-		let timer: NodeJS.Timeout;
-
-		if (!isLoadingUsage && usage.count >= usage.limit) {
-			timer = setTimeout(() => {
-				setShowRestrictionDialog(true);
-			}, 3000); // 3 second delay
-		}
-
-		return () => {
-			if (timer) clearTimeout(timer);
-		};
-	}, [isLoadingUsage, usage.count, usage.limit]);
-
 	useEffect(() => {
 		async function fetchMetadata() {
+			console.log("[DEBUG] fetchMetadata called with URL:", debouncedYoutubeUrl);
 			setYouTubeUrlError(null);
 			if (isYouTubeUrl(debouncedYoutubeUrl)) {
+				console.log("[DEBUG] URL is valid YouTube URL, fetching metadata...");
 				setIsFetchingMetadata(true);
 				setVideoTitle(null);
 				setVideoDuration(null);
 				try {
 					const res = await fetch(`/api/youtube-metadata?url=${encodeURIComponent(debouncedYoutubeUrl)}`);
+					console.log("[DEBUG] YouTube metadata API response status:", res.status);
 					if (!res.ok) {
 						throw new Error("Could not fetch video details. Please check the URL.");
 					}
 					const { title, duration } = await res.json();
+					console.log("[DEBUG] Fetched metadata - title:", title, "duration:", duration, "seconds");
+					console.log("[DEBUG] maxDuration (minutes):", maxDuration, "YT_MAX_DURATION_SECONDS fallback:", YT_MAX_DURATION_SECONDS);
+					const maxSeconds = maxDuration ? maxDuration * 60 : YT_MAX_DURATION_SECONDS;
+					console.log("[DEBUG] Using maxSeconds for validation:", maxSeconds);
+					console.log("[DEBUG] Duration check:", duration > maxSeconds ? "TOO LONG" : "OK");
 					setVideoTitle(title);
 					setVideoDuration(duration);
-					if (duration > YT_MAX_DURATION_SECONDS) {
-						setYouTubeUrlError(`Video is too long. Please select a video that is 90 minutes or less. This video is ${Math.round(duration / 60)} minutes long.`);
-					}
 				} catch (err) {
+					console.error("[DEBUG] Error fetching metadata:", err);
 					setYouTubeUrlError(err instanceof Error ? err.message : "An unknown error occurred.");
 				} finally {
 					setIsFetchingMetadata(false);
 				}
 			} else {
+				console.log("[DEBUG] URL is not a valid YouTube URL");
 				setVideoTitle(null);
 				setVideoDuration(null);
 				if (debouncedYoutubeUrl) {
@@ -161,8 +201,47 @@ export function EpisodeCreator() {
 	}, [debouncedYoutubeUrl]);
 
 	async function handleCreate() {
-		if (!canSubmit) return;
+		console.log("[DEBUG] handleCreate called with canSubmit:", canSubmit);
+		console.log("[DEBUG] handleCreate validation state:", {
+			canSubmit,
+			videoTitle: !!videoTitle,
+			youtubeUrl,
+			isYouTubeUrl: isYouTubeUrl(youtubeUrl),
+			videoDuration,
+			YT_MAX_DURATION_SECONDS,
+			durationCheck: videoDuration !== null && videoDuration <= YT_MAX_DURATION_SECONDS,
+		});
 
+		if (!canSubmit) {
+			console.log("[DEBUG] handleCreate blocked by canSubmit check");
+			return;
+		}
+
+		// Additional explicit validation to prevent any bypass
+		if (!videoTitle) {
+			console.log("[DEBUG] handleCreate blocked: no video title");
+			setError("Video title is required. Please wait for the video details to load.");
+			return;
+		}
+		if (!isYouTubeUrl(youtubeUrl)) {
+			console.log("[DEBUG] handleCreate blocked: invalid YouTube URL");
+			setError("Please enter a valid YouTube URL.");
+			return;
+		}
+		if (!videoDuration) {
+			console.log("[DEBUG] handleCreate blocked: no video duration");
+			setError("Video duration could not be determined. Please try a different URL.");
+			return;
+		}
+		if (videoDuration > (maxDuration ? maxDuration * 60 : YT_MAX_DURATION_SECONDS)) {
+			console.log("[DEBUG] handleCreate blocked: duration too long");
+			const maxSeconds = maxDuration ? maxDuration * 60 : YT_MAX_DURATION_SECONDS;
+			const maxMinutes = Math.floor(maxSeconds / 60);
+			setError(`Video is too long. Please select a video that is ${maxMinutes} minutes or less. This video is ${Math.round(videoDuration / 60)} minutes long.`);
+			return;
+		}
+
+		console.log("[DEBUG] handleCreate proceeding with episode creation");
 		setIsCreating(true);
 		setError(null);
 		try {
@@ -235,7 +314,14 @@ export function EpisodeCreator() {
 						<form
 							className="space-y-6 w-full"
 							onSubmit={e => {
+								console.log("[DEBUG] Form onSubmit triggered, canSubmit:", canSubmit);
 								e.preventDefault();
+								// Prevent submission if validation fails
+								if (!canSubmit) {
+									console.log("[DEBUG] Form submission blocked by canSubmit check");
+									return;
+								}
+								console.log("[DEBUG] Form submission proceeding to handleCreate");
 								void handleCreate();
 							}}>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -247,12 +333,19 @@ export function EpisodeCreator() {
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Fetching video details...
 										</p>
 									)}
-									{youtubeUrlError && <p className="text-red-500 text-sm mt-2">{youtubeUrlError}</p>}
+									{youtubeUrlError && (
+										<p className="bg-[#21020621] px-2.5 py-1.5 text-[#ff99a7f9] text-xs mt-2 rounded-md outline-2 outline-[#e86e7f80]"> <span className="flex gap-3">	<MessageSquareWarning width={32} /> 	{youtubeUrlError}</span>
+
+										</p>
+									)}
 								</div>
 
 								{videoTitle && (
 									<div className="bg-black/30 space-y-2 md:col-span-2 py-4 px-8 rounded-xl outline-3 outline-[#94939351] shadow-lg">
-										<p className=" font-bold text-[#f54065c9] flex text-xs items-center gap-2"><YoutubeIcon width={18} height={18} color="#ff1645b5" />Youtube Video</p>
+										<p className=" font-bold text-[#f54065c9] flex text-xs items-center gap-2">
+											<YoutubeIcon width={18} height={18} color="#ff1645b5" />
+											Youtube Video
+										</p>
 										<p className="text-[#efd6deb5] font-semibold text-sm">{videoTitle}</p>
 										{videoDuration !== null && (
 											<p className="text-xs text-[#85eeb478]">

@@ -49,6 +49,14 @@ export const transcriptionCoordinator = inngest.createFunction(
 				if (!(needsDuration || needsTitle)) return;
 				const details = await getYouTubeVideoDetails(srcUrl);
 				if (!details) return;
+
+				// Validate video duration against MAX_DURATION_SECONDS
+				const { getMaxDurationSeconds } = await import("@/lib/env");
+				const maxDurationSeconds = getMaxDurationSeconds();
+				if (details.duration > maxDurationSeconds) {
+					throw new Error(`Video duration ${details.duration} seconds exceeds maximum allowed duration of ${maxDurationSeconds} seconds (${Math.floor(maxDurationSeconds / 60)} minutes)`);
+				}
+
 				await prisma.userEpisode.update({
 					where: { episode_id: userEpisodeId },
 					data: {
@@ -62,7 +70,44 @@ export const transcriptionCoordinator = inngest.createFunction(
 					meta: { enriched: true, replacedTitle: needsTitle, addedDuration: needsDuration && details.duration > 0 },
 				});
 			} catch (_err) {
-				await writeEpisodeDebugLog(userEpisodeId, { step: "youtube-metadata", status: "fail", message: "metadata enrichment error" });
+				const errorMessage = _err instanceof Error ? _err.message : "metadata enrichment error";
+				const isDurationError = errorMessage.includes("exceeds maximum allowed duration");
+
+				if (isDurationError) {
+					// Duration validation failed - fail the entire transcription job
+					await step.run("mark-failed-duration", async () => {
+						await prisma.userEpisode.update({ where: { episode_id: userEpisodeId }, data: { status: "FAILED" } });
+						await writeEpisodeDebugLog(userEpisodeId, { step: "duration-validation", status: "fail", message: errorMessage });
+					});
+
+					await step.run("email-duration-failed", async () => {
+						try {
+							const episode = await prisma.userEpisode.findUnique({
+								where: { episode_id: userEpisodeId },
+								select: { episode_title: true, user_id: true },
+							});
+							if (episode) {
+								const user = await prisma.user.findUnique({
+									where: { user_id: episode.user_id },
+									select: { email: true, name: true },
+								});
+								if (user?.email) {
+									const userFirstName = (user.name || "").trim().split(" ")[0] || "there";
+									await emailService.sendEpisodeFailedEmail(episode.user_id, user.email, {
+										userFirstName,
+										episodeTitle: episode.episode_title,
+									});
+								}
+							}
+						} catch (err) {
+							console.error("[DURATION_FAIL_EMAIL]", err);
+						}
+					});
+
+					return { ok: false, jobId, error: errorMessage };
+				} else {
+					await writeEpisodeDebugLog(userEpisodeId, { step: "youtube-metadata", status: "fail", message: errorMessage });
+				}
 			}
 		});
 

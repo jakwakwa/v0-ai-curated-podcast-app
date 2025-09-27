@@ -60,20 +60,26 @@ function parseISO8601Duration(duration: string): number {
  * @returns The video details or null if not found.
  */
 export async function getYouTubeVideoDetails(url: string): Promise<VideoDetails | null> {
+	console.log("[DEBUG] getYouTubeVideoDetails called with URL:", url);
 	const videoId = extractYouTubeVideoId(url);
+	console.log("[DEBUG] getYouTubeVideoDetails extracted videoId:", videoId);
 	if (!videoId) {
+		console.log("[DEBUG] getYouTubeVideoDetails: No videoId extracted");
 		return null;
 	}
 
 	try {
+		console.log("[DEBUG] getYouTubeVideoDetails: Calling YouTube API for videoId:", videoId);
 		const response = await youtubeClient.videos.list({
 			part: ["snippet", "contentDetails"],
 			id: [videoId],
 		});
 
+		console.log("[DEBUG] getYouTubeVideoDetails: YouTube API response received, items count:", response.data.items?.length);
+
 		const item = response.data.items?.[0];
 		if (!(item?.snippet && item.contentDetails)) {
-			console.warn(`Incomplete video details for ID: ${videoId}`);
+			console.warn(`[DEBUG] Incomplete video details for ID: ${videoId}`);
 			return null;
 		}
 		const { snippet, contentDetails } = item;
@@ -81,13 +87,18 @@ export async function getYouTubeVideoDetails(url: string): Promise<VideoDetails 
 		const isoDuration = contentDetails.duration || "PT0S";
 		const durationInSeconds = parseISO8601Duration(isoDuration);
 
-		return {
+		console.log("[DEBUG] getYouTubeVideoDetails: Parsed duration:", durationInSeconds, "seconds from ISO:", isoDuration);
+
+		const result = {
 			title: snippet.title || "Untitled",
 			description: snippet.description || "",
 			duration: durationInSeconds,
 			channelName: snippet.channelTitle || "Unknown Channel",
 			thumbnailUrl: snippet.thumbnails?.high?.url || "",
 		};
+
+		console.log("[DEBUG] getYouTubeVideoDetails: Returning result:", result);
+		return result;
 	} catch (error) {
 		console.error(`[YOUTUBE_API_ERROR] Failed to fetch details for video ${videoId}:`, error);
 		return null;

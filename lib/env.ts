@@ -60,12 +60,21 @@ export function getAccountPortalUrlWithRedirect(): string | null {
 /**
  * Returns the maximum allowed duration for user-supplied YouTube videos in seconds.
  * Reads from the `MAX_DURATION_SECONDS` environment variable (number of seconds).
- * Falls back to 120 minutes (5400 seconds) when not set or invalid.
+ * Falls back to 10000800 seconds (~2789 hours) when not set or invalid.
  */
 export function getMaxDurationSeconds(): number {
 	const raw = process.env.MAX_DURATION_SECONDS;
-	if (!raw) return 10000800; // 10000800 = ~2789 hours for local testing
-	const parsed = Number(raw) * 60;
-	if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
-	return Number(raw);
+	console.log("[DEBUG] getMaxDurationSeconds - raw env var:", raw);
+	if (!raw) {
+		console.log("[DEBUG] getMaxDurationSeconds - no env var found, using fallback");
+		return 10000800; // 10000800 = ~2789 hours for local testing
+	}
+	const parsed = Number(raw);
+	console.log("[DEBUG] getMaxDurationSeconds - parsed value:", parsed, "isFinite:", Number.isFinite(parsed), "isPositive:", parsed > 0);
+	if (Number.isFinite(parsed) && parsed > 0) {
+		console.log("[DEBUG] getMaxDurationSeconds - returning parsed value:", Math.floor(parsed));
+		return Math.floor(parsed);
+	}
+	console.log("[DEBUG] getMaxDurationSeconds - invalid parsed value, using fallback");
+	return 10000800;
 }
