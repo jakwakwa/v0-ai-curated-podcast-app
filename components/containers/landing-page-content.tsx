@@ -11,7 +11,7 @@ import { getClerkSignInUrl } from "@/lib/env";
 import styles from "@/styles/landing-page-content.module.css";
 import { LandingPageHeader } from "../layout/LandingPageHeader";
 import { Badge } from "../ui/badge";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { CardContent, CardHeader } from "../ui/card";
 import { Typography } from "../ui/typography";
 
 // Hardcoded subscription tiers for landing page
@@ -21,7 +21,10 @@ const SUBSCRIPTION_TIERS = [
 		name: "FreeSlice",
 		price: 0,
 		description: "Perfect for podcast discovery and light listening",
-		features: ["Always free", "Access to free bundled feeds: Automated Weekly Summarised Audio Episodes, centred around popular podcast shows - refreshed monthly by our team to ensure the content remains relevant and exciting."],
+		features: [
+			"Always free",
+			"Access to free bundled feeds: Automated Weekly Summarised Audio Episodes, centred around popular podcast shows - refreshed monthly by our team to ensure the content remains relevant and exciting.",
+		],
 		popular: false,
 	},
 	{
@@ -29,7 +32,11 @@ const SUBSCRIPTION_TIERS = [
 		name: "Casual Listener",
 		price: 5,
 		description: "Enhanced experience with premium features and priority access",
-		features: ["Stay Informed with Smart Notifications", "Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.", "Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection."],
+		features: [
+			"Stay Informed with Smart Notifications",
+			"Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.",
+			"Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection.",
+		],
 		popular: false,
 	},
 	{
@@ -37,7 +44,11 @@ const SUBSCRIPTION_TIERS = [
 		name: "Curate & Control",
 		price: 10,
 		description: "Ultimate control with unlimited custom curation profiles",
-		features: ["Stay Informed with Smart Notifications", "Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.", "Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection."],
+		features: [
+			"Stay Informed with Smart Notifications",
+			"Pre-curated Bundles: For ultimate convenience, we've created three special 'Editor's Choice' bundles. Each bundle is a thoughtfully assembled package of 5 shows centred around a specific theme refreshed monthly by our team to ensure the content remains relevant and exciting.",
+			"Custom Feed Selection: Our team handpicks a selection of approximately 25 high-quality podcast shows. You have the flexibility to choose up to 5 individual shows from this curated list to form your custom collection.",
+		],
 		popular: true,
 	},
 ];
@@ -157,31 +168,26 @@ export default function LandingPageContent() {
 					<div className="mt-4 w-full max-w-screen md:max-w-3xl mx-auto md:px-4">
 						<LandingAudioPlayer />
 					</div>
-
-
 				</div>
 			</section>
 
 			{/* How It Works Section */}
-			<section className={styles.featuresSection}>
+			<section className="my-12  w-full px-4 md:my-32">
 				<div className={styles.howItWorksContainer}>
-
 					<motion.div className={styles.howItWorksHeader} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }}>
-						<Typography as="h1" className="text-left  sm:text-center text-foreground font-bold px-4 mt-4 md:px-0 md:mt-18 text-[3rem]">
+						<h2 className="text-left  sm:text-center text-[#919ceb] font-bold px-4 mt-4 md:px-0 md:mt-18  text-3xl md:text-[3rem]">
 							How it Works
-						</Typography>
+						</h2>
 
-						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4]">
+						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4] text-[#c1f0ff]/80">
 							Getting started with Podslice.ai is straightforward. Follow these four simple steps to create your focused content experience.
 						</Typography>
-
-
 					</motion.div>
 					<div className={styles.howItWorksGrid}>
 						{howItWorks.map((step, index) => (
 							<motion.div
 								key={step.step}
-								className="bg-card flex flex-col justify-center p-0 rounded-[20px] border-2 border-light shadow-lg items-center "
+								className="bg-default py-5 px-4 flex flex-col justify-center p-0 rounded-[20px] border-2 border-light shadow-lg items-center "
 								initial={{ opacity: 0, y: 30, scale: 0.95 }}
 								whileInView={{ opacity: 1, y: 0, scale: 1 }}
 								viewport={{ once: true, margin: "-100px" }}
@@ -205,40 +211,42 @@ export default function LandingPageContent() {
 			</section>
 
 			{/* Pricing Section */}
-			<section className={styles.pricingSection}>
+			<section className="my-12 w-full px-4 md:my-32">
 				<div className={styles.pricingContainer}>
-					<div className={styles.pricingHeader}>
-						<Typography as="h1" className="text-left sm:text-center  font-bold px-4  md:px-0 md:mt-18 text-[3rem]">
+					<div>
+						<h2 className="text-left  sm:text-center text-[#5676e8] font-bold px-4 mt-4 md:px-0 md:mt-18  text-3xl md:text-[3rem]">
 							Choose Your Plan
-						</Typography>
-						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-12 leading-[1.4]">
+						</h2>
+						<Typography className="max-w-full text-base text-left md:max-w-2xl mx-auto px-4 sm:text-center pb-8 mt-4 sm:text-[1.4rem] my-8 leading-[1.4] text-[#c1f0ff]/80">
 							From free discovery to pro-level curation control. Each plan builds on the last to give you exactly what you need.
 						</Typography>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-2 w-full mx-auto px-4 md:px-0  ">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-2 w-full mx-auto px-4 md:px-0">
 						{SUBSCRIPTION_TIERS.map(tier => (
-							<Card
+							<div
 								key={tier.name}
-								className={`  transition-all duration-200 ease-in-out relative h-full flex  border-[#29264d] border-1  flex-col px-8 py-4 rounded-3xl overflow-hidden max-w-screen md:max-w-5xl hover:-translate-y-1 hover:shadow-lg shadow-4x  ${tier.popular ? "bg-[#000] border-[#6750f8]/50 border-2 " : "bg-[#0d0d0f]"} `}>
+								className={`transition-all duration-200 ease-in-out relative h-full flex  border-[#29264d] border-1  flex-col px-8 py-4 rounded-3xl overflow-hidden max-w-screen md:max-w-5xl hover:-translate-y-1 hover:shadow-lg shadow-4x  ${tier.popular ? "bg-[#000] border-[#6750f8]/50 border-2 " : "bg-[#0d0d0f]"} `}>
 								<CardHeader>
 									<div className="flex flex-col mt-4">
 										<h5 className="text-3	xl font-bold tracking-normal  text-[#8f99f0] mb-2">{tier.name}</h5>
 										<div className="flex items-baseline gap-1 mb-4">
 											<p className="text-teal-100/40 font-bold">
-												<span className="text-indigo-500 text-[3rem] leading-9  tracking-tight font-black "><span className=" text-indigo-400 text-xl pr-1 font-medium">$</span>{tier.price}</span></p>
+												<span className="text-indigo-500 text-[3rem] leading-9  tracking-tight font-black ">
+													<span className=" text-indigo-400 text-xl pr-1 font-medium">$</span>
+													{tier.price}
+												</span>
+											</p>
 											{tier.price !== 0 && <span className="text-sm text-foreground font-semibold text-indigo-300">/ month</span>}
 										</div>
 										<p className="text-md text-foreground my-2 font-semibold leading-normal">{tier.description}</p>
 									</div>
 									{tier.popular && (
-
-
 										<Badge
 											variant="secondary"
-											className=" bg-[rgba(59, 57, 61, 0.173)] p-0 border-light text-[#9bb5d4] h-16  px-4  text-left font-semibold border-primary/10 gap-3 rounded-none  shadow-xl w-full text-[0.8rem]"><BadgePlusIcon color="#7081e6" width={48} height={48} />
+											className=" bg-[rgba(59, 57, 61, 0.173)] p-0 border-light text-[#9bb5d4] h-16  px-4  text-left font-semibold border-primary/10 gap-3 rounded-none  shadow-xl w-full text-[0.8rem]">
+											<BadgePlusIcon color="#7081e6" width={48} height={48} />
 											Create your own Ai Generated Audio Summaries from any podcast show
 										</Badge>
-
 									)}
 								</CardHeader>
 								<CardContent className="flex flex-col flex-1 justify-between">
@@ -259,7 +267,7 @@ export default function LandingPageContent() {
 										</Button>
 									</Link>
 								</CardContent>
-							</Card>
+							</div>
 						))}
 					</div>
 				</div>

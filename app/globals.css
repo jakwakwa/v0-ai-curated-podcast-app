@@ -729,6 +729,22 @@
 			animation: heroGradientShift 5s ease-in-out infinite alternate;
 		}
 
+		.cl-lastAuthenticationStrategyBadge {
+			background-color: #3732def4 !important;
+			border-radius: 10px !important;
+			/* padding: 0.7rem 0.8rem !important; */
+			/* width: 300px !important; */
+			font-size: 0.66 rem !important;
+			margin: 0 auto !important;
+			align-items: center !important;
+			display: flex !important;
+			color: #f4f4f475 !important;
+
+			font-weight: 500 !important;
+			box-shadow: 1px 2px 3px #00000033 !important;
+			transition: all 0.2s ease-in-out;
+		}
+
 		/* Clerk-specific form overrides */
 		.cl-formFieldInput {
 			padding: 1.1rem 0.7rem !important;
@@ -765,7 +781,7 @@
 	/* MEDIA QUERIES                 */
 	/* ============================================= */
 
-	@media screen and (max-width: 1200px) {
+	@media screen and (min-width: 500px) {
 		.container {
 			border-radius: 30px;
 		}
@@ -774,14 +790,66 @@
 		.cl-rootBox,
 		.cl-cardBox {
 			background-color: #d1d3db03 !important;
-			width: 50%;
-			max-width: 50% !important;
-			min-width: 80vw !important;
+
+
+
+			/* max-width: 40vw !important; */
+			max-width: 40vw;
+			min-width: none;
+
+
+
+		}
+
+
+	}
+
+	@media screen and (min-width: 600px) {
+
+		.cl-card,
+		.cl-rootBox,
+		.cl-cardBox {
+			background-color: #d1d3db03 !important;
+
+
+
+			/* max-width: 40vw !important; */
+			max-width: 90vw;
+			min-width: none;
+
+
+
+		}
+
+		.episode-card-wrapper {
+			padding: 44px 10px 45px 10px;
+		}
+
+
+	}
+
+	@media screen and (max-width: 800px) {
+		.container {
+			border-radius: 30px;
+		}
+
+		.cl-card,
+		.cl-rootBox,
+		.cl-cardBox {
+			background-color: #d1d3db03 !important;
+
+
+
+			/* max-width: 40vw !important; */
+			max-width: 70vw;
+			min-width: none;
+
+
 
 		}
 	}
 
-	@media screen and (max-width: 1120px) {
+	@media screen and (min-width: 700px) {
 		@keyframes heroGradientShift {
 			0% {
 				background-position:
@@ -812,34 +880,39 @@
 		.cl-rootBox,
 		.cl-cardBox {
 			background-color: #d1d3db03 !important;
-			width: 100%;
+
+
+
+			/* max-width: 40vw !important; */
 			max-width: 50vw;
+			min-width: none;
+
+
 
 		}
+
 	}
 
-	@media screen and (max-width: 767px) {
+	@media screen and (min-width: 1000px) {
 		.default-card {
 			border-radius: 0px;
 			margin: 0px !important;
 			padding: 0px !important;
 			width: 99% !important;
+			max-width: 99% !important;
+			min-width: 99% !important;
 		}
 
-		.cl-card,
-		.cl-rootBox,
-		.cl-cardBox {
-			background-color: #d1d3db03 !important;
 
-			max-width: 40vw;
-			min-width: 40vw;
 
-		}
+
+
+
 
 		.episode-card-wrapper {
-			padding: 24px 10px 25px 10px;
+			padding: 24px 20px 25px 20px;
 			margin: 0 !important;
-			width: 99% !important;
+			width: 100% !important;
 		}
 
 		.episode-card {
@@ -859,22 +932,11 @@
 
 	}
 
-	@media screen and (min-width: 760px) {
-
-		.cl-card,
-		.cl-rootBox,
-		.cl-cardBox {
-			background-color: #d1d3db03 !important;
-			max-width: 50vw !important;
-
-
-		}
-	}
+	@media screen and (max-width: 760px) {}
 
 	@media screen and (max-width: 460px) {
-		body {
-			/* position: fixed; */
-		}
+
+
 
 
 		.timeDisplay {
@@ -910,10 +972,11 @@
 
 		}
 
-		@media screen and (min-width: 460px) {
+		@media screen and (max-width: 600px) {
 			.episode-info {
 				display: none !important;
 			}
+
 
 
 

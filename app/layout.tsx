@@ -13,7 +13,7 @@ import { ClientProviders } from "./client-providers";
 
 import "./globals.css";
 
-const workSans = Inter({ subsets: ["latin"] });
+const InterSans = Inter({ subsets: ["latin"] });
 
 const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 if (!clerkPublishableKey) {
@@ -48,7 +48,7 @@ export default function RootLayout({
 				<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Vend+Sans:wght@500&display=swap" rel="stylesheet" />
 				<link rel="icon" href="/icon?<generated>" type="image/png" sizes="32x32" />
 			</head>
-			<body className={`${workSans.className}`}>
+			<body className={`${InterSans.className}`}>
 				<GlobalProgressBar />
 				<ClerkProvider
 					publishableKey={clerkPublishableKey || ""}
