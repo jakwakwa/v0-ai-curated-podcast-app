@@ -41,14 +41,14 @@
 
 		/* Handle */
 		::-webkit-scrollbar-thumb {
-			background: #03A59D77;
+			background: hsla(180, 97%, 27%, 0.68);
 			/* Color of the scroll thumb */
 			border-radius: 5px;
 		}
 
 		/* Handle on hover */
 		::-webkit-scrollbar-thumb:hover {
-			background: #05C3D0;
+			background: #151a1a;
 		}
 
 		/* For Firefox */
@@ -279,7 +279,6 @@
 		.bg-primary-card {
 			/* padding: 10px 20px; */
 			font-size: 1rem !important;
-
 			background-image: linear-gradient(to bottom, oklch(60.735% 0.06652 219.966 / 0.081), oklch(0.13 0.02 222.67 / 0.61)) !important;
 			border-radius: 30px;
 			outline: 1px solid #000000 !important;
@@ -302,6 +301,15 @@
 			/* mix-blend-mode: lighten; */
 			animation: gradientShift 5s ease-in-out infinite alternate;
 			backdrop-filter: blur(3px);
+		}
+
+		.bg-gfx {
+			background: linear-gradient(oklch(51.942% 0.22234 287.437 / 0.867) 0%, oklch(11.492% 0.00001 271.152 / 0.62) 160%);
+			background-image: radial-gradient(circle at 20% 20%, oklch(40.592% 0.05503 309.064 / 0.467) 0%, oklch(27.424% 0.02708 269.316 / 0.62) 100%), radial-gradient(circle at 8% 30%, oklch(20.824% 0.03342 291.306 / 0.202) 0%, oklch(11.492% 0.00001 271.152 / 0.62) 100%);
+			background-position: 110% 50%, 110% 0%, 100% 100%;
+			background-repeat: no-repeat;
+			background-blend-mode: saturation, multiply;
+			background-size: 110%, 110%, 110%;
 		}
 
 		.sheet-controls-bg {
@@ -387,12 +395,19 @@
 
 		.episode-card-wrapper {
 			padding: 30px;
-			background: #bbc0c512;
-			background-image: linear-gradient(to bottom, oklch(0.4 0.03 297.43 / 0.21) 40%, oklch(0.21 0.01 264.37 / 0.87) 160%);
-			border: 1px solid #caf3f624 !important;
+
+
+			border: 2px solid #caf3f624 !important;
 			border-radius: 20px !important;
-			box-shadow: inset 0.5px 1px 0px 0px #6168686A, 1px 3px 5px 0px #0000009A !important;
-			background-blend-mode: multiply;
+			box-shadow: inset 0.5px 0px 8px 0px #5ecdcf14, inset 0.5px 10px 30px 0px #c6f4f60f, 10px 15px 30px 10px #211a2634 !important;
+			background-color: linear-gradient(oklch(51.942% 0.22234 287.437 / 0.723) 0%, oklch(36.511% 0.176 304.925 / 0.62) 160%);
+			/* background-image: url('/assets/ng-gpx.png'), radial-gradient(circle at 20% 20%, oklch(46.044% 0.12886 291.778 / 0.639) 0%, oklch(27.024% 0.10684 298.969 / 0.62) 100%), radial-gradient(circle at 8% 30%, oklch(39.087% 0.03326 304.023 / 0.291) 0%, oklch(45.45% 0.10071 287.516 / 0.858) 100%); */
+			backdrop-filter: blur(3px);
+			outline-offset: 0px !important;
+			background-position: 80% 50%, 0% 0%, 0% 0%;
+			background-repeat: no-repeat;
+			background-blend-mode: lighten, saturation;
+			background-size: 140%, 140%, 100%;
 		}
 
 		p.episode-p {
@@ -408,12 +423,12 @@
 			position: relative;
 			padding: 15px 0px !important;
 			margin: 0 !important;
-			border-radius: 30px !important;
+			border-radius: 15px !important;
 			margin: 0 !important;
-			background: #0C0D0D;
-			border: 1px solid #13131567;
-			background-image: linear-gradient(to top, #19181B60, #2830448F);
-			box-shadow: inset 0px 6px 10px oklch(0 0 0 / 0.27) !important;
+
+			border: 1px solid #60cdbb30;
+			background-image: linear-gradient(to top, #1b17242f, #14214011);
+			box-shadow: inset 0px 6px 10px oklch(28.528% 0.01254 243.368 / 0.416) !important;
 			transition: all 0.2s ease-in-out;
 		}
 	}
@@ -424,13 +439,11 @@
 	@layer utilities {
 		.bg-sidebar {
 			background: #d7d7ee0a;
-			border-right: 1px solid #ada3cff0 !important;
+			border-right: 0px solid #756296d8 !important;
 			outline-offset: 1px !important;
-			outline: 1px solid #898addb1 !important;
-			box-shadow: inset -5px -4px 59px 2px #c7c1c81e,
-				inset 0.5px 1px 0px 0px #4ce3db72,
-				3px 2px 3px 1px #00000012,
-				0px 4px 10px 0px hsla(0, 1%, 35%, 0.384) !important;
+			outline: 0px solid transparent !important;
+			box-shadow: none !important;
+
 		}
 	}
 
@@ -468,15 +481,15 @@
 	/* ============================================= */
 	@layer utilities {
 		.bg-card {
-			background-color: #242834;
+			background-color: #24283413;
 			box-shadow:
-				inset 0px -18px 45px oklch(0.15 0.02 300.36 / 0.37),
-				2px 3px 3px 1px oklch(0.22 0.02 300.18 / 0.56),
-				1px 4px 7px 2px #00000057;
+				inset 10px 58px 65px rgba(148, 251, 255, 0.131),
+				2px 5px 6px 2px oklch(15.649% 0.00451 308.009 / 0.067),
+				1px 8px 8px 5px #00000010;
 			padding: 20px;
 			/* border: 1px solid #24242A;	 */
-			outline-offset: 1px;
-			outline: 1px solid #121414C4 !important;
+			outline-offset: -1px;
+			outline: 1px solid #b7e1e126 !important;
 		}
 
 		.hero-bg {

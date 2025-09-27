@@ -559,11 +559,11 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="bg-sidebar p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0 border-l-2 border-l-[#192e2ce1]">
+			<SheetContent side="right" className="p-0 text-[var(--audio-sheet-foreground)] w-full sm:w-[430px] md:min-w-[500px] gap-0 border-l-1 border-l-[#9ecaf53d]">
 				{/* Sections */}
 
 				{/* Hero Section starts */}
-				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center sheet-hero-bg">
+				<div className="items-center flex-col align-middle h-full max-h-[600px] justify-center content-center backdrop-blur-lg bg-[#3c07db11] p-6 pt-8 gap-4">
 					{/* Artwork + Meta */}
 
 					{episode &&
@@ -571,7 +571,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							// For bundle episodes, use the episode's image_url
 							if ("image_url" in episode && episode.image_url) {
 								return (
-									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.3),0px_11.2149px_16.8224px_8.4112px_rgba(0,0,0,0.15)] mx-auto max-w-[120px] aspect-square overflow-hidden">
+									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.1),0px_11.2149px_16.8224px_8.4112px_rgba(215, 130, 130, 0.05)] mx-auto max-w-[120px] aspect-square overflow-hidden">
 										<Image src={episode.image_url} alt={episode.title} width={200} height={200} className="object-fit" />
 									</div>
 								);
@@ -580,7 +580,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							if ("youtube_url" in episode) {
 								if (youtubeChannelImage) {
 									return (
-										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-lg shadow-black/80  mx-auto max-w-[120px] aspect-square overflow-hidden">
+										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow shadow-[0px_12px_30px_#0000003e] mx-auto max-w-[120px] aspect-square overflow-hidden">
 											<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
 										</div>
 									);
@@ -601,7 +601,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						<SheetTitle className="line-clamp-2 text-[16.64px] font-bold leading-[1.5] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
-						<SheetDescription className=" text-[14.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#8856f3] text-center">
+						<SheetDescription className=" text-[18.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#ac95d9] text-center text-shadow-md text-shadow-black">
 							{episode
 								? "title" in episode
 									? (() => {

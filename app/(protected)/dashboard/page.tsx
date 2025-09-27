@@ -78,7 +78,6 @@ export default function CurationProfileManagementPage() {
 			if (fetchedProfile?.is_bundle_selection && fetchedProfile?.selectedBundle?.episodes) {
 				bundleEpisodesList = fetchedProfile.selectedBundle.episodes;
 			}
-
 			setBundleEpisodes(bundleEpisodesList);
 		} catch (error) {
 			console.error("Failed to fetch data:", error);
@@ -111,12 +110,10 @@ export default function CurationProfileManagementPage() {
 				},
 				body: JSON.stringify(updatedData),
 			});
-
 			if (!response.ok) {
 				const errorData = await response.json();
 				throw new Error(errorData.error || errorData.message || "Failed to update user curation profile");
 			}
-
 			// Refetch data after successful update to show new bundle selection
 			await fetchAndUpdateData();
 
@@ -143,9 +140,9 @@ export default function CurationProfileManagementPage() {
 			{latestBundleEpisode && (
 				<div className="w-full space-y-0 episode-card-wrapper border-dark border-b-dark">
 					<CardTitle className="mb-4 flex items-center">
-						<span className="bg-[#00675e] rounded px-1.5 py-0.5 text-sm mr-2">New</span>Episode from your activated Bundle
+						<span className="bg-[#00675e] rounded px-1.5 py-0.5 text-xs mr-2">New</span>Episode from your activated Bundle
 					</CardTitle>
-					<CardDescription className="text-sm opacity-90 mb-4">The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}</CardDescription>
+					<CardDescription className="text-xs opacity-90 mb-4">The most recent episode from your selected bundle: {userCurationProfile?.selectedBundle?.name}</CardDescription>
 					<CardContent className="px-0">
 						<EpisodeCard
 							imageUrl={latestBundleEpisode.image_url}
@@ -192,10 +189,10 @@ export default function CurationProfileManagementPage() {
 										</Typography>
 										{/* <Typography className="text-xs text-foreground/50 mb-6"> Custom Description: {userCurationProfile.selectedBundle.description}</Typography> */}
 
-										<div className="px-2 py-1 border-[#BD77D9] rounded border-1 w-fit">
+										<div className="px-2 py-1 border-[#d4b1e125] rounded border-1 w-fit">
 											<Typography className="text-[12px] font-bold uppercase">
-												<span className="text-[11px] text-[#31C7C7] flex gap-2 items-center font-sans font-bold">
-													<BoxesIcon color={"#764AF0"} size={16} />
+												<span className="text-[11px] text-[#94a2e7] flex gap-2 items-center font-sans font-bold">
+													<BoxesIcon color={"#b6a5e5"} size={16} />
 													{userCurationProfile.selectedBundle.name}
 												</span>
 											</Typography>
@@ -205,18 +202,18 @@ export default function CurationProfileManagementPage() {
 							)}
 						</div>
 
-						<div className="mt-0 w-full overflow-hidden shadow-md  shadow-[#000] rounded-b-2xl ">
+						<div className="mt-0 w-full overflow-hidden shadow-md  shadow-[#00000011] rounded-b-2xl ">
 							<div className="bg-[#120D1D]/30   border-1 border-[#6351512a] px-4 p-4">
 								<Body className="pt-0  pb-2 text-foreground/90 uppercase font-bold font-sans text-[10px]">Weekly Bundled Feed Summary</Body>
 								<div className="flex flex-col justify-start gap-2 items-start my-2 px-0 w-full border rounded-md overflow-hidden pb-2 pt-0">
 									<div className="flex flex-row justify-between gap-1 items-center h-9 w-full text-primary-forefround bg-muted-foreground/10 py-3 px-2">
-										<span className="font-sans text-foreground/60 text-sm">Bundle Episode/s:</span>
+										<span className="font-sans text-foreground/60 text-xs">Bundle Episode/s:</span>
 										<span className="uppercase left text-teal-300/60 text-xs font-sans font-bold ">{userCurationProfile?.selectedBundle?.episodes?.length || 0}</span>
 									</div>
 
 									<div className="flex flex-row justify-between gap-2 items-center h-5 w-full py-3 px-2">
-										<span className="text-foreground/60 text-sm font-sans">Plan Tier:</span>
-										<span className="uppercase left text-teal-500/60 text-xs font-bold font-sans">{subscription?.plan_type?.replace(/_/g, " ") || "No Active Subscription"}</span>
+										<span className="text-foreground/60 text-xs font-sans">Plan Tier:</span>
+										<span className="uppercase left text-teal-500/60 text-xs font-sans">{subscription?.plan_type?.replace(/_/g, " ") || "n/a"}</span>
 									</div>
 								</div>
 							</div>
@@ -224,7 +221,7 @@ export default function CurationProfileManagementPage() {
 					</div>
 					<div className="w-full episode-card-wrapper px-4 mx-0 md:px-12 border-dark border-b-dark">
 						<CardTitle className="w-full mb-4">Your recently generated episodes</CardTitle>
-						<CardDescription className="text-sm opacity-90">View and manage your recently generated episodes.</CardDescription>
+						<CardDescription className="text-xs opacity-90">View and manage your recently generated episodes.</CardDescription>
 						{(subscription?.plan_type || "").toLowerCase() === "curate_control" && (
 							<Link href="/my-episodes" passHref className="mr-4">
 								<Button variant="default" size="sm" className="mt-4">
@@ -240,7 +237,7 @@ export default function CurationProfileManagementPage() {
 
 						<CardContent className="px-0">
 							{userEpisodes.length === 0 ? (
-								<p className="text-muted-foreground text-sm">No generated episodes yet.</p>
+								<p className="text-muted-foreground text-xs">No generated episodes yet.</p>
 							) : (
 								<ul className="bg-[#0f0f102f] px-0 pt-2 pb-0 rounded-xl flex flex-col w-full gap-3">
 									{userEpisodes

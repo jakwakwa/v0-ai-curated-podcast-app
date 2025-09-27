@@ -167,7 +167,7 @@ function UserFeedSelectorWizard() {
 					<Card className="w-full" >
 						<CardHeader>
 							<CardDescription>
-								<Typography className="text-primary-forefround w-full text-lg" variant="body" as="span">
+								<Typography className="text-primary-forefround w-full p-0 text-lg" variant="body" as="span">
 									Choose from expertly curated bundles tailored to your subscription plan.
 								</Typography>
 							</CardDescription>

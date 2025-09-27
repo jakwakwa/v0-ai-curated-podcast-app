@@ -141,11 +141,11 @@ export function CuratedBundlesClient({ bundles, error }: CuratedBundlesClientPro
 
 	return (
 		<>
-			<div className="relative transition-all duration-200 text-card-foreground p-0 px-2 w-full overflow-y-scroll z-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 h-fit episode-card-wrapper-dark">
+			<div className="relative transition-all duration-200 text-card-foreground p-0 px-2 md:px-8 w-full overflow-y-scroll z-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 h-fit episode-card-wrapper">
 				{bundles.map(bundle => (
 					<Card
 						key={bundle.bundle_id}
-						className="flex flex-col sm:flex-col px-5 rounded-2xl shadow-lg bg-[#1d1c24c5]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-3 bundle-card-hover xl:max-w-[500px]"
+						className="flex flex-col sm:flex-col px-5 rounded-2xl shadow-lg bg-[#0f0d1c20]  border-2 border-[#232e37ce] w-full cursor-pointer hover:bg-[#000] transition-shadow duration-200 gap-3 bundle-card-hover xl:max-w-[500px]"
 						onClick={() => handleBundleClick(bundle)}>
 						<CardHeader className="w-full py-4 px-2">
 							<div className="w-full flex flex-col-reverse xl:flex-col-reverse gap-6">

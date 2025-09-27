@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	];
 
 	return (
-		<Sidebar collapsible="offcanvas" {...props} className=" border-2 border-l-0 border-b-0 border-r-[#000] ">
+		<Sidebar collapsible="offcanvas" {...props} className="border-1 border-l-0 border-b-0 border-r-[#a6d0e524] ">
 			<SidebarContent>
 				<NavMain items={navItems} />
 			</SidebarContent>

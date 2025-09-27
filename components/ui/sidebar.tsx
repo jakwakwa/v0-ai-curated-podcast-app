@@ -209,7 +209,7 @@ function Sidebar({
 					// Adjust the padding for floating and inset variants.
 					variant === "floating" || variant === "inset"
 						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r-[#0A0B0D] border-r-[1px solid] group-data-[side=right]:border-l",
+						: "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r-[#0a0b0d6] border-r-[1px solid] group-data-[side=right]:border-l",
 					className
 				)}
 				{...props}
@@ -361,18 +361,18 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 		<li
 			data-slot="sidebar-menu-item"
 			data-sidebar="menu-item"
-			className={cn("group/menu-item relative", className, "text-custom-sm bg-sidebar-menu  content/0 hover:bg-[#131718a8]	 hover:text-custom-sm active: content/20")}
+			className={cn("group/menu-item relative", className, "text-custom-sm bg-sidebar-menu  content/0 	 hover:text-sm active: content/20")}
 			{...props}
 		/>
 	)
 }
 
 const sidebarMenuButtonVariants = cva(
-	"peer/menu-button flex w-full items-center gap-2 overflow-hidden p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-menu hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-menu active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-menu data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-menu data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 text-foreground  rounded-none",
+	"peer/menu-button flex w-full items-center gap-2 overflow-hidden p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding]  hover:bg-[#00000055] focus-visible:ring-2 active:bg-sidebar-menu active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-menu data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-[#000] data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 text-foreground  rounded-xl overflow-hidden ease-linear transition-all",
 	{
 		variants: {
 			variant: {
-				default: "hover:bg-sidebar-menu hover:text-sidebar-accent-foreground",
+				default: "hover:bg-[#00000037] hover:text-[#60cdbb] data-[active=true]:text-[#60cdbb] rounded-xl overflow-hidden",
 				outline: "",
 			},
 			size: {
