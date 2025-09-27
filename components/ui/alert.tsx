@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils"
 const alertVariants = cva("relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground", {
 	variants: {
 		variant: {
-			default: "backdrop-blur-sm bg-[#b691f746] shadow shadow-[0_4px_30px_-4px_rgba(0, 0, 0, 0.916)] p-12 text-foreground rounded-3xl border-[#76888eb4]",
-			destructive: "text-primary-forefround bg-[#6E253C]",
+			default: "backdrop-blur-sm bg-[#b691f746] shadow shadow-[0_4px_30px_-4px_rgba(0, 0, 0, 0.916)] p-8 text-foreground rounded-3xl border-[#76888eb4]",
+			destructive: "backdrop-blur-sm bg-[#f791e946] shadow shadow-[0_4px_30px_-4px_rgba(0, 0, 0, 0.225)] p-8 text-foreground rounded-3xl border-[#e484b2b4] text-primary-forefround bg-[#6E253C]",
 		},
 	},
 	defaultVariants: {

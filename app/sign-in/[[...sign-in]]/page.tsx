@@ -1,17 +1,24 @@
 import { SignIn } from "@clerk/nextjs"
+import "@/styles/login.css";
+import { LandingPageHeader } from "@/components/layout/LandingPageHeader";
+
 
 export default function SignInPage() {
 	return (
-		<div
-			style={{
-				display: "flex",
-				minHeight: "100vh",
-				alignItems: "center",
-				justifyContent: "center",
-				background: "oklch(var(--background))",
-			}}
-		>
-			<SignIn />
-		</div>
+
+		<>
+			{/* <div className="container login-background-base" /> */}
+			<div className="grid-bg background-base heroSection" />
+			{/* <div className="large-blur background-base" /> */}
+			{/* <div className="background-overlay" /> */}
+			<div className="container flex flex-col items-center justify-center  min-h-screen  bg-sidebar relative z-10"
+
+			>
+				<LandingPageHeader />
+				<SignIn />
+			</div>
+
+		</>
+
 	)
 }

@@ -60,7 +60,7 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 				<Skeleton className="h-[96px] w-full bg-border" />
 			) : (
 				<>
-					<div className={cn("text-[40px] leading-[46px] tracking-[-1.6px] font-medium")}>{value ? value : "n/a"}</div>
+					<div className={cn("text-[40px] leading-[46px] tracking-[-1.6px] font-medium")}>{Math.floor(Number(value)) ? value : "n/a"}</div>
 					<div className={cn("font-medium leading-[12px] text-[12px]")}>{priceSuffix}</div>
 				</>
 			)}
@@ -72,7 +72,7 @@ export function PriceAmount({ loading, priceSuffix, value }: IPriceProps) {
 
 export function PricingPlans({ paddleProductPlan, onCheckoutCompleted, onCheckoutClosed }: IPricingPlanProps) {
 	//  ALWAYS MONTHLY ( 30 days from datee of purchase  )
-	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per user/month" })
+	const [frequency, _setFrequency] = useState<IBillingFrequency>({ value: "month", label: "Monthly", priceSuffix: "per month" })
 	const [paddle, setPaddle] = useState<Paddle>()
 
 	// Call the custom hook to get prices and loading state.

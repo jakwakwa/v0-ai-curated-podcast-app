@@ -92,7 +92,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 		<div className="mt-12 episode-card-wrapper p-12 w-full max-w-5xl mx-auto space-y-6 pr-0 md:max-w-[80%]">
 			<div>
 				<div className="flex flex-col gap-2">
-					<div className="text-[#e7e4e8d2] text-xl font-semibold text-shadow-sm text-shadow-slate-900 md:text-2xl">{episode.episode_title}</div>
+					<div className="text-[#e7e4e8d2] text-xl font-semibold text-shadow-sm text-shadow-slate-900/30 md:text-2xl">{episode.episode_title}</div>
 					<div className="text-sm text-[#8A97A5D4]/80 episode-p pr-[10%] mb-1">
 						<div className="flex flex-wrap items-center gap-2 my-2">
 							<Badge variant="outline">{episode.status}</Badge>
@@ -116,8 +116,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 					<Separator className="my-8" />
 					{takeaways.length > 0 ? (
 						<div className="mt-4 episode-card-wrapper-dark px-4 py-4 rounded-lg">
-							<h3 className="text-xl font-semibold  mx-8 my-4 text-[#b984f1] pb-2">Key Episode Takeaways</h3>
-							<ul className=" list-disc mx-8 px-4 space-y-1 text-[#b2e8c8] pr-0 md:px-6">
+							<h3 className="text-lg font-semibold  mx-8 my-4 text-[#a79efa] pb-2">Key Episode Takeaways</h3>
+							<ul className=" list-disc mx-8 px-4 space-y-1 text-[#dcecf6e0] pr-0 md:px-6">
 								{takeaways.slice(1).map((t, i) => (
 									<li className="my-4 font-medium text-base" key={i}>{t}</li>
 								))}

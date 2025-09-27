@@ -55,8 +55,8 @@ export default function RootLayout({
 					publishableKey={clerkPublishableKey || ""}
 					appearance={{
 						baseTheme: [shadcn],
-						variables: { colorPrimary: "#0AB38E", colorPrimaryForeground: "#000", colorForeground: "#fff", colorInputForeground: "#000000" },
-						signIn: { variables: { colorPrimaryForeground: "#000", colorForeground: "#fff", colorInputForeground: "#000000" } },
+						variables: { colorPrimary: "#0AB38E", colorBackground: "#3932593d", colorPrimaryForeground: "#000", colorForeground: "#9cc69b", colorInputForeground: "#000000" },
+						signIn: { variables: { colorPrimaryForeground: "#3f347d", colorForeground: "#9eb1c2", colorInputForeground: "#000000", borderRadius: "2rem" } },
 					}}>
 					<ClientProviders>
 						{children}

@@ -52,7 +52,7 @@ function ProtectedLayoutInner({ children }: { children: React.ReactNode }) {
 					<div className={'grid-bg-one background-base'} />
 					<div className={'large-blur background-base'} />
 					<div className={'small-blur background-base  layout-inset-background'} />
-					<div className="w-full p-0 flex flex-col my-0 md:flex-row pt-8 md:pb-2 md:pt-20 px-2 min-w-full md:px-0 md:pr-4">{children}</div>
+					<div className="w-full p-0 flex flex-col my-0 md:flex-row pt-8 md:pb-2 md:pt-20 px-2 min-w-full md:my-2 md:px-4 md:pr-8">{children}</div>
 				</div>
 			</SidebarInset>
 		</>

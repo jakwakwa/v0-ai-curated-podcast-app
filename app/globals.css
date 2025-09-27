@@ -192,7 +192,7 @@
 		--destructive: oklch(0.577 0.245 27.325);
 		--border: oklch(0.92 0.004 286.32);
 		--input: oklch(0.92 0.004 286.32);
-		--ring: oklch(0.606 0.25 292.717);
+		--ring: oklch(58.768% 0.19418 296.19 / 0.93);
 		--chart-1: oklch(0.646 0.222 41.116);
 		--chart-2: oklch(0.6 0.118 184.704);
 		--chart-3: oklch(0.398 0.07 227.392);
@@ -230,7 +230,7 @@
 		--destructive: oklch(0.55 0.12 20.39);
 		--border: oklch(1 0 0 / 10%);
 		--input: oklch(1 0 0 / 15%);
-		--ring: oklch(0.552 0.016 285.938);
+		--ring: oklch(84.321% 0.04006 308.625 / 0.266);
 		--chart-1: oklch(0.488 0.243 264.376);
 		--chart-2: oklch(0.696 0.17 162.48);
 		--chart-3: oklch(0.769 0.188 70.08);
@@ -353,13 +353,14 @@
 		}
 
 		.cl-headerSubtitle {
-			font-size: 1rem;
-			color: #A6BDB4;
-			font-weight: 700;
+			font-size: 0.9rem;
+			color: #c3b6eaab;
+			font-weight: 300;
+			padding-top: 2rem;
 		}
 
 		.cl-socialButtonsBlockButtonText {
-			color: #B2ACBA;
+			color: #cce9e775 !important;
 		}
 
 		.layout-inset-background {
@@ -373,7 +374,7 @@
 			inset: 0;
 			pointer-events: none;
 
-			background: linear-gradient(210deg, oklch(0.69 0.12 203.48) -130%, oklch(0.25 0.07 266.04 / 0.62) 0%, oklch(0.35 0.09 246.04 / 0.62) 30%, rgb(74 28 104) 100%);
+			background: linear-gradient(210deg, oklch(82.099% 0.05906 226.198) -130%, oklch(0.25 0.07 266.04 / 0.62) 0%, oklch(0.35 0.09 246.04 / 0.62) 30%, rgb(74 28 104) 100%);
 			background-blend-mode: saturation;
 			/* Layered subtle gradients */
 
@@ -397,10 +398,10 @@
 			padding: 30px;
 
 
-			border: 2px solid #caf3f624 !important;
+			border: 1.5px solid #87f3ef23 !important;
 			border-radius: 20px !important;
-			box-shadow: inset 0.5px 0px 8px 0px #5ecdcf14, inset 0.5px 10px 30px 0px #c6f4f60f, 10px 15px 30px 10px #211a2634 !important;
-			background-color: linear-gradient(oklch(51.942% 0.22234 287.437 / 0.723) 0%, oklch(36.511% 0.176 304.925 / 0.62) 160%);
+			box-shadow: inset 0px 0px 1px 1px #7a2af252, inset 0.5px 0px 4px 0.5px oklch(89.861% 0.14755 197.025 / 0.124), 0px 2px 10px 0px #211a2650, 0px 12px 20px 0px #1a1c262d !important;
+			background-image: linear-gradient(oklch(92.777% 0.09796 195.656 / 0.034) 0%, oklch(55.496% 0.17354 291.985 / 0.027) 160%);
 			/* background-image: url('/assets/ng-gpx.png'), radial-gradient(circle at 20% 20%, oklch(46.044% 0.12886 291.778 / 0.639) 0%, oklch(27.024% 0.10684 298.969 / 0.62) 100%), radial-gradient(circle at 8% 30%, oklch(39.087% 0.03326 304.023 / 0.291) 0%, oklch(45.45% 0.10071 287.516 / 0.858) 100%); */
 			backdrop-filter: blur(3px);
 			outline-offset: 0px !important;
@@ -453,7 +454,7 @@
 
 	@layer utilities {
 		.btn-default {
-			background: linear-gradient(to top, #8249d3, #92c4c1);
+			background: linear-gradient(to top, #9f85f4, #92c4c1);
 			text-shadow: 0px 1px 1px 1px #23222788 !important;
 			font-size: 0.8rem !important;
 			font-weight: 800 !important;
@@ -483,7 +484,7 @@
 		.bg-card {
 			background-color: #24283413;
 			box-shadow:
-				inset 10px 58px 65px rgba(148, 251, 255, 0.131),
+				inset 10px 58px 65px rgba(148, 251, 255, 0.051),
 				2px 5px 6px 2px oklch(15.649% 0.00451 308.009 / 0.067),
 				1px 8px 8px 5px #00000010;
 			padding: 20px;
@@ -542,26 +543,32 @@
 			margin: 10px 0 !important;
 			padding: 1.4rem 1.7rem !important;
 			font-size: 0.5rem;
-			line-height: 1rem;
+			line-height: 0rem;
 			font-weight: 500;
+			height: 100% !important;
+			min-height: 12px !important;
+			max-height: 43px !important;
 
 			letter-spacing: 0.0015em;
-			color: oklch(0.92 0.04 173.12 / 0.8) !important;
-			background-color: #181C22E9 !important;
-			outline: 1px solid #2C3434F4 !important;
+			color: oklch(71.366% 0.01926 261.373 / 0.8) !important;
+			background-color: #2124282c !important;
+			outline: 1px solid #6a7da9be !important;
 			border-radius: 10px !important;
-			box-shadow: inset 1px 2px 3px 1px #000000 !important;
+			box-shadow: inset 1px 2px 3px 1px #00000033 !important;
 			transition: all 0.2s ease-in-out;
-			outline-offset: 2px !important;
+			outline-offset: 1px !important;
 			border: var(--ring) !important;
+			padding: 15px !important
 		}
+
 
 		input::placeholder,
 		textarea::placeholder {
-			color: color(a98-rgb 0.96 0.96 0.96 / 0.57) !important;
+			color: color(a98-rgb 0.96 0.96 0.96 / 0.67) !important;
 			font-weight: 300 !important;
 			font-style: italic;
-			opacity: 0.4;
+			font-size: 0.74rem !important;
+			opacity: 0.6;
 
 		}
 
@@ -570,7 +577,7 @@
 		input:focus-within,
 		textarea:focus-visible {
 			font-weight: 600;
-			background-color: #141316 !important;
+			background-color: #362a4fb3 !important;
 			color: oklch(0.9 0.06 308.24 / 0.68);
 
 			outline: 1px solid var(--ring) !important;
@@ -704,13 +711,14 @@
 
 		/* Clerk-specific form overrides */
 		.cl-formFieldInput {
-			padding: 1.3rem;
+			padding: 0rem;
 			font-size: 0.9rem;
 			font-weight: 300 !important;
 			background: #121212 !important;
 			outline: 1px solid #00fbff2f !important;
 			border: #121212 !important;
 			box-shadow: 1px 2px 3px #121212 !important;
+			height: 0px !important;
 		}
 
 		.cl-formFieldInput::placeholder {

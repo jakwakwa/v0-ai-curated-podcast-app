@@ -571,8 +571,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							// For bundle episodes, use the episode's image_url
 							if ("image_url" in episode && episode.image_url) {
 								return (
-									<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow-[0px_5.607px_5.607px_rgba(0,0,0,0.1),0px_11.2149px_16.8224px_8.4112px_rgba(215, 130, 130, 0.05)] mx-auto max-w-[120px] aspect-square overflow-hidden">
-										<Image src={episode.image_url} alt={episode.title} width={200} height={200} className="object-fit" />
+									<div className="shadow-md shadow-black max-w-[100px] mx-auto aspect-[16/9] shadow-black/40 shadow-xl h-auto w-full shrink-0 rounded-4xl mx-auto max-w-[200px] border-4 border-[#9ecaf5f] overflow-hidden flex justify-center items-center">
+										<div className="overflow-hidden max-w-[200px] h-auto w-full shrink-0 mx-auto max-w-[200px] aspect-[16/12]">
+											<Image src={episode.image_url} alt={episode.title} width={200} height={100} className="outline-2 outline-[#9ecaf53d]  shadow-black shadow-xl object-cover" />
+										</div>
 									</div>
 								);
 							}
@@ -580,8 +582,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							if ("youtube_url" in episode) {
 								if (youtubeChannelImage) {
 									return (
-										<div className="h-auto w-full shrink-0 rounded-[19.8347px] shadow shadow-[0px_12px_30px_#0000003e] mx-auto max-w-[120px] aspect-square overflow-hidden">
-											<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
+										<div className="shadow-md shadow-black max-w-[100px] mx-auto aspect-square shadow-black/40 shadow-xl h-auto w-full shrink-0 rounded-4xl mx-auto max-w-[100px] border-4 border-[#9ecaf5f] overflow-hidden flex">
+											<div className="overflow-hidden max-w-[100px] h-auto w-full shrink-0 mx-auto max-w-[100px] aspect-square">
+												<Image src={youtubeChannelImage} alt={youtubeChannelName || "YouTube Channel"} width={200} height={200} className="w-full h-full object-cover" />
+											</div>
 										</div>
 									);
 								}
@@ -598,10 +602,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 						})()}
 
 					<SheetHeader>
-						<SheetTitle className="line-clamp-2 text-[16.64px] font-bold leading-[1.5] tracking-[0.009375em] text-white/90 text-center px-6 text-shadow-md text-shadow-black">
+						<SheetTitle className="line-clamp-2 text-[16.64px] font-bold leading-[1.5] tracking-[0.009375em] text-slate-300 text-center px-6 mt-4  text-shadow-lg text-shadow-black/30">
 							{episode ? ("title" in episode ? episode.title : episode.episode_title) : "Episode title"}
 						</SheetTitle>
-						<SheetDescription className=" text-[18.69px] font-black leading-[1.72857] tracking-[0.007142em] uppercase text-[#ac95d9] text-center text-shadow-md text-shadow-black">
+						<SheetDescription className=" text-[18.69px] font-black leading-[1.72857] tracking-[0.09142em] uppercase text-[#62f4f9] text-center text-shadow-md text-shadow-black/10">
 							{episode
 								? "title" in episode
 									? (() => {
@@ -621,7 +625,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							<button
 								type="button"
 								onClick={() => setIsTranscriptExpanded(!isTranscriptExpanded)}
-								className="flex items-center gap-1 text-[12px] text-[var(--audio-sheet-foreground)]/90 hover:text-[var(--audio-sheet-foreground)] transition-colors border border-[var(--audio-sheet-border)] rounded-md px-3 py-1 bg-[#261f23]">
+								className="flex items-center gap-1 text-[13px] text-[var(--audio-sheet-foreground)]/90 hover:text-[var(--audio-sheet-foreground)] transition-colors border border-[var(--audio-sheet-border)] rounded-md px-3 py-1 bg-[#7b6bc14f]">
 								{isTranscriptExpanded ? "Hide summary" : "Show summary"}
 								{isTranscriptExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
 							</button>
@@ -630,7 +634,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 				</div>
 				{/* Hero Section ends */}
 
-				<div className="bg-[#00000048] backdrop-blur-xs rounded-none">
+				<div className="bg-[#413e3e47] backdrop-blur-xs rounded-none">
 					{/* Transcript */}
 					<AnimatePresence initial={false}>
 						{episode && isTranscriptExpanded && (normalizedSummary || ("transcript" in episode && episode.transcript)) ? (
@@ -642,13 +646,13 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 								transition={{ type: "spring", stiffness: 260, damping: 30 }}
 								className="flex flex-col gap-[10px]">
 								<div
-									className={`overflow-y-auto rounded-[8px] px-8 py-6 lg:p-[12px] text-[12px] lg:text-[14px] leading-[1.8] text-[var(--audio-sheet-foreground)]/80 transition-all lg:px-10 lg:py-8 ${isTranscriptExpanded ? " max-h-[280px]" : "max-h-[120px]"}`}>
+									className={`overflow-y-auto rounded-[8px] px-8 py-6 lg:p-[12px] text-[12px] lg:text-[14px] leading-[1.8] episode-card-wrapper-dark rounded-sm text-[var(--audio-sheet-foreground)]/80 transition-all lg:px-10 lg:py-8 ${isTranscriptExpanded ? " max-h-[280px]" : "max-h-[120px]"}`}>
 									{normalizedSummary ? (
-										<div className="prose prose-invert max-w-none">
+										<div className="prose prose-invert text-xs max-w-none px-12">
 											<ReactMarkdown remarkPlugins={[remarkGfm]}>{normalizedSummary}</ReactMarkdown>
 										</div>
-									) : "transcript" in episode && episode.transcript ? (
-										<div className="whitespace-pre-wrap">{episode.transcript}</div>
+									) : "transcript" in episode && episode.summary ? (
+										<div className="whitespace-pre-wrap px-12">{episode.summary}</div>
 									) : null}
 								</div>
 							</motion.div>
@@ -656,7 +660,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 					</AnimatePresence>
 				</div>
 
-				<div className="sheet-controls-bg backdrop-blur-md  w-ful h-full flex p-8 flex-col my-0 gap-4 border-t-2 border-t-[#2f2f454a]">
+				<div className=" backdrop-blur-xl  bg-[#00061754] w-full h-full flex p-8 flex-col my-0 gap-4 border-t-2 border-t-[#262646dd]">
 					{/* Controls */}
 					<div className="flex items-center justify-center">
 						<button
@@ -665,8 +669,8 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							aria-pressed={isPlaying}
 							onClick={togglePlayPause}
 							disabled={!resolvedSrc || isLoading}
-							className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[14px] border border-[var(--audio-sheet-border)] bg-[radial-gradient(circle_at_30%_18%,rgba(82,167,151,0.99)_0%,rgba(80,84,205,0.42)_100%)] text-sm font-semibold shadow-[0px_1px_3px_rgba(0,0,0,0.3),0px_4px_8px_3px_rgba(0,0,0,0.15)] transition-all hover:brightness-110 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--audio-sheet-accent)]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--audio-sheet-bg)] disabled:opacity-50 disabled:cursor-not-allowed">
-							{isLoading ? <Loader2 className="h-[18px] w-[18px] animate-spin" /> : isPlaying ? <Pause className="h-[18px] w-[18px]" /> : <Play className="h-[18px] w-[18px]" />}
+							className={`inline-flex h-[48px] w-[48px] items-center justify-center rounded-[14px] border border-[var(--audio-sheet-border)] text-sm font-semibold shadow-sm  shadow-black/30 transition-all hover:brightness-110 active:translate-y-[2px]  disabled:opacity-90 disabled:cursor-not-allowed border-none ${isPlaying ? "bg-[radial-gradient(circle_at_30%_18%,#4c75d6f8_0%,#320576f1_100%)]" : "bg-[radial-gradient(circle_at_30%_18%,#19f8cfc0_0%,#283152ef_100%)] "}`}>
+							{isLoading ? <Loader2 className="h-[18px] w-[18px] animate-spin" color="#1ef5bf80" /> : isPlaying ? <Pause className="h-[18px] w-[18px]" /> : <Play color={"#65d8d6"} className="h-[18px] w-[18px]" />}
 						</button>
 					</div>
 
@@ -684,10 +688,10 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							tabIndex={0}
 							onClick={handleProgressClick}
 							onKeyDown={handleProgressKeyDown}
-							className="group relative h-[7px] w-full outline outline-[#ffffff1e] rounded-[11px] bg-[#080b0f] transition-colors">
+							className="group relative h-[7px] w-full outline outline-[#ffffff1e] rounded-[11px] bg-[#1715312b] transition-colors">
 							<div
 								className="absolute inset-y-0 left-0 rounded-[11px] transition-all"
-								style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg, rgba(91,47,142,1) 0%, rgba(25,178,117,0.81) 40%, rgba(101,199,231,1) 100%)" }}
+								style={{ width: `${progressPercent}%`, background: "linear-gradient(90deg, rgba(91,47,142,1) 0%, rgba(116, 10, 187, 0.81) 40%, #ba65e7 100%)" }}
 							/>
 						</div>
 						<span className="w-[32px] text-center text-[10px] tabular-nums opacity-70">{formattedDuration}</span>
@@ -713,7 +717,7 @@ export const AudioPlayerSheet: FC<AudioPlayerSheetProps> = ({ open, onOpenChange
 							onClick={handleVolumeClick}
 							onKeyDown={handleVolumeKeyDown}
 							className="group relative h-[5px] w-[160px] rounded-[11px] bg-[var(--audio-sheet-border)]/40 transition-colors hover:bg-[var(--audio-sheet-border)]/30">
-							<div className="absolute inset-y-0 left-0 rounded-[11px] bg-[#4f23df] transition-all" style={{ width: `${volumePercent}%` }} />
+							<div className="absolute inset-y-[-1px] left-0 rounded-[11px] bg-[#8e63de] transition-all" style={{ width: `${volumePercent}%` }} />
 						</div>
 					</div>
 				</div>

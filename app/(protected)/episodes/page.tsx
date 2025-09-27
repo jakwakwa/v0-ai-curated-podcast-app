@@ -77,7 +77,7 @@ export default function EpisodesPage() {
 			) : episodes.length === 0 ? (
 				<div className="w-full  max-w-[1000px] mx-auto mt-0">
 					<Alert>
-						<AlertCircle className="h-4 w-4" />
+
 						<AlertTitle>No Episodes Available</AlertTitle>
 						<AlertDescription className="mt-2">There are no episodes available at the moment. Create a personal feed or select a bundle to start getting episodes.</AlertDescription>
 					</Alert>

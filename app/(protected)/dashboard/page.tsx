@@ -175,7 +175,7 @@ export default function CurationProfileManagementPage() {
 				<div className="flex flex-col lg:flex-row gap-4 ">
 					<div className="w-full lg:w-1/2 episode-card-wrapper shadow-2xl shadow-cyan-950">
 						<div className="w-full flex flex-col justify-between pb-0 rounded-2xl ">
-							<CardTitle className="mb-4 max-w-[70%]">Your Bundled Feed</CardTitle>
+							<CardTitle className="mb-4 max-w-[100%]">Your Bundled Feed</CardTitle>
 
 							{/*  */}
 							{userCurationProfile?.is_bundle_selection && userCurationProfile?.selectedBundle && (
